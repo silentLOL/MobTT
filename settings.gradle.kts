@@ -1,6 +1,7 @@
 rootProject.name = "BatMate"
 
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             mavenContent {
@@ -29,3 +30,4 @@ dependencyResolutionManagement {
 
 include(":androidApp")
 include(":shared")
+include(":android:core:design-system")
