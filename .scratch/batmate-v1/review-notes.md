@@ -13,3 +13,15 @@
 - deferred: SKIE Flow and sealed-class conversion is unexercised. Needs a Flow or sealed type, so tickets 06 or 07.
 - deferred: `KoinHelper.start()` takes no `appDeclaration`. Nothing on iOS needs a hook yet.
 - deferred: CI job running `./gradlew check`. No git remote.
+- fixed: Duplicated club-then-association lookup in `ObserveUserContextUseCase`. Extracted `resolveClub`.
+- fixed: Obscure `listOfNotNull().firstOrNull()` in `DataStoreUserSelectionRepository`. Now a plain if/else chain.
+- fixed: Unused `koin.core` in `:domain:club` and `:domain:player`.
+- fixed: Domain depending on `:core:preferences` had no ADR. Added ADR-0004, which also records the `UserContext.None` fallback.
+- fixed: DataStore repository untested, so the replace invariant was only checked against a fake. Added `DataStoreUserSelectionRepositoryTest`.
+- fixed: iOS DataStore file in `NSDocumentDirectory`. Moved to Application Support.
+- declined: Value classes for ids. Adds SKIE friction for little gain in v1.
+- declined: Koin modules for `:domain:club` and `:domain:player`. They hold only models and interfaces, so a module would be empty.
+- declined: Remove `Team`. The ticket asks for it.
+- declined: Expose the raw choice from a use case. The derived `UserContext` is what callers need.
+- deferred: Implementations and Koin bindings for Player, Club and Association repositories. They need the XTTV API ticket.
+- deferred: Test that the store survives a process restart. DataStore forbids two stores on one file in-process.

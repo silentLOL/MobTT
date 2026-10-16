@@ -1,6 +1,8 @@
 package at.stefanirndorfer.batmate.domain.user
 
+import at.stefanirndorfer.batmate.domain.club.Association
 import at.stefanirndorfer.batmate.domain.club.AssociationRepository
+import at.stefanirndorfer.batmate.domain.club.Club
 import at.stefanirndorfer.batmate.domain.club.ClubRepository
 import at.stefanirndorfer.batmate.domain.player.PlayerRepository
 import kotlinx.coroutines.flow.Flow
@@ -20,20 +22,24 @@ class ObserveUserContextUseCase(
         when (selection) {
             UserSelection.None -> UserContext.None
             is UserSelection.MyPlayer -> resolvePlayer(selection.playerId)
-            is UserSelection.MyClub -> resolveClub(selection.clubId)
+            is UserSelection.MyClub -> resolveMyClub(selection.clubId)
         }
     }
 
     private suspend fun resolvePlayer(playerId: String): UserContext {
         val player = playerRepository.getPlayer(playerId) ?: return UserContext.None
-        val club = clubRepository.getClub(player.clubId) ?: return UserContext.None
-        val association = associationRepository.getAssociation(club.associationId) ?: return UserContext.None
+        val (club, association) = resolveClub(player.clubId) ?: return UserContext.None
         return UserContext.MyPlayer(player, club, association)
     }
 
-    private suspend fun resolveClub(clubId: String): UserContext {
-        val club = clubRepository.getClub(clubId) ?: return UserContext.None
-        val association = associationRepository.getAssociation(club.associationId) ?: return UserContext.None
+    private suspend fun resolveMyClub(clubId: String): UserContext {
+        val (club, association) = resolveClub(clubId) ?: return UserContext.None
         return UserContext.MyClub(club, association)
+    }
+
+    private suspend fun resolveClub(clubId: String): Pair<Club, Association>? {
+        val club = clubRepository.getClub(clubId) ?: return null
+        val association = associationRepository.getAssociation(club.associationId) ?: return null
+        return club to association
     }
 }

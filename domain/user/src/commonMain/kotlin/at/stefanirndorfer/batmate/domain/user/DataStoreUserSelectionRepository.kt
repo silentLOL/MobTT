@@ -16,10 +16,13 @@ internal class DataStoreUserSelectionRepository(
     override fun observeSelection(): Flow<UserSelection> = dataStore.data.map { preferences ->
         val playerId = preferences[playerIdKey]
         val clubId = preferences[clubIdKey]
-        listOfNotNull(
-            playerId?.let { UserSelection.MyPlayer(it) },
-            clubId?.let { UserSelection.MyClub(it) },
-        ).firstOrNull() ?: UserSelection.None
+        if (playerId != null) {
+            UserSelection.MyPlayer(playerId)
+        } else if (clubId != null) {
+            UserSelection.MyClub(clubId)
+        } else {
+            UserSelection.None
+        }
     }
 
     // One transaction clears the other key, so a reader never sees both set.
