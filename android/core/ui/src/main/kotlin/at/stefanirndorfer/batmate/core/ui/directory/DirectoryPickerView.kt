@@ -8,6 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import at.stefanirndorfer.batmate.core.localization.R
+import at.stefanirndorfer.batmate.core.ui.directory.models.DirectoryEntryUi
+import at.stefanirndorfer.batmate.core.ui.directory.models.DirectorySectionUi
 import at.stefanirndorfer.batmate.designsystem.icon.BatIcon
 import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
@@ -15,19 +17,6 @@ import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatSelectableRow
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatTextField
-
-data class DirectoryEntryUi(
-    val id: String,
-    val title: String,
-    val subtitle: String?,
-    val selected: Boolean,
-)
-
-/** A null [title] shows the entries without a section header. */
-data class DirectorySectionUi(
-    val title: String?,
-    val entries: List<DirectoryEntryUi>,
-)
 
 /** Shows one "no matches" message when every section is empty, so a search that found nothing says so. */
 @Composable

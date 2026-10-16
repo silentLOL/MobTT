@@ -32,3 +32,16 @@
 - declined: Value classes and `Favorite.id` as `String`. Same reason as the earlier ledger entry.
 - declined: Remove `Favorite.Team` and `Favorite.Club`. The ticket asks for them.
 - declined: Koin resolution test for the Favorites repository. Covered by the deferred repository bindings entry.
+- fixed: Bottom sheets used the surface colour instead of the flat app background (§9). Now `BatDesign.colors.background`.
+- fixed: `DirectoryEntryUi` and `DirectorySectionUi` sat in a view file. Moved to `directory/models` (§5).
+- fixed: Dead `home_empty_*` strings. Removed before the review ran.
+- declined: Shared sheet header and sheet scaffold. Two copies, third screen would trigger it.
+- declined: Extract `UserContext` mapping and picker plumbing shared by Home and Settings ViewModels. Two copies, different state shapes.
+- declined: `PickerKind` and `DerivedFrom` switch repetition, `entryRole` and section-index hooks. Small, two callers.
+- declined: Tablet width not constrained. `BatScreenScaffold` caps content at `maxContentWidth` and the shell uses it.
+- declined: Favorite rows not tappable. Club and Players destinations are still empty states.
+- declined: Favorites picker and system-bar styling as scope creep. Add needs a way to choose; bar style is needed for the appearance override to look right.
+- declined: `toggle` reads Favorites outside `uiState`. Single read in one coroutine, no observable race.
+- deferred: System-theme flash on cold start before the stored appearance loads. Needs a splash or synchronous read.
+- deferred: Release build cannot resolve the directory repositories. Recorded in ADR-0005, resolved by the real-repository ticket.
+- deferred: Feature-module previews are not rendered by `check`. Needs Roborazzi set up per feature module.

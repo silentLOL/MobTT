@@ -1,6 +1,6 @@
 package at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models
 
-import at.stefanirndorfer.batmate.core.ui.directory.DirectoryEntryUi
+import at.stefanirndorfer.batmate.core.ui.directory.models.DirectoryEntryUi
 import at.stefanirndorfer.batmate.domain.user.ResolvedFavorite
 
 sealed interface HomeSelectionUi {

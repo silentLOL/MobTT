@@ -2,7 +2,7 @@ package at.stefanirndorfer.batmate.feature.settings.impl.presentation.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import at.stefanirndorfer.batmate.core.ui.directory.DirectoryEntryUi
+import at.stefanirndorfer.batmate.core.ui.directory.models.DirectoryEntryUi
 import at.stefanirndorfer.batmate.domain.club.SearchClubsUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.batmate.domain.user.SearchPlayersUseCase

@@ -1,6 +1,6 @@
 package at.stefanirndorfer.batmate.feature.settings.impl.presentation.settings.models
 
-import at.stefanirndorfer.batmate.core.ui.directory.DirectoryEntryUi
+import at.stefanirndorfer.batmate.core.ui.directory.models.DirectoryEntryUi
 import at.stefanirndorfer.batmate.feature.settings.api.Appearance
 
 enum class PickerKind {

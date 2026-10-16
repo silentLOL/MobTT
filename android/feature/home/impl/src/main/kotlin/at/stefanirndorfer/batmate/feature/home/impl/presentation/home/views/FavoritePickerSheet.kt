@@ -17,9 +17,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import at.stefanirndorfer.batmate.core.localization.R
-import at.stefanirndorfer.batmate.core.ui.directory.DirectoryEntryUi
 import at.stefanirndorfer.batmate.core.ui.directory.DirectoryPickerView
-import at.stefanirndorfer.batmate.core.ui.directory.DirectorySectionUi
+import at.stefanirndorfer.batmate.core.ui.directory.models.DirectoryEntryUi
+import at.stefanirndorfer.batmate.core.ui.directory.models.DirectorySectionUi
 import at.stefanirndorfer.batmate.designsystem.icon.BatIcon
 import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
@@ -39,7 +39,7 @@ fun FavoritePickerSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = BatDesign.colors.surface,
+        containerColor = BatDesign.colors.background,
     ) {
         FavoritePickerContent(
             picker = picker,
