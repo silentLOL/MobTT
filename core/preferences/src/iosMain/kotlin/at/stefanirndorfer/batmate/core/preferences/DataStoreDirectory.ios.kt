@@ -1,0 +1,19 @@
+package at.stefanirndorfer.batmate.core.preferences
+
+import kotlinx.cinterop.ExperimentalForeignApi
+import org.koin.core.scope.Scope
+import platform.Foundation.NSDocumentDirectory
+import platform.Foundation.NSFileManager
+import platform.Foundation.NSUserDomainMask
+
+@OptIn(ExperimentalForeignApi::class)
+internal actual fun Scope.dataStoreDirectory(): String {
+    val directory = NSFileManager.defaultManager.URLForDirectory(
+        directory = NSDocumentDirectory,
+        inDomain = NSUserDomainMask,
+        appropriateForURL = null,
+        create = true,
+        error = null,
+    )
+    return requireNotNull(directory?.path) { "Documents directory unavailable" }
+}

@@ -10,6 +10,9 @@ kotlin {
             isStatic = true
             export(project(":core:di"))
             export(project(":domain:app"))
+            export(project(":domain:user"))
+            export(project(":domain:club"))
+            export(project(":domain:player"))
         }
     }
 
@@ -17,5 +20,8 @@ kotlin {
         api(project(":core:di"))
         implementation(libs.koin.core)
         api(project(":domain:app"))
+        api(project(":domain:user"))
+        api(project(":domain:club"))
+        api(project(":domain:player"))
     }
 }
