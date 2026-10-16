@@ -19,6 +19,20 @@ val checkConventions by tasks.registering(Exec::class) {
 }
 
 tasks.check {
+    dependsOn(installGitHooks)
     dependsOn(checkConventions)
     dependsOn(subprojects.map { "${it.path}:ktlintCheck" })
+}
+
+val installGitHooks by tasks.registering(Exec::class) {
+    commandLine("git", "config", "core.hooksPath", ".githooks")
+    isIgnoreExitValue = true
+}
+
+allprojects {
+    tasks.configureEach {
+        if (name == "preBuild" || name.startsWith("compileKotlin")) {
+            dependsOn(rootProject.tasks.named("installGitHooks"))
+        }
+    }
 }
