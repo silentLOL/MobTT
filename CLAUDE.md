@@ -1,5 +1,7 @@
 # Agent Context: KMP Shared Domain Library
 
+Verification commands (Gradle, `xcodebuild`): [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md). Run the iOS build after touching `iosApp/` or `shared-umbrella/`.
+
 ## 1. Project Philosophy
 This project is a Kotlin Multiplatform (KMP) application using a Shared Domain Library pattern. We share the "Business Rules" and "Infrastructure," but we keep the "User Experience" and "State Logic" 100% native.
 

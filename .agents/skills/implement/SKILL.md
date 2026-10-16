@@ -6,12 +6,12 @@ disable-model-invocation: true
 
 Implement the work described by the user in the spec or tickets.
 
+Before changing anything, record the base with `git rev-parse HEAD`.
+
 If the user passes a ticket reference, fetch it from the issue tracker and state its title before starting. If the reference is ambiguous, ask.
 
 Call the Skill tool with "tdd" where possible, at pre-agreed seams.
 
-Run typechecking regularly, single test files regularly, and the full test suite once at the end.
+Run typechecking regularly, single test files regularly, and the full test suite once at the end. Commands live in `docs/DEVELOPMENT.md`; run the iOS build when the work touches `iosApp/` or `shared-umbrella/`.
 
-Once done, call the Skill tool with "code-review" to review the work.
-
-Commit your work to the current branch.
+Commit your work to the current branch, then call the Skill tool with "code-review" against the recorded base so the review sees exactly this work.
