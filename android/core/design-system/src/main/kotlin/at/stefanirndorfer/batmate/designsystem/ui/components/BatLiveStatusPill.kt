@@ -23,6 +23,8 @@ import androidx.compose.ui.draw.clip
 import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
+import at.stefanirndorfer.batmate.designsystem.theme.liveContainerColors
+import at.stefanirndorfer.batmate.designsystem.theme.neutralContainerColors
 
 /** The pulse only decorates a live pill; the text carries the state for assistive technology. */
 @Composable
@@ -32,15 +34,10 @@ fun BatLiveStatusPill(
     modifier: Modifier = Modifier,
 ) {
     val colors = BatDesign.colors
-    val container = if (isLive) {
-        colors.liveContainer
+    val (container, content) = if (isLive) {
+        colors.liveContainerColors
     } else {
-        colors.surfaceMuted
-    }
-    val content = if (isLive) {
-        colors.onLiveContainer
-    } else {
-        colors.textSecondary
+        colors.neutralContainerColors
     }
     Row(
         modifier = modifier

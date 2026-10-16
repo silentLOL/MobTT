@@ -51,7 +51,7 @@ fun BatNavigationBar(
     }
 }
 
-/** [showsLiveIndicator] is purely decorative; convey live state through [label] if it matters. */
+/** [showsLiveIndicator] is decorative; convey live state through [label]. */
 @Composable
 fun BatNavigationItem(
     @DrawableRes icon: Int,

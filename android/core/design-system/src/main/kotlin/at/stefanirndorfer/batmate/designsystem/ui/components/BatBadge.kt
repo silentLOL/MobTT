@@ -8,11 +8,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.batmate.designsystem.theme.BatColors
+import at.stefanirndorfer.batmate.designsystem.theme.BatContainerColors
 import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
+import at.stefanirndorfer.batmate.designsystem.theme.brandContainerColors
+import at.stefanirndorfer.batmate.designsystem.theme.liveContainerColors
+import at.stefanirndorfer.batmate.designsystem.theme.neutralContainerColors
+import at.stefanirndorfer.batmate.designsystem.theme.warningContainerColors
 
 enum class BatBadgeStyle {
     BRAND,
@@ -39,11 +43,11 @@ fun BatBadge(
     )
 }
 
-private fun BatBadgeStyle.colors(colors: BatColors): Pair<Color, Color> = when (this) {
-    BatBadgeStyle.BRAND -> colors.brandContainer to colors.onBrandContainer
-    BatBadgeStyle.WARNING -> colors.warningContainer to colors.onWarningContainer
-    BatBadgeStyle.LIVE -> colors.liveContainer to colors.onLiveContainer
-    BatBadgeStyle.NEUTRAL -> colors.surfaceMuted to colors.textSecondary
+private fun BatBadgeStyle.colors(colors: BatColors): BatContainerColors = when (this) {
+    BatBadgeStyle.BRAND -> colors.brandContainerColors
+    BatBadgeStyle.WARNING -> colors.warningContainerColors
+    BatBadgeStyle.LIVE -> colors.liveContainerColors
+    BatBadgeStyle.NEUTRAL -> colors.neutralContainerColors
 }
 
 @BatScreenPreview

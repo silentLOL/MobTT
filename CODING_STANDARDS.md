@@ -9,6 +9,7 @@ Enforced by tooling, so a green `./gradlew check` covers them: formatting and im
 * **Enum Naming Convention**: Enum values MUST always be defined in UPPER_CASE (e.g., `Status.ACTIVE`, `TaskType.TODO`).
 * **Feature Folder Layout**: A screen's folder holds only the screen and its ViewModel (or the controller/model that drives it). Everything else goes into subfolders: `Views/` for views, `Models/` for presentation models and UI state, `Formatting/` for formatters, `PreviewContent/` for preview data (Kotlin packages lowercase: `views`, `models`, `formatting`, `preview`). Each screen gets its own folder, never a `Views/` folder, e.g. iOS `DetailFeature/Booking/`, Android `presentation/timeslot/`.
 * **Screen/View Naming Convention**: Full-screen SwiftUI views / Jetpack Compose composables MUST be suffixed `Screen` (e.g. `OfferDetailScreen`). Smaller reusable components/views MUST be suffixed `View` (e.g. `PeriodInfoView`). Applies on both iOS and Android.
+  * *Design-system exception:* `:android:core:design-system` components are named by role without the suffix (`BatCard`, `BatPrimaryButton`). `View` appears only where the bare name is taken by a token object (`BatIconView` beside `BatIcon`) or reads as a data type (`BatStatView`, `BatFormResultView`).
 * **Braced Control Flow**: Every `if`/`else` body is a braced block on its own lines, including early returns, statements inside lambdas, and `if` used as an expression:
   ```kotlin
   if (isBooking) {

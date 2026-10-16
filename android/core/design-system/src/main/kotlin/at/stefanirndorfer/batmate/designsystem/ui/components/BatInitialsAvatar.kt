@@ -9,16 +9,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.batmate.designsystem.theme.BatColors
+import at.stefanirndorfer.batmate.designsystem.theme.BatContainerColors
 import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
+import at.stefanirndorfer.batmate.designsystem.theme.brandContainerColors
+import at.stefanirndorfer.batmate.designsystem.theme.liveContainerColors
 
 enum class BatAvatarTint {
     BRAND,
-    ACCENT,
+    LIVE,
 }
 
 /** Decorative: the adjacent name already identifies the person, so it is hidden from accessibility services. */
@@ -40,9 +42,9 @@ fun BatInitialsAvatar(
     }
 }
 
-private fun BatAvatarTint.colors(colors: BatColors): Pair<Color, Color> = when (this) {
-    BatAvatarTint.BRAND -> colors.brandContainer to colors.onBrandContainer
-    BatAvatarTint.ACCENT -> colors.liveContainer to colors.onLiveContainer
+private fun BatAvatarTint.colors(colors: BatColors): BatContainerColors = when (this) {
+    BatAvatarTint.BRAND -> colors.brandContainerColors
+    BatAvatarTint.LIVE -> colors.liveContainerColors
 }
 
 @BatScreenPreview
@@ -51,7 +53,7 @@ private fun BatInitialsAvatarPreview() {
     BatPreviewSurface {
         Row(horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.md)) {
             BatInitialsAvatar(initials = "MH")
-            BatInitialsAvatar(initials = "SF", tint = BatAvatarTint.ACCENT)
+            BatInitialsAvatar(initials = "SF", tint = BatAvatarTint.LIVE)
         }
     }
 }

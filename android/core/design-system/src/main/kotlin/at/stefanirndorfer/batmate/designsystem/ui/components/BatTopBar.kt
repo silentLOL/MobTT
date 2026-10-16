@@ -43,7 +43,6 @@ fun BatLogoMark(modifier: Modifier = Modifier) {
     }
 }
 
-/** [badge] and [subtitle] are optional secondary lines; [actions] are laid out end-aligned. */
 @Composable
 fun BatTopBar(
     title: String,
