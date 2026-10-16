@@ -2,17 +2,17 @@ package at.stefanirndorfer.batmate.designsystem.ui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
-import androidx.compose.material3.Text
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
+import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
 import at.stefanirndorfer.batmate.designsystem.theme.BatTheme
 
 /** Content is capped at [at.stefanirndorfer.batmate.designsystem.theme.BatSizing.maxContentWidth] and centred on wide screens. */

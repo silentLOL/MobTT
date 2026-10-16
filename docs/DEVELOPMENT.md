@@ -2,6 +2,17 @@
 
 Run the multi-target Gradle commands in the background; a cold run exceeds two minutes.
 
+## Static checks
+
+```sh
+./gradlew check            # ktlint on every module plus scripts/check-conventions.sh
+./gradlew ktlintFormat    # auto-fix formatting and import order
+```
+
+`scripts/check-conventions.sh` enforces the mechanical CLAUDE.md rules: a `@BatScreenPreview` per Composable file, no dp literals in design-system components, icons only through `BatIcon`, braced `if`/`else`. Formatting settings live in `.editorconfig`.
+
+Install the pre-commit hook once per clone: `git config core.hooksPath .githooks`.
+
 ## Shared and Android
 
 ```sh

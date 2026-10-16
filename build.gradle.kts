@@ -1,4 +1,5 @@
 plugins {
+    base
     // this is necessary to avoid the plugins to be loaded multiple times
     // in each subproject's classloader
     alias(libs.plugins.androidApplication) apply false
@@ -6,4 +7,18 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.skie) apply false
+    alias(libs.plugins.ktlint) apply false
+}
+
+subprojects {
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+}
+
+val checkConventions by tasks.registering(Exec::class) {
+    commandLine("./scripts/check-conventions.sh")
+}
+
+tasks.check {
+    dependsOn(checkConventions)
+    dependsOn(subprojects.map { "${it.path}:ktlintCheck" })
 }

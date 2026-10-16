@@ -11,9 +11,7 @@ private val sharedModules = listOf(
     appDomainModule,
 )
 
-fun initKoin(appDeclaration: KoinAppDeclaration = {}): KoinApplication {
-    return startKoin {
-        appDeclaration()
-        modules(sharedModules)
-    }
+fun initKoin(appDeclaration: KoinAppDeclaration = {}): KoinApplication = startKoin {
+    appDeclaration()
+    modules(sharedModules)
 }

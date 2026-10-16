@@ -16,15 +16,20 @@ internal val LocalBatSizing = staticCompositionLocalOf { BatSizing() }
 
 object BatDesign {
     val colors: BatColors
-        @Composable @ReadOnlyComposable get() = LocalBatColors.current
+        @Composable @ReadOnlyComposable
+        get() = LocalBatColors.current
     val typography: BatTypography
-        @Composable @ReadOnlyComposable get() = LocalBatTypography.current
+        @Composable @ReadOnlyComposable
+        get() = LocalBatTypography.current
     val spacing: BatSpacing
-        @Composable @ReadOnlyComposable get() = LocalBatSpacing.current
+        @Composable @ReadOnlyComposable
+        get() = LocalBatSpacing.current
     val shapes: BatShapes
-        @Composable @ReadOnlyComposable get() = LocalBatShapes.current
+        @Composable @ReadOnlyComposable
+        get() = LocalBatShapes.current
     val sizing: BatSizing
-        @Composable @ReadOnlyComposable get() = LocalBatSizing.current
+        @Composable @ReadOnlyComposable
+        get() = LocalBatSizing.current
 }
 
 @Composable
