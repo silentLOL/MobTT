@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.unit.dp
 import at.stefanirndorfer.batmate.designsystem.icon.BatIcon
 import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
@@ -46,9 +45,9 @@ fun BatTextField(
         colors.borderInput
     }
     val borderWidth = if (isFocused) {
-        2.dp
+        BatDesign.sizing.borderFocused
     } else {
-        1.dp
+        BatDesign.sizing.borderThin
     }
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.xs)) {

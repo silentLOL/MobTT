@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
 import at.stefanirndorfer.batmate.designsystem.theme.BatTheme
 import at.stefanirndorfer.batmate.designsystem.ui.components.batContentBackground
 
@@ -16,7 +16,7 @@ fun BatPreviewSurface(content: @Composable () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .batContentBackground()
-                .padding(16.dp),
+                .padding(BatDesign.spacing.lg),
         ) {
             content()
         }
