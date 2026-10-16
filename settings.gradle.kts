@@ -38,3 +38,10 @@ include(":domain:player")
 include(":domain:user")
 include(":shared-umbrella")
 include(":android:core:design-system")
+include(":android:core:localization")
+include(":android:feature:navigation")
+for (feature in listOf("home", "club", "players", "live", "settings")) {
+    include(":android:feature:$feature:api")
+    include(":android:feature:$feature:impl")
+}
+include(":android:core:ui")

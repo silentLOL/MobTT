@@ -6,6 +6,8 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 class AndroidLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
@@ -26,6 +28,10 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             buildFeatures {
                 compose = true
             }
+        }
+
+        tasks.withType<KotlinCompile>().configureEach {
+            compilerOptions.optIn.add("androidx.compose.material3.ExperimentalMaterial3Api")
         }
 
         dependencies {

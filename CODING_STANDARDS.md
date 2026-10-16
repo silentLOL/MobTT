@@ -39,6 +39,8 @@ Custom multi-preview annotations live in `:android:core:design-system`.
 
 **Mandatory:** every new or changed Composable view, screen or component, must ship with a `@BatScreenPreview` preview. A commit adding a Composable without one is incomplete. Cover the meaningfully distinct UI states (e.g. loading/loaded/error, selected/unselected), not just the default.
 
+Effect-only wrappers that draw nothing (`ObserveAsEvents`) are exempt, and are listed in `scripts/check-conventions.sh`.
+
 ```kotlin
 @BatScreenPreview
 @Composable

@@ -12,12 +12,22 @@ kotlin {
 }
 dependencies {
     implementation(project(":core:di"))
-    implementation(project(":domain:app"))
+    implementation(project(":android:core:design-system"))
+    implementation(project(":android:core:localization"))
+    implementation(project(":android:feature:navigation"))
+    for (feature in listOf("home", "club", "players", "live", "settings")) {
+        implementation(project(":android:feature:$feature:api"))
+        implementation(project(":android:feature:$feature:impl"))
+    }
     implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.foundation)
-
+    implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.compose.runtime)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    implementation(libs.androidx.navigation3.ui)
 }
 
 android {

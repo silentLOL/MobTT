@@ -20,7 +20,7 @@ kotlin_sources() {
 # §10: every file declaring a Composable ships a @BatScreenPreview.
 for file in $(android_sources); do
   case "$file" in
-    */designsystem/theme/* | */designsystem/preview/*) continue ;;
+    */designsystem/theme/* | */designsystem/preview/* | */core/ui/*/ObserveAsEvents.kt) continue ;;
   esac
   if grep -q '^@Composable' "$file" && ! grep -q '@BatScreenPreview' "$file"; then
     fail "$file: declares a @Composable without a @BatScreenPreview (CLAUDE.md §10)"

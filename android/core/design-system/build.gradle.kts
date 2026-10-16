@@ -20,6 +20,7 @@ roborazzi {
 }
 
 dependencies {
+    implementation(project(":android:core:localization"))
     implementation(libs.androidx.compose.material3)
 
     testImplementation(libs.junit)

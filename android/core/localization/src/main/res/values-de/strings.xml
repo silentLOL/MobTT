@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_app_title">Bat Mate</string>
+    <string name="core_tab_home_label">Start</string>
+    <string name="core_tab_club_label">Verein</string>
+    <string name="core_tab_players_label">Spieler</string>
+    <string name="core_tab_live_label">Live</string>
+    <string name="core_settings_button_cd">Einstellungen</string>
+    <string name="core_close_button_cd">Schließen</string>
+
+    <string name="home_empty_title">Willkommen bei Bat Mate</string>
+    <string name="home_empty_body">Deine Ergebnisse, Form und nächste Begegnung erscheinen hier.</string>
+    <string name="club_empty_title">Noch kein Verein</string>
+    <string name="club_empty_body">Dein Verein, seine Mannschaften und die Ligatabellen erscheinen hier.</string>
+    <string name="players_empty_title">Spieler finden</string>
+    <string name="players_empty_body">Suche Spieler nach Name oder Verein, um ihre Ergebnisse zu verfolgen.</string>
+    <string name="live_empty_title">Gerade nichts live</string>
+    <string name="live_empty_body">Laufende Begegnungen erscheinen hier, sobald sie gespielt werden.</string>
+
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_appearance_title">Darstellung</string>
+    <string name="settings_appearance_system_option">System folgen</string>
+    <string name="settings_appearance_light_option">Hell</string>
+    <string name="settings_appearance_dark_option">Dunkel</string>
+    <string name="settings_done_button">Fertig</string>
+</resources>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_app_title">Bat Mate</string>
+    <string name="core_tab_home_label">Home</string>
+    <string name="core_tab_club_label">Club</string>
+    <string name="core_tab_players_label">Players</string>
+    <string name="core_tab_live_label">Live</string>
+    <string name="core_settings_button_cd">Settings</string>
+    <string name="core_close_button_cd">Close</string>
+
+    <string name="home_empty_title">Welcome to Bat Mate</string>
+    <string name="home_empty_body">Your results, form and next Fixture will show up here.</string>
+    <string name="club_empty_title">No Club yet</string>
+    <string name="club_empty_body">Your Club, its Teams and the League tables will show up here.</string>
+    <string name="players_empty_title">Find a Player</string>
+    <string name="players_empty_body">Search Players by name or Club to follow their results.</string>
+    <string name="live_empty_title">Nothing live right now</string>
+    <string name="live_empty_body">Fixtures in progress will show up here as they are played.</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_appearance_title">Appearance</string>
+    <string name="settings_appearance_system_option">Follow system</string>
+    <string name="settings_appearance_light_option">Light</string>
+    <string name="settings_appearance_dark_option">Dark</string>
+    <string name="settings_done_button">Done</string>
+</resources>

@@ -6,6 +6,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
+import at.stefanirndorfer.batmate.core.localization.InterFontFamily
 
 @Immutable
 class BatTypography(
@@ -21,8 +22,7 @@ class BatTypography(
     val score: TextStyle,
 )
 
-// TODO: bundle the Inter family used by the prototype instead of the system default.
-internal fun defaultBatTypography(fontFamily: FontFamily = FontFamily.Default) = BatTypography(
+internal fun defaultBatTypography(fontFamily: FontFamily = InterFontFamily) = BatTypography(
     display = style(fontFamily, 24.sp, 32.sp, FontWeight.Bold),
     headline = style(fontFamily, 20.sp, 28.sp, FontWeight.Bold),
     title = style(fontFamily, 18.sp, 28.sp, FontWeight.Bold),
