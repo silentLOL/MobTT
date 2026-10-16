@@ -68,3 +68,22 @@ private fun BatCardPreview() {
         }
     }
 }
+
+@BatScreenPreview
+@Composable
+private fun BatCardContentPreview() {
+    BatPreviewSurface {
+        BatCard(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {},
+            contentPadding = PaddingValues(BatDesign.spacing.xl),
+        ) {
+            Text("Match day", style = BatDesign.typography.bodyStrong)
+            Text(
+                "A longer description that wraps onto several lines so the padding and border can be checked at larger font scales.",
+                color = BatDesign.colors.textSecondary,
+                style = BatDesign.typography.body,
+            )
+        }
+    }
+}

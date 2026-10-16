@@ -117,3 +117,21 @@ private fun BatTopBarPreview() {
         }
     }
 }
+
+@BatScreenPreview
+@Composable
+private fun BatTopBarLongContentPreview() {
+    BatPreviewSurface {
+        Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.md)) {
+            BatTopBar(
+                title = "Bat Mate Championship Overview",
+                badge = "Pro",
+                subtitle = "Lower Austrian Table Tennis Association, Division 1 West",
+                actions = {
+                    BatIconButton(icon = BatIcon.Settings, contentDescription = "Settings", onClick = {})
+                },
+            )
+            BatTopBar(title = "Bat Mate", badge = "Beta")
+        }
+    }
+}

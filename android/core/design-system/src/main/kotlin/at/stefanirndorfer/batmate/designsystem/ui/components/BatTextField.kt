@@ -104,3 +104,19 @@ private fun BatTextFieldPreview() {
         }
     }
 }
+
+@BatScreenPreview
+@Composable
+private fun BatTextFieldStatesPreview() {
+    BatPreviewSurface {
+        Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.md)) {
+            BatTextField(value = "", onValueChange = {}, label = "My club", placeholder = "Search clubs")
+            BatTextField(
+                value = "Union Tischtennisclub Wien Donaustadt Allstars",
+                onValueChange = {},
+                label = "My club",
+                leadingIcon = BatIcon.Club,
+            )
+        }
+    }
+}

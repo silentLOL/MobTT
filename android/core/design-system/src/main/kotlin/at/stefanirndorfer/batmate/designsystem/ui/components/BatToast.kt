@@ -3,6 +3,7 @@ package at.stefanirndorfer.batmate.designsystem.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,5 +45,16 @@ fun BatToast(
 private fun BatToastPreview() {
     BatPreviewSurface {
         BatToast(message = "Settings saved")
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun BatToastLongMessagePreview() {
+    BatPreviewSurface {
+        BatToast(
+            message = "Your favourite players were saved and will be synced the next time you are online",
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
