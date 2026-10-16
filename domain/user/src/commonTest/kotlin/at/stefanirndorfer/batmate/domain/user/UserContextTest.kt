@@ -6,8 +6,6 @@ import at.stefanirndorfer.batmate.domain.club.Club
 import at.stefanirndorfer.batmate.domain.club.ClubRepository
 import at.stefanirndorfer.batmate.domain.player.Player
 import at.stefanirndorfer.batmate.domain.player.PlayerRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -17,16 +15,6 @@ private val wttv = Association("a1", "WTTV")
 private val olympic = Club("c1", "TTC Olympic", associationId = "a1")
 private val anna = Player("p1", "Anna", clubId = "c1")
 private val orphan = Player("p2", "Orphan", clubId = "missing")
-
-private class FakeSelectionRepository : UserSelectionRepository {
-    private val selection = MutableStateFlow<UserSelection>(UserSelection.None)
-
-    override fun observeSelection(): Flow<UserSelection> = selection
-
-    override suspend fun saveSelection(selection: UserSelection) {
-        this.selection.value = selection
-    }
-}
 
 private class FakeDirectory :
     PlayerRepository,

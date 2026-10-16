@@ -25,3 +25,10 @@
 - declined: Expose the raw choice from a use case. The derived `UserContext` is what callers need.
 - deferred: Implementations and Koin bindings for Player, Club and Association repositories. They need the XTTV API ticket.
 - deferred: Test that the store survives a process restart. DataStore forbids two stores on one file in-process.
+- fixed: UseCase-seam test that changing My Player and My Club leaves Favorites untouched. Added to `FavoritesTest`.
+- fixed: ADR-0004 did not cover Favorites. Extended it.
+- fixed: Kind-to-string mapping in two places in `DataStoreFavoritesRepository`. One `FavoriteKind` table now drives encode and decode.
+- fixed: `add` and `remove` duplicated the edit. Shared `update` helper.
+- declined: Value classes and `Favorite.id` as `String`. Same reason as the earlier ledger entry.
+- declined: Remove `Favorite.Team` and `Favorite.Club`. The ticket asks for them.
+- declined: Koin resolution test for the Favorites repository. Covered by the deferred repository bindings entry.

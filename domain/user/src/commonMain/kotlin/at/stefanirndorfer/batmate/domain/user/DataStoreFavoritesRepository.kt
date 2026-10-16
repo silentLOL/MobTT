@@ -10,9 +10,18 @@ import kotlinx.coroutines.flow.map
 private val favoritesKey = stringSetPreferencesKey("favorites")
 
 private const val KIND_SEPARATOR = ':'
-private const val PLAYER_KIND = "player"
-private const val TEAM_KIND = "team"
-private const val CLUB_KIND = "club"
+
+private enum class FavoriteKind(val key: String, val create: (String) -> Favorite) {
+    PLAYER("player", Favorite::Player),
+    TEAM("team", Favorite::Team),
+    CLUB("club", Favorite::Club),
+}
+
+private fun Favorite.kind(): FavoriteKind = when (this) {
+    is Favorite.Player -> FavoriteKind.PLAYER
+    is Favorite.Team -> FavoriteKind.TEAM
+    is Favorite.Club -> FavoriteKind.CLUB
+}
 
 internal class DataStoreFavoritesRepository(
     private val dataStore: DataStore<Preferences>,
@@ -21,37 +30,22 @@ internal class DataStoreFavoritesRepository(
         preferences[favoritesKey].orEmpty().mapNotNull(::decode).toSet()
     }
 
-    override suspend fun add(favorite: Favorite) {
+    override suspend fun add(favorite: Favorite) = update { it + encode(favorite) }
+
+    override suspend fun remove(favorite: Favorite) = update { it - encode(favorite) }
+
+    private suspend fun update(transform: (Set<String>) -> Set<String>) {
         dataStore.edit { preferences ->
-            preferences[favoritesKey] = preferences[favoritesKey].orEmpty() + encode(favorite)
+            preferences[favoritesKey] = transform(preferences[favoritesKey].orEmpty())
         }
     }
 
-    override suspend fun remove(favorite: Favorite) {
-        dataStore.edit { preferences ->
-            preferences[favoritesKey] = preferences[favoritesKey].orEmpty() - encode(favorite)
-        }
-    }
-
-    private fun encode(favorite: Favorite): String {
-        val kind = when (favorite) {
-            is Favorite.Player -> PLAYER_KIND
-            is Favorite.Team -> TEAM_KIND
-            is Favorite.Club -> CLUB_KIND
-        }
-        return "$kind$KIND_SEPARATOR${favorite.id}"
-    }
+    private fun encode(favorite: Favorite): String = "${favorite.kind().key}$KIND_SEPARATOR${favorite.id}"
 
     // Unknown kinds are dropped so a newer app version's entries never crash an older one.
     private fun decode(entry: String): Favorite? {
-        val id = entry.substringAfter(KIND_SEPARATOR)
-        val factory = favoriteFactories[entry.substringBefore(KIND_SEPARATOR)]
-        return factory?.invoke(id)
+        val key = entry.substringBefore(KIND_SEPARATOR)
+        val kind = FavoriteKind.entries.firstOrNull { it.key == key }
+        return kind?.create(entry.substringAfter(KIND_SEPARATOR))
     }
-
-    private val favoriteFactories: Map<String, (String) -> Favorite> = mapOf(
-        PLAYER_KIND to Favorite::Player,
-        TEAM_KIND to Favorite::Team,
-        CLUB_KIND to Favorite::Club,
-    )
 }

@@ -1,4 +1,4 @@
-# ADR-0004: User selection persistence lives in `:domain:user`
+# ADR-0004: User selection and Favorites persistence live in `:domain:user`
 
 **Status:** Accepted
 **Date:** 2026-10-16
@@ -8,7 +8,7 @@
 My Player and My Club must survive restarts. CLAUDE.md §1 shares the Data Layer (repositories) alongside the Domain Layer, and v1 stores them with DataStore through `:core:preferences`.
 
 ## Decision
-We will keep only the chosen id in DataStore, inside `:domain:user`'s `DataStoreUserSelectionRepository`, behind the `UserSelectionRepository` interface. `:domain:user` depends on `:core:preferences`, which only provides the `DataStore<Preferences>`. Club and Association are always derived by `ObserveUserContextUseCase`. When the chosen Player or Club can no longer be resolved, it emits `UserContext.None` so the user is asked to choose again.
+We will keep Favorites as `kind:id` entries in a single DataStore string set, in `DataStoreFavoritesRepository` behind `FavoritesRepository`, independent of the selection keys. We will keep only the chosen id in DataStore, inside `:domain:user`'s `DataStoreUserSelectionRepository`, behind the `UserSelectionRepository` interface. `:domain:user` depends on `:core:preferences`, which only provides the `DataStore<Preferences>`. Club and Association are always derived by `ObserveUserContextUseCase`. When the chosen Player or Club can no longer be resolved, it emits `UserContext.None` so the user is asked to choose again.
 
 ## Options Considered
 
@@ -21,4 +21,4 @@ We will keep only the chosen id in DataStore, inside `:domain:user`'s `DataStore
 **Cons:** core would know the user model's invariant.
 
 ## Consequences
-Unit tests use fake repositories at the UseCase seam. The DataStore repository has its own test for the replace invariant.
+Unit tests use fake repositories at the UseCase seam. The DataStore repositories have their own tests for the replace invariant and for Favorites staying untouched when the selection changes.

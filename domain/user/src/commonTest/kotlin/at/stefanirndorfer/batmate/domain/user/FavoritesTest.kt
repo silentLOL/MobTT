@@ -26,6 +26,7 @@ class FavoritesTest {
     private val add = AddFavoriteUseCase(favorites)
     private val remove = RemoveFavoriteUseCase(favorites)
     private val observe = ObserveFavoritesUseCase(favorites)
+    private val selections = FakeSelectionRepository()
 
     @Test
     fun hasNoFavoritesInitially() = runTest {
@@ -73,6 +74,16 @@ class FavoritesTest {
     fun removingAFavoriteThatIsNotThereChangesNothing() = runTest {
         add(Favorite.Team("t1"))
         remove(Favorite.Team("other"))
+
+        assertEquals(setOf(Favorite.Team("t1")), observe().first())
+    }
+
+    @Test
+    fun changingMyPlayerAndMyClubLeavesFavoritesUntouched() = runTest {
+        add(Favorite.Team("t1"))
+
+        SetMyPlayerUseCase(selections)("p1")
+        SetMyClubUseCase(selections)("c1")
 
         assertEquals(setOf(Favorite.Team("t1")), observe().first())
     }
