@@ -31,6 +31,10 @@ Look for the originating spec, in this order:
 3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
 4. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
 
+### 2b. Read the review ledger
+
+If `.scratch/<feature>/review-notes.md` exists, read it. Each line records a finding that was fixed, declined or deferred, with a one-line reason. Paste it into both sub-agent prompts with the instruction "skip anything listed here unless the diff reintroduces it".
+
 ### 3. Identify the standards sources
 
 Search the repo for every file that documents how code should be written. When `CODING_STANDARDS.md` or `CONTRIBUTING.md` exists, it must be on the list.
@@ -76,6 +80,8 @@ If the spec is missing, skip the Spec sub-agent and note this in the final repor
 ### 5. Aggregate
 
 Present the two reports under `## Standards` and `## Spec` headings, verbatim or lightly cleaned. Do **not** merge or rerank findings, because the two axes are deliberately separate (see _Why two axes_).
+
+Append every finding the user fixes, declines or defers to the ledger (`- <fixed|declined|deferred>: <finding>. <reason>`), creating `.scratch/<feature>/review-notes.md` if needed.
 
 End with a one-line summary: total findings per axis, and the worst issue _within each axis_ (if any). Don't pick a single winner across axes: that's the reranking the separation exists to prevent.
 

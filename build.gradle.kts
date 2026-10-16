@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.skie) apply false
     alias(libs.plugins.ktlint) apply false
+    alias(libs.plugins.roborazzi) apply false
 }
 
 subprojects {
@@ -21,6 +22,7 @@ val checkConventions by tasks.registering(Exec::class) {
 tasks.check {
     dependsOn(installGitHooks)
     dependsOn(checkConventions)
+    dependsOn(":android:core:design-system:recordRoborazziDebug")
     dependsOn(subprojects.map { "${it.path}:ktlintCheck" })
 }
 

@@ -140,6 +140,9 @@ Strict separation between Android and iOS implementations, following **"Native S
 *   **Global Prefix:** All design system objects and themes must be prefixed with `Bat`.
 *   **Clean Naming:** Primitives use a clean naming convention (e.g., `BatColors`, `BatSpacing`), with no platform suffix.
 
+## 10. Multi-Preview Annotations
+Moved to [`CODING_STANDARDS.md`](CODING_STANDARDS.md) §10.
+
 ## 11. Android Specific: Unidirectional Data Flow (UDF) Architecture
 A strict UDF pattern using Kotlin Coroutines, StateFlows, and Jetpack Compose.
 
@@ -171,6 +174,9 @@ The Navigation layer (e.g., `DiscoverNavigation.kt`) ties the feature into the a
 * **Wiring Callbacks**: Provides the concrete implementation for the navigation lambdas exposed by the Screen, translating them into `navigator.navigate(...)` calls.
 * **Returning a Result**: `androidx.navigation3` has no built-in "navigate for result" API. When a pushed destination needs to hand a value back, use a small feature-scoped singleton bus backed by a `MutableSharedFlow` (Koin `single`): the pushed destination's ViewModel publishes into it before calling back via its own NavEvent/`goBack()`, and the calling ViewModel collects it from `init`.
 
+## 12. Accessibility Standards
+Moved to [`CODING_STANDARDS.md`](CODING_STANDARDS.md) §12.
+
 ## 13. Navigation Architecture (Android)
 A decentralized, type-safe navigation system for module isolation and build performance.
 
@@ -200,6 +206,9 @@ A decentralized, type-safe navigation system for module isolation and build perf
 ## 15. Global Compiler Opt-ins
 Certain experimental APIs are enabled at the compiler level in the Gradle convention plugins (build-logic). Do not manually add `@OptIn` for:
 - `androidx.compose.material3.ExperimentalMaterial3Api`
+
+## 16. Code Commentary Guidelines
+Moved to [`CODING_STANDARDS.md`](CODING_STANDARDS.md) §16.
 
 ## Agent skills
 

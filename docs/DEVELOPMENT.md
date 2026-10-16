@@ -9,6 +9,8 @@ Run the multi-target Gradle commands in the background; a cold run exceeds two m
 ./gradlew ktlintFormat    # auto-fix formatting and import order
 ```
 
+`check` also renders every `@BatScreenPreview` variant with Roborazzi and Robolectric (`:android:core:design-system:recordRoborazziDebug`). A preview that crashes fails the build. The PNGs land in `android/core/design-system/build/outputs/roborazzi/`; open them to check layout, contrast and 200% font scale. They are not compared against committed goldens.
+
 `scripts/check-conventions.sh` enforces the mechanical CLAUDE.md rules: a `@BatScreenPreview` per Composable file, no dp literals in design-system components, icons only through `BatIcon`, braced `if`/`else`. Formatting settings live in `.editorconfig`.
 
 The pre-commit hook in `.githooks/` runs the same checks. Any Gradle compile or `check` run sets `core.hooksPath` to it through the `installGitHooks` task, so a fresh clone or worktree needs no manual step.
