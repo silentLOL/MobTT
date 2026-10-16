@@ -29,5 +29,8 @@ dependencyResolutionManagement {
 }
 
 include(":androidApp")
-include(":shared")
+include(":core:platform")
+include(":core:di")
+include(":domain:app")
+include(":shared-umbrella")
 include(":android:core:design-system")

@@ -20,5 +20,9 @@ gradlePlugin {
             id = "bat.android.library"
             implementationClass = "AndroidLibraryConventionPlugin"
         }
+        register("kmpLibrary") {
+            id = "bat.kmp.library"
+            implementationClass = "KmpLibraryConventionPlugin"
+        }
     }
 }
