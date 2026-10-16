@@ -70,7 +70,7 @@ Bat Mate is a native Android and iOS app that reads XTTV data and presents it in
 - **Primary seam: UseCases in `:domain:*`.** Tests live in `commonTest` and run against fake Repository implementations. They cover deriving Club and Association from My Player, My Club as the fallback, Favorites add, remove and persistence behaviour, Fixture and Match score semantics, and the split between live and finished Fixtures.
 - **Second seam: the XTTV repository implementation against a Ktor `MockEngine`.** It parses captured sample responses into domain models and maps HTTP and parse failures to domain errors. It is the only place the external contract is tested.
 - **No new presentation seam in v1.** Screens are checked through `@BatScreenPreview` (Android) and `#Preview` (iOS), covering loading, loaded, empty and error states. ViewModel tests are added per platform only where a ViewModel contains real logic.
-- **Prior art:** `shared/src/commonTest` already holds a `kotlin-test` example; there is no other test code yet, so these tests set the pattern.
+- **Prior art:** `domain/app/src/commonTest` holds the one `kotlin-test` example (`GetPlatformNameUseCaseTest`, run with `runTest`); there is no other test code yet, so these tests set the pattern.
 
 ## Out of Scope
 
