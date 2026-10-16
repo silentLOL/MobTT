@@ -19,7 +19,7 @@ import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
 
-/** A radio-style row: the whole row is the target and the check mark is decorative, selection is announced through semantics. */
+/** The whole row is the target and the check mark is decorative: selection is announced through semantics, with [role] saying whether choices exclude each other. */
 @Composable
 fun BatSelectableRow(
     label: String,
@@ -27,13 +27,14 @@ fun BatSelectableRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     supportingText: String? = null,
+    role: Role = Role.RadioButton,
 ) {
     val colors = BatDesign.colors
     Row(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = BatDesign.sizing.minTouchTarget)
-            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
+            .selectable(selected = selected, role = role, onClick = onClick)
             .padding(vertical = BatDesign.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.md),

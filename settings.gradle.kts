@@ -31,6 +31,7 @@ dependencyResolutionManagement {
 include(":androidApp")
 include(":core:platform")
 include(":core:di")
+include(":core:fake-directory")
 include(":core:preferences")
 include(":domain:app")
 include(":domain:club")

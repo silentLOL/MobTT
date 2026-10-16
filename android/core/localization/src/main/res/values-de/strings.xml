@@ -23,4 +23,35 @@
     <string name="settings_appearance_light_option">Hell</string>
     <string name="settings_appearance_dark_option">Dunkel</string>
     <string name="settings_done_button">Fertig</string>
+
+    <string name="core_search_label">Suche</string>
+    <string name="core_search_placeholder">Name oder Verein</string>
+    <string name="core_search_empty_body">Keine Treffer</string>
+    <string name="core_players_section_title">Spieler</string>
+    <string name="core_clubs_section_title">Vereine</string>
+
+    <string name="home_choose_title">Wähle deinen Spieler oder Verein</string>
+    <string name="home_choose_body">Wähle in den Einstellungen Mein Spieler oder Mein Verein, um den Start zu personalisieren.</string>
+    <string name="home_choose_button">Einstellungen öffnen</string>
+    <string name="home_my_player_overline">Mein Spieler</string>
+    <string name="home_my_club_overline">Mein Verein</string>
+    <string name="home_favorites_title">Favoriten</string>
+    <string name="home_favorites_add_button">Hinzufügen</string>
+    <string name="home_favorites_empty_body">Merke dir Spieler und Vereine für den schnellen Zugriff.</string>
+    <string name="home_favorite_remove_cd">%1$s aus Favoriten entfernen</string>
+    <string name="home_favorite_picker_title">Favoriten hinzufügen</string>
+
+    <string name="settings_my_player_title">Mein Spieler</string>
+    <string name="settings_my_club_title">Mein Verein</string>
+    <string name="settings_choose_button">Auswählen</string>
+    <string name="settings_change_button">Ändern</string>
+    <string name="settings_not_chosen_value">Nicht gewählt</string>
+    <string name="settings_club_title">Verein</string>
+    <string name="settings_association_title">Verband</string>
+    <string name="settings_derived_from_player_hint">Aus Mein Spieler abgeleitet und daher nicht änderbar.</string>
+    <string name="settings_derived_from_club_hint">Aus Mein Verein abgeleitet und daher nicht änderbar.</string>
+    <string name="settings_derived_none_hint">Erscheint, sobald du Mein Spieler oder Mein Verein wählst.</string>
+    <string name="settings_picker_player_title">Mein Spieler wählen</string>
+    <string name="settings_picker_club_title">Mein Verein wählen</string>
+    <string name="settings_picker_back_cd">Zurück zu den Einstellungen</string>
 </resources>

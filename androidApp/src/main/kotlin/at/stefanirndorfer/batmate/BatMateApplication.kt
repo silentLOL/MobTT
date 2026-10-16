@@ -2,6 +2,7 @@ package at.stefanirndorfer.batmate
 
 import android.app.Application
 import at.stefanirndorfer.batmate.core.di.initKoin
+import at.stefanirndorfer.batmate.feature.home.impl.di.homeModule
 import at.stefanirndorfer.batmate.feature.settings.impl.di.settingsModule
 import org.koin.android.ext.koin.androidContext
 
@@ -10,7 +11,7 @@ class BatMateApplication : Application() {
         super.onCreate()
         initKoin {
             androidContext(this@BatMateApplication)
-            modules(settingsModule)
+            modules(directoryModules + listOf(homeModule, settingsModule))
         }
     }
 }

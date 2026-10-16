@@ -22,7 +22,11 @@ private class FakeDirectory :
     AssociationRepository {
     override suspend fun getPlayer(id: String) = listOf(anna, orphan).firstOrNull { it.id == id }
 
+    override suspend fun searchPlayers(query: String) = listOf(anna, orphan)
+
     override suspend fun getClub(id: String) = listOf(olympic).firstOrNull { it.id == id }
+
+    override suspend fun searchClubs(query: String) = listOf(olympic)
 
     override suspend fun getAssociation(id: String) = listOf(wttv).firstOrNull { it.id == id }
 }

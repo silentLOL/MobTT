@@ -23,4 +23,35 @@
     <string name="settings_appearance_light_option">Light</string>
     <string name="settings_appearance_dark_option">Dark</string>
     <string name="settings_done_button">Done</string>
+
+    <string name="core_search_label">Search</string>
+    <string name="core_search_placeholder">Name or Club</string>
+    <string name="core_search_empty_body">No matches</string>
+    <string name="core_players_section_title">Players</string>
+    <string name="core_clubs_section_title">Clubs</string>
+
+    <string name="home_choose_title">Choose your Player or Club</string>
+    <string name="home_choose_body">Pick My Player or My Club in Settings to personalise Home.</string>
+    <string name="home_choose_button">Open Settings</string>
+    <string name="home_my_player_overline">My Player</string>
+    <string name="home_my_club_overline">My Club</string>
+    <string name="home_favorites_title">Favorites</string>
+    <string name="home_favorites_add_button">Add</string>
+    <string name="home_favorites_empty_body">Bookmark Players and Clubs for quick access.</string>
+    <string name="home_favorite_remove_cd">Remove %1$s from Favorites</string>
+    <string name="home_favorite_picker_title">Add Favorites</string>
+
+    <string name="settings_my_player_title">My Player</string>
+    <string name="settings_my_club_title">My Club</string>
+    <string name="settings_choose_button">Choose</string>
+    <string name="settings_change_button">Change</string>
+    <string name="settings_not_chosen_value">Not chosen</string>
+    <string name="settings_club_title">Club</string>
+    <string name="settings_association_title">Association</string>
+    <string name="settings_derived_from_player_hint">Derived from My Player, so it can\'t be edited.</string>
+    <string name="settings_derived_from_club_hint">Derived from My Club, so it can\'t be edited.</string>
+    <string name="settings_derived_none_hint">Appears once you choose My Player or My Club.</string>
+    <string name="settings_picker_player_title">Choose My Player</string>
+    <string name="settings_picker_club_title">Choose My Club</string>
+    <string name="settings_picker_back_cd">Back to Settings</string>
 </resources>
