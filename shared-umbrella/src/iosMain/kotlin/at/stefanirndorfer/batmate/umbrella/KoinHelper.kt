@@ -24,7 +24,8 @@ object KoinHelper : KoinComponent {
     fun start(environmentKey: String, appVersion: String) {
         val environment = Environment.fromKey(environmentKey)
         initKoin(AppConfig(environment, appVersion)) {
-            if (environment == Environment.Deb) {
+            // TODO: shrink as tickets 03-06 and 09 bring XTTV-backed repositories; `initKoin` binds those after this and wins.
+            if (environment == Environment.Deb || environment == Environment.Dev) {
                 modules(fakeDirectoryModule)
             }
         }

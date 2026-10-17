@@ -11,6 +11,7 @@ import at.stefanirndorfer.batmate.domain.club.di.clubDomainModule
 import at.stefanirndorfer.batmate.domain.user.di.userDomainModule
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
+import org.koin.core.module.Module
 import org.koin.dsl.KoinAppDeclaration
 
 private val sharedModules = listOf(
@@ -21,11 +22,19 @@ private val sharedModules = listOf(
     userDomainModule,
 )
 
-/** `deb` gets its repositories from the apps (the fake directory); every other environment reads XTTV. */
+/**
+ * The repositories that read XTTV: every environment except `deb`, which gets its repositories from the apps
+ * (the fake directory). Bound after the app's own modules so XTTV wins over any fake the app still binds for
+ * data XTTV does not serve yet.
+ */
+internal fun repositoryModules(config: AppConfig): List<Module> {
+    if (config.environment == Environment.Deb) {
+        return emptyList()
+    }
+    return listOf(xttvModule)
+}
+
 fun initKoin(config: AppConfig, appDeclaration: KoinAppDeclaration = {}): KoinApplication = startKoin {
     appDeclaration()
-    modules(sharedModules + networkModule(config))
-    if (config.environment != Environment.Deb) {
-        modules(xttvModule)
-    }
+    modules(sharedModules + networkModule(config) + repositoryModules(config))
 }

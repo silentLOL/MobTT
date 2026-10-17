@@ -10,3 +10,10 @@
 - deferred: `DataUnavailable` in `:domain:club` is awkward for `:domain:player`. Move it when ticket 09 needs it there.
 - deferred: An `XttvEndpoint<T>` type for url, ttl and serializer, and a serializer-per-URL guard on the cache. Revisit when the second repository repeats the triple.
 - deferred: Possibly timing-dependent concurrency-cap test, and no test for the owner-cancelled take-over path.
+- fixed: `dev`, `beta` and `prod` debug builds lost the fake directory when only Associations came from XTTV. Debug builds bind the fake again and `initKoin` binds XTTV after it, so XTTV wins; each of tickets 03-06 and 09 shrinks the fake. On iOS, `Deb` and `Dev` bind the fake.
+- fixed: No test of the per-environment binding. `RepositoryModulesTest` covers `deb` (nothing bound), the other environments (XTTV) and XTTV taking precedence over a fake. This also removed the unused `directoryModules(environment)` parameter.
+- deferred: `deb` flavor with the `release` build type binds nothing, as every release variant did before. Revisit when the last fake binding goes.
+- deferred: The `deb` and `dev` decision is made in `initKoin`, the Android debug source set and iOS `KoinHelper`. Collapses when the interim fake bindings are removed.
+- deferred: `XttvHostResolver`'s per-Association `hosts` map and a base URL on `Association`. Populated once ticket 10 settles ADR-0008.
+- deferred: `xttvHost` is a constant on `AppConfig`, not derived from the environment. Fine while every environment reads production XTTV.
+- accepted: `appVersion` in `AppConfig` and `KoinHelper.start`. Needed for the `User-Agent` the previous review deferred to this ticket.

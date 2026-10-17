@@ -15,7 +15,7 @@ class BatMateApplication : Application() {
         val config = AppConfig(Environment.fromKey(BuildConfig.ENVIRONMENT), BuildConfig.VERSION_NAME)
         initKoin(config) {
             androidContext(this@BatMateApplication)
-            modules(directoryModules(config.environment) + listOf(clubModule, homeModule, settingsModule))
+            modules(directoryModules + listOf(clubModule, homeModule, settingsModule))
         }
     }
 }
