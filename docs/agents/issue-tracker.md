@@ -17,3 +17,8 @@ Create a new file under `.scratch/<feature-slug>/` (creating the directory if ne
 ## When a skill says "fetch the relevant ticket"
 
 Read the file at the referenced path. The user will normally pass the path or the issue number directly.
+
+## Referring to and finishing a ticket
+
+- A bare number ("ticket 03") means the feature whose tickets the latest commits touched. Ask when that is unclear: every feature numbers from `01`.
+- A finished ticket has every checkbox ticked and its `Status:` line set to `done`. `done` sits outside the triage vocabulary and closes the ticket.
