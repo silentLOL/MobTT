@@ -4,13 +4,13 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] `:core:xttv` exists, applies the shared KMP library plugin and depends on the domain interfaces, not the other way round.
-- [ ] Every request carries a descriptive `User-Agent` naming the app and version.
-- [ ] Identical concurrent requests are collapsed into one; no more than 2 requests run in parallel.
-- [ ] A TTL cache serves repeat reads without a request and serves a stale entry when a refresh fails.
-- [ ] A failed request with no cached entry throws `DataUnavailable`, defined in the domain; empty results are never turned into errors.
-- [ ] XML parsing ignores unknown elements, shown by a test with an extra element.
-- [ ] A `MockEngine` harness serves recorded XML from `commonTest` resources, and no test touches the network.
-- [ ] `./gradlew check` passes.
+- [x] `:core:xttv` exists, applies the shared KMP library plugin and depends on the domain interfaces, not the other way round.
+- [x] Every request carries a descriptive `User-Agent` naming the app and version.
+- [x] Identical concurrent requests are collapsed into one; no more than 2 requests run in parallel.
+- [x] A TTL cache serves repeat reads without a request and serves a stale entry when a refresh fails.
+- [x] A failed request with no cached entry throws `DataUnavailable`, defined in the domain; empty results are never turned into errors.
+- [x] XML parsing ignores unknown elements, shown by a test with an extra element.
+- [x] A `MockEngine` harness serves recorded XML from `commonTest` resources, and no test touches the network.
+- [x] `./gradlew check` passes.

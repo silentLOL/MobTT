@@ -4,11 +4,11 @@
 
 **Blocked by:** 01 XTTV client foundation.
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] `AssociationRepository` returns Associations built from recorded XTTV federation XML; XTTV's "Federation" term appears only in the data layer.
-- [ ] A single host resolver maps an Association to its host, with `AppConfig` supplying the default host.
-- [ ] `deb` builds on Android and iOS bind the fake directory; `dev`, `beta` and `prod` bind the XTTV-backed repositories; the release `TODO` is gone.
-- [ ] A failed request surfaces as `DataUnavailable`.
-- [ ] Repository tests run on `MockEngine` with recorded XML and assert on domain objects only.
-- [ ] The iOS build passes after the wiring change.
+- [x] `AssociationRepository` returns Associations built from recorded XTTV federation XML; XTTV's "Federation" term appears only in the data layer.
+- [x] A single host resolver maps an Association to its host, with `AppConfig` supplying the default host.
+- [x] `deb` builds on Android and iOS bind the fake directory; `dev`, `beta` and `prod` bind the XTTV-backed repositories; the release `TODO` is gone.
+- [x] A failed request surfaces as `DataUnavailable`.
+- [x] Repository tests run on `MockEngine` with recorded XML and assert on domain objects only.
+- [x] The iOS build passes after the wiring change.
