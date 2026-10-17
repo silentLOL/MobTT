@@ -7,6 +7,10 @@ sealed interface HomeAction {
 
     data object AddFavoriteClicked : HomeAction
 
+    data object ViewClubClicked : HomeAction
+
+    data class FavoriteClubClicked(val clubId: String) : HomeAction
+
     data class RemoveFavoriteClicked(val favorite: Favorite) : HomeAction
 
     data class PickerQueryChanged(val query: String) : HomeAction

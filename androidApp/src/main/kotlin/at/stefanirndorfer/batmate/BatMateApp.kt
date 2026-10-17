@@ -50,7 +50,7 @@ fun BatMateApp(modifier: Modifier = Modifier) {
                     BatNavigationItem(
                         icon = tab.icon,
                         label = stringResource(tab.label),
-                        selected = navigator.currentDestination == tab.destination,
+                        selected = navigator.topLevelDestination == tab.destination,
                         onClick = { navigator.navigateTopLevel(tab.destination) },
                     )
                 }

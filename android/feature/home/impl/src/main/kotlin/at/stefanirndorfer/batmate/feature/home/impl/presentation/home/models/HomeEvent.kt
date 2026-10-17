@@ -2,4 +2,8 @@ package at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models
 
 sealed interface HomeEvent {
     data object OpenSettings : HomeEvent
+
+    data object OpenMyClub : HomeEvent
+
+    data class OpenClub(val clubId: String) : HomeEvent
 }

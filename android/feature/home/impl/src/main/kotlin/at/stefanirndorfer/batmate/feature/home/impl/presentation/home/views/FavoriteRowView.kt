@@ -1,5 +1,6 @@
 package at.stefanirndorfer.batmate.feature.home.impl.presentation.home.views
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import at.stefanirndorfer.batmate.core.localization.R
 import at.stefanirndorfer.batmate.designsystem.icon.BatIcon
 import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
@@ -28,6 +30,7 @@ fun FavoriteRowView(
     favorite: ResolvedFavorite,
     onRemoveClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
 ) {
     val tint = when (favorite.favorite) {
         is Favorite.Club -> BatAvatarTint.LIVE
@@ -39,7 +42,11 @@ fun FavoriteRowView(
             horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.md),
         ) {
             BatInitialsAvatar(initials = initialsOf(favorite.name), tint = tint)
-            Column(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier),
+            ) {
                 Text(text = favorite.name, color = BatDesign.colors.textPrimary, style = BatDesign.typography.bodyStrong)
                 favorite.detail?.let { detail ->
                     Text(text = detail, color = BatDesign.colors.textSecondary, style = BatDesign.typography.caption)
@@ -60,7 +67,7 @@ private fun FavoriteRowViewPreview() {
     BatPreviewSurface {
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
             FavoriteRowView(ResolvedFavorite(Favorite.Player("p"), "Anna Gruber", "TTC Olympic"), onRemoveClick = {})
-            FavoriteRowView(ResolvedFavorite(Favorite.Club("c"), "Nussdorf TTC", "WTTV"), onRemoveClick = {})
+            FavoriteRowView(ResolvedFavorite(Favorite.Club("c"), "Nussdorf TTC", "WTTV"), onRemoveClick = {}, onClick = {})
             FavoriteRowView(
                 ResolvedFavorite(
                     Favorite.Player("l"),

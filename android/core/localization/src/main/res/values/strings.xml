@@ -54,4 +54,19 @@
     <string name="settings_picker_player_title">Choose My Player</string>
     <string name="settings_picker_club_title">Choose My Club</string>
     <string name="settings_picker_back_cd">Back to Settings</string>
+    <string name="club_empty_button">Open Settings</string>
+    <string name="club_hero_overline">Club</string>
+    <string name="club_teams_title">Teams</string>
+    <string name="club_teams_empty_body">This Club has no Teams yet.</string>
+    <string name="club_team_standing_label">Rank %1$d · %2$d played · %3$d points</string>
+    <string name="club_next_fixture_overline">Next Fixture</string>
+    <string name="club_fixture_home_label">Home vs. %1$s</string>
+    <string name="club_fixture_away_label">Away at %1$s</string>
+    <string name="club_free_week_title">Free week</string>
+    <string name="club_free_week_body">No Fixture scheduled.</string>
+    <string name="club_loading_cd">Loading Club</string>
+    <string name="club_error_title">Couldn\'t load this Club</string>
+    <string name="club_error_body">Check your connection and try again.</string>
+    <string name="club_error_retry_button">Try again</string>
+    <string name="home_view_club_button">View Club</string>
 </resources>

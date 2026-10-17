@@ -54,4 +54,19 @@
     <string name="settings_picker_player_title">Mein Spieler wählen</string>
     <string name="settings_picker_club_title">Mein Verein wählen</string>
     <string name="settings_picker_back_cd">Zurück zu den Einstellungen</string>
+    <string name="club_empty_button">Einstellungen öffnen</string>
+    <string name="club_hero_overline">Verein</string>
+    <string name="club_teams_title">Mannschaften</string>
+    <string name="club_teams_empty_body">Dieser Verein hat noch keine Mannschaften.</string>
+    <string name="club_team_standing_label">Platz %1$d · %2$d Spiele · %3$d Punkte</string>
+    <string name="club_next_fixture_overline">Nächste Begegnung</string>
+    <string name="club_fixture_home_label">Heim gegen %1$s</string>
+    <string name="club_fixture_away_label">Auswärts bei %1$s</string>
+    <string name="club_free_week_title">Spielfrei</string>
+    <string name="club_free_week_body">Keine Begegnung angesetzt.</string>
+    <string name="club_loading_cd">Verein wird geladen</string>
+    <string name="club_error_title">Verein konnte nicht geladen werden</string>
+    <string name="club_error_body">Prüfe deine Verbindung und versuche es erneut.</string>
+    <string name="club_error_retry_button">Erneut versuchen</string>
+    <string name="home_view_club_button">Verein ansehen</string>
 </resources>

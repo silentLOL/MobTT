@@ -1,0 +1,31 @@
+package at.stefanirndorfer.batmate.domain.club
+
+class FakeClubData :
+    ClubRepository,
+    AssociationRepository,
+    TeamRepository,
+    LeagueRepository,
+    FixtureRepository {
+    val clubs = mutableListOf<Club>()
+    val associations = mutableListOf<Association>()
+    val teams = mutableListOf<Team>()
+    val leagues = mutableListOf<League>()
+    val standings = mutableMapOf<String, List<Standing>>()
+    val fixtures = mutableListOf<Fixture>()
+
+    override suspend fun getClub(id: String): Club? = clubs.firstOrNull { it.id == id }
+
+    override suspend fun searchClubs(query: String): List<Club> = clubs.filter { it.name.contains(query, ignoreCase = true) }
+
+    override suspend fun getAssociation(id: String): Association? = associations.firstOrNull { it.id == id }
+
+    override suspend fun getTeams(clubId: String): List<Team> = teams.filter { it.clubId == clubId }
+
+    override suspend fun getLeague(id: String): League? = leagues.firstOrNull { it.id == id }
+
+    override suspend fun getStandings(leagueId: String): List<Standing> = standings[leagueId].orEmpty()
+
+    override suspend fun getFixtures(teamId: String): List<Fixture> = fixtures.filter {
+        it.homeTeamId == teamId || it.awayTeamId == teamId
+    }
+}

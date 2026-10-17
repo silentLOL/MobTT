@@ -4,6 +4,7 @@ import android.app.Application
 import at.stefanirndorfer.batmate.core.di.initKoin
 import at.stefanirndorfer.batmate.core.network.AppConfig
 import at.stefanirndorfer.batmate.core.network.Environment
+import at.stefanirndorfer.batmate.feature.club.impl.di.clubModule
 import at.stefanirndorfer.batmate.feature.home.impl.di.homeModule
 import at.stefanirndorfer.batmate.feature.settings.impl.di.settingsModule
 import org.koin.android.ext.koin.androidContext
@@ -13,7 +14,7 @@ class BatMateApplication : Application() {
         super.onCreate()
         initKoin(AppConfig(Environment.fromKey(BuildConfig.ENVIRONMENT))) {
             androidContext(this@BatMateApplication)
-            modules(directoryModules + listOf(homeModule, settingsModule))
+            modules(directoryModules + listOf(clubModule, homeModule, settingsModule))
         }
     }
 }

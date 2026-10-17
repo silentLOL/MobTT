@@ -17,6 +17,7 @@ import at.stefanirndorfer.batmate.core.ui.ObserveAsEvents
 import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
+import at.stefanirndorfer.batmate.designsystem.ui.components.BatSecondaryButton
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.batmate.domain.user.Favorite
 import at.stefanirndorfer.batmate.domain.user.ResolvedFavorite
@@ -32,6 +33,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HomeRoute(
     onOpenSettings: () -> Unit,
+    onOpenMyClub: () -> Unit,
+    onOpenClub: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
@@ -39,6 +42,8 @@ fun HomeRoute(
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
             HomeEvent.OpenSettings -> onOpenSettings()
+            HomeEvent.OpenMyClub -> onOpenMyClub()
+            is HomeEvent.OpenClub -> onOpenClub(event.clubId)
         }
     }
     HomeScreen(state = uiState, onAction = viewModel::onAction, modifier = modifier)
@@ -61,6 +66,13 @@ fun HomeScreen(
             selection = state.selection,
             onChooseClick = { onAction(HomeAction.ChooseClicked) },
         )
+        if (state.selection != HomeSelectionUi.None) {
+            BatSecondaryButton(
+                text = stringResource(R.string.home_view_club_button),
+                onClick = { onAction(HomeAction.ViewClubClicked) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
         Column {
             BatSectionHeader(
                 title = stringResource(R.string.home_favorites_title),
@@ -78,6 +90,9 @@ fun HomeScreen(
                 state.favorites.forEach { favorite ->
                     FavoriteRowView(
                         favorite = favorite,
+                        onClick = (favorite.favorite as? Favorite.Club)?.let { club ->
+                            { onAction(HomeAction.FavoriteClubClicked(club.id)) }
+                        },
                         onRemoveClick = { onAction(HomeAction.RemoveFavoriteClicked(favorite.favorite)) },
                     )
                 }

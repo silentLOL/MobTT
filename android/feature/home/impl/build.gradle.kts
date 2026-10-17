@@ -8,6 +8,7 @@ android {
 
 dependencies {
     implementation(project(":android:feature:home:api"))
+    implementation(project(":android:feature:club:api"))
     implementation(project(":android:core:design-system"))
     implementation(project(":android:core:localization"))
     implementation(project(":android:core:ui"))

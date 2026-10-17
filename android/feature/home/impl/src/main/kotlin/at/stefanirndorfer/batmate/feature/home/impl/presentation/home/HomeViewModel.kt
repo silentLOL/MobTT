@@ -75,6 +75,8 @@ class HomeViewModel(
         when (action) {
             HomeAction.ChooseClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenSettings) }
             HomeAction.AddFavoriteClicked -> pickerQuery.value = ""
+            HomeAction.ViewClubClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenMyClub) }
+            is HomeAction.FavoriteClubClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenClub(action.clubId)) }
             is HomeAction.RemoveFavoriteClicked -> viewModelScope.launch { removeFavorite(action.favorite) }
             is HomeAction.PickerQueryChanged -> pickerQuery.value = action.query
             is HomeAction.PickerPlayerClicked -> toggle(Favorite.Player(action.id))

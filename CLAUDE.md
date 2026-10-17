@@ -22,7 +22,7 @@ This project is a Kotlin Multiplatform (KMP) application using a Shared Domain L
 * `:core:preferences` (Jetpack DataStore KMP)
 * `:core:platform` (Platform-specific shared code)
 * `:core:di` (Koin orchestration, `initKoin`). Depends on every `:domain:*` and `:core:*` module it registers, the one place where `core` may import `domain`.
-* `:core:fake-directory` (non-production Player/Club/Association data; bound only in debug builds, see ADR-0005)
+* `:core:fake-directory` (non-production Player/Club/Association/Team/League/Fixture data; bound only in debug builds, see ADR-0005)
 * Add further `:core:*` modules (e.g. `:core:health-api`, expect/actual bridges) as needed.
 
 ### Android Layer (Pure Android)

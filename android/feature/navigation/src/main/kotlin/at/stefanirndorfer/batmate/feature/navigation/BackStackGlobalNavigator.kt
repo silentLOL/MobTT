@@ -12,7 +12,8 @@ class BackStackGlobalNavigator(startDestination: GlobalAppDestination) : GlobalN
     var isSettingsOpen by mutableStateOf(false)
         private set
 
-    val currentDestination: NavKey? get() = backStack.lastOrNull()
+    /** The tab at the bottom of the back stack, so a destination pushed from a tab keeps that tab selected. */
+    val topLevelDestination: NavKey? get() = backStack.firstOrNull()
 
     override fun navigate(destination: GlobalAppDestination) {
         backStack.add(destination)
