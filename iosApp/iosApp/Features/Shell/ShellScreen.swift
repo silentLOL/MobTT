@@ -27,7 +27,7 @@ struct ShellScreen: View {
         } content: {
             // The page style keeps the system tab bar out of the way, which the design system's own bar replaces.
             TabView(selection: $selectedTab) {
-                HomeScreen().tag(ShellTab.home)
+                HomeRoute(onOpenSettings: { isSettingsPresented = true }).tag(ShellTab.home)
                 ClubScreen().tag(ShellTab.club)
                 PlayersScreen().tag(ShellTab.players)
                 LiveScreen().tag(ShellTab.live)
@@ -36,7 +36,7 @@ struct ShellScreen: View {
             .scrollDisabled(true)
         }
         .sheet(isPresented: $isSettingsPresented) {
-            SettingsScreen(appearance: $appearance) { isSettingsPresented = false }
+            SettingsRoute(appearance: $appearance) { isSettingsPresented = false }
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
                 .presentationBackground(BatColor.background)
@@ -46,11 +46,13 @@ struct ShellScreen: View {
 
 #Preview {
     @Previewable @State var appearance = AppearanceChoice.system
+    let _ = PreviewKoin.started
     ShellScreen(appearance: $appearance)
 }
 
 #Preview("Dark") {
     @Previewable @State var appearance = AppearanceChoice.dark
+    let _ = PreviewKoin.started
     ShellScreen(appearance: $appearance)
         .preferredColorScheme(.dark)
 }
