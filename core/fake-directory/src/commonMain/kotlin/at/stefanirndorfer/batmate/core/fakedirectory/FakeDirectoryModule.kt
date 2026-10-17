@@ -21,6 +21,6 @@ val fakeDirectoryModule = module {
         FixtureRepository::class,
     )
 
-    // XTTV-backed Teams still take their lineups from here until ticket 09.
+    // TODO: remove when XTTV serves lineups (ticket 09); XTTV-backed Teams take their lineups from here until then.
     single<LineupSource> { LineupSource { get<FakeDirectory>().getLineup(it) } }
 }
