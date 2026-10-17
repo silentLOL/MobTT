@@ -34,4 +34,39 @@ object XttvSamples {
     const val NO_TEAMS = "<teams/>"
     const val TEAM_501 =
         "<teams><team><id>501</id><name>TTC Olympic Wien 1</name><clubId>8846</clubId><leagueId>70</leagueId></team></teams>"
+
+    const val LEAGUE_70_GAMES = """
+        <games>
+            <game>
+                <id>9001</id><homeTeamId>501</homeTeamId><homeTeamName>TTC Olympic Wien 1</homeTeamName>
+                <awayTeamId>600</awayTeamId><awayTeamName>SK VÖEST Wien 1</awayTeamName>
+                <date>2026-12-01T18:00</date><venue>Sporthalle Olympic</venue><homeMatches></homeMatches>
+            </game>
+            <game>
+                <id>9002</id><homeTeamId>600</homeTeamId><homeTeamName>SK VÖEST Wien 1</homeTeamName>
+                <awayTeamId>501</awayTeamId><awayTeamName>TTC Olympic Wien 1</awayTeamName>
+                <date>2026-07-01T18:00</date><homeMatches>4</homeMatches><awayMatches>6</awayMatches><extra>x</extra>
+            </game>
+            <game>
+                <id>9003</id><homeTeamId>600</homeTeamId><homeTeamName>SK VÖEST Wien 1</homeTeamName>
+                <awayTeamId>700</awayTeamId><awayTeamName>Nussdorf TTC 1</awayTeamName>
+                <date>2026-12-02T18:00</date>
+            </game>
+            <game>
+                <id>9004</id><homeTeamId>501</homeTeamId><homeTeamName>TTC Olympic Wien 1</homeTeamName>
+                <awayTeamId>700</awayTeamId><awayTeamName>Nussdorf TTC 1</awayTeamName>
+                <date>soon</date>
+            </game>
+            <game>
+                <id>9005</id><homeTeamId>501</homeTeamId><homeTeamName>TTC Olympic Wien 1</homeTeamName>
+                <awayTeamId>700</awayTeamId><awayTeamName>Nussdorf TTC 1</awayTeamName>
+                <date>2026-10-25T01:30</date><venue> </venue>
+            </game>
+            <game>
+                <id>9006</id><homeTeamId>501</homeTeamId><homeTeamName>TTC Olympic Wien 1</homeTeamName>
+                <awayTeamId>700</awayTeamId><awayTeamName>Nussdorf TTC 1</awayTeamName>
+                <date>2026-10-25T03:30</date>
+            </game>
+        </games>
+    """
 }

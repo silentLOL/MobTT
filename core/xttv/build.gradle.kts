@@ -10,6 +10,7 @@ kotlin {
         implementation(libs.kotlinx.serialization.core)
         implementation(libs.xmlutil.serialization)
         implementation(libs.kotlinx.coroutines.core)
+        implementation(libs.kotlinx.datetime)
         implementation(libs.kermit)
         implementation(libs.koin.core)
     }
