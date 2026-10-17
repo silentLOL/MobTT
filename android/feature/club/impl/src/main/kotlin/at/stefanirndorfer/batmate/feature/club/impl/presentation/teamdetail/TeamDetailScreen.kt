@@ -17,7 +17,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.stefanirndorfer.batmate.core.localization.R
@@ -93,6 +95,7 @@ private fun ErrorView(onRetry: () -> Unit, modifier: Modifier = Modifier) {
             icon = BatIcon.Club,
             title = stringResource(R.string.team_detail_error_title),
             body = stringResource(R.string.team_detail_error_body),
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
         )
         BatPrimaryButton(text = stringResource(R.string.team_detail_error_retry_button), onClick = onRetry)
     }

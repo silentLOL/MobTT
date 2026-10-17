@@ -9,6 +9,8 @@ sealed interface HomeAction {
 
     data object ViewClubClicked : HomeAction
 
+    data object RetryFixturesClicked : HomeAction
+
     data class FavoriteClubClicked(val clubId: String) : HomeAction
 
     data class RemoveFavoriteClicked(val favorite: Favorite) : HomeAction

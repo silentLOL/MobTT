@@ -36,7 +36,6 @@ class TeamDetailViewModel(
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
-        // TODO: map to domain errors (offline vs. XTTV unreachable) once the real repositories exist.
         TeamDetailUiState.Error
     }
 

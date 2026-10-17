@@ -15,7 +15,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.stefanirndorfer.batmate.core.localization.R
@@ -82,6 +84,7 @@ fun ClubScreen(
             body = stringResource(R.string.club_error_body),
             buttonLabel = stringResource(R.string.club_error_retry_button),
             onButtonClick = { onAction(ClubAction.RetryClicked) },
+            announce = true,
             modifier = modifier,
         )
         is ClubUiState.Content -> ContentView(state.overview, onAction, modifier)
@@ -106,6 +109,7 @@ private fun MessageView(
     buttonLabel: String,
     onButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
+    announce: Boolean = false,
 ) {
     Column(
         modifier = modifier
@@ -114,7 +118,12 @@ private fun MessageView(
             .padding(BatDesign.spacing.lg),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        BatEmptyState(icon = BatIcon.Club, title = title, body = body)
+        BatEmptyState(
+            icon = BatIcon.Club,
+            title = title,
+            body = body,
+            modifier = if (announce) Modifier.semantics { liveRegion = LiveRegionMode.Polite } else Modifier,
+        )
         BatPrimaryButton(text = buttonLabel, onClick = onButtonClick)
     }
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.stefanirndorfer.batmate.core.ui.directory.models.DirectoryEntryUi
 import at.stefanirndorfer.batmate.domain.club.Club
+import at.stefanirndorfer.batmate.domain.club.DataUnavailable
 import at.stefanirndorfer.batmate.domain.club.SearchClubsUseCase
 import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.Favorite
@@ -14,6 +15,7 @@ import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.batmate.domain.user.PlayerSearchResult
 import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.SearchPlayersUseCase
+import at.stefanirndorfer.batmate.domain.user.UpcomingFixtures
 import at.stefanirndorfer.batmate.domain.user.UserContext
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models.FavoritePickerUi
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models.HomeAction
@@ -26,9 +28,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -40,9 +45,9 @@ private class PickerResult(
 )
 
 class HomeViewModel(
-    observeUserContext: ObserveUserContextUseCase,
-    observeResolvedFavorites: ObserveResolvedFavoritesUseCase,
-    observeUpcomingFixtures: ObserveUpcomingFixturesUseCase,
+    private val observeUserContext: ObserveUserContextUseCase,
+    private val observeResolvedFavorites: ObserveResolvedFavoritesUseCase,
+    private val observeUpcomingFixtures: ObserveUpcomingFixturesUseCase,
     private val observeFavorites: ObserveFavoritesUseCase,
     private val addFavorite: AddFavoriteUseCase,
     private val removeFavorite: RemoveFavoriteUseCase,
@@ -50,15 +55,17 @@ class HomeViewModel(
     private val searchClubs: SearchClubsUseCase,
 ) : ViewModel() {
     private val pickerQuery = MutableStateFlow<String?>(null)
+    private val retryCount = MutableStateFlow(0)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val pickerResult: Flow<PickerResult?> = pickerQuery.mapLatest { query ->
-        query?.let { PickerResult(it, searchPlayers(it), searchClubs(it)) }
+        query?.let { search(it) }
     }
 
-    private val baseState: Flow<HomeUiState> = combine(
-        observeUserContext(),
-        observeResolvedFavorites(),
+    // The streams below end at a DataUnavailable; a retry restarts them all.
+    private fun baseState(): Flow<HomeUiState> = combine(
+        observeUserContext().orElse(UserContext.None),
+        observeResolvedFavorites().orElse(emptyList()),
         observeFavorites(),
         pickerQuery,
         pickerResult,
@@ -70,9 +77,15 @@ class HomeViewModel(
         )
     }
 
-    val uiState: StateFlow<HomeUiState> = combine(baseState, observeUpcomingFixtures()) { state, fixtures ->
-        state.copy(fixtures = fixtures)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), HomeUiState())
+    // Each retry shows no Fixtures (the loading state) until the new answer arrives.
+    private fun fixtures(): Flow<UpcomingFixtures?> = observeUpcomingFixtures()
+        .orElse<UpcomingFixtures?>(UpcomingFixtures.Unavailable)
+        .onStart { emit(null) }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val uiState: StateFlow<HomeUiState> = retryCount
+        .flatMapLatest { combine(baseState(), fixtures()) { state, fixtures -> state.copy(fixtures = fixtures) } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), HomeUiState())
 
     private val eventChannel = Channel<HomeEvent>()
     val events: Flow<HomeEvent> = eventChannel.receiveAsFlow()
@@ -82,12 +95,28 @@ class HomeViewModel(
             HomeAction.ChooseClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenSettings) }
             HomeAction.AddFavoriteClicked -> pickerQuery.value = ""
             HomeAction.ViewClubClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenMyClub) }
+            HomeAction.RetryFixturesClicked -> retryCount.value++
             is HomeAction.FavoriteClubClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenClub(action.clubId)) }
             is HomeAction.RemoveFavoriteClicked -> viewModelScope.launch { removeFavorite(action.favorite) }
             is HomeAction.PickerQueryChanged -> pickerQuery.value = action.query
             is HomeAction.PickerPlayerClicked -> toggle(Favorite.Player(action.id))
             is HomeAction.PickerClubClicked -> toggle(Favorite.Club(action.id))
             HomeAction.PickerDismissed -> pickerQuery.value = null
+        }
+    }
+
+    private suspend fun search(query: String): PickerResult = try {
+        PickerResult(query, searchPlayers(query), searchClubs(query))
+    } catch (e: DataUnavailable) {
+        PickerResult(query, emptyList(), emptyList())
+    }
+
+    /** Falls back to [fallback] and ends the stream when XTTV is unreachable and nothing is cached. */
+    private fun <T> Flow<T>.orElse(fallback: T): Flow<T> = catch { e ->
+        if (e is DataUnavailable) {
+            emit(fallback)
+        } else {
+            throw e
         }
     }
 

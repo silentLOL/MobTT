@@ -18,4 +18,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.compose.viewmodel)
     implementation(libs.koin.androidx.compose)
     implementation(libs.kotlinx.coroutines.core)
+    testImplementation(project(":domain:player"))
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

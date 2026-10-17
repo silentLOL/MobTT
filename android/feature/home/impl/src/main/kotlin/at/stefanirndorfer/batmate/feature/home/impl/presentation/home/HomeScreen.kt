@@ -76,7 +76,7 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth(),
             )
         }
-        UpcomingFixturesView(fixtures = state.fixtures)
+        UpcomingFixturesView(fixtures = state.fixtures, onRetry = { onAction(HomeAction.RetryFixturesClicked) })
         Column {
             BatSectionHeader(
                 title = stringResource(R.string.home_favorites_title),

@@ -71,6 +71,7 @@
     <string name="home_view_club_button">View Club</string>
     <string name="home_fixtures_title">Upcoming Fixtures</string>
     <string name="home_fixtures_error_body">Couldn\'t load your Fixtures right now.</string>
+    <string name="home_fixtures_error_retry_button">Try again</string>
     <string name="team_detail_hero_overline">Team</string>
     <string name="team_detail_standing_title">League table</string>
     <string name="team_detail_standing_empty_body">This Team isn\'t in a League yet.</string>

@@ -35,3 +35,10 @@
 - deferred: A Game with an unreadable date is dropped without a log, so schema drift shows as "no fixtures" instead of an error. Add a Kermit warning when ticket 10 fixes the real date format.
 - deferred: Fixtures are sorted by start time though no ticket asks for it; the Fixture and League tests have no stale-on-failure case (covered in `XttvApiTest`).
 - deferred: The fake still binds Fixtures and League; harmless because XTTV wins in `initKoin`. Shrinks when the fake is removed.
+- deferred: While XTTV is unreachable, Home shows the "choose your player or club" prompt and no favorites (the user context could not be resolved), next to the Fixtures error. Needs a `UserContext.Unavailable` (or cached names) to be honest.
+- deferred: Feature-module previews are not rendered by `check`; widen the Roborazzi package scan so the error previews are exercised.
+- deferred: `FakeClubData` (club tests) and `FakeData` (home test) repeat the same XTTV fake; share it through a test-fixtures module once a third consumer appears.
+- fixed: Club and Team detail error states were not announced; both now set a polite live region (Club only on the error, not on the choose prompt).
+- deferred: Home shows the "choose" prompt and no retry for the user-context and favorites lookups, and a failed picker search reads as "no results". Needs a `UserContext.Unavailable`.
+- deferred: Stale-cache-after-failed-refresh has no ViewModel test; it is covered by `XttvApiTest` at the repository layer.
+- deferred: Smells: `ClubViewModel`, `TeamDetailViewModel` and `HomeViewModel` repeat the `DataUnavailable` catch and the `retryCount` + `flatMapLatest` plumbing; `HomeViewModel.orElse` could be named `catchUnavailable`; `retryCount` is an `Int` used only as a trigger.

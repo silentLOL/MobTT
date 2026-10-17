@@ -7,6 +7,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import at.stefanirndorfer.batmate.core.localization.R
 import at.stefanirndorfer.batmate.core.ui.fixture.NextFixtureView
@@ -14,6 +16,7 @@ import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatCard
+import at.stefanirndorfer.batmate.designsystem.ui.components.BatSecondaryButton
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.batmate.domain.user.UpcomingFixture
 import at.stefanirndorfer.batmate.domain.user.UpcomingFixtures
@@ -21,15 +24,23 @@ import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.preview.up
 
 /** Draws nothing while loading, with no selection, or when the Club has no Teams. */
 @Composable
-fun UpcomingFixturesView(fixtures: UpcomingFixtures?, modifier: Modifier = Modifier) {
+fun UpcomingFixturesView(fixtures: UpcomingFixtures?, onRetry: () -> Unit, modifier: Modifier = Modifier) {
     when (fixtures) {
         null, UpcomingFixtures.NoSelection -> Unit
         UpcomingFixtures.Unavailable -> SectionView(modifier) {
-            Text(
-                text = stringResource(R.string.home_fixtures_error_body),
-                color = BatDesign.colors.textSecondary,
-                style = BatDesign.typography.body,
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
+                Text(
+                    text = stringResource(R.string.home_fixtures_error_body),
+                    color = BatDesign.colors.textSecondary,
+                    style = BatDesign.typography.body,
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                )
+                BatSecondaryButton(
+                    text = stringResource(R.string.home_fixtures_error_retry_button),
+                    onClick = onRetry,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
         }
         is UpcomingFixtures.Loaded -> if (fixtures.entries.isNotEmpty()) {
             SectionView(modifier) {
@@ -67,8 +78,8 @@ private fun FixtureCardView(entry: UpcomingFixture, modifier: Modifier = Modifie
 private fun UpcomingFixturesViewPreview() {
     BatPreviewSurface {
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.lg)) {
-            UpcomingFixturesView(upcomingFixturesPreview)
-            UpcomingFixturesView(UpcomingFixtures.Unavailable)
+            UpcomingFixturesView(upcomingFixturesPreview, onRetry = {})
+            UpcomingFixturesView(UpcomingFixtures.Unavailable, onRetry = {})
         }
     }
 }
