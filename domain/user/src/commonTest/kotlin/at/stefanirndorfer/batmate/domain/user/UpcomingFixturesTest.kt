@@ -11,6 +11,7 @@ import at.stefanirndorfer.batmate.domain.club.FixtureStatus
 import at.stefanirndorfer.batmate.domain.club.GetClubOverviewUseCase
 import at.stefanirndorfer.batmate.domain.club.League
 import at.stefanirndorfer.batmate.domain.club.LeagueRepository
+import at.stefanirndorfer.batmate.domain.club.LineupPlayer
 import at.stefanirndorfer.batmate.domain.club.NextFixture
 import at.stefanirndorfer.batmate.domain.club.Standing
 import at.stefanirndorfer.batmate.domain.club.Team
@@ -55,6 +56,10 @@ private class FakeData :
     override suspend fun searchClubs(query: String) = listOf(club)
 
     override suspend fun getAssociation(id: String) = Association("a1", "WTTV")
+
+    override suspend fun getTeam(id: String) = teams.firstOrNull { it.id == id }
+
+    override suspend fun getLineup(teamId: String) = emptyList<LineupPlayer>()
 
     override suspend fun getTeams(clubId: String) = teams.filter { it.clubId == clubId }
 

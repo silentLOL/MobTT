@@ -53,6 +53,7 @@ class ClubViewModel(
     fun onAction(action: ClubAction) {
         when (action) {
             ClubAction.ChooseClicked -> viewModelScope.launch { eventChannel.send(ClubEvent.OpenSettings) }
+            is ClubAction.TeamClicked -> viewModelScope.launch { eventChannel.send(ClubEvent.OpenTeam(action.teamId)) }
             ClubAction.RetryClicked -> retryCount.value++
         }
     }

@@ -45,6 +45,7 @@ import org.koin.core.parameter.parametersOf
 fun ClubRoute(
     source: ClubSource,
     onOpenSettings: () -> Unit,
+    onOpenTeam: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ClubViewModel = koinViewModel(
         key = source.toString(),
@@ -55,6 +56,7 @@ fun ClubRoute(
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
             ClubEvent.OpenSettings -> onOpenSettings()
+            is ClubEvent.OpenTeam -> onOpenTeam(event.teamId)
         }
     }
     ClubScreen(state = uiState, onAction = viewModel::onAction, modifier = modifier)
@@ -82,7 +84,7 @@ fun ClubScreen(
             onButtonClick = { onAction(ClubAction.RetryClicked) },
             modifier = modifier,
         )
-        is ClubUiState.Content -> ContentView(state.overview, modifier)
+        is ClubUiState.Content -> ContentView(state.overview, onAction, modifier)
     }
 }
 
@@ -118,7 +120,7 @@ private fun MessageView(
 }
 
 @Composable
-private fun ContentView(overview: ClubOverview, modifier: Modifier = Modifier) {
+private fun ContentView(overview: ClubOverview, onAction: (ClubAction) -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -143,7 +145,9 @@ private fun ContentView(overview: ClubOverview, modifier: Modifier = Modifier) {
                 )
             }
             Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.md)) {
-                overview.teams.forEach { TeamCardView(it) }
+                overview.teams.forEach { team ->
+                    TeamCardView(team, onClick = { onAction(ClubAction.TeamClicked(team.team.id)) })
+                }
             }
         }
     }

@@ -10,6 +10,7 @@ import at.stefanirndorfer.batmate.domain.club.FixtureScore
 import at.stefanirndorfer.batmate.domain.club.FixtureStatus
 import at.stefanirndorfer.batmate.domain.club.League
 import at.stefanirndorfer.batmate.domain.club.LeagueRepository
+import at.stefanirndorfer.batmate.domain.club.LineupPlayer
 import at.stefanirndorfer.batmate.domain.club.Standing
 import at.stefanirndorfer.batmate.domain.club.Team
 import at.stefanirndorfer.batmate.domain.club.TeamRepository
@@ -93,6 +94,20 @@ class FakeDirectory(private val clock: Clock = Clock.System) :
         ),
     )
 
+    // PROVISIONAL shape, see TeamDetail. Olympic 1 mixes Players with and without a profile; most Teams have none listed.
+    private val lineups = mapOf(
+        "olympic-1" to listOf(
+            LineupPlayer("huber", "Michael Huber"),
+            LineupPlayer("gruber", "Anna Gruber"),
+            LineupPlayer("olympic-1-guest", "Thomas Eder"),
+        ),
+        "stpoelten-1" to listOf(
+            LineupPlayer("steiner", "Jakob Steiner"),
+            LineupPlayer("pichler", "Katharina Habsburg-Lothringen-Esterházy"),
+        ),
+        "graz-1" to listOf(LineupPlayer("moser", "Felix Moser"), LineupPlayer("leitner", "Laura Leitner")),
+    )
+
     override suspend fun getPlayer(id: String): Player? = players.firstOrNull { it.id == id }
 
     override suspend fun searchPlayers(query: String): List<Player> = players.filter { player ->
@@ -106,7 +121,11 @@ class FakeDirectory(private val clock: Clock = Clock.System) :
 
     override suspend fun getAssociation(id: String): Association? = associations.firstOrNull { it.id == id }
 
+    override suspend fun getTeam(id: String): Team? = teams.firstOrNull { it.id == id }
+
     override suspend fun getTeams(clubId: String): List<Team> = teams.filter { it.clubId == clubId }
+
+    override suspend fun getLineup(teamId: String): List<LineupPlayer> = lineups[teamId].orEmpty()
 
     override suspend fun getLeague(id: String): League? = leagues.firstOrNull { it.id == id }
 

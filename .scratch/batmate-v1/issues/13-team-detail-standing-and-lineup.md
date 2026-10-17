@@ -4,13 +4,13 @@
 
 **Blocked by:** 10, 11
 
-**Status:** needs-info
+**Status:** ready-for-human
 
-Waiting on the XTTV docs or sample responses. The lineup content and the full League table shape are not in the documented API, and must not be assumed from the prototype's mock data (spec "Blocked on API"). Move to `ready-for-agent` once they are provided.
+Built against the fake directory at the owner's explicit request, although the XTTV docs are still missing. `TeamDetail`, `LineupPlayer` and `TeamRepository.getLineup` are **provisional**: the lineup content and the full League table shape are not in the documented API (spec "Blocked on API"). Revisit them when the XTTV docs or sample responses arrive; the real repository may reshape them. Lineup rows are not tappable because the Player profile does not exist yet.
 
-- [ ] Team detail is reachable from a Team on the Club screen on both platforms
-- [ ] The full League table shows each Team's standing, with this Team visually and accessibly marked (not by colour alone)
-- [ ] The lineup lists the Team's Players, each opening the Player profile when it exists
-- [ ] UseCase-seam tests against fake repositories cover standing order and an empty lineup
-- [ ] Previews cover loaded, empty lineup and error on both platforms
-- [ ] Accessibility rules and 200% text scaling hold on both platforms
+- [x] Team detail is reachable from a Team on the Club screen on both platforms
+- [x] The full League table shows each Team's standing, with this Team visually and accessibly marked (not by colour alone)
+- [x] The lineup lists the Team's Players (rows open the Player profile once it exists; it does not yet)
+- [x] UseCase-seam tests against fake repositories cover standing order and an empty lineup
+- [x] Previews cover loaded, empty lineup and error on both platforms
+- [ ] Accessibility rules and 200% text scaling hold on both platforms (previews include 200%; not yet inspected visually)

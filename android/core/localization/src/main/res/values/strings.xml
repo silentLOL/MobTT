@@ -71,4 +71,17 @@
     <string name="home_view_club_button">View Club</string>
     <string name="home_fixtures_title">Upcoming Fixtures</string>
     <string name="home_fixtures_error_body">Couldn\'t load your Fixtures right now.</string>
+    <string name="team_detail_hero_overline">Team</string>
+    <string name="team_detail_standing_title">League table</string>
+    <string name="team_detail_standing_empty_body">This Team isn\'t in a League yet.</string>
+    <string name="team_detail_lineup_title">Lineup</string>
+    <string name="team_detail_lineup_empty_body">No Players listed for this Team yet.</string>
+    <string name="team_detail_this_team_badge">This Team</string>
+    <string name="team_detail_standing_row_cd">Rank %1$d, %2$s, %3$d played, %4$d points</string>
+    <string name="team_detail_standing_row_this_team_cd">Rank %1$d, %2$s, this Team, %3$d played, %4$d points</string>
+    <string name="team_detail_standing_stats_label">%1$d played · %2$d pts</string>
+    <string name="team_detail_loading_cd">Loading Team</string>
+    <string name="team_detail_error_title">Couldn\'t load this Team</string>
+    <string name="team_detail_error_body">Check your connection and try again.</string>
+    <string name="team_detail_error_retry_button">Try again</string>
 </resources>

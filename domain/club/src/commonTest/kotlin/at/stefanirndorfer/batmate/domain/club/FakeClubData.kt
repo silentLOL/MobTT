@@ -11,6 +11,7 @@ class FakeClubData :
     val teams = mutableListOf<Team>()
     val leagues = mutableListOf<League>()
     val standings = mutableMapOf<String, List<Standing>>()
+    val lineups = mutableMapOf<String, List<LineupPlayer>>()
     val fixtures = mutableListOf<Fixture>()
 
     override suspend fun getClub(id: String): Club? = clubs.firstOrNull { it.id == id }
@@ -18,6 +19,10 @@ class FakeClubData :
     override suspend fun searchClubs(query: String): List<Club> = clubs.filter { it.name.contains(query, ignoreCase = true) }
 
     override suspend fun getAssociation(id: String): Association? = associations.firstOrNull { it.id == id }
+
+    override suspend fun getTeam(id: String): Team? = teams.firstOrNull { it.id == id }
+
+    override suspend fun getLineup(teamId: String): List<LineupPlayer> = lineups[teamId].orEmpty()
 
     override suspend fun getTeams(clubId: String): List<Team> = teams.filter { it.clubId == clubId }
 

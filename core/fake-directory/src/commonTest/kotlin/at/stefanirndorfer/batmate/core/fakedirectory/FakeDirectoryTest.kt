@@ -37,6 +37,15 @@ class FakeDirectoryTest {
     }
 
     @Test
+    fun everyLineupPlayerHasAName() = runTest {
+        directory.searchClubs("").forEach { club ->
+            directory.getTeams(club.id).forEach { team ->
+                directory.getLineup(team.id).forEach { assertTrue(it.name.isNotBlank(), team.id) }
+            }
+        }
+    }
+
+    @Test
     fun everyClubHasATeam() = runTest {
         directory.searchClubs("").forEach { assertTrue(directory.getTeams(it.id).isNotEmpty(), it.id) }
     }

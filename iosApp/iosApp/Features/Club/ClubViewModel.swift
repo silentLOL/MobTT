@@ -44,6 +44,8 @@ final class ClubViewModel {
         switch action {
         case .chooseClicked:
             eventStream.continuation.yield(.openSettings)
+        case .teamClicked(let teamId):
+            eventStream.continuation.yield(.openTeam(teamId: teamId))
         case .retryClicked:
             guard let clubId else { return }
             loadTask?.cancel()

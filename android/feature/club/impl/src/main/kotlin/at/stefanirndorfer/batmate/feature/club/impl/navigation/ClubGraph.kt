@@ -4,15 +4,29 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import at.stefanirndorfer.batmate.feature.club.api.ClubDestination
 import at.stefanirndorfer.batmate.feature.club.api.ClubDetailDestination
+import at.stefanirndorfer.batmate.feature.club.api.TeamDetailDestination
+import at.stefanirndorfer.batmate.feature.club.api.navigateToTeamDetail
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.ClubRoute
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.models.ClubSource
+import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.TeamDetailRoute
 import at.stefanirndorfer.batmate.feature.navigation.GlobalNavigator
 
 fun EntryProviderScope<NavKey>.clubGraph(navigator: GlobalNavigator) {
     entry<ClubDestination> {
-        ClubRoute(source = ClubSource.Mine, onOpenSettings = navigator::openSettings)
+        ClubRoute(
+            source = ClubSource.Mine,
+            onOpenSettings = navigator::openSettings,
+            onOpenTeam = navigator::navigateToTeamDetail,
+        )
     }
     entry<ClubDetailDestination> { destination ->
-        ClubRoute(source = ClubSource.Specific(destination.clubId), onOpenSettings = navigator::openSettings)
+        ClubRoute(
+            source = ClubSource.Specific(destination.clubId),
+            onOpenSettings = navigator::openSettings,
+            onOpenTeam = navigator::navigateToTeamDetail,
+        )
+    }
+    entry<TeamDetailDestination> { destination ->
+        TeamDetailRoute(teamId = destination.teamId)
     }
 }

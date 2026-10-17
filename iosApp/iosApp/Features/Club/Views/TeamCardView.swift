@@ -2,9 +2,10 @@ import SwiftUI
 
 struct TeamCardView: View {
     let team: TeamUi
+    let onTap: () -> Void
 
     var body: some View {
-        BatCardView {
+        BatCardView(onTap: onTap) {
             VStack(alignment: .leading, spacing: BatSpacing.md) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(team.name)
@@ -31,9 +32,9 @@ struct TeamCardView: View {
 #Preview {
     BatPreviewMatrix {
         VStack(spacing: BatSpacing.md) {
-            ForEach(ClubPreviewData.overview.teams) { TeamCardView(team: $0) }
-            TeamCardView(team: ClubPreviewData.noLeague.teams[0])
-            TeamCardView(team: ClubPreviewData.longNames.teams[0])
+            ForEach(ClubPreviewData.overview.teams) { TeamCardView(team: $0, onTap: {}) }
+            TeamCardView(team: ClubPreviewData.noLeague.teams[0], onTap: {})
+            TeamCardView(team: ClubPreviewData.longNames.teams[0], onTap: {})
         }
     }
 }

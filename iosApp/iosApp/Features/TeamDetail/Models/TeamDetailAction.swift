@@ -1,0 +1,3 @@
+enum TeamDetailAction {
+    case retryClicked
+}

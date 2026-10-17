@@ -71,4 +71,17 @@
     <string name="home_view_club_button">Verein ansehen</string>
     <string name="home_fixtures_title">Kommende Begegnungen</string>
     <string name="home_fixtures_error_body">Deine Begegnungen konnten gerade nicht geladen werden.</string>
+    <string name="team_detail_hero_overline">Mannschaft</string>
+    <string name="team_detail_standing_title">Ligatabelle</string>
+    <string name="team_detail_standing_empty_body">Diese Mannschaft ist noch keiner Liga zugeordnet.</string>
+    <string name="team_detail_lineup_title">Aufstellung</string>
+    <string name="team_detail_lineup_empty_body">Für diese Mannschaft sind noch keine Spieler eingetragen.</string>
+    <string name="team_detail_this_team_badge">Diese Mannschaft</string>
+    <string name="team_detail_standing_row_cd">Platz %1$d, %2$s, %3$d Spiele, %4$d Punkte</string>
+    <string name="team_detail_standing_row_this_team_cd">Platz %1$d, %2$s, diese Mannschaft, %3$d Spiele, %4$d Punkte</string>
+    <string name="team_detail_standing_stats_label">%1$d Spiele · %2$d Pkt.</string>
+    <string name="team_detail_loading_cd">Mannschaft wird geladen</string>
+    <string name="team_detail_error_title">Mannschaft konnte nicht geladen werden</string>
+    <string name="team_detail_error_body">Prüfe deine Verbindung und versuche es erneut.</string>
+    <string name="team_detail_error_retry_button">Erneut versuchen</string>
 </resources>

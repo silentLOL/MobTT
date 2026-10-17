@@ -55,3 +55,14 @@
 - declined: `PreviewKoin` as scope creep. Shell previews need Koin.
 - deferred: `try?` swallowing search, add and remove failures. Revisit with the real API.
 - deferred: Prod and Beta cannot resolve the directory repositories. Resolved by the real-repository ticket (ADR-0005).
+- fixed: iOS Team detail reloaded and flashed a spinner every time the view reappeared. `loadIfNeeded()` starts one load outside the view's task.
+- fixed: iOS `observe()` only forwarded to `load()`. Replaced by `loadIfNeeded()`.
+- fixed: "This Team" comparison lived in the Compose screen on Android and the mapper on iOS. One `TeamDetail.isThisTeam(standing)`.
+- fixed: Android Team detail hero card lacked merged semantics (iOS combines it).
+- fixed: `team_detail_standing_stats` lacked a type suffix (now `_label`); restating KDoc on `TeamDetailDestination` removed.
+- declined: `team_detail_*` string prefix vs `club_*`. The screen is its own destination and iOS has its own feature folder.
+- declined: Extract the Loading/Error/retry shape shared with Club, and the duplicate `navigationDestination` in `ShellScreen`. Two copies; third screen would trigger it.
+- declined: Tap callbacks on lineup rows. The Player profile does not exist; add them with its ticket.
+- declined: Section heading semantics. `BatSectionHeader` already sets them.
+- declined: Value classes for ids and trimming `LineupPlayer.playerId`. Same reasoning as earlier entries; the type is provisional.
+- deferred: Missing Team or Club shows Retry, same as a network failure. Revisit with domain errors and the real repositories (TODO in both ViewModels).

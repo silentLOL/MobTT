@@ -4,11 +4,16 @@ private struct ClubDetailRoute: Hashable {
     let clubId: String
 }
 
+private struct TeamDestination: Hashable {
+    let teamId: String
+}
+
 struct ShellScreen: View {
     @Binding var appearance: AppearanceChoice
     @State private var selectedTab = ShellTab.home
     @State private var isSettingsPresented = false
-    @State private var homePath: [ClubDetailRoute] = []
+    @State private var homePath = NavigationPath()
+    @State private var clubPath = NavigationPath()
 
     var body: some View {
         BatScreenScaffoldView {
@@ -26,7 +31,8 @@ struct ShellScreen: View {
                         isSelected: tab == selectedTab
                     ) {
                         selectedTab = tab
-                        homePath.removeAll()
+                        homePath = NavigationPath()
+                        clubPath = NavigationPath()
                     }
                 }
             }
@@ -41,14 +47,32 @@ struct ShellScreen: View {
                     )
                     .toolbar(.hidden, for: .navigationBar)
                     .navigationDestination(for: ClubDetailRoute.self) { route in
-                        ClubRoute(source: .specific(clubId: route.clubId), onOpenSettings: { isSettingsPresented = true })
-                            .navigationTitle(String(localized: "club_hero_overline"))
-                            .navigationBarTitleDisplayMode(.inline)
-                            .batBackground()
+                        ClubRoute(
+                            source: .specific(clubId: route.clubId),
+                            onOpenSettings: { isSettingsPresented = true },
+                            onOpenTeam: { homePath.append(TeamDestination(teamId: $0)) }
+                        )
+                        .navigationTitle(String(localized: "club_hero_overline"))
+                        .navigationBarTitleDisplayMode(.inline)
+                        .batBackground()
+                    }
+                    .navigationDestination(for: TeamDestination.self) { route in
+                        teamDetail(route)
                     }
                 }
                 .tag(ShellTab.home)
-                ClubRoute(source: .mine, onOpenSettings: { isSettingsPresented = true }).tag(ShellTab.club)
+                NavigationStack(path: $clubPath) {
+                    ClubRoute(
+                        source: .mine,
+                        onOpenSettings: { isSettingsPresented = true },
+                        onOpenTeam: { clubPath.append(TeamDestination(teamId: $0)) }
+                    )
+                    .toolbar(.hidden, for: .navigationBar)
+                    .navigationDestination(for: TeamDestination.self) { route in
+                        teamDetail(route)
+                    }
+                }
+                .tag(ShellTab.club)
                 PlayersScreen().tag(ShellTab.players)
                 LiveScreen().tag(ShellTab.live)
             }
@@ -61,6 +85,15 @@ struct ShellScreen: View {
                 .presentationDragIndicator(.visible)
                 .presentationBackground(BatColor.background)
         }
+    }
+}
+
+extension ShellScreen {
+    fileprivate func teamDetail(_ route: TeamDestination) -> some View {
+        TeamDetailRoute(teamId: route.teamId)
+            .navigationTitle(String(localized: "team_detail_hero_overline"))
+            .navigationBarTitleDisplayMode(.inline)
+            .batBackground()
     }
 }
 

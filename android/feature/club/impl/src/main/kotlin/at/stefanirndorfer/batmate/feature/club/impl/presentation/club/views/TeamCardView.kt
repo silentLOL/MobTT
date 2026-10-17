@@ -21,8 +21,8 @@ import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.preview.cl
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.preview.clubOverviewPreview
 
 @Composable
-fun TeamCardView(team: TeamOverview, modifier: Modifier = Modifier) {
-    BatCard(modifier = modifier.fillMaxWidth()) {
+fun TeamCardView(team: TeamOverview, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    BatCard(modifier = modifier.fillMaxWidth(), onClick = onClick) {
         Column(
             modifier = Modifier.semantics(mergeDescendants = true) {},
             verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.md),
@@ -51,9 +51,9 @@ fun TeamCardView(team: TeamOverview, modifier: Modifier = Modifier) {
 private fun TeamCardViewPreview() {
     BatPreviewSurface {
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.md)) {
-            clubOverviewPreview.teams.forEach { TeamCardView(it) }
-            TeamCardView(clubOverviewNoLeaguePreview.teams.single())
-            TeamCardView(clubOverviewLongNamesPreview.teams.single())
+            clubOverviewPreview.teams.forEach { TeamCardView(it, onClick = {}) }
+            TeamCardView(clubOverviewNoLeaguePreview.teams.single(), onClick = {})
+            TeamCardView(clubOverviewLongNamesPreview.teams.single(), onClick = {})
         }
     }
 }

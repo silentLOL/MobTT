@@ -3,12 +3,14 @@ import SwiftUI
 struct ClubRoute: View {
     let source: ClubSource
     let onOpenSettings: () -> Void
+    let onOpenTeam: (String) -> Void
 
     @State private var viewModel: ClubViewModel
 
-    init(source: ClubSource, onOpenSettings: @escaping () -> Void) {
+    init(source: ClubSource, onOpenSettings: @escaping () -> Void, onOpenTeam: @escaping (String) -> Void) {
         self.source = source
         self.onOpenSettings = onOpenSettings
+        self.onOpenTeam = onOpenTeam
         _viewModel = State(initialValue: ClubViewModel(source: source))
     }
 
@@ -19,6 +21,7 @@ struct ClubRoute: View {
                 for await event in viewModel.events {
                     switch event {
                     case .openSettings: onOpenSettings()
+                    case .openTeam(let teamId): onOpenTeam(teamId)
                     }
                 }
             }
@@ -51,7 +54,7 @@ struct ClubScreen: View {
                 onButtonClick: { onAction(.retryClicked) }
             )
         case .content(let overview):
-            ContentView(overview: overview)
+            ContentView(overview: overview, onAction: onAction)
         }
     }
 }
@@ -75,6 +78,7 @@ private struct MessageView: View {
 
 private struct ContentView: View {
     let overview: ClubOverviewUi
+    let onAction: (ClubAction) -> Void
 
     var body: some View {
         ScrollView {
@@ -99,7 +103,9 @@ private struct ContentView: View {
                             .foregroundStyle(BatColor.textSecondary)
                     }
                     VStack(spacing: BatSpacing.md) {
-                        ForEach(overview.teams) { TeamCardView(team: $0) }
+                        ForEach(overview.teams) { team in
+                            TeamCardView(team: team, onTap: { onAction(.teamClicked(teamId: team.id)) })
+                        }
                     }
                 }
             }
