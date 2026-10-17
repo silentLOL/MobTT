@@ -64,7 +64,7 @@ struct BatTopBarView<Actions: View>: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             Divider().overlay(BatColor.border)
         }
-        .background(BatColor.surface)
+        .background(BatColor.surface.ignoresSafeArea(edges: .top))
     }
 }
 

@@ -3,7 +3,7 @@ import Shared
 
 @main
 struct iOSApp: App {
-    @State private var platformName = ""
+    @AppStorage(AppearanceChoice.storageKey) private var appearance = AppearanceChoice.system
 
     private static var environmentKey: String {
         Bundle.main.object(forInfoDictionaryKey: "BatEnvironment") as? String ?? ""
@@ -15,10 +15,8 @@ struct iOSApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(platformName: platformName)
-                .task {
-                    platformName = (try? await KoinHelper.shared.getPlatformNameUseCase().invoke()) ?? ""
-                }
+            ShellScreen(appearance: $appearance)
+                .preferredColorScheme(appearance.colorScheme)
         }
     }
 }

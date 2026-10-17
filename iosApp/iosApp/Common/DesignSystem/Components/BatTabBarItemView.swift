@@ -51,7 +51,7 @@ struct BatTabBarView<Content: View>: View {
         }
         // Equal-width items cannot hold a one-line label beyond this size; system tab bars cap their text the same way.
         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
-        .background(BatColor.surface)
+        .background(BatColor.surface.ignoresSafeArea(edges: .bottom))
     }
 }
 
