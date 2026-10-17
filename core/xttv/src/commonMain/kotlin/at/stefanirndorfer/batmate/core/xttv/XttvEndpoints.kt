@@ -8,4 +8,6 @@ internal object XttvEndpoints {
     fun clubTeams(host: String, clubId: String) = "$host/api/getLeagueTeams?clubId=$clubId"
     fun team(host: String, id: String) = "$host/api/getTeamDetails?id=$id"
     fun leagueGames(host: String, leagueId: String) = "$host/api/getLeagueGames?leagueId=$leagueId"
+    fun league(host: String, id: String) = "$host/api/getLeagueDetails?id=$id"
+    fun leagueStandings(host: String, leagueId: String) = "$host/api/getTeamStandings?leagueId=$leagueId"
 }

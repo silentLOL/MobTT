@@ -69,4 +69,14 @@ object XttvSamples {
             </game>
         </games>
     """
+
+    const val LEAGUE_70 = "<leagues><league><id>70</id><name>1. Landesliga Herren</name></league></leagues>"
+    const val NO_LEAGUES = "<leagues/>"
+    const val LEAGUE_70_STANDINGS = """
+        <standings>
+            <standing><position>2</position><teamId>600</teamId><teamName>SK VÖEST Wien 1</teamName><played>5</played><points>8</points></standing>
+            <standing><position>1</position><teamId>501</teamId><teamName>TTC Olympic Wien 1</teamName><played>5</played><points>10</points><sets>x</sets></standing>
+        </standings>
+    """
+    const val NO_STANDINGS = "<standings/>"
 }
