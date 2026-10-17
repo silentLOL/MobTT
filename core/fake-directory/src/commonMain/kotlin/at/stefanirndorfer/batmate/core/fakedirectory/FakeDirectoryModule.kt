@@ -1,5 +1,6 @@
 package at.stefanirndorfer.batmate.core.fakedirectory
 
+import at.stefanirndorfer.batmate.core.xttv.LineupSource
 import at.stefanirndorfer.batmate.domain.club.AssociationRepository
 import at.stefanirndorfer.batmate.domain.club.ClubRepository
 import at.stefanirndorfer.batmate.domain.club.FixtureRepository
@@ -19,4 +20,7 @@ val fakeDirectoryModule = module {
         LeagueRepository::class,
         FixtureRepository::class,
     )
+
+    // XTTV-backed Teams still take their lineups from here until ticket 09.
+    single<LineupSource> { LineupSource { get<FakeDirectory>().getLineup(it) } }
 }

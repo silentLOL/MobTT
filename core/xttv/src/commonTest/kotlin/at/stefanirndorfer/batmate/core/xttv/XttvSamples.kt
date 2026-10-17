@@ -24,4 +24,14 @@ object XttvSamples {
         "<club><id>8846</id><name>TTC Olympic Wien</name><federationId>1</federationId></club>"
     const val CLUB_9001 =
         "<club><id>9001</id><name>UTTC Olympia Krems</name><federationId>2</federationId></club>"
+
+    const val CLUB_8846_TEAMS = """
+        <teams>
+            <team><id>501</id><name>TTC Olympic Wien 1</name><clubId>8846</clubId><leagueId>70</leagueId></team>
+            <team><id>502</id><name>TTC Olympic Wien 2</name><clubId>8846</clubId><leagueId>71</leagueId><captain>x</captain></team>
+        </teams>
+    """
+    const val NO_TEAMS = "<teams/>"
+    const val TEAM_501 =
+        "<teams><team><id>501</id><name>TTC Olympic Wien 1</name><clubId>8846</clubId><leagueId>70</leagueId></team></teams>"
 }
