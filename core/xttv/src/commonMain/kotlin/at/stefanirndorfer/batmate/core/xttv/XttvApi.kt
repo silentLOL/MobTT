@@ -1,6 +1,7 @@
 package at.stefanirndorfer.batmate.core.xttv
 
 import at.stefanirndorfer.batmate.domain.club.DataUnavailable
+import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
@@ -16,20 +17,27 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.KSerializer
 import nl.adaptivity.xmlutil.serialization.XML
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
+private val FAILED_REFRESH_BACKOFF = 1.minutes
+
 /**
  * The one door to XTTV: fetches [get]'s `url`, parses the XML and caches the result for its `ttl`.
- * A failed refresh serves the stale entry; with nothing cached it throws [DataUnavailable].
+ * A failed refresh serves the stale entry and leaves XTTV alone for a minute at most; with nothing cached
+ * it throws [DataUnavailable].
  */
 class XttvApi(
     private val client: HttpClient,
     private val timeSource: TimeSource.WithComparableMarks = TimeSource.Monotonic,
 ) {
-    private class CacheEntry(val value: Any, val storedAt: TimeMark)
+    private class CacheEntry(val value: Any, val storedAt: TimeMark, val freshFor: Duration) {
+        fun isFresh() = storedAt.elapsedNow() < freshFor
+    }
 
-    private val xml = XML { defaultPolicy { ignoreUnknownChildren() } }
+    private val log = Logger.withTag("XttvApi")
+    private val xml = XML.v1 { policy { ignoreUnknownChildren() } }
     private val cacheLock = Mutex()
     private val cache = mutableMapOf<String, CacheEntry>()
     private val inFlightLock = Mutex()
@@ -37,36 +45,47 @@ class XttvApi(
 
     @Suppress("UNCHECKED_CAST")
     suspend fun <T : Any> get(url: String, ttl: Duration, serializer: KSerializer<T>): T {
-        val cached = cacheLock.withLock { cache[url] }
-        if (cached != null && cached.storedAt.elapsedNow() < ttl) {
+        val cached = cachedEntry(url)
+        if (cached != null && cached.isFresh()) {
             return cached.value as T
         }
 
         return try {
-            fetchShared(url, serializer).also { value ->
-                cacheLock.withLock { cache[url] = CacheEntry(value, timeSource.markNow()) }
-            }
+            fetchShared(url, ttl, serializer)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            if (cached != null) {
-                return cached.value as T
+            // The query string is left out of the log: it may carry credentials.
+            val fallback = cached?.let { "serving stale entry" } ?: "nothing cached"
+            log.w(e) { "Refresh failed for ${url.substringBefore('?')}; $fallback" }
+            if (cached == null) {
+                throw DataUnavailable("XTTV is unavailable for $url", e)
             }
-            throw DataUnavailable("XTTV is unavailable for $url", e)
+            store(url, cached.value, minOf(ttl, FAILED_REFRESH_BACKOFF))
+            cached.value as T
         }
     }
 
-    /** Identical concurrent reads of [url] wait for one request instead of sending their own. */
+    private suspend fun cachedEntry(url: String) = cacheLock.withLock { cache[url] }
+
+    private suspend fun store(url: String, value: Any, freshFor: Duration) {
+        cacheLock.withLock { cache[url] = CacheEntry(value, timeSource.markNow(), freshFor) }
+    }
+
+    /**
+     * Identical concurrent reads of [url] wait for one request instead of sending their own. The owner
+     * caches the result before it lets go of the in-flight slot, so a reader arriving later sees one or the other.
+     */
     @Suppress("UNCHECKED_CAST")
-    private suspend fun <T : Any> fetchShared(url: String, serializer: KSerializer<T>): T {
+    private suspend fun <T : Any> fetchShared(url: String, ttl: Duration, serializer: KSerializer<T>): T {
         while (true) {
-            var owner = false
-            val call = inFlightLock.withLock {
-                inFlight.getOrPut(url) { CompletableDeferred<Any>().also { owner = true } }
+            var isOwner = false
+            val sharedResult = inFlightLock.withLock {
+                inFlight.getOrPut(url) { CompletableDeferred<Any>().also { isOwner = true } }
             }
-            if (!owner) {
+            if (!isOwner) {
                 try {
-                    return call.await() as T
+                    return sharedResult.await() as T
                 } catch (e: CancellationException) {
                     // The request's owner was cancelled, not this caller: take over.
                     currentCoroutineContext().ensureActive()
@@ -74,9 +93,13 @@ class XttvApi(
                 }
             }
             try {
-                return download(url, serializer).also { call.complete(it) }
+                // Another owner may have finished between this caller's cache check and taking the slot.
+                val fresh = cachedEntry(url)?.takeIf { it.isFresh() }?.value as T?
+                val value = fresh ?: download(url, serializer).also { store(url, it, ttl) }
+                sharedResult.complete(value)
+                return value
             } catch (e: Throwable) {
-                call.completeExceptionally(e)
+                sharedResult.completeExceptionally(e)
                 throw e
             } finally {
                 withContext(NonCancellable) { inFlightLock.withLock { inFlight.remove(url) } }

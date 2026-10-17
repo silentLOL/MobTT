@@ -10,7 +10,7 @@ kotlin {
         implementation(libs.kotlinx.serialization.core)
         implementation(libs.xmlutil.serialization)
         implementation(libs.kotlinx.coroutines.core)
-        implementation(libs.koin.core)
+        implementation(libs.kermit)
     }
     sourceSets.commonTest.dependencies {
         implementation(libs.kotlinx.coroutines.test)

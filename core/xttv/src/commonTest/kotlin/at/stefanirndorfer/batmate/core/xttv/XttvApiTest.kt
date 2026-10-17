@@ -8,10 +8,13 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -29,6 +32,7 @@ data class ClubsXml(val club: List<ClubXml> = emptyList())
 @XmlSerialName("club")
 data class ClubXml(@XmlElement(true) val name: String)
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class XttvApiTest {
     private val url = "https://example.test/clubs"
     private val ttl = 10.minutes
@@ -115,5 +119,36 @@ class XttvApiTest {
 
         assertEquals(List(3) { listOf("TTC Olympic") }, reads.awaitAll())
         assertEquals(1, requests)
+    }
+
+    @Test
+    fun readersArrivingAroundCompletionNeverSendASecondRequest() = runTest {
+        val rounds = 40
+        repeat(rounds) {
+            timeSource += ttl + 1.minutes
+            withContext(Dispatchers.Default) {
+                List(100) { async { clubNames() } }.awaitAll()
+            }
+        }
+
+        assertEquals(rounds, requests)
+    }
+
+    @Test
+    fun afterAFailedRefreshReadsDoNotRetryUntilTheBackoffPasses() = runTest {
+        clubNames()
+        xml = "<clubs><club><name>UTTC Wien</name></club></clubs>"
+        status = HttpStatusCode.ServiceUnavailable
+        timeSource += ttl + 1.minutes
+
+        assertEquals(listOf("TTC Olympic"), clubNames())
+        assertEquals(listOf("TTC Olympic"), clubNames())
+        assertEquals(2, requests)
+
+        status = HttpStatusCode.OK
+        timeSource += 2.minutes
+
+        assertEquals(listOf("UTTC Wien"), clubNames())
+        assertEquals(3, requests)
     }
 }
