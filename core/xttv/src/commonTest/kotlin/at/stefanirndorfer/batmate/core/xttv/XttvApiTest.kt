@@ -26,11 +26,11 @@ import kotlin.time.TestTimeSource
 
 @Serializable
 @XmlSerialName("clubs")
-data class ClubsXml(val club: List<ClubXml> = emptyList())
+data class SampleClubsXml(val club: List<SampleClubXml> = emptyList())
 
 @Serializable
 @XmlSerialName("club")
-data class ClubXml(@XmlElement(true) val name: String)
+data class SampleClubXml(@XmlElement(true) val name: String)
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class XttvApiTest {
@@ -52,7 +52,7 @@ class XttvApiTest {
         timeSource,
     )
 
-    private suspend fun clubNames() = api.get(url, ttl, ClubsXml.serializer()).club.map { it.name }
+    private suspend fun clubNames() = api.get(url, ttl, SampleClubsXml.serializer()).club.map { it.name }
 
     @Test
     fun repeatReadWithinTtlMakesNoSecondRequest() = runTest {

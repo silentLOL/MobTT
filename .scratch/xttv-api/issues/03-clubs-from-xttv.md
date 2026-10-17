@@ -6,9 +6,9 @@
 
 **Status:** ready-for-agent
 
-- [ ] `ClubRepository.getClub` and `searchClubs` are backed by the Club list and Club details from XTTV.
-- [ ] A blank query lists everything; otherwise results match on Club name, as today.
-- [ ] A Club resolves its Association, and requests for it go to that Association's host.
-- [ ] A Club XTTV does not know returns `null`; a failed request throws `DataUnavailable`.
-- [ ] Results are cached with the Club TTL; a failed refresh serves the stale entry.
-- [ ] Tests run through `ClubRepository` on `MockEngine` with recorded XML.
+- [x] `ClubRepository.getClub` and `searchClubs` are backed by the Club list and Club details from XTTV.
+- [x] A blank query lists everything; otherwise results match on Club name, as today.
+- [x] A Club resolves its Association, and requests for it go to that Association's host.
+- [x] A Club XTTV does not know returns `null`; a failed request throws `DataUnavailable`.
+- [x] Results are cached with the Club TTL; a failed refresh serves the stale entry.
+- [x] Tests run through `ClubRepository` on `MockEngine` with recorded XML.

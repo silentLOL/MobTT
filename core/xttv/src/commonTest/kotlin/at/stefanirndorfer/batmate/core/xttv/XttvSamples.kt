@@ -12,4 +12,16 @@ object XttvSamples {
         </federations>
     """
     const val NO_FEDERATIONS = "<federations/>"
+
+    const val CLUBS = """
+        <clubs>
+            <club><id>8846</id><name>TTC Olympic Wien</name><federationId>1</federationId><city>Wien</city></club>
+            <club><id>9001</id><name>UTTC Olympia Krems</name><federationId>2</federationId></club>
+        </clubs>
+    """
+    const val NO_CLUBS = "<clubs/>"
+    const val CLUB_8846 =
+        "<club><id>8846</id><name>TTC Olympic Wien</name><federationId>1</federationId></club>"
+    const val CLUB_9001 =
+        "<club><id>9001</id><name>UTTC Olympia Krems</name><federationId>2</federationId></club>"
 }
