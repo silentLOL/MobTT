@@ -25,3 +25,13 @@
 - deferred: `getTeams` goes through `getClub` (up to two extra requests, and fails with `DataUnavailable` if the Club lookup fails even when Teams are cached).
 - deferred: `getTeam` and the Club list use the default host; a Club or Team outside it returns `null`. Known limit of ADR-0008 until ticket 10.
 - deferred: Club and Team repository tests have no stale-on-failure case (covered in `XttvApiTest`), and `getClub` assumes the list and details schemas are identical. Both settle with the recorded XML in ticket 10.
+- deferred: Fixture and League test classes repeat the `MockEngine` harness (and the cache and failure tests); share a `fakeXttv(answers)` helper with the recorded-XML harness in ticket 10.
+- deferred: Naming nits: `home`/`away` in `GameXml.toDomain` (`homeMatchesWon`), `AUSTRIA` (`XTTV_TIME_ZONE`), and the `assertEquals(false, any { … })` in the Fixture test.
+- deferred: `getFixtures` picks its host through `getTeam` then `getClub`; same shape as the `getTeams` chain above, and a failed Club lookup throws `DataUnavailable` even when the games are cached.
+- deferred: Fixtures use the Club's Association host while League and standings use the default host, so the two can diverge for a non-default Association (ADR-0008). Settle with ticket 10.
+- deferred: A Team with a blank `leagueId` is not guarded in `getFixtures` or `getStandings`; the tests cover an unknown League only.
+- deferred: Ticket 05 reads "club and league game data" but only league games are used; no club-level games call.
+- deferred: DST tests miss the ambiguous 02:xx hour and the nonexistent spring-forward hour; `toInstant` picks an offset silently.
+- deferred: A Game with an unreadable date is dropped without a log, so schema drift shows as "no fixtures" instead of an error. Add a Kermit warning when ticket 10 fixes the real date format.
+- deferred: Fixtures are sorted by start time though no ticket asks for it; the Fixture and League tests have no stale-on-failure case (covered in `XttvApiTest`).
+- deferred: The fake still binds Fixtures and League; harmless because XTTV wins in `initKoin`. Shrinks when the fake is removed.
