@@ -45,9 +45,12 @@ private struct DetailRowView: View {
 }
 
 #Preview {
+    let kickoff = Date(timeIntervalSince1970: 1_800_000_000)
     BatPreviewMatrix {
         VStack(alignment: .leading, spacing: BatSpacing.lg) {
-            ForEach(ClubPreviewData.overview.teams) { NextFixtureView(nextFixture: $0.nextFixture) }
+            NextFixtureView(nextFixture: .scheduled(opponentName: "SK VÖEST Wien 1", startsAt: kickoff, venue: "Sporthalle Olympic", isHome: true))
+            NextFixtureView(nextFixture: .scheduled(opponentName: "SK VÖEST Wien 1", startsAt: kickoff, venue: nil, isHome: false))
+            NextFixtureView(nextFixture: .freeWeek)
         }
     }
 }

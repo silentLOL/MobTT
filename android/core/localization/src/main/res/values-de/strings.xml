@@ -69,4 +69,6 @@
     <string name="club_error_body">Prüfe deine Verbindung und versuche es erneut.</string>
     <string name="club_error_retry_button">Erneut versuchen</string>
     <string name="home_view_club_button">Verein ansehen</string>
+    <string name="home_fixtures_title">Kommende Begegnungen</string>
+    <string name="home_fixtures_error_body">Deine Begegnungen konnten gerade nicht geladen werden.</string>
 </resources>

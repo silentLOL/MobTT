@@ -7,6 +7,7 @@ final class HomeViewModel {
     private var selection: HomeSelectionUi = .none
     private var favorites: [HomeFavoriteUi] = []
     private var favoriteKeys: Set<String> = []
+    private var fixtures: HomeFixturesUi = .hidden
     private var pickerQuery: String?
     private var pickerPlayers: [PlayerSearchResult] = []
     private var pickerClubs: [Club] = []
@@ -14,6 +15,7 @@ final class HomeViewModel {
 
     @ObservationIgnored private let observeUserContext = KoinHelper.shared.getObserveUserContextUseCase()
     @ObservationIgnored private let observeResolvedFavorites = KoinHelper.shared.getObserveResolvedFavoritesUseCase()
+    @ObservationIgnored private let observeUpcomingFixtures = KoinHelper.shared.getObserveUpcomingFixturesUseCase()
     @ObservationIgnored private let observeFavorites = KoinHelper.shared.getObserveFavoritesUseCase()
     @ObservationIgnored private let addFavorite = KoinHelper.shared.getAddFavoriteUseCase()
     @ObservationIgnored private let removeFavorite = KoinHelper.shared.getRemoveFavoriteUseCase()
@@ -24,7 +26,7 @@ final class HomeViewModel {
     var events: AsyncStream<HomeEvent> { eventStream.stream }
 
     var uiState: HomeUiState {
-        HomeUiState(selection: selection, favorites: favorites, picker: pickerQuery.map(pickerUi))
+        HomeUiState(selection: selection, favorites: favorites, picker: pickerQuery.map(pickerUi), fixtures: fixtures)
     }
 
     /// Runs until the calling task is cancelled.
@@ -33,6 +35,7 @@ final class HomeViewModel {
             group.addTask { @MainActor in await self.observeSelection() }
             group.addTask { @MainActor in await self.observeResolved() }
             group.addTask { @MainActor in await self.observeKeys() }
+            group.addTask { @MainActor in await self.observeFixtures() }
         }
     }
 
@@ -71,6 +74,12 @@ final class HomeViewModel {
     private func observeResolved() async {
         for await resolved in observeResolvedFavorites.invoke() {
             favorites = resolved.compactMap { $0.toUi() }
+        }
+    }
+
+    private func observeFixtures() async {
+        for await upcoming in observeUpcomingFixtures.invoke() {
+            fixtures = upcoming.toUi()
         }
     }
 
@@ -165,6 +174,19 @@ private extension UserContext {
             .player(name: context.player.name, clubName: context.club.name, associationName: context.association.name)
         case .myClub(let context):
             .club(name: context.club.name, associationName: context.association.name)
+        }
+    }
+}
+
+private extension UpcomingFixtures {
+    func toUi() -> HomeFixturesUi {
+        switch onEnum(of: self) {
+        case .noSelection: .hidden
+        case .unavailable: .unavailable
+        case .loaded(let loaded):
+            loaded.entries.isEmpty
+                ? .hidden
+                : .loaded(loaded.entries.map { HomeFixtureUi(teamId: $0.team.id, teamName: $0.team.name, nextFixture: $0.next.toUi()) })
         }
     }
 }

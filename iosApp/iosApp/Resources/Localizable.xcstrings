@@ -647,6 +647,40 @@
         }
       }
     },
+    "home_fixtures_error_body": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Begegnungen konnten gerade nicht geladen werden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load your Fixtures right now."
+          }
+        }
+      }
+    },
+    "home_fixtures_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kommende Begegnungen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upcoming Fixtures"
+          }
+        }
+      }
+    },
     "home_my_club_overline": {
       "extractionState": "manual",
       "localizations": {

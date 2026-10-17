@@ -33,6 +33,7 @@ struct HomeScreen: View {
                 if state.selection != .none {
                     BatSecondaryButtonView(title: String(localized: "home_view_club_button")) { onAction(.viewClubClicked) }
                 }
+                UpcomingFixturesView(fixtures: state.fixtures)
                 VStack(alignment: .leading, spacing: 0) {
                     BatSectionHeaderView(
                         title: String(localized: "home_favorites_title"),
@@ -112,6 +113,24 @@ private let loadedState = HomeUiState(
                     ),
                 ]
             ),
+            onAction: { _ in }
+        )
+    }
+}
+
+#Preview("Fixtures") {
+    BatPreviewMatrix {
+        HomeScreen(
+            state: HomeUiState(selection: loadedState.selection, favorites: loadedState.favorites, fixtures: HomePreviewData.fixtures),
+            onAction: { _ in }
+        )
+    }
+}
+
+#Preview("Fixtures unavailable") {
+    BatPreviewMatrix {
+        HomeScreen(
+            state: HomeUiState(selection: loadedState.selection, favorites: loadedState.favorites, fixtures: .unavailable),
             onAction: { _ in }
         )
     }

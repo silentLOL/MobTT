@@ -9,6 +9,7 @@ import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.Favorite
 import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveResolvedFavoritesUseCase
+import at.stefanirndorfer.batmate.domain.user.ObserveUpcomingFixturesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.batmate.domain.user.PlayerSearchResult
 import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
@@ -41,6 +42,7 @@ private class PickerResult(
 class HomeViewModel(
     observeUserContext: ObserveUserContextUseCase,
     observeResolvedFavorites: ObserveResolvedFavoritesUseCase,
+    observeUpcomingFixtures: ObserveUpcomingFixturesUseCase,
     private val observeFavorites: ObserveFavoritesUseCase,
     private val addFavorite: AddFavoriteUseCase,
     private val removeFavorite: RemoveFavoriteUseCase,
@@ -54,7 +56,7 @@ class HomeViewModel(
         query?.let { PickerResult(it, searchPlayers(it), searchClubs(it)) }
     }
 
-    val uiState: StateFlow<HomeUiState> = combine(
+    private val baseState: Flow<HomeUiState> = combine(
         observeUserContext(),
         observeResolvedFavorites(),
         observeFavorites(),
@@ -66,6 +68,10 @@ class HomeViewModel(
             favorites = resolved,
             picker = query?.let { toPickerUi(it, result, favorites) },
         )
+    }
+
+    val uiState: StateFlow<HomeUiState> = combine(baseState, observeUpcomingFixtures()) { state, fixtures ->
+        state.copy(fixtures = fixtures)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), HomeUiState())
 
     private val eventChannel = Channel<HomeEvent>()

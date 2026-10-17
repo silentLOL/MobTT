@@ -27,8 +27,24 @@ struct FavoritePickerUi: Equatable {
     let clubs: [DirectoryEntryUi]
 }
 
+struct HomeFixtureUi: Identifiable, Equatable {
+    let teamId: String
+    let teamName: String
+    let nextFixture: NextFixtureUi
+
+    var id: String { teamId }
+}
+
+enum HomeFixturesUi: Equatable {
+    /// Loading, no selection, or a Club without Teams: the section is not drawn.
+    case hidden
+    case unavailable
+    case loaded([HomeFixtureUi])
+}
+
 struct HomeUiState: Equatable {
     var selection: HomeSelectionUi = .none
     var favorites: [HomeFavoriteUi] = []
     var picker: FavoritePickerUi?
+    var fixtures: HomeFixturesUi = .hidden
 }

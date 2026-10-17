@@ -12,11 +12,6 @@ struct StandingUi: Equatable {
     let points: Int
 }
 
-enum NextFixtureUi: Equatable {
-    case scheduled(opponentName: String, startsAt: Date, venue: String?, isHome: Bool)
-    case freeWeek
-}
-
 struct TeamUi: Identifiable, Equatable {
     let id: String
     let name: String

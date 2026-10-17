@@ -21,13 +21,16 @@ import at.stefanirndorfer.batmate.designsystem.ui.components.BatSecondaryButton
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.batmate.domain.user.Favorite
 import at.stefanirndorfer.batmate.domain.user.ResolvedFavorite
+import at.stefanirndorfer.batmate.domain.user.UpcomingFixtures
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models.HomeAction
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models.HomeEvent
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models.HomeSelectionUi
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models.HomeUiState
+import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.preview.upcomingFixturesPreview
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.views.FavoritePickerSheet
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.views.FavoriteRowView
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.views.MySelectionView
+import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.views.UpcomingFixturesView
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -73,6 +76,7 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth(),
             )
         }
+        UpcomingFixturesView(fixtures = state.fixtures)
         Column {
             BatSectionHeader(
                 title = stringResource(R.string.home_favorites_title),
@@ -155,6 +159,22 @@ private fun HomeScreenLongNamePreview() {
             ),
             onAction = {},
         )
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun HomeScreenFixturesPreview() {
+    BatPreviewSurface {
+        HomeScreen(state = loadedState.copy(fixtures = upcomingFixturesPreview), onAction = {})
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun HomeScreenFixturesUnavailablePreview() {
+    BatPreviewSurface {
+        HomeScreen(state = loadedState.copy(fixtures = UpcomingFixtures.Unavailable), onAction = {})
     }
 }
 

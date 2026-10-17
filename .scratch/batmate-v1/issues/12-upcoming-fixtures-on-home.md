@@ -6,13 +6,13 @@
 
 **Status:** ready-for-agent (the venue field is `needs-info` until the XTTV docs or sample responses exist)
 
-- [ ] A shared UseCase observes upcoming Fixtures for the Teams derived from the user's choice, ordered by date
-- [ ] Home on Android and on iOS shows date, time, opponent and venue per Fixture, with the free-week state
-- [ ] A user with neither My Player nor My Club sees the existing empty Home, not an empty Fixture list
-- [ ] UseCase-seam tests cover ordering, finished Fixtures excluded and free week
-- [ ] Previews cover loaded, free week and empty on both platforms
+- [x] A shared UseCase observes upcoming Fixtures for the Teams derived from the user's choice, ordered by date
+- [x] Home on Android and on iOS shows date, time, opponent and venue per Fixture, with the free-week state
+- [x] A user with neither My Player nor My Club sees the existing empty Home, not an empty Fixture list
+- [x] UseCase-seam tests cover ordering, finished Fixtures excluded and free week
+- [x] Previews cover loaded, free week and empty on both platforms
 - [ ] Accessibility rules and 200% text scaling hold on both platforms
-- [ ] If venue is unavailable from the API, the field is omitted from the UI rather than shown blank
+- [x] If venue is unavailable from the API, the field is omitted from the UI rather than shown blank
 
 ## Out of scope
 

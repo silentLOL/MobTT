@@ -2,6 +2,7 @@ package at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models
 
 import at.stefanirndorfer.batmate.core.ui.directory.models.DirectoryEntryUi
 import at.stefanirndorfer.batmate.domain.user.ResolvedFavorite
+import at.stefanirndorfer.batmate.domain.user.UpcomingFixtures
 
 sealed interface HomeSelectionUi {
     data object None : HomeSelectionUi
@@ -29,4 +30,6 @@ data class HomeUiState(
     val selection: HomeSelectionUi = HomeSelectionUi.None,
     val favorites: List<ResolvedFavorite> = emptyList(),
     val picker: FavoritePickerUi? = null,
+    /** Null until the first load finishes. */
+    val fixtures: UpcomingFixtures? = null,
 )

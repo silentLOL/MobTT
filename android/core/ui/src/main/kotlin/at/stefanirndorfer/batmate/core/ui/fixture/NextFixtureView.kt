@@ -1,4 +1,4 @@
-package at.stefanirndorfer.batmate.feature.club.impl.presentation.club.views
+package at.stefanirndorfer.batmate.core.ui.fixture
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
@@ -15,9 +15,10 @@ import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatIconView
+import at.stefanirndorfer.batmate.domain.club.Fixture
+import at.stefanirndorfer.batmate.domain.club.FixtureStatus
 import at.stefanirndorfer.batmate.domain.club.NextFixture
-import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.formatting.formatKickoff
-import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.preview.clubOverviewPreview
+import kotlin.time.Instant
 
 @Composable
 fun NextFixtureView(nextFixture: NextFixture, modifier: Modifier = Modifier) {
@@ -73,12 +74,25 @@ private fun DetailRowView(@DrawableRes icon: Int, text: String) {
     }
 }
 
+private val previewFixture = Fixture(
+    id = "f",
+    homeTeamId = "t1",
+    homeTeamName = "TTC Olympic 1",
+    awayTeamId = "t2",
+    awayTeamName = "SK VÖEST Wien 1",
+    startsAt = Instant.fromEpochSeconds(1_800_000_000),
+    venue = "Sporthalle Olympic",
+    status = FixtureStatus.Scheduled,
+)
+
 @BatScreenPreview
 @Composable
 private fun NextFixtureViewPreview() {
     BatPreviewSurface {
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.lg)) {
-            clubOverviewPreview.teams.forEach { NextFixtureView(it.nextFixture) }
+            NextFixtureView(NextFixture.Scheduled(previewFixture, "SK VÖEST Wien 1", isHome = true))
+            NextFixtureView(NextFixture.Scheduled(previewFixture.copy(venue = null), "SK VÖEST Wien 1", isHome = false))
+            NextFixtureView(NextFixture.FreeWeek)
         }
     }
 }

@@ -69,4 +69,6 @@
     <string name="club_error_body">Check your connection and try again.</string>
     <string name="club_error_retry_button">Try again</string>
     <string name="home_view_club_button">View Club</string>
+    <string name="home_fixtures_title">Upcoming Fixtures</string>
+    <string name="home_fixtures_error_body">Couldn\'t load your Fixtures right now.</string>
 </resources>
