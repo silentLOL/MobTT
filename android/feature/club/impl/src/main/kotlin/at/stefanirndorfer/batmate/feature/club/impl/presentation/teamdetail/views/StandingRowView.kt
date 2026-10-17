@@ -64,16 +64,15 @@ fun StandingRowView(standing: Standing, isThisTeam: Boolean, modifier: Modifier 
                 color = BatDesign.colors.textPrimary,
                 style = if (isThisTeam) BatDesign.typography.bodyStrong else BatDesign.typography.body,
             )
+            Text(
+                text = stringResource(R.string.team_detail_standing_stats_label, standing.played, standing.points),
+                color = BatDesign.colors.textSecondary,
+                style = BatDesign.typography.caption,
+            )
             if (isThisTeam) {
                 BatBadge(text = stringResource(R.string.team_detail_this_team_badge))
             }
         }
-        Text(
-            text = stringResource(R.string.team_detail_standing_stats_label, standing.played, standing.points),
-            color = BatDesign.colors.textSecondary,
-            style = BatDesign.typography.caption,
-            modifier = Modifier.clearAndSetSemantics {},
-        )
     }
 }
 

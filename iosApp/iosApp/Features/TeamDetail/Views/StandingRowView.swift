@@ -13,14 +13,14 @@ struct StandingRowView: View {
                 Text(row.teamName)
                     .batTextStyle(row.isThisTeam ? BatTypography.bodyStrong : BatTypography.body)
                     .foregroundStyle(BatColor.textPrimary)
+                Text("team_detail_standing_stats_label \(row.played) \(row.points)")
+                    .batTextStyle(BatTypography.caption)
+                    .foregroundStyle(BatColor.textSecondary)
                 if row.isThisTeam {
                     BatBadgeView(text: String(localized: "team_detail_this_team_badge"))
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            Text("team_detail_standing_stats_label \(row.played) \(row.points)")
-                .batTextStyle(BatTypography.caption)
-                .foregroundStyle(BatColor.textSecondary)
         }
         .padding(.horizontal, BatSpacing.md)
         .padding(.vertical, BatSpacing.sm)

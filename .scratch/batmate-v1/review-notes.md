@@ -66,3 +66,5 @@
 - declined: Section heading semantics. `BatSectionHeader` already sets them.
 - declined: Value classes for ids and trimming `LineupPlayer.playerId`. Same reasoning as earlier entries; the type is provisional.
 - deferred: Missing Team or Club shows Retry, same as a network failure. Revisit with domain errors and the real repositories (TODO in both ViewModels).
+- fixed: Team detail League table row put the stats beside the name, so names wrapped to three lines at 200% text on Android. Stats now sit under the name on both platforms (found by running the app).
+- deferred: iOS shell header ("Bat Mate" top bar) fills most of the screen at accessibility text sizes. Existing shell code, affects every screen.
