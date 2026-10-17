@@ -33,3 +33,9 @@ Swap `:domain:app` for the module under test.
 Compiles the Swift code against the `Shared` framework (the Xcode build phase runs Gradle itself) and prints only errors and the build result. It uses the first available iPhone simulator; set `IOS_SIMULATOR_ID` to pick another (`xcrun simctl list devices available`).
 
 Set `IOS_CONFIGURATION` (`Debug`, `Dev`, `Beta`, `Release`) to build another environment; see [`BUILD_VARIANTS.md`](BUILD_VARIANTS.md).
+
+```sh
+./scripts/ios-test.sh
+```
+
+Runs the `iosAppTests` unit tests (Swift Testing) on a simulator through the `iosAppTests` scheme. The ViewModels take their data loaders as initializer parameters, which the tests replace.

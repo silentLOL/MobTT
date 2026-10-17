@@ -10,10 +10,14 @@ final class TeamDetailViewModel {
     private let teamId: String
     private var loadTask: Task<Void, Never>?
 
-    @ObservationIgnored private let getTeamDetail = KoinHelper.shared.getGetTeamDetailUseCase()
+    private let loadDetail: (String) async throws -> DataResult
 
-    init(teamId: String) {
+    init(
+        teamId: String,
+        loadDetail: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadTeamDetail(teamId: $0) }
+    ) {
         self.teamId = teamId
+        self.loadDetail = loadDetail
     }
 
     /// Starts the first load once. It runs outside the view's task, so leaving and returning to the screen neither reloads nor strands it on `.loading`.
@@ -33,13 +37,14 @@ final class TeamDetailViewModel {
     private func load() async {
         uiState = .loading
         do {
-            let detail = try await getTeamDetail.invoke(teamId: teamId)
+            let result = try await loadDetail(teamId)
             guard !Task.isCancelled else { return }
-            // TODO: map to domain errors (offline vs. XTTV unreachable) once the real repositories exist.
-            uiState = detail.map { .content($0.toUi()) } ?? .error
+            switch onEnum(of: result) {
+            case .success(let success): uiState = (success.value as? TeamDetail).map { .content($0.toUi()) } ?? .error
+            case .unavailable: uiState = .error
+            }
         } catch {
-            guard !Task.isCancelled else { return }
-            uiState = .error
+            // Only cancellation can throw now, and the load that replaced this one owns the state.
         }
     }
 }

@@ -12,7 +12,7 @@ final class SettingsViewModel {
     private var currentClubId: String?
     private var searchTask: Task<Void, Never>?
 
-    @ObservationIgnored private let observeUserContext = KoinHelper.shared.getObserveUserContextUseCase()
+    @ObservationIgnored private let observeUserContext = KoinHelper.shared.observeUserContext()
     @ObservationIgnored private let setMyPlayer = KoinHelper.shared.getSetMyPlayerUseCase()
     @ObservationIgnored private let setMyClub = KoinHelper.shared.getSetMyClubUseCase()
     @ObservationIgnored private let searchPlayers = KoinHelper.shared.getSearchPlayersUseCase()
@@ -35,8 +35,12 @@ final class SettingsViewModel {
 
     /// Runs until the calling task is cancelled.
     func observe() async {
-        for await context in observeUserContext.invoke() {
-            apply(context)
+        for await result in observeUserContext {
+            switch onEnum(of: result) {
+            case .success(let success): apply((success.value as? UserContext) ?? UserContextNone.shared)
+            // Home shows the failure; Settings falls back to nothing chosen until a later emission.
+            case .unavailable: apply(UserContextNone.shared)
+            }
         }
     }
 

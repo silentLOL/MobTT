@@ -2,6 +2,7 @@ enum HomeAction {
     case chooseClicked
     case addFavoriteClicked
     case viewClubClicked
+    case retryFixturesClicked
     case favoriteClubClicked(id: String)
     case removeFavoriteClicked(HomeFavoriteUi)
     case pickerQueryChanged(String)

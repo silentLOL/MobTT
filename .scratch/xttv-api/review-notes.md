@@ -42,3 +42,8 @@
 - deferred: Home shows the "choose" prompt and no retry for the user-context and favorites lookups, and a failed picker search reads as "no results". Needs a `UserContext.Unavailable`.
 - deferred: Stale-cache-after-failed-refresh has no ViewModel test; it is covered by `XttvApiTest` at the repository layer.
 - deferred: Smells: `ClubViewModel`, `TeamDetailViewModel` and `HomeViewModel` repeat the `DataUnavailable` catch and the `retryCount` + `flatMapLatest` plumbing; `HomeViewModel.orElse` could be named `catchUnavailable`; `retryCount` is an `Int` used only as a trigger.
+- deferred: iOS Home has no ViewModel test (use cases are read from Koin in property initializers); `HomeViewModel` takes no loader seam yet.
+- deferred: iOS Home shows the "choose" prompt and no favorites while XTTV is unreachable; same `UserContext.Unavailable` gap as Android.
+- deferred: `DataResult` casts its payload (`as? UserContext`) because SKIE erases the generic; a non-generic result per call would be type-safe.
+- deferred: iOS Club `.mine` has no test (its user-context stream comes from Koin); only `.specific` is covered.
+- deferred: Error previews are not rendered or compared for Dynamic Type; there is no snapshot tooling on iOS.

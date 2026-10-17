@@ -5,18 +5,23 @@ import at.stefanirndorfer.batmate.core.fakedirectory.fakeDirectoryModule
 import at.stefanirndorfer.batmate.core.network.AppConfig
 import at.stefanirndorfer.batmate.core.network.Environment
 import at.stefanirndorfer.batmate.domain.app.GetPlatformNameUseCase
+import at.stefanirndorfer.batmate.domain.club.ClubOverview
 import at.stefanirndorfer.batmate.domain.club.GetClubOverviewUseCase
 import at.stefanirndorfer.batmate.domain.club.GetTeamDetailUseCase
 import at.stefanirndorfer.batmate.domain.club.SearchClubsUseCase
+import at.stefanirndorfer.batmate.domain.club.TeamDetail
 import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveResolvedFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUpcomingFixturesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
+import at.stefanirndorfer.batmate.domain.user.ResolvedFavorite
 import at.stefanirndorfer.batmate.domain.user.SearchPlayersUseCase
 import at.stefanirndorfer.batmate.domain.user.SetMyClubUseCase
 import at.stefanirndorfer.batmate.domain.user.SetMyPlayerUseCase
+import at.stefanirndorfer.batmate.domain.user.UserContext
+import kotlinx.coroutines.flow.Flow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -40,6 +45,14 @@ object KoinHelper : KoinComponent {
         val useCase: ObserveUserContextUseCase by inject()
         return useCase
     }
+
+    fun observeUserContext(): Flow<DataResult<UserContext>> = getObserveUserContextUseCase().invoke().asDataResult()
+
+    fun observeResolvedFavorites(): Flow<DataResult<List<ResolvedFavorite>>> = getObserveResolvedFavoritesUseCase().invoke().asDataResult()
+
+    suspend fun loadClubOverview(clubId: String): DataResult<ClubOverview?> = dataResult { getGetClubOverviewUseCase().invoke(clubId) }
+
+    suspend fun loadTeamDetail(teamId: String): DataResult<TeamDetail?> = dataResult { getGetTeamDetailUseCase().invoke(teamId) }
 
     fun getObserveResolvedFavoritesUseCase(): ObserveResolvedFavoritesUseCase {
         val useCase: ObserveResolvedFavoritesUseCase by inject()

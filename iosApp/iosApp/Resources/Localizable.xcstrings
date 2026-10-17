@@ -664,6 +664,23 @@
         }
       }
     },
+    "home_fixtures_error_retry_button": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut versuchen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try again"
+          }
+        }
+      }
+    },
     "home_fixtures_title": {
       "extractionState": "manual",
       "localizations": {

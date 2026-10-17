@@ -10,15 +10,22 @@ final class ClubViewModel {
     private let source: ClubSource
     private var clubId: String?
     private var loadTask: Task<Void, Never>?
+    /// Bumped by a retry; the route restarts `observe()` when it changes.
+    private(set) var retryCount = 0
 
-    @ObservationIgnored private let observeUserContext = KoinHelper.shared.getObserveUserContextUseCase()
-    @ObservationIgnored private let getClubOverview = KoinHelper.shared.getGetClubOverviewUseCase()
+    private let loadOverview: (String) async throws -> DataResult
+
+    @ObservationIgnored private let observeUserContext = KoinHelper.shared.observeUserContext()
     @ObservationIgnored private let eventStream = AsyncStream<ClubEvent>.makeStream()
 
     var events: AsyncStream<ClubEvent> { eventStream.stream }
 
-    init(source: ClubSource) {
+    init(
+        source: ClubSource,
+        loadOverview: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadClubOverview(clubId: $0) }
+    ) {
         self.source = source
+        self.loadOverview = loadOverview
     }
 
     /// Runs until the calling task is cancelled.
@@ -28,13 +35,20 @@ final class ClubViewModel {
             self.clubId = clubId
             await load(clubId: clubId)
         case .mine:
-            for await context in observeUserContext.invoke() {
-                clubId = context.club?.id
+            uiState = .loading
+            for await result in observeUserContext {
                 loadTask?.cancel()
-                if let clubId {
-                    loadTask = Task { await load(clubId: clubId) }
-                } else {
-                    uiState = .noClub
+                switch onEnum(of: result) {
+                case .unavailable:
+                    clubId = nil
+                    uiState = .error
+                case .success(let success):
+                    clubId = (success.value as? UserContext)?.club?.id
+                    if let clubId {
+                        loadTask = Task { await load(clubId: clubId) }
+                    } else {
+                        uiState = .noClub
+                    }
                 }
             }
         }
@@ -47,22 +61,22 @@ final class ClubViewModel {
         case .teamClicked(let teamId):
             eventStream.continuation.yield(.openTeam(teamId: teamId))
         case .retryClicked:
-            guard let clubId else { return }
             loadTask?.cancel()
-            loadTask = Task { await load(clubId: clubId) }
+            retryCount += 1
         }
     }
 
     private func load(clubId: String) async {
         uiState = .loading
         do {
-            let overview = try await getClubOverview.invoke(clubId: clubId)
+            let result = try await loadOverview(clubId)
             guard !Task.isCancelled else { return }
-            // TODO: map to domain errors (offline vs. XTTV unreachable) once the real repositories exist.
-            uiState = overview.map { .content($0.toUi()) } ?? .error
+            switch onEnum(of: result) {
+            case .success(let success): uiState = (success.value as? ClubOverview).map { .content($0.toUi()) } ?? .error
+            case .unavailable: uiState = .error
+            }
         } catch {
-            guard !Task.isCancelled else { return }
-            uiState = .error
+            // Only cancellation can throw now, and the load that replaced this one owns the state.
         }
     }
 }

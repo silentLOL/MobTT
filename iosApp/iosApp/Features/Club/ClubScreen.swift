@@ -16,7 +16,7 @@ struct ClubRoute: View {
 
     var body: some View {
         ClubScreen(state: viewModel.uiState, onAction: viewModel.onAction)
-            .task { await viewModel.observe() }
+            .task(id: viewModel.retryCount) { await viewModel.observe() }
             .task {
                 for await event in viewModel.events {
                     switch event {
@@ -53,6 +53,7 @@ struct ClubScreen: View {
                 buttonTitle: String(localized: "club_error_retry_button"),
                 onButtonClick: { onAction(.retryClicked) }
             )
+            .onAppear { AccessibilityNotification.Announcement(String(localized: "club_error_body")).post() }
         case .content(let overview):
             ContentView(overview: overview, onAction: onAction)
         }

@@ -38,6 +38,7 @@ struct TeamDetailScreen: View {
                 }
                 .padding(BatSpacing.lg)
             }
+            .onAppear { AccessibilityNotification.Announcement(String(localized: "team_detail_error_body")).post() }
         case .content(let detail):
             ContentView(detail: detail)
         }

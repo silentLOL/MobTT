@@ -12,9 +12,11 @@ final class HomeViewModel {
     private var pickerPlayers: [PlayerSearchResult] = []
     private var pickerClubs: [Club] = []
     private var searchTask: Task<Void, Never>?
+    /// Bumped by a retry; the route restarts `observe()` when it changes.
+    private(set) var retryCount = 0
 
-    @ObservationIgnored private let observeUserContext = KoinHelper.shared.getObserveUserContextUseCase()
-    @ObservationIgnored private let observeResolvedFavorites = KoinHelper.shared.getObserveResolvedFavoritesUseCase()
+    @ObservationIgnored private let observeUserContext = KoinHelper.shared.observeUserContext()
+    @ObservationIgnored private let observeResolvedFavorites = KoinHelper.shared.observeResolvedFavorites()
     @ObservationIgnored private let observeUpcomingFixtures = KoinHelper.shared.getObserveUpcomingFixturesUseCase()
     @ObservationIgnored private let observeFavorites = KoinHelper.shared.getObserveFavoritesUseCase()
     @ObservationIgnored private let addFavorite = KoinHelper.shared.getAddFavoriteUseCase()
@@ -31,6 +33,8 @@ final class HomeViewModel {
 
     /// Runs until the calling task is cancelled.
     func observe() async {
+        // A retry shows the loading state (no Fixtures section) until the new answer arrives.
+        fixtures = .hidden
         await withTaskGroup(of: Void.self) { group in
             group.addTask { @MainActor in await self.observeSelection() }
             group.addTask { @MainActor in await self.observeResolved() }
@@ -41,6 +45,8 @@ final class HomeViewModel {
 
     func onAction(_ action: HomeAction) {
         switch action {
+        case .retryFixturesClicked:
+            retryCount += 1
         case .chooseClicked:
             eventStream.continuation.yield(.openSettings)
         case .viewClubClicked:
@@ -66,14 +72,21 @@ final class HomeViewModel {
     }
 
     private func observeSelection() async {
-        for await context in observeUserContext.invoke() {
-            selection = context.toSelectionUi()
+        for await result in observeUserContext {
+            switch onEnum(of: result) {
+            case .success(let success): selection = (success.value as? UserContext)?.toSelectionUi() ?? .none
+            // TODO: the prompt to choose shows next to the Fixtures error until the domain has a `UserContext.Unavailable`.
+            case .unavailable: selection = .none
+            }
         }
     }
 
     private func observeResolved() async {
-        for await resolved in observeResolvedFavorites.invoke() {
-            favorites = resolved.compactMap { $0.toUi() }
+        for await result in observeResolvedFavorites {
+            switch onEnum(of: result) {
+            case .success(let success): favorites = (success.value as? [ResolvedFavorite])?.compactMap { $0.toUi() } ?? []
+            case .unavailable: favorites = []
+            }
         }
     }
 

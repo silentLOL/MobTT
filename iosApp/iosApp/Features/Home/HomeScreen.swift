@@ -9,7 +9,7 @@ struct HomeRoute: View {
 
     var body: some View {
         HomeScreen(state: viewModel.uiState, onAction: viewModel.onAction)
-            .task { await viewModel.observe() }
+            .task(id: viewModel.retryCount) { await viewModel.observe() }
             .task {
                 for await event in viewModel.events {
                     switch event {
@@ -33,7 +33,7 @@ struct HomeScreen: View {
                 if state.selection != .none {
                     BatSecondaryButtonView(title: String(localized: "home_view_club_button")) { onAction(.viewClubClicked) }
                 }
-                UpcomingFixturesView(fixtures: state.fixtures)
+                UpcomingFixturesView(fixtures: state.fixtures, onRetry: { onAction(.retryFixturesClicked) })
                 VStack(alignment: .leading, spacing: 0) {
                     BatSectionHeaderView(
                         title: String(localized: "home_favorites_title"),
