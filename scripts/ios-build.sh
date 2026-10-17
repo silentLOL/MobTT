@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Builds the iosApp scheme for a simulator and prints only errors and the build result.
-# Set IOS_SIMULATOR_ID to override the first available iPhone simulator.
+# Set IOS_SIMULATOR_ID to override the first available iPhone simulator, and
+# IOS_CONFIGURATION (Debug, Dev, Beta, Release) to build another environment.
 set -u
 cd "$(dirname "$0")/.."
 
@@ -10,6 +11,6 @@ if [ -z "$simulator_id" ]; then
   exit 1
 fi
 
-xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug \
+xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration "${IOS_CONFIGURATION:-Debug}" \
   -destination "id=$simulator_id" -derivedDataPath build/xcode \
   CODE_SIGNING_ALLOWED=NO build 2>&1 | grep -E "error:|^\*\* BUILD" | tee /dev/stderr | grep -q "BUILD SUCCEEDED"

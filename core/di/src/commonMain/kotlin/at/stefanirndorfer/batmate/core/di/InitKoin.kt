@@ -1,5 +1,7 @@
 package at.stefanirndorfer.batmate.core.di
 
+import at.stefanirndorfer.batmate.core.network.AppConfig
+import at.stefanirndorfer.batmate.core.network.networkModule
 import at.stefanirndorfer.batmate.core.platform.platformModule
 import at.stefanirndorfer.batmate.core.preferences.preferencesModule
 import at.stefanirndorfer.batmate.domain.app.di.appDomainModule
@@ -17,7 +19,7 @@ private val sharedModules = listOf(
     userDomainModule,
 )
 
-fun initKoin(appDeclaration: KoinAppDeclaration = {}): KoinApplication = startKoin {
+fun initKoin(config: AppConfig, appDeclaration: KoinAppDeclaration = {}): KoinApplication = startKoin {
     appDeclaration()
-    modules(sharedModules)
+    modules(sharedModules + networkModule(config))
 }

@@ -19,7 +19,7 @@ The pre-commit hook in `.githooks/` runs the same checks. Any Gradle compile or 
 
 ```sh
 ./gradlew :domain:app:testAndroidHostTest :domain:app:iosSimulatorArm64Test \
-  :androidApp:assembleDebug :shared-umbrella:linkDebugFrameworkIosSimulatorArm64
+  :androidApp:assembleDebDebug :shared-umbrella:linkDebugFrameworkIosSimulatorArm64
 ```
 
 Swap `:domain:app` for the module under test.
@@ -31,3 +31,5 @@ Swap `:domain:app` for the module under test.
 ```
 
 Compiles the Swift code against the `Shared` framework (the Xcode build phase runs Gradle itself) and prints only errors and the build result. It uses the first available iPhone simulator; set `IOS_SIMULATOR_ID` to pick another (`xcrun simctl list devices available`).
+
+Set `IOS_CONFIGURATION` (`Debug`, `Dev`, `Beta`, `Release`) to build another environment; see [`BUILD_VARIANTS.md`](BUILD_VARIANTS.md).

@@ -18,7 +18,7 @@ This project is a Kotlin Multiplatform (KMP) application using a Shared Domain L
 **Purpose:** Low-level infrastructure and external integrations.
 **Modules:**
 * `:core:database` (SQLDelight)
-* `:core:network` (Ktor)
+* `:core:network` (`AppConfig` and `Environment`; Ktor joins with the XTTV API ticket)
 * `:core:preferences` (Jetpack DataStore KMP)
 * `:core:platform` (Platform-specific shared code)
 * `:core:di` (Koin orchestration, `initKoin`). Depends on every `:domain:*` and `:core:*` module it registers, the one place where `core` may import `domain`.
@@ -44,7 +44,7 @@ This project is a Kotlin Multiplatform (KMP) application using a Shared Domain L
 **iOS:** Swift ViewModels and SwiftUI views live in `iosApp/` (Xcode). Dependencies are resolved via a `KoinHelper` exported from `shared-umbrella`.
 
 ## 3. Build Variants & Flavors
-Both platforms share a four-environment flavor setup: `deb`, `dev`, `beta`, `prod`. Each produces a distinct app name (`[Debug] BatMate`, `[Dev] BatMate`, `[Beta] BatMate`, `BatMate`). Document the per-platform mechanism (manifest placeholders vs. `.xcconfig`) in `docs/BUILD_VARIANTS.md`.
+Both platforms share a four-environment flavor setup: `deb`, `dev`, `beta`, `prod`. Each produces a distinct app name (`[Debug] Bat Mate`, `[Dev] Bat Mate`, `[Beta] Bat Mate`, `Bat Mate`). Document the per-platform mechanism (manifest placeholders vs. `.xcconfig`) in `docs/BUILD_VARIANTS.md`.
 
 ## 4. Folder Structure
 ```plaintext
@@ -194,8 +194,8 @@ A decentralized, type-safe navigation system for module isolation and build perf
 - **Strict Isolation:** Implementation modules must only depend on the `:api` modules of other features. NEVER depend on another feature's `:impl` module.
 
 ## 14. Networking, Authentication & Configuration
-- **BuildKonfig**: Environment-specific variables are defined in `:core:network/build.gradle.kts` within the `buildkonfig` block. Never store secrets or URLs in source code.
-- **Environmental Configuration**: Never hardcode URLs, Client IDs, or environment-specific toggles in feature code. Consume them via `AppConfig` (injected through Koin, `:core:network`), which is powered by `BuildKonfig`.
+- **Environment**: The active environment comes from the build (Android flavor, iOS `.xcconfig`) and reaches shared code through `initKoin(AppConfig)`, see ADR-0006. Never store secrets or URLs in source code.
+- **Environmental Configuration**: Never hardcode URLs, Client IDs, or environment-specific toggles in feature code. Consume them via `AppConfig` (injected through Koin, `:core:network`), which each platform builds from its environment.
 - **Unified Localhost**: For local development, all platforms must target `localhost`. Do NOT implement code-level bridges (like `10.0.2.2`). Android developers use `adb reverse`.
 - **Token Management**: The Ktor `Auth` plugin injects `Bearer` tokens into outbound requests and handles `401 Unauthorized` by transparently fetching new tokens. A `TokenProvider` interface breaks the circular dependency between the network and domain modules.
 - **Secure Storage**: Auth tokens are stored via a common `SecureStorage` interface.

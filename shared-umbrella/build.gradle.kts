@@ -18,6 +18,7 @@ kotlin {
 
     sourceSets.commonMain.dependencies {
         api(project(":core:di"))
+        implementation(project(":core:network"))
         implementation(libs.koin.core)
         api(project(":domain:app"))
         api(project(":domain:user"))

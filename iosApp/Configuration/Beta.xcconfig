@@ -1,0 +1,6 @@
+#include "Config.xcconfig"
+
+ENVIRONMENT=beta
+APP_NAME=[Beta] Bat Mate
+BUNDLE_ID_SUFFIX=.beta
+KOTLIN_FRAMEWORK_BUILD_TYPE=release

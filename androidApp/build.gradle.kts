@@ -12,6 +12,7 @@ kotlin {
 }
 dependencies {
     implementation(project(":core:di"))
+    implementation(project(":core:network"))
     implementation(project(":android:core:design-system"))
     implementation(project(":android:core:localization"))
     implementation(project(":android:feature:navigation"))
@@ -42,6 +43,32 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
+    flavorDimensions += "environment"
+    productFlavors {
+        create("deb") {
+            dimension = "environment"
+            buildConfigField("String", "ENVIRONMENT", "\"deb\"")
+            applicationIdSuffix = ".deb"
+            manifestPlaceholders["appName"] = "[Debug] Bat Mate"
+        }
+        create("dev") {
+            dimension = "environment"
+            buildConfigField("String", "ENVIRONMENT", "\"dev\"")
+            applicationIdSuffix = ".dev"
+            manifestPlaceholders["appName"] = "[Dev] Bat Mate"
+        }
+        create("beta") {
+            dimension = "environment"
+            buildConfigField("String", "ENVIRONMENT", "\"beta\"")
+            applicationIdSuffix = ".beta"
+            manifestPlaceholders["appName"] = "[Beta] Bat Mate"
+        }
+        create("prod") {
+            dimension = "environment"
+            buildConfigField("String", "ENVIRONMENT", "\"prod\"")
+            manifestPlaceholders["appName"] = "Bat Mate"
+        }
+    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -62,5 +89,6 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
