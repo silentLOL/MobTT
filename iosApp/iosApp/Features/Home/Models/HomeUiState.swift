@@ -7,6 +7,8 @@ enum HomeSelectionUi: Equatable {
 enum FavoriteKind: String {
     case player
     case club
+
+    func key(for entityId: String) -> String { "\(rawValue)-\(entityId)" }
 }
 
 struct HomeFavoriteUi: Identifiable, Equatable {
@@ -15,7 +17,7 @@ struct HomeFavoriteUi: Identifiable, Equatable {
     let name: String
     let detail: String?
 
-    var id: String { "\(kind.rawValue)-\(entityId)" }
+    var id: String { kind.key(for: entityId) }
 }
 
 /// Entries are marked selected when they are already a Favorite.

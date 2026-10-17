@@ -45,3 +45,13 @@
 - deferred: System-theme flash on cold start before the stored appearance loads. Needs a splash or synchronous read.
 - deferred: Release build cannot resolve the directory repositories. Recorded in ADR-0005, resolved by the real-repository ticket.
 - deferred: Feature-module previews are not rendered by `check`. Needs Roborazzi set up per feature module.
+- fixed: iOS fake directory was bound for every non-Prod environment. Now `Deb` only, matching Android's debug-only binding.
+- fixed: Home Favorites picker showed the previous session's results on reopen. Results are cleared on open.
+- fixed: `setMyPlayer`/`setMyClub` failure still closed the Settings picker. It now stays open.
+- fixed: Favorite key built in three places, `toggle` built a fake UI model, `SettingsDerivedRowView` shared a file. One `FavoriteKind.key(for:)`, `toggle(kind:entityId:)`, own file.
+- declined: Duplicated search and header code across Home and Settings, `Derived` data clump, section-index callback. Two copies, different state shapes; same reasoning as the Android entries.
+- declined: Single-line Swift `guard` returns against the braced-control-flow rule. The rule and its script target Kotlin.
+- declined: `Ui` suffix on `FavoriteKind`, `PickerKind`, `DerivedFrom`; nine `KoinHelper` getters. Matches the existing `getPlatformNameUseCase` pattern.
+- declined: `PreviewKoin` as scope creep. Shell previews need Koin.
+- deferred: `try?` swallowing search, add and remove failures. Revisit with the real API.
+- deferred: Prod and Beta cannot resolve the directory repositories. Resolved by the real-repository ticket (ADR-0005).

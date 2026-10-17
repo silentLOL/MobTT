@@ -41,15 +41,17 @@ final class HomeViewModel {
         case .chooseClicked:
             eventStream.continuation.yield(.openSettings)
         case .addFavoriteClicked:
+            pickerPlayers = []
+            pickerClubs = []
             updatePickerQuery("")
         case .removeFavoriteClicked(let favorite):
-            Task { try? await removeFavorite.invoke(favorite: favorite.toDomain()) }
+            Task { try? await removeFavorite.invoke(favorite: favorite.kind.toDomain(favorite.entityId)) }
         case .pickerQueryChanged(let query):
             updatePickerQuery(query)
         case .pickerPlayerClicked(let id):
-            toggle(HomeFavoriteUi(kind: .player, entityId: id, name: "", detail: nil))
+            toggle(kind: .player, entityId: id)
         case .pickerClubClicked(let id):
-            toggle(HomeFavoriteUi(kind: .club, entityId: id, name: "", detail: nil))
+            toggle(kind: .club, entityId: id)
         case .pickerDismissed:
             searchTask?.cancel()
             pickerQuery = nil
@@ -74,13 +76,14 @@ final class HomeViewModel {
         }
     }
 
-    private func toggle(_ favorite: HomeFavoriteUi) {
-        let isFavorite = favoriteKeys.contains(favorite.id)
+    private func toggle(kind: FavoriteKind, entityId: String) {
+        let isFavorite = favoriteKeys.contains(kind.key(for: entityId))
+        let favorite = kind.toDomain(entityId)
         Task {
             if isFavorite {
-                try? await removeFavorite.invoke(favorite: favorite.toDomain())
+                try? await removeFavorite.invoke(favorite: favorite)
             } else {
-                try? await addFavorite.invoke(favorite: favorite.toDomain())
+                try? await addFavorite.invoke(favorite: favorite)
             }
         }
     }
@@ -106,7 +109,7 @@ final class HomeViewModel {
                     id: $0.player.id,
                     title: $0.player.name,
                     subtitle: $0.clubName,
-                    selected: favoriteKeys.contains("\(FavoriteKind.player.rawValue)-\($0.player.id)")
+                    selected: favoriteKeys.contains(FavoriteKind.player.key(for: $0.player.id))
                 )
             },
             clubs: pickerClubs.map {
@@ -114,16 +117,16 @@ final class HomeViewModel {
                     id: $0.id,
                     title: $0.name,
                     subtitle: nil,
-                    selected: favoriteKeys.contains("\(FavoriteKind.club.rawValue)-\($0.id)")
+                    selected: favoriteKeys.contains(FavoriteKind.club.key(for: $0.id))
                 )
             }
         )
     }
 }
 
-private extension HomeFavoriteUi {
-    func toDomain() -> Favorite {
-        switch kind {
+private extension FavoriteKind {
+    func toDomain(_ entityId: String) -> Favorite {
+        switch self {
         case .player: FavoritePlayer(id: entityId)
         case .club: FavoriteClub(id: entityId)
         }
@@ -133,8 +136,8 @@ private extension HomeFavoriteUi {
 private extension Favorite {
     var key: String? {
         switch onEnum(of: self) {
-        case .player(let favorite): "\(FavoriteKind.player.rawValue)-\(favorite.id)"
-        case .club(let favorite): "\(FavoriteKind.club.rawValue)-\(favorite.id)"
+        case .player(let favorite): FavoriteKind.player.key(for: favorite.id)
+        case .club(let favorite): FavoriteKind.club.key(for: favorite.id)
         case .team: nil
         }
     }

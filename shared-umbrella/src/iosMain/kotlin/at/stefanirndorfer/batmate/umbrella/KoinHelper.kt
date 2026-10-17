@@ -21,8 +21,8 @@ object KoinHelper : KoinComponent {
     fun start(environmentKey: String) {
         val environment = Environment.fromKey(environmentKey)
         initKoin(AppConfig(environment)) {
-            // TODO: bind the XTTV-backed Player, Club and Association repositories for Prod; Home and Settings cannot resolve them until then.
-            if (environment != Environment.Prod) {
+            // TODO: bind the XTTV-backed Player, Club and Association repositories for Dev, Beta and Prod; Home and Settings cannot resolve them until then.
+            if (environment == Environment.Deb) {
                 modules(fakeDirectoryModule)
             }
         }

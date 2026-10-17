@@ -96,11 +96,15 @@ final class SettingsViewModel {
     private func choose(_ id: String) {
         guard let kind = pickerKind else { return }
         Task {
-            switch kind {
-            case .player: try? await setMyPlayer.invoke(playerId: id)
-            case .club: try? await setMyClub.invoke(clubId: id)
+            do {
+                switch kind {
+                case .player: try await setMyPlayer.invoke(playerId: id)
+                case .club: try await setMyClub.invoke(clubId: id)
+                }
+                closePicker()
+            } catch {
+                // The picker stays open so the choice can be retried.
             }
-            closePicker()
         }
     }
 
