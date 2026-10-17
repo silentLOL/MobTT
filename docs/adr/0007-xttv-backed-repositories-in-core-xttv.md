@@ -14,7 +14,7 @@ Forces:
 - XTTV words differ from ours (Federation, Game); the glossary stays canonical.
 
 ## Decision
-We will add `:core:xttv` (`bat.kmp.library`). It holds the XML DTOs, mappers and the XTTV-backed repository implementations, and depends on the `:domain:*` interfaces. `:core:network` keeps only the Ktor client factory (descriptive `User-Agent`, request de-duplication, concurrency cap of 2) and `AppConfig`. `:core:di` registers `:core:xttv` for `dev`, `beta` and `prod`; `deb` keeps `:core:fake-directory`. All non-debug environments talk to production XTTV, which has no known staging server.
+We will add `:core:xttv` (`bat.kmp.library`). It holds the XML DTOs, mappers and the XTTV-backed repository implementations, and depends on the `:domain:*` interfaces. `:core:network` keeps only the Ktor client factory (descriptive `User-Agent`, concurrency cap of 2) and `AppConfig`. `:core:xttv` exposes one `XttvApi` that owns the in-memory cache, de-duplication of identical concurrent requests and the failure rules. `:core:di` registers `:core:xttv` for `dev`, `beta` and `prod`; `deb` keeps `:core:fake-directory`. All non-debug environments talk to production XTTV, which has no known staging server.
 
 Parsing uses `xmlutil` with unknown children ignored. Tests run each mapper against recorded XML in `commonTest` through a Ktor `MockEngine`; none call the live API. Repositories keep an in-memory TTL cache (Clubs and Teams about 1 hour, Fixtures and standings about 5 minutes) and serve the stale entry when a refresh fails. A failed request throws a `DataUnavailable` exception defined in the domain; empty results stay `emptyList()` or `null`.
 
