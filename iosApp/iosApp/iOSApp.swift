@@ -9,8 +9,12 @@ struct iOSApp: App {
         Bundle.main.object(forInfoDictionaryKey: "BatEnvironment") as? String ?? ""
     }
 
+    private static var appVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
+    }
+
     init() {
-        KoinHelper.shared.start(environmentKey: Self.environmentKey)
+        KoinHelper.shared.start(environmentKey: Self.environmentKey, appVersion: Self.appVersion)
     }
 
     var body: some Scene {

@@ -8,6 +8,7 @@ kotlin {
         implementation(project(":core:network"))
         implementation(project(":core:platform"))
         implementation(project(":core:preferences"))
+        implementation(project(":core:xttv"))
         implementation(project(":domain:app"))
         implementation(project(":domain:club"))
         implementation(project(":domain:user"))

@@ -11,6 +11,7 @@ kotlin {
         implementation(libs.xmlutil.serialization)
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.kermit)
+        implementation(libs.koin.core)
     }
     sourceSets.commonTest.dependencies {
         implementation(libs.kotlinx.coroutines.test)

@@ -21,10 +21,9 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 object KoinHelper : KoinComponent {
-    fun start(environmentKey: String) {
+    fun start(environmentKey: String, appVersion: String) {
         val environment = Environment.fromKey(environmentKey)
-        initKoin(AppConfig(environment)) {
-            // TODO: bind the XTTV-backed Player, Club and Association repositories for Dev, Beta and Prod; Home and Settings cannot resolve them until then.
+        initKoin(AppConfig(environment, appVersion)) {
             if (environment == Environment.Deb) {
                 modules(fakeDirectoryModule)
             }

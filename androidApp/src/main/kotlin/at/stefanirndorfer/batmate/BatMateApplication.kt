@@ -12,9 +12,10 @@ import org.koin.android.ext.koin.androidContext
 class BatMateApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        initKoin(AppConfig(Environment.fromKey(BuildConfig.ENVIRONMENT))) {
+        val config = AppConfig(Environment.fromKey(BuildConfig.ENVIRONMENT), BuildConfig.VERSION_NAME)
+        initKoin(config) {
             androidContext(this@BatMateApplication)
-            modules(directoryModules + listOf(clubModule, homeModule, settingsModule))
+            modules(directoryModules(config.environment) + listOf(clubModule, homeModule, settingsModule))
         }
     }
 }

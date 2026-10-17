@@ -15,7 +15,7 @@ The code and module name stays `BatMate`; only the user-facing name has a space.
 
 `androidApp/build.gradle.kts` declares one flavor dimension, `environment`, with the flavors `deb`, `dev`, `beta` and `prod`. Each sets `applicationIdSuffix` and the `appName` manifest placeholder, which `AndroidManifest.xml` uses as `android:label`.
 
-Flavors multiply with the `debug` and `release` build types. Tasks are named `assemble<Flavor><BuildType>`, for example `:androidApp:assembleDevDebug`. The fake directory is bound by build type, not flavor (ADR-0005), so every `*Debug` variant has it.
+Flavors multiply with the `debug` and `release` build types. Tasks are named `assemble<Flavor><BuildType>`, for example `:androidApp:assembleDevDebug`. The fake directory is compiled into the `debug` build type only (ADR-0005) and bound only in the `deb` environment; `dev`, `beta` and `prod` read XTTV (ADR-0007).
 
 ## iOS
 
@@ -36,7 +36,7 @@ Each file sets `APP_NAME` (written to `CFBundleDisplayName`), `BUNDLE_ID_SUFFIX`
 
 Shared code reads the environment only through `AppConfig` (`:core:network`), injected by Koin. Each app builds it at launch and passes it to `initKoin` (rationale in [ADR-0006](adr/0006-app-config-from-platform-build-environment.md)):
 
-- Android: the flavor's `buildConfigField` `ENVIRONMENT` (`deb`, `dev`, `beta`, `prod`).
-- iOS: `ENVIRONMENT` in the `.xcconfig`, exposed as the `BatEnvironment` Info.plist key and read in `iOSApp`.
+- Android: the flavor's `buildConfigField` `ENVIRONMENT` (`deb`, `dev`, `beta`, `prod`). The app version (`versionName`) goes in as `AppConfig.appVersion`, which becomes the `User-Agent` XTTV sees.
+- iOS: `ENVIRONMENT` in the `.xcconfig`, exposed as the `BatEnvironment` Info.plist key and read in `iOSApp`. The app version is `CFBundleShortVersionString`.
 
 An unknown key stops the app at launch.

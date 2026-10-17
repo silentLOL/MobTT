@@ -1,6 +1,8 @@
 package at.stefanirndorfer.batmate
 
+import at.stefanirndorfer.batmate.core.network.Environment
 import org.koin.core.module.Module
 
-// TODO: bind the XTTV-backed Player, Club and Association repositories; Home and Settings cannot resolve them until then.
-val directoryModules: List<Module> = emptyList()
+/** Release builds carry no fake directory; every repository comes from XTTV through `initKoin`. */
+@Suppress("UNUSED_PARAMETER")
+fun directoryModules(environment: Environment): List<Module> = emptyList()
