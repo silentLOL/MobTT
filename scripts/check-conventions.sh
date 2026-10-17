@@ -73,4 +73,13 @@ for main_dir in $(find core domain shared-umbrella -type d -path '*/src/commonMa
   done
 done
 
+# A Kotlin exception reaches Swift as an NSError, so `catch is <Kotlin type>` compiles and never matches (docs/SKIE_BRIDGE.md).
+for file in $(find iosApp -name '*.swift' -not -path '*/build/*'); do
+  hits=$(grep -nE 'catch (is|let [a-z]+ as) (DataUnavailable|Kotlin[A-Za-z]*)' "$file" || true)
+  if [ -n "$hits" ]; then
+    fail "$file: catches a Kotlin exception type, which never matches; use a DataResult (docs/SKIE_BRIDGE.md)"
+    echo "$hits" | sed 's/^/    /'
+  fi
+done
+
 exit "$status"

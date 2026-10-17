@@ -45,7 +45,7 @@ Option A costs one module and keeps the layering rules intact. The in-memory cac
 
 ## Consequences
 - Release builds finally resolve the repositories; the `TODO` in `androidApp/src/release` goes away.
-- Every ViewModel needs a `catch` for `DataUnavailable`.
+- Every ViewModel needs a `catch` for `DataUnavailable`. On iOS the error cannot be caught as a type (it arrives as an `NSError`), so calls return a `DataResult` instead; see `docs/SKIE_BRIDGE.md`.
 - `PlayerRepository.searchPlayers` and `TeamRepository.getLineup` stay on the fake until XTTV documents how it exposes them (`TeamDetail` is still PROVISIONAL).
 - Revisit the cache when we want offline use, or when XTTV states an acceptable request rate.
 - Access depends on XTTV's registration; until it is granted, work uses recorded sample XML only.

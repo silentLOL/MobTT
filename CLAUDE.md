@@ -59,7 +59,7 @@ Both platforms share a four-environment flavor setup: `deb`, `dev`, `beta`, `pro
 
 ## 5. Technical Standards & Tooling
 * **Dependency Injection**: Koin is the primary DI framework. All modules (KMP or Pure Android) must define a Koin `module`. Central orchestration happens in `:core:di`.
-* **iOS Bridge:** SKIE is mandatory. It converts Kotlin Flow and Sealed Classes into native Swift AsyncSequence and Enums.
+* **iOS Bridge:** SKIE is mandatory. It converts Kotlin Flow and Sealed Classes into native Swift AsyncSequence and Enums. Before writing Swift against `Shared`, read [`docs/SKIE_BRIDGE.md`](docs/SKIE_BRIDGE.md): errors do not arrive as typed Swift errors.
 * **Preferences:** Jetpack DataStore KMP is used for asynchronous key-value storage.
 * **Design Tokens:** Managed in `:android:core:design-system`.
 * **Android Adapter:** Compose Theme in `android:core:design-system`.

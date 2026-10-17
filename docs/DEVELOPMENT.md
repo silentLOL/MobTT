@@ -1,6 +1,6 @@
 # Development checks
 
-Run the multi-target Gradle commands in the background; a cold run exceeds two minutes.
+Run the multi-target Gradle commands and the iOS scripts (`ios-build.sh`, `ios-test.sh`) in the background; a cold run exceeds two minutes, and `xcodebuild test` can exceed the ten-minute foreground limit. Write their logs to the scratchpad directory.
 
 ## Static checks
 

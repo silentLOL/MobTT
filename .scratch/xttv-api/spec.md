@@ -35,7 +35,7 @@ Every domain repository gets an XTTV-backed implementation that reads the XML AP
 21. As a developer, I want no test to call the live API, so that tests are fast, deterministic and polite to XTTV.
 22. As a developer, I want one place that decides which host serves an Association, so that a single-host answer from XTTV is a one-line change.
 23. As an iOS user, I want the same error and empty states as on Android, so that the platforms behave alike.
-24. As an iOS developer, I want the data error to arrive as a typed error through SKIE, so that Swift can handle it without string matching.
+24. As an iOS developer, I want the data error to arrive as a typed error through SKIE, so that Swift can handle it without string matching (delivered as a `DataResult`, not a thrown error).
 25. As a user with Favorites, I want them to keep resolving after the switch to real data, so that I do not lose my bookmarks.
 26. As the project owner, I want Favorites persistence on XTTV IDs held back from `prod` until ID uniqueness is confirmed, so that I do not ship a format that needs a live migration.
 27. As a player, I want Player search and the Team lineup to arrive once XTTV documents them, so that I do not see guessed data in the meantime.
@@ -47,7 +47,7 @@ Every domain repository gets an XTTV-backed implementation that reads the XML AP
 - The HTTP client factory sends a descriptive `User-Agent`, collapses identical in-flight requests and caps concurrency at 2.
 - Parsing is lenient: unknown elements are ignored.
 - Repositories keep an in-memory TTL cache: Clubs and Teams about 1 hour, Fixtures and standings about 5 minutes. A failed refresh serves the stale entry if one exists.
-- A failed request throws a `DataUnavailable` exception defined in the domain. Empty results remain an empty list or `null`, so "failed" and "empty" stay distinct. Each ViewModel on both platforms maps it to a retryable error state; on iOS it surfaces as a typed error through SKIE.
+- A failed request throws a `DataUnavailable` exception defined in the domain. Empty results remain an empty list or `null`, so "failed" and "empty" stay distinct. Each ViewModel on both platforms maps it to a retryable error state; on iOS it surfaces as a typed `DataResult.Unavailable` (see `docs/SKIE_BRIDGE.md`; a thrown exception would arrive as an `NSError`).
 - Each Association has its own XTTV host, chosen by a single host resolver from the Association. `AppConfig` carries only a default host. This is an assumption until XTTV answers (ADR-0008, Proposed).
 - IDs stay as plain strings. If real data shows collisions across Associations, they become `{associationId}:{id}` with a Favorites migration. Favorites persistence on XTTV IDs must not ship to `prod` before that question is answered.
 - `deb` builds on Android and iOS bind the fake directory. `dev`, `beta` and `prod` bind the XTTV-backed repositories and all talk to production XTTV, which has no known staging server. This replaces the release `TODO`.
