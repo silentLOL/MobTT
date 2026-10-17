@@ -2,23 +2,19 @@ import SwiftUI
 
 struct FavoriteRowView: View {
     let favorite: HomeFavoriteUi
+    var onClick: (() -> Void)?
     let onRemoveClick: () -> Void
 
     var body: some View {
         BatCardView(padding: BatSpacing.md) {
             HStack(spacing: BatSpacing.md) {
                 BatInitialsAvatarView(initials: initialsOf(favorite.name), tint: favorite.kind == .club ? .live : .brand)
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(favorite.name)
-                        .batTextStyle(BatTypography.bodyStrong)
-                        .foregroundStyle(BatColor.textPrimary)
-                    if let detail = favorite.detail {
-                        Text(detail)
-                            .batTextStyle(BatTypography.caption)
-                            .foregroundStyle(BatColor.textSecondary)
-                    }
+                if let onClick {
+                    Button(action: onClick) { labels }
+                        .buttonStyle(.plain)
+                } else {
+                    labels
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
                 BatIconButtonView(
                     icon: .close,
                     accessibilityText: String(localized: "home_favorite_remove_cd \(favorite.name)"),
@@ -26,6 +22,24 @@ struct FavoriteRowView: View {
                 )
             }
         }
+    }
+}
+
+private extension FavoriteRowView {
+    var labels: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(favorite.name)
+                .batTextStyle(BatTypography.bodyStrong)
+                .foregroundStyle(BatColor.textPrimary)
+            if let detail = favorite.detail {
+                Text(detail)
+                    .batTextStyle(BatTypography.caption)
+                    .foregroundStyle(BatColor.textSecondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(minHeight: BatSizing.minTouchTarget)
+        .contentShape(Rectangle())
     }
 }
 
@@ -38,6 +52,7 @@ struct FavoriteRowView: View {
             )
             FavoriteRowView(
                 favorite: HomeFavoriteUi(kind: .club, entityId: "c", name: "Nussdorf TTC", detail: "WTTV"),
+                onClick: {},
                 onRemoveClick: {}
             )
             FavoriteRowView(

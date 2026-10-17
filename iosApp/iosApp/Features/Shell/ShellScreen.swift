@@ -1,9 +1,14 @@
 import SwiftUI
 
+private struct ClubDetailRoute: Hashable {
+    let clubId: String
+}
+
 struct ShellScreen: View {
     @Binding var appearance: AppearanceChoice
     @State private var selectedTab = ShellTab.home
     @State private var isSettingsPresented = false
+    @State private var homePath: [ClubDetailRoute] = []
 
     var body: some View {
         BatScreenScaffoldView {
@@ -21,14 +26,29 @@ struct ShellScreen: View {
                         isSelected: tab == selectedTab
                     ) {
                         selectedTab = tab
+                        homePath.removeAll()
                     }
                 }
             }
         } content: {
             // The page style keeps the system tab bar out of the way, which the design system's own bar replaces.
             TabView(selection: $selectedTab) {
-                HomeRoute(onOpenSettings: { isSettingsPresented = true }).tag(ShellTab.home)
-                ClubScreen().tag(ShellTab.club)
+                NavigationStack(path: $homePath) {
+                    HomeRoute(
+                        onOpenSettings: { isSettingsPresented = true },
+                        onOpenMyClub: { selectedTab = .club },
+                        onOpenClub: { homePath.append(ClubDetailRoute(clubId: $0)) }
+                    )
+                    .toolbar(.hidden, for: .navigationBar)
+                    .navigationDestination(for: ClubDetailRoute.self) { route in
+                        ClubRoute(source: .specific(clubId: route.clubId), onOpenSettings: { isSettingsPresented = true })
+                            .navigationTitle(String(localized: "club_hero_overline"))
+                            .navigationBarTitleDisplayMode(.inline)
+                            .batBackground()
+                    }
+                }
+                .tag(ShellTab.home)
+                ClubRoute(source: .mine, onOpenSettings: { isSettingsPresented = true }).tag(ShellTab.club)
                 PlayersScreen().tag(ShellTab.players)
                 LiveScreen().tag(ShellTab.live)
             }

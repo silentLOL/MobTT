@@ -5,6 +5,7 @@ import at.stefanirndorfer.batmate.core.fakedirectory.fakeDirectoryModule
 import at.stefanirndorfer.batmate.core.network.AppConfig
 import at.stefanirndorfer.batmate.core.network.Environment
 import at.stefanirndorfer.batmate.domain.app.GetPlatformNameUseCase
+import at.stefanirndorfer.batmate.domain.club.GetClubOverviewUseCase
 import at.stefanirndorfer.batmate.domain.club.SearchClubsUseCase
 import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
@@ -75,6 +76,11 @@ object KoinHelper : KoinComponent {
 
     fun getSearchClubsUseCase(): SearchClubsUseCase {
         val useCase: SearchClubsUseCase by inject()
+        return useCase
+    }
+
+    fun getGetClubOverviewUseCase(): GetClubOverviewUseCase {
+        val useCase: GetClubOverviewUseCase by inject()
         return useCase
     }
 }

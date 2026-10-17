@@ -2,6 +2,8 @@ import SwiftUI
 
 struct HomeRoute: View {
     let onOpenSettings: () -> Void
+    let onOpenMyClub: () -> Void
+    let onOpenClub: (String) -> Void
 
     @State private var viewModel = HomeViewModel()
 
@@ -12,6 +14,8 @@ struct HomeRoute: View {
                 for await event in viewModel.events {
                     switch event {
                     case .openSettings: onOpenSettings()
+                    case .openMyClub: onOpenMyClub()
+                    case .openClub(let clubId): onOpenClub(clubId)
                     }
                 }
             }
@@ -26,6 +30,9 @@ struct HomeScreen: View {
         ScrollView {
             VStack(alignment: .leading, spacing: BatSpacing.lg) {
                 MySelectionView(selection: state.selection, onChooseClick: { onAction(.chooseClicked) })
+                if state.selection != .none {
+                    BatSecondaryButtonView(title: String(localized: "home_view_club_button")) { onAction(.viewClubClicked) }
+                }
                 VStack(alignment: .leading, spacing: 0) {
                     BatSectionHeaderView(
                         title: String(localized: "home_favorites_title"),
@@ -39,7 +46,11 @@ struct HomeScreen: View {
                     }
                     VStack(spacing: BatSpacing.sm) {
                         ForEach(state.favorites) { favorite in
-                            FavoriteRowView(favorite: favorite, onRemoveClick: { onAction(.removeFavoriteClicked(favorite)) })
+                            FavoriteRowView(
+                                favorite: favorite,
+                                onClick: favorite.kind == .club ? { onAction(.favoriteClubClicked(id: favorite.entityId)) } : nil,
+                                onRemoveClick: { onAction(.removeFavoriteClicked(favorite)) }
+                            )
                         }
                     }
                 }

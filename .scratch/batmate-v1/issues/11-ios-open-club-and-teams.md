@@ -6,10 +6,10 @@
 
 **Status:** ready-for-agent
 
-- [ ] The Club screen lists the Club's Teams, each with League, standing and next Fixture or free week
-- [ ] Swift ViewModels consume the shared UseCase through `KoinHelper` as async sequences, and the sealed free-week outcome arrives as a Swift enum through SKIE, exercising the conversion the review ledger lists as untested
-- [ ] The screen is reachable from Home and from a Favorite Club
-- [ ] Every view has a `#Preview` with representative sample data covering loading, loaded, empty and error
-- [ ] The fake directory stays bound only in a non-production configuration
+- [x] The Club screen lists the Club's Teams, each with League, standing and next Fixture or free week
+- [x] Swift ViewModels consume the shared UseCase through `KoinHelper` as async sequences, and the sealed free-week outcome arrives as a Swift enum through SKIE, exercising the conversion the review ledger lists as untested
+- [x] The screen is reachable from Home and from a Favorite Club
+- [x] Every view has a `#Preview` with representative sample data covering loading, loaded, empty and error
+- [x] The fake directory stays bound only in a non-production configuration
 - [ ] Accessibility labels, traits, 44pt targets and Dynamic Type follow the rules in CLAUDE.md
-- [ ] The iOS build passes (`docs/DEVELOPMENT.md`)
+- [x] The iOS build passes (`docs/DEVELOPMENT.md`)

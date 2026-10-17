@@ -40,6 +40,10 @@ final class HomeViewModel {
         switch action {
         case .chooseClicked:
             eventStream.continuation.yield(.openSettings)
+        case .viewClubClicked:
+            eventStream.continuation.yield(.openMyClub)
+        case .favoriteClubClicked(let id):
+            eventStream.continuation.yield(.openClub(clubId: id))
         case .addFavoriteClicked:
             pickerPlayers = []
             pickerClubs = []
