@@ -53,3 +53,12 @@ _Avoid_: Home club, Stammverein
 **Favorite**:
 A Player, Team or Club the user has bookmarked for quick access. Independent of My Player and My Club.
 _Avoid_: Bookmark, pin, Quick Link
+
+## XTTV terms
+
+XTTV, the source of our data, names some things differently. Our terms above stay canonical; XTTV's words appear only where we read its data.
+
+| XTTV term | Our term |
+|-----------|----------|
+| Federation (`getFederations`) | Association |
+| Game (`getClubGames`, `getLeagueGames`, `getGameDetails`) | Fixture |
