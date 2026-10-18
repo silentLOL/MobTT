@@ -6,6 +6,8 @@
 
 **Status:** ready-for-human
 
+**Progress:** Registration email sent to XTTV on 2026-10-18 (asks the ADR-0008 questions: access, base URLs, schemas, ID uniqueness, date format, staging, request rate). Waiting for the reply; tickets 09 and 10 resume then.
+
 - [ ] The project owner has registered with XTTV and has the base URL(s), authentication details and schemas.
 - [ ] Recorded XML in the tests is replaced by real responses (with personal data removed if present) and all repository tests pass.
 - [ ] One manual run on a `dev` build shows real Clubs, Teams, Fixtures and standings on both platforms.
