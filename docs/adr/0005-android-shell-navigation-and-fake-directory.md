@@ -56,6 +56,9 @@ costs a module but is the only way to keep both platforms demoable against ident
 - A release build cannot resolve the directory repositories, so Home and Settings fail
   until the real repositories land. That ticket must add the binding in `src/release`
   and then the fake can be restricted to tests and previews.
+- The `debRelease` variant is disabled, because `deb` gets its repositories only from the
+  fake directory, which release builds do not carry. `dev`, `beta` and `prod` release
+  builds still need the real repositories.
 - Team Favorites are not shown: there is no Team repository to resolve their names.
 - Appearance is stored by `:feature:settings:impl` in the shared DataStore but is not
   shared domain: iOS keeps its own.

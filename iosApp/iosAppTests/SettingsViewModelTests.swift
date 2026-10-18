@@ -67,9 +67,7 @@ struct SettingsViewModelTests {
         let viewModel = makeViewModel(emitting: [], clubs: [club])
 
         viewModel.onAction(.chooseClubClicked)
-        for _ in 0..<100 where viewModel.uiState.picker?.entries.isEmpty ?? true {
-            await Task.yield()
-        }
+        await waitUntil { !(viewModel.uiState.picker?.entries.isEmpty ?? true) }
 
         #expect(viewModel.uiState.picker?.entries == [DirectoryEntryUi(id: "c1", title: "Nussdorf TTC", subtitle: nil, selected: false)])
     }
@@ -80,9 +78,7 @@ struct SettingsViewModelTests {
 
         viewModel.onAction(.chooseClubClicked)
         viewModel.onAction(.pickerEntryClicked(id: "c1"))
-        for _ in 0..<100 where viewModel.uiState.picker != nil {
-            await Task.yield()
-        }
+        await waitUntil { viewModel.uiState.picker == nil }
 
         #expect(saved == ["c1"])
         #expect(viewModel.uiState.picker == nil)
@@ -98,9 +94,7 @@ struct SettingsViewModelTests {
 
         viewModel.onAction(.chooseClubClicked)
         viewModel.onAction(.pickerEntryClicked(id: "c1"))
-        for _ in 0..<100 where attempts == 0 {
-            await Task.yield()
-        }
+        await waitUntil { attempts > 0 }
 
         #expect(attempts == 1)
         #expect(viewModel.uiState.picker?.kind == .club)
@@ -113,6 +107,12 @@ struct SettingsViewModelTests {
         viewModel.onAction(.doneClicked)
 
         #expect(await events.next() == .dismiss)
+    }
+
+    private func waitUntil(_ condition: () -> Bool) async {
+        for _ in 0..<100 where !condition() {
+            await Task.yield()
+        }
     }
 
     private func makeViewModel(

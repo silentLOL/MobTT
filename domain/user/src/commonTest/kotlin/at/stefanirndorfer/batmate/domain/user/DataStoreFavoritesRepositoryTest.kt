@@ -1,9 +1,6 @@
 package at.stefanirndorfer.batmate.domain.user
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -64,13 +61,13 @@ class DataStoreFavoritesRepositoryTest {
 
     @Test
     fun favoritesSurviveReopeningTheStore() = runTest {
-        val firstSession = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val firstSession = newStoreScope()
         val firstStore = PreferenceDataStoreFactory.createWithPath(scope = firstSession, produceFile = { file })
         DataStoreFavoritesRepository(firstStore).add(Favorite.Team("t1"))
         firstSession.cancel()
 
         val reopened = PreferenceDataStoreFactory.createWithPath(
-            scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined),
+            scope = newStoreScope(),
             produceFile = { file },
         )
 

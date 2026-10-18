@@ -58,11 +58,13 @@ private class FakeData :
 
     override suspend fun searchPlayers(query: String): List<Player> = players
 
+    var failSaves = false
     private val selection = MutableStateFlow<UserSelection>(UserSelection.None)
 
     override fun observeSelection(): Flow<UserSelection> = selection
 
     override suspend fun saveSelection(selection: UserSelection) {
+        check(!failSaves) { "disk full" }
         this.selection.value = selection
     }
 
@@ -143,6 +145,22 @@ class SettingsViewModelTest {
         val state = viewModel.uiState.value
         assertNull(state.picker)
         assertEquals("Anna Gruber", state.myPlayerName)
+    }
+
+    @Test
+    fun aFailedSaveKeepsThePickerOpenAndTheChoiceUnchanged() = runTest {
+        val viewModel = viewModel()
+        viewModel.onAction(SettingsAction.ChoosePlayerClicked)
+        viewModel.onAction(SettingsAction.PickerEntryClicked("p1"))
+
+        data.failSaves = true
+        viewModel.onAction(SettingsAction.ChooseClubClicked)
+        viewModel.onAction(SettingsAction.PickerEntryClicked("c2"))
+
+        val state = viewModel.uiState.value
+        assertEquals(PickerKind.CLUB, state.picker?.kind)
+        assertEquals("Anna Gruber", state.myPlayerName)
+        assertNull(state.myClubName)
     }
 
     @Test

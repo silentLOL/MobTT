@@ -17,6 +17,7 @@ import at.stefanirndorfer.batmate.feature.settings.impl.presentation.settings.mo
 import at.stefanirndorfer.batmate.feature.settings.impl.presentation.settings.models.SettingsEvent
 import at.stefanirndorfer.batmate.feature.settings.impl.presentation.settings.models.SettingsPickerUi
 import at.stefanirndorfer.batmate.feature.settings.impl.presentation.settings.models.SettingsUiState
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -80,11 +81,17 @@ class SettingsViewModel(
     private fun choose(id: String) {
         val kind = pickerInput.value?.kind ?: return
         viewModelScope.launch {
-            when (kind) {
-                PickerKind.PLAYER -> setMyPlayer(id)
-                PickerKind.CLUB -> setMyClub(id)
+            try {
+                when (kind) {
+                    PickerKind.PLAYER -> setMyPlayer(id)
+                    PickerKind.CLUB -> setMyClub(id)
+                }
+                pickerInput.value = null
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // The picker stays open so the choice can be retried.
             }
-            pickerInput.value = null
         }
     }
 

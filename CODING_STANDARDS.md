@@ -65,6 +65,7 @@ All UI must adhere to **EN 301 549** and **WCAG 2.1 Level AA**.
 2.  **Dynamic Text Resizing**: Support system font scaling up to 200% without layout breakage.
     *   **Android**: Always use `sp` for font sizes. Avoid hardcoded heights on containers holding text.
     *   **iOS**: Use Dynamic Type (`@ScaledMetric` or native styles) and allow text wrapping.
+    *   **Equal-width bars (tab bar)**: where a one-word label cannot wrap, show the icon alone at accessibility sizes and keep the label for the screen reader and the Large Content Viewer (`BatTabBarItemView`).
 3.  **Color Contrast**: 4.5:1 for text (3:1 for large text); 3:1 for UI components/graphics. Validate token pairs for both Light and Dark themes.
 4.  **Touch Targets**: Minimum 44x44 dp/pt. Android's 48x48 dp is preferred.
 5.  **Focus Management**: No focus traps. Users must be able to navigate into and out of all components (modals, bottom sheets) using assistive technologies.

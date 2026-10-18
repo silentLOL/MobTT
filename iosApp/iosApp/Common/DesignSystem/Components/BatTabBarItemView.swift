@@ -12,29 +12,43 @@ struct BatTabBarItemView: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 0) {
-                BatIconView(icon: icon, tint: tint, size: BatSizing.iconLarge)
-                    .overlay(alignment: .topTrailing) {
-                        if showsLiveIndicator {
-                            BatPulsingDotView().offset(x: BatSpacing.xs, y: -BatSpacing.xxs)
-                        }
+            content
+                .padding(.horizontal, BatSpacing.sm)
+                .padding(.vertical, BatSpacing.xs)
+                .frame(minWidth: BatSizing.minTouchTarget, minHeight: BatSizing.minTouchTarget)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityShowsLargeContentViewer {
+            Label {
+                Text(label)
+            } icon: {
+                icon.image
+            }
+        }
+    }
+
+    /// At accessibility sizes a one-word label no longer fits an equal-width item, so the item shows its icon alone;
+    /// VoiceOver keeps the label and the Large Content Viewer shows it on a long press.
+    private var content: some View {
+        VStack(spacing: 0) {
+            BatIconView(icon: icon, tint: tint, size: BatSizing.iconLarge)
+                .overlay(alignment: .topTrailing) {
+                    if showsLiveIndicator {
+                        BatPulsingDotView().offset(x: BatSpacing.xs, y: -BatSpacing.xxs)
                     }
+                }
+            if !dynamicTypeSize.isAccessibilitySize {
                 Text(label)
                     .batTextStyle(BatTypography.overline)
                     .foregroundStyle(tint)
                     .multilineTextAlignment(.center)
                     .lineLimit(1)
-                    // One-line labels in equal-width items cannot hold full size at accessibility sizes, so shrink.
-                    .minimumScaleFactor(dynamicTypeSize.isAccessibilitySize ? 0.5 : 0.7)
+                    .minimumScaleFactor(0.7)
             }
-            .padding(.horizontal, BatSpacing.sm)
-            .padding(.vertical, BatSpacing.xs)
-            .frame(minWidth: BatSizing.minTouchTarget, minHeight: BatSizing.minTouchTarget)
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel(label)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private var tint: Color {

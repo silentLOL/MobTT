@@ -68,3 +68,13 @@
 - deferred: Missing Team or Club shows Retry, same as a network failure. Revisit with domain errors and the real repositories (TODO in both ViewModels).
 - fixed: Team detail League table row put the stats beside the name, so names wrapped to three lines at 200% text on Android. Stats now sit under the name on both platforms (found by running the app).
 - deferred: iOS shell header ("Bat Mate" top bar) fills most of the screen at accessibility text sizes. Existing shell code, affects every screen.
+- fixed: iOS tab bar kept a Dynamic Type cap below 200%, then a shrink-to-fit label and a two-column reflow were both tried and rejected after running the app (words broke mid-word at accessibility sizes). Now icon-only at accessibility sizes with the label kept for VoiceOver and the Large Content Viewer; exception written in `CODING_STANDARDS.md` §12.
+- fixed: Reopen test for the user selection and Favorites (the earlier deferral held that DataStore forbids two stores on one file; cancelling the first store's scope releases it). Ran three times on the iOS simulator target without flakiness.
+- fixed: No restart test for the Android appearance. Added `DataStoreAppearanceRepositoryTest`.
+- fixed: Android Settings `choose` let a failed save crash the ViewModel scope; it now keeps the picker open like iOS. Added the failing-save test.
+- fixed: Duplicated `CoroutineScope(...)` in the DataStore tests (`newStoreScope()`), triplicated polling loop in `SettingsViewModelTests` (`waitUntil`), vague `label` parameter on the iOS Settings `header` (now `accessibilityLabel`), stale ADR-0005 consequence for `debRelease`.
+- declined: iOS appearance test through `SettingsViewModel`. The iOS appearance lives in `@AppStorage` in the app, not the ViewModel; `AppearanceChoiceTests` covers the raw-value mapping instead.
+- declined: Repeated `KoinHelper.shared.getXUseCase().invoke(...)` in the iOS `SettingsViewModel` default closures. Same default-closure seam as `ClubViewModel`; the `try?` swallowing they carry is already deferred.
+- declined: `Arrangement.Center` on the favorite row and the injectable `SettingsViewModel` initializer as scope creep. The first keeps text centred in a 48dp row, the second is the seam the tests need.
+- deferred: Home add/remove Favorites untested on both platforms, and the iOS `HomeViewModel` has no injection seam. Eight dependencies; next piece of test work.
+
