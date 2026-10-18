@@ -76,5 +76,5 @@
 - declined: iOS appearance test through `SettingsViewModel`. The iOS appearance lives in `@AppStorage` in the app, not the ViewModel; `AppearanceChoiceTests` covers the raw-value mapping instead.
 - declined: Repeated `KoinHelper.shared.getXUseCase().invoke(...)` in the iOS `SettingsViewModel` default closures. Same default-closure seam as `ClubViewModel`; the `try?` swallowing they carry is already deferred.
 - declined: `Arrangement.Center` on the favorite row and the injectable `SettingsViewModel` initializer as scope creep. The first keeps text centred in a 48dp row, the second is the seam the tests need.
-- deferred: Home add/remove Favorites untested on both platforms, and the iOS `HomeViewModel` has no injection seam. Eight dependencies; next piece of test work.
+- fixed: Home add/remove Favorites untested on both platforms, and the iOS `HomeViewModel` had no injection seam. The iOS view model now takes its eight dependencies with Koin-backed defaults, and both platforms cover the resolved list, picker add, remove and selected marking, and dismiss.
 

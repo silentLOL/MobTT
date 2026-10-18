@@ -25,6 +25,7 @@ import at.stefanirndorfer.batmate.domain.user.ObserveResolvedFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUpcomingFixturesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
+import at.stefanirndorfer.batmate.domain.user.ResolvedFavorite
 import at.stefanirndorfer.batmate.domain.user.SearchPlayersUseCase
 import at.stefanirndorfer.batmate.domain.user.UpcomingFixtures
 import at.stefanirndorfer.batmate.domain.user.UserSelection
@@ -45,6 +46,7 @@ import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /** XTTV stand-in: every read throws [DataUnavailable] while [unavailable] is set. */
@@ -170,5 +172,74 @@ class HomeViewModelTest {
 
         val fixtures = assertIs<UpcomingFixtures.Loaded>(viewModel.uiState.value.fixtures)
         assertTrue(fixtures.entries.isEmpty())
+    }
+
+    @Test
+    fun addingAClubFromThePickerShowsItAsAResolvedFavoriteAndMarksItSelected() = runTest {
+        val viewModel = viewModel()
+        viewModel.onAction(HomeAction.AddFavoriteClicked)
+
+        viewModel.onAction(HomeAction.PickerClubClicked("c1"))
+
+        val state = viewModel.uiState.value
+        assertEquals(listOf(ResolvedFavorite(Favorite.Club("c1"), "TTC Olympic", "WTTV")), state.favorites)
+        assertTrue(state.picker!!.clubs.single().selected)
+    }
+
+    @Test
+    fun clickingASelectedPickerEntryAgainRemovesTheFavorite() = runTest {
+        val viewModel = viewModel()
+        viewModel.onAction(HomeAction.AddFavoriteClicked)
+        viewModel.onAction(HomeAction.PickerClubClicked("c1"))
+
+        viewModel.onAction(HomeAction.PickerClubClicked("c1"))
+
+        val state = viewModel.uiState.value
+        assertTrue(state.favorites.isEmpty())
+        assertTrue(state.picker!!.clubs.none { it.selected })
+    }
+
+    @Test
+    fun removingAFavoriteFromHomeDropsItFromTheList() = runTest {
+        data.add(Favorite.Club("c1"))
+        val viewModel = viewModel()
+        assertEquals(1, viewModel.uiState.value.favorites.size)
+
+        viewModel.onAction(HomeAction.RemoveFavoriteClicked(Favorite.Club("c1")))
+
+        assertTrue(viewModel.uiState.value.favorites.isEmpty())
+    }
+
+    @Test
+    fun aFavoriteThatCannotBeResolvedIsLeftOut() = runTest {
+        data.add(Favorite.Club("gone"))
+        val viewModel = viewModel()
+
+        assertTrue(viewModel.uiState.value.favorites.isEmpty())
+    }
+
+    @Test
+    fun dismissingThePickerClosesItAndKeepsTheFavorites() = runTest {
+        val viewModel = viewModel()
+        viewModel.onAction(HomeAction.AddFavoriteClicked)
+        viewModel.onAction(HomeAction.PickerClubClicked("c1"))
+
+        viewModel.onAction(HomeAction.PickerDismissed)
+
+        val state = viewModel.uiState.value
+        assertNull(state.picker)
+        assertEquals(1, state.favorites.size)
+    }
+
+    @Test
+    fun unavailableSearchLeavesThePickerOpenAndEmpty() = runTest {
+        val viewModel = viewModel()
+        data.unavailable = true
+
+        viewModel.onAction(HomeAction.AddFavoriteClicked)
+
+        val picker = viewModel.uiState.value.picker!!
+        assertTrue(picker.clubs.isEmpty())
+        assertTrue(picker.players.isEmpty())
     }
 }

@@ -15,15 +15,35 @@ final class HomeViewModel {
     /// Bumped by a retry; the route restarts `observe()` when it changes.
     private(set) var retryCount = 0
 
-    @ObservationIgnored private let observeUserContext = KoinHelper.shared.observeUserContext()
-    @ObservationIgnored private let observeResolvedFavorites = KoinHelper.shared.observeResolvedFavorites()
-    @ObservationIgnored private let observeUpcomingFixtures = KoinHelper.shared.getObserveUpcomingFixturesUseCase()
-    @ObservationIgnored private let observeFavorites = KoinHelper.shared.getObserveFavoritesUseCase()
-    @ObservationIgnored private let addFavorite = KoinHelper.shared.getAddFavoriteUseCase()
-    @ObservationIgnored private let removeFavorite = KoinHelper.shared.getRemoveFavoriteUseCase()
-    @ObservationIgnored private let searchPlayers = KoinHelper.shared.getSearchPlayersUseCase()
-    @ObservationIgnored private let searchClubs = KoinHelper.shared.getSearchClubsUseCase()
+    @ObservationIgnored private let observeUserContext: any AsyncSequence<DataResult, Never>
+    @ObservationIgnored private let observeResolvedFavorites: any AsyncSequence<DataResult, Never>
+    @ObservationIgnored private let observeUpcomingFixtures: any AsyncSequence<UpcomingFixtures, Never>
+    @ObservationIgnored private let observeFavorites: any AsyncSequence<Set<AnyHashable>, Never>
+    @ObservationIgnored private let addFavorite: (Favorite) async throws -> Void
+    @ObservationIgnored private let removeFavorite: (Favorite) async throws -> Void
+    @ObservationIgnored private let searchPlayers: (String) async -> [PlayerSearchResult]
+    @ObservationIgnored private let searchClubs: (String) async -> [Club]
     @ObservationIgnored private let eventStream = AsyncStream<HomeEvent>.makeStream()
+
+    init(
+        observeUserContext: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeUserContext(),
+        observeResolvedFavorites: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeResolvedFavorites(),
+        observeUpcomingFixtures: any AsyncSequence<UpcomingFixtures, Never> = KoinHelper.shared.getObserveUpcomingFixturesUseCase().invoke(),
+        observeFavorites: any AsyncSequence<Set<AnyHashable>, Never> = KoinHelper.shared.getObserveFavoritesUseCase().invoke(),
+        addFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getAddFavoriteUseCase().invoke(favorite: $0) },
+        removeFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getRemoveFavoriteUseCase().invoke(favorite: $0) },
+        searchPlayers: @escaping (String) async -> [PlayerSearchResult] = { (try? await KoinHelper.shared.getSearchPlayersUseCase().invoke(query: $0)) ?? [] },
+        searchClubs: @escaping (String) async -> [Club] = { (try? await KoinHelper.shared.getSearchClubsUseCase().invoke(query: $0)) ?? [] }
+    ) {
+        self.observeUserContext = observeUserContext
+        self.observeResolvedFavorites = observeResolvedFavorites
+        self.observeUpcomingFixtures = observeUpcomingFixtures
+        self.observeFavorites = observeFavorites
+        self.addFavorite = addFavorite
+        self.removeFavorite = removeFavorite
+        self.searchPlayers = searchPlayers
+        self.searchClubs = searchClubs
+    }
 
     var events: AsyncStream<HomeEvent> { eventStream.stream }
 
@@ -58,7 +78,7 @@ final class HomeViewModel {
             pickerClubs = []
             updatePickerQuery("")
         case .removeFavoriteClicked(let favorite):
-            Task { try? await removeFavorite.invoke(favorite: favorite.kind.toDomain(favorite.entityId)) }
+            Task { try? await removeFavorite(favorite.kind.toDomain(favorite.entityId)) }
         case .pickerQueryChanged(let query):
             updatePickerQuery(query)
         case .pickerPlayerClicked(let id):
@@ -91,13 +111,13 @@ final class HomeViewModel {
     }
 
     private func observeFixtures() async {
-        for await upcoming in observeUpcomingFixtures.invoke() {
+        for await upcoming in observeUpcomingFixtures {
             fixtures = upcoming.toUi()
         }
     }
 
     private func observeKeys() async {
-        for await set in observeFavorites.invoke() {
+        for await set in observeFavorites {
             favoriteKeys = Set(set.compactMap { ($0 as? Favorite)?.key })
         }
     }
@@ -107,9 +127,9 @@ final class HomeViewModel {
         let favorite = kind.toDomain(entityId)
         Task {
             if isFavorite {
-                try? await removeFavorite.invoke(favorite: favorite)
+                try? await removeFavorite(favorite)
             } else {
-                try? await addFavorite.invoke(favorite: favorite)
+                try? await addFavorite(favorite)
             }
         }
     }
@@ -118,8 +138,8 @@ final class HomeViewModel {
         pickerQuery = query
         searchTask?.cancel()
         searchTask = Task {
-            let players = (try? await searchPlayers.invoke(query: query)) ?? []
-            let clubs = (try? await searchClubs.invoke(query: query)) ?? []
+            let players = await searchPlayers(query)
+            let clubs = await searchClubs(query)
             guard !Task.isCancelled else { return }
             // Results for an earlier query are kept until the new ones arrive, so the list does not flicker empty while typing.
             pickerPlayers = players
