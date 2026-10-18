@@ -31,6 +31,7 @@ import at.stefanirndorfer.batmate.domain.user.UpcomingFixtures
 import at.stefanirndorfer.batmate.domain.user.UserSelection
 import at.stefanirndorfer.batmate.domain.user.UserSelectionRepository
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models.HomeAction
+import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models.HomeSelectionUi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -153,6 +154,18 @@ class HomeViewModelTest {
         viewModel.onAction(HomeAction.RetryFixturesClicked)
 
         assertIs<UpcomingFixtures.Loaded>(viewModel.uiState.value.fixtures)
+    }
+
+    @Test
+    fun unavailableDataDoesNotAskTheUserToChooseAgainAndRetryRecovers() = runTest {
+        data.unavailable = true
+        val viewModel = viewModel()
+        assertEquals(HomeSelectionUi.Unavailable, viewModel.uiState.value.selection)
+
+        data.unavailable = false
+        viewModel.onAction(HomeAction.RetryFixturesClicked)
+
+        assertEquals(HomeSelectionUi.Club("TTC Olympic", "WTTV"), viewModel.uiState.value.selection)
     }
 
     @Test

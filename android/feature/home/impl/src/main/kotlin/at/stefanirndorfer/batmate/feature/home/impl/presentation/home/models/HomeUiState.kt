@@ -7,6 +7,9 @@ import at.stefanirndorfer.batmate.domain.user.UpcomingFixtures
 sealed interface HomeSelectionUi {
     data object None : HomeSelectionUi
 
+    /** XTTV could not be reached to resolve the choice, so neither the prompt nor a name is shown. */
+    data object Unavailable : HomeSelectionUi
+
     data class Player(
         val name: String,
         val clubName: String,

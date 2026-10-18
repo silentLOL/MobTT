@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -64,14 +65,14 @@ class HomeViewModel(
 
     // The streams below end at a DataUnavailable; a retry restarts them all.
     private fun baseState(): Flow<HomeUiState> = combine(
-        observeUserContext().orElse(UserContext.None),
+        observeUserContext().map { it.toSelectionUi() }.orElse(HomeSelectionUi.Unavailable),
         observeResolvedFavorites().orElse(emptyList()),
         observeFavorites(),
         pickerQuery,
         pickerResult,
-    ) { userContext, resolved, favorites, query, result ->
+    ) { selection, resolved, favorites, query, result ->
         HomeUiState(
-            selection = userContext.toSelectionUi(),
+            selection = selection,
             favorites = resolved,
             picker = query?.let { toPickerUi(it, result, favorites) },
         )

@@ -1,7 +1,18 @@
 enum HomeSelectionUi: Equatable {
     case none
+    /// XTTV could not be reached to resolve the choice, so neither the prompt nor a name is shown.
+    case unavailable
     case player(name: String, clubName: String, associationName: String)
     case club(name: String, associationName: String)
+}
+
+extension HomeSelectionUi {
+    var isChosen: Bool {
+        switch self {
+        case .player, .club: true
+        case .none, .unavailable: false
+        }
+    }
 }
 
 enum FavoriteKind: String {

@@ -95,8 +95,7 @@ final class HomeViewModel {
         for await result in observeUserContext {
             switch onEnum(of: result) {
             case .success(let success): selection = (success.value as? UserContext)?.toSelectionUi() ?? .none
-            // TODO: the prompt to choose shows next to the Fixtures error until the domain has a `UserContext.Unavailable`.
-            case .unavailable: selection = .none
+            case .unavailable: selection = .unavailable
             }
         }
     }

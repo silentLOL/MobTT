@@ -38,6 +38,16 @@ struct HomeViewModelFavoritesTests {
         #expect(viewModel.uiState.favorites.isEmpty)
     }
 
+    @Test func anUnavailableUserContextIsNotThePromptToChoose() async {
+        let viewModel = makeViewModel(
+            userContext: [DataResultUnavailable(error: DataUnavailable(message: "down", cause: nil))]
+        )
+
+        await viewModel.observe()
+
+        #expect(viewModel.uiState.selection == .unavailable)
+    }
+
     @Test func pickerMarksAnExistingFavoriteSelected() async {
         let viewModel = makeViewModel(favorites: [FavoriteClub(id: "c1") as AnyHashable], clubs: [club])
         await viewModel.observe()
@@ -97,6 +107,7 @@ struct HomeViewModelFavoritesTests {
     }
 
     private func makeViewModel(
+        userContext: [DataResult] = [DataResultSuccess(value: UserContextNone.shared)],
         resolved: [DataResult] = [],
         favorites: Set<AnyHashable> = [],
         clubs: [Club] = [],
@@ -104,7 +115,7 @@ struct HomeViewModelFavoritesTests {
         removeFavorite: @escaping (Favorite) async throws -> Void = { _ in }
     ) -> HomeViewModel {
         HomeViewModel(
-            observeUserContext: finite([DataResultSuccess(value: UserContextNone.shared) as DataResult]),
+            observeUserContext: finite(userContext),
             observeResolvedFavorites: finite(resolved),
             observeUpcomingFixtures: finite([UpcomingFixturesNoSelection.shared as UpcomingFixtures]),
             observeFavorites: finite([favorites]),

@@ -8,6 +8,8 @@ struct MySelectionView: View {
         switch selection {
         case .none:
             ChoosePromptView(onChooseClick: onChooseClick)
+        case .unavailable:
+            EmptyView()
         case .player(let name, let clubName, let associationName):
             HeroView(
                 overline: String(localized: "home_my_player_overline"),

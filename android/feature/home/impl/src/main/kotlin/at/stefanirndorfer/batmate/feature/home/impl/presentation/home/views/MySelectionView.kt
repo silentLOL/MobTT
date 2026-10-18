@@ -27,6 +27,7 @@ fun MySelectionView(
 ) {
     when (selection) {
         HomeSelectionUi.None -> ChoosePromptView(onChooseClick = onChooseClick, modifier = modifier)
+        HomeSelectionUi.Unavailable -> Unit
         is HomeSelectionUi.Player -> HeroView(
             overline = stringResource(R.string.home_my_player_overline),
             name = selection.name,

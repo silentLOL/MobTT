@@ -69,7 +69,7 @@ fun HomeScreen(
             selection = state.selection,
             onChooseClick = { onAction(HomeAction.ChooseClicked) },
         )
-        if (state.selection != HomeSelectionUi.None) {
+        if (state.selection is HomeSelectionUi.Player || state.selection is HomeSelectionUi.Club) {
             BatSecondaryButton(
                 text = stringResource(R.string.home_view_club_button),
                 onClick = { onAction(HomeAction.ViewClubClicked) },

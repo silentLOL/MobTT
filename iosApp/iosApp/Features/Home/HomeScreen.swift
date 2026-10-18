@@ -30,7 +30,7 @@ struct HomeScreen: View {
         ScrollView {
             VStack(alignment: .leading, spacing: BatSpacing.lg) {
                 MySelectionView(selection: state.selection, onChooseClick: { onAction(.chooseClicked) })
-                if state.selection != .none {
+                if state.selection.isChosen {
                     BatSecondaryButtonView(title: String(localized: "home_view_club_button")) { onAction(.viewClubClicked) }
                 }
                 UpcomingFixturesView(fixtures: state.fixtures, onRetry: { onAction(.retryFixturesClicked) })
