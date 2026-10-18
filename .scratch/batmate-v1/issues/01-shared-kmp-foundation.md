@@ -4,11 +4,11 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Shared modules in `core/` and `domain/` apply `bat.kmp.library` and target Android and iOS
-- [ ] `initKoin` registers modules from a single place and is called by the Android app and the iOS app
-- [ ] iOS links only the framework produced by `shared-umbrella`, with SKIE converting Flow and sealed classes
-- [ ] A UseCase test in `commonTest` passes on the Android host test and the iOS simulator test
-- [ ] The template greeting code and `README` run instructions are updated or removed
-- [ ] An ADR records the SKIE and `shared-umbrella` decision if it deviates from CLAUDE.md
+- [x] Shared modules in `core/` and `domain/` apply `bat.kmp.library` and target Android and iOS
+- [x] `initKoin` registers modules from a single place and is called by the Android app and the iOS app
+- [x] iOS links only the framework produced by `shared-umbrella`, with SKIE converting Flow and sealed classes
+- [x] A UseCase test in `commonTest` passes on the Android host test and the iOS simulator test
+- [x] The template greeting code and `README` run instructions are updated or removed
+- [x] An ADR records the SKIE and `shared-umbrella` decision if it deviates from CLAUDE.md

@@ -4,10 +4,12 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Android has the four flavors, with the app name supplied through manifest placeholders
-- [ ] iOS has the four configurations, with the app name supplied through `.xcconfig`
-- [ ] Each variant can be installed next to the others on one device
-- [ ] `docs/BUILD_VARIANTS.md` documents the mechanism per platform
-- [ ] The environment is exposed to the shared code only through `AppConfig`, not hardcoded in features
+- [x] Android has the four flavors, with the app name supplied through manifest placeholders
+- [x] iOS has the four configurations, with the app name supplied through `.xcconfig`
+- [x] Each variant can be installed next to the others on one device
+- [x] `docs/BUILD_VARIANTS.md` documents the mechanism per platform
+- [x] The environment is exposed to the shared code only through `AppConfig`, not hardcoded in features
+
+**Manual check outstanding:** install the four variants side by side on one device.

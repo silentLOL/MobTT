@@ -4,10 +4,10 @@
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] UseCases add, remove and observe Favorites of Player, Team and Club
-- [ ] Adding the same Favorite twice results in one entry
-- [ ] Favorites persist locally with DataStore through `:core:preferences`
-- [ ] Changing My Player or My Club does not change Favorites
-- [ ] Tests at the UseCase seam run against fake repositories and assert only on observable outcomes
+- [x] UseCases add, remove and observe Favorites of Player, Team and Club
+- [x] Adding the same Favorite twice results in one entry
+- [x] Favorites persist locally with DataStore through `:core:preferences`
+- [x] Changing My Player or My Club does not change Favorites
+- [x] Tests at the UseCase seam run against fake repositories and assert only on observable outcomes

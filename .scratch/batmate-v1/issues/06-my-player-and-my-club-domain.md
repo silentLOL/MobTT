@@ -4,12 +4,12 @@
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Domain models exist for Association, Club, Team and Player, using the glossary terms, with a Player belonging to exactly one Club
-- [ ] UseCases set and observe the user's choice as `Flow` or `suspend`
-- [ ] Choosing My Player derives the Club and Association, and choosing My Club derives the Association
-- [ ] Choosing one replaces the other, so there is never both
-- [ ] The choice is persisted with DataStore through `:core:preferences`
-- [ ] Repository interfaces live in separate files from their implementations
-- [ ] Tests at the UseCase seam run against fake repositories and assert only on observable outcomes
+- [x] Domain models exist for Association, Club, Team and Player, using the glossary terms, with a Player belonging to exactly one Club
+- [x] UseCases set and observe the user's choice as `Flow` or `suspend`
+- [x] Choosing My Player derives the Club and Association, and choosing My Club derives the Association
+- [x] Choosing one replaces the other, so there is never both
+- [x] The choice is persisted with DataStore through `:core:preferences`
+- [x] Repository interfaces live in separate files from their implementations
+- [x] Tests at the UseCase seam run against fake repositories and assert only on observable outcomes

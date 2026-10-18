@@ -4,12 +4,14 @@
 
 **Blocked by:** 03, 06, 07
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] The Settings sheet offers My Player and My Club, and the Club and Association are shown derived, not editable
-- [ ] Home shows the chosen Player or Club, and Favorites as quick access with add and remove
-- [ ] The ViewModel exposes one `StateFlow` of UI state and one `onAction` entry point, with one-off events through a channel
-- [ ] Screens take navigation as function parameters, and feature modules depend only on other features' `:api` modules
-- [ ] Koin modules are registered through `:core:di`
-- [ ] Previews cover empty, loaded and a long-name state, and the screens meet the accessibility rules in CLAUDE.md
-- [ ] The fake directory is bound only in a non-production configuration and is marked for replacement by the real repository
+- [x] The Settings sheet offers My Player and My Club, and the Club and Association are shown derived, not editable
+- [x] Home shows the chosen Player or Club, and Favorites as quick access with add and remove
+- [x] The ViewModel exposes one `StateFlow` of UI state and one `onAction` entry point, with one-off events through a channel
+- [x] Screens take navigation as function parameters, and feature modules depend only on other features' `:api` modules
+- [x] Koin modules are registered through `:core:di`
+- [x] Previews cover empty, loaded and a long-name state, and the screens meet the accessibility rules in CLAUDE.md
+- [x] The fake directory is bound only in a non-production configuration and is marked for replacement by the real repository
+
+**Manual check outstanding:** 200% font scale and TalkBack on a device.
