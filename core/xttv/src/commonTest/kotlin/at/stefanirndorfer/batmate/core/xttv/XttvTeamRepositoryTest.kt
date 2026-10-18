@@ -14,6 +14,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.TestTimeSource
 
 class XttvTeamRepositoryTest {
     private val requests = mutableListOf<String>()
@@ -38,7 +41,8 @@ class XttvTeamRepositoryTest {
             }
         },
     )
-    private val api = XttvApi(client)
+    private val timeSource = TestTimeSource()
+    private val api = XttvApi(client, timeSource)
     private val hosts = XttvHostResolver(
         defaultHost = "https://default.example.test",
         hosts = mapOf("2" to "https://noettv.example.test"),
@@ -104,5 +108,16 @@ class XttvTeamRepositoryTest {
         lineups = LineupSource { listOf(LineupPlayer("huber", "Michael Huber")) }
 
         assertEquals(listOf(LineupPlayer("huber", "Michael Huber")), repository.getLineup("501"))
+    }
+
+    @Test
+    fun aFailedRefreshServesTheStaleTeams() = runTest {
+        val team = repository.getTeam("501")
+        val teams = repository.getTeams("8846")
+        failing = true
+        timeSource += 1.hours + 1.minutes
+
+        assertEquals(team, repository.getTeam("501"))
+        assertEquals(teams, repository.getTeams("8846"))
     }
 }

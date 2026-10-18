@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 Associations from XTTV.
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [x] `ClubRepository.getClub` and `searchClubs` are backed by the Club list and Club details from XTTV.
 - [x] A blank query lists everything; otherwise results match on Club name, as today.

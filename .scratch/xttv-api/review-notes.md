@@ -24,7 +24,8 @@
 - deferred: `:core:fake-directory` depends on `:core:xttv` for `LineupSource`; record in an ADR if it outlives ticket 09. Release builds return empty lineups, so ticket 04's "still returns the fake data" holds for debug builds only.
 - deferred: `getTeams` goes through `getClub` (up to two extra requests, and fails with `DataUnavailable` if the Club lookup fails even when Teams are cached).
 - deferred: `getTeam` and the Club list use the default host; a Club or Team outside it returns `null`. Known limit of ADR-0008 until ticket 10.
-- deferred: Club and Team repository tests have no stale-on-failure case (covered in `XttvApiTest`), and `getClub` assumes the list and details schemas are identical. Both settle with the recorded XML in ticket 10.
+- fixed: Club and Team repository tests had no stale-on-failure case; both now cover it through the repository.
+- deferred: `getClub` assumes the list and details schemas are identical. Settles with the recorded XML in ticket 10.
 - deferred: Fixture and League test classes repeat the `MockEngine` harness (and the cache and failure tests); share a `fakeXttv(answers)` helper with the recorded-XML harness in ticket 10.
 - deferred: Naming nits: `home`/`away` in `GameXml.toDomain` (`homeMatchesWon`), `AUSTRIA` (`XTTV_TIME_ZONE`), and the `assertEquals(false, any { … })` in the Fixture test.
 - deferred: `getFixtures` picks its host through `getTeam` then `getClub`; same shape as the `getTeams` chain above, and a failed Club lookup throws `DataUnavailable` even when the games are cached.

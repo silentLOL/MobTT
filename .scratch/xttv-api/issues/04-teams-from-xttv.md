@@ -4,7 +4,7 @@
 
 **Blocked by:** 03 Clubs from XTTV.
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [x] `TeamRepository.getTeams` and `getTeam` are backed by XTTV's league-team and team-detail data, mapping each Team to its Club and League.
 - [x] A Club with no Teams returns an empty list; an unknown Team returns `null`; a failed request throws `DataUnavailable`.

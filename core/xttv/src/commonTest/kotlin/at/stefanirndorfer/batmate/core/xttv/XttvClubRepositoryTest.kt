@@ -13,6 +13,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.TestTimeSource
 
 class XttvClubRepositoryTest {
     private val requests = mutableListOf<String>()
@@ -34,8 +37,9 @@ class XttvClubRepositoryTest {
             }
         },
     )
+    private val timeSource = TestTimeSource()
     private val repository = XttvClubRepository(
-        XttvApi(client),
+        XttvApi(client, timeSource),
         XttvHostResolver(defaultHost = "https://default.example.test", hosts = mapOf("2" to "https://noettv.example.test")),
     )
 
@@ -95,5 +99,16 @@ class XttvClubRepositoryTest {
 
         assertFailsWith<DataUnavailable> { repository.searchClubs("") }
         assertFailsWith<DataUnavailable> { repository.getClub("8846") }
+    }
+
+    @Test
+    fun aFailedRefreshServesTheStaleClubs() = runTest {
+        val clubs = repository.searchClubs("")
+        val club = repository.getClub("8846")
+        failing = true
+        timeSource += 1.hours + 1.minutes
+
+        assertEquals(clubs, repository.searchClubs(""))
+        assertEquals(club, repository.getClub("8846"))
     }
 }
