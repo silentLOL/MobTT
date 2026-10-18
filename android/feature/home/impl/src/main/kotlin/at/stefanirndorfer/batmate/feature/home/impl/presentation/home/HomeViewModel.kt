@@ -2,6 +2,8 @@ package at.stefanirndorfer.batmate.feature.home.impl.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import at.stefanirndorfer.batmate.core.ui.RetryTrigger
+import at.stefanirndorfer.batmate.core.ui.catchUnavailable
 import at.stefanirndorfer.batmate.core.ui.directory.models.DirectoryEntryUi
 import at.stefanirndorfer.batmate.domain.club.Club
 import at.stefanirndorfer.batmate.domain.club.DataUnavailable
@@ -28,10 +30,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
@@ -56,7 +56,7 @@ class HomeViewModel(
     private val searchClubs: SearchClubsUseCase,
 ) : ViewModel() {
     private val pickerQuery = MutableStateFlow<String?>(null)
-    private val retryCount = MutableStateFlow(0)
+    private val retry = RetryTrigger()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val pickerResult: Flow<PickerResult?> = pickerQuery.mapLatest { query ->
@@ -65,8 +65,8 @@ class HomeViewModel(
 
     // The streams below end at a DataUnavailable; a retry restarts them all.
     private fun baseState(): Flow<HomeUiState> = combine(
-        observeUserContext().map { it.toSelectionUi() }.orElse(HomeSelectionUi.Unavailable),
-        observeResolvedFavorites().orElse(emptyList()),
+        observeUserContext().map { it.toSelectionUi() }.catchUnavailable(HomeSelectionUi.Unavailable),
+        observeResolvedFavorites().catchUnavailable(emptyList()),
         observeFavorites(),
         pickerQuery,
         pickerResult,
@@ -80,12 +80,11 @@ class HomeViewModel(
 
     // Each retry shows no Fixtures (the loading state) until the new answer arrives.
     private fun fixtures(): Flow<UpcomingFixtures?> = observeUpcomingFixtures()
-        .orElse<UpcomingFixtures?>(UpcomingFixtures.Unavailable)
+        .catchUnavailable<UpcomingFixtures?>(UpcomingFixtures.Unavailable)
         .onStart { emit(null) }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val uiState: StateFlow<HomeUiState> = retryCount
-        .flatMapLatest { combine(baseState(), fixtures()) { state, fixtures -> state.copy(fixtures = fixtures) } }
+    val uiState: StateFlow<HomeUiState> = retry
+        .restarting { combine(baseState(), fixtures()) { state, fixtures -> state.copy(fixtures = fixtures) } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), HomeUiState())
 
     private val eventChannel = Channel<HomeEvent>()
@@ -96,7 +95,7 @@ class HomeViewModel(
             HomeAction.ChooseClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenSettings) }
             HomeAction.AddFavoriteClicked -> pickerQuery.value = ""
             HomeAction.ViewClubClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenMyClub) }
-            HomeAction.RetryFixturesClicked -> retryCount.value++
+            HomeAction.RetryFixturesClicked -> retry.retry()
             is HomeAction.FavoriteClubClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenClub(action.clubId)) }
             is HomeAction.RemoveFavoriteClicked -> viewModelScope.launch { removeFavorite(action.favorite) }
             is HomeAction.PickerQueryChanged -> pickerQuery.value = action.query
@@ -110,15 +109,6 @@ class HomeViewModel(
         PickerResult(query, searchPlayers(query), searchClubs(query))
     } catch (e: DataUnavailable) {
         PickerResult(query, emptyList(), emptyList())
-    }
-
-    /** Falls back to [fallback] and ends the stream when XTTV is unreachable and nothing is cached. */
-    private fun <T> Flow<T>.orElse(fallback: T): Flow<T> = catch { e ->
-        if (e is DataUnavailable) {
-            emit(fallback)
-        } else {
-            throw e
-        }
     }
 
     private fun toggle(favorite: Favorite) {
