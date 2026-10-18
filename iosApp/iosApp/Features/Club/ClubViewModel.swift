@@ -15,16 +15,18 @@ final class ClubViewModel {
 
     private let loadOverview: (String) async throws -> DataResult
 
-    @ObservationIgnored private let observeUserContext = KoinHelper.shared.observeUserContext()
+    @ObservationIgnored private let observeUserContext: any AsyncSequence<DataResult, Never>
     @ObservationIgnored private let eventStream = AsyncStream<ClubEvent>.makeStream()
 
     var events: AsyncStream<ClubEvent> { eventStream.stream }
 
     init(
         source: ClubSource,
+        observeUserContext: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeUserContext(),
         loadOverview: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadClubOverview(clubId: $0) }
     ) {
         self.source = source
+        self.observeUserContext = observeUserContext
         self.loadOverview = loadOverview
     }
 
