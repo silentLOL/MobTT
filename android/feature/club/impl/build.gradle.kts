@@ -1,9 +1,22 @@
 plugins {
     id("bat.android.library")
+    alias(libs.plugins.roborazzi)
 }
 
 android {
     namespace = "at.stefanirndorfer.batmate.feature.club.impl"
+
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+}
+
+roborazzi {
+    generateComposePreviewRobolectricTests {
+        enable = true
+        packages = listOf("at.stefanirndorfer.batmate.feature.club.impl")
+        includePrivatePreviews = true
+    }
 }
 
 dependencies {
@@ -22,4 +35,13 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.roborazzi.previewScanner)
+    testImplementation(libs.roborazzi.junitRule)
+    testImplementation(libs.composablePreviewScanner)
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.androidx.compose.uiTestJunit4)
+    debugImplementation(libs.androidx.compose.uiTestManifest)
 }

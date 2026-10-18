@@ -9,7 +9,7 @@ Run the multi-target Gradle commands and the iOS scripts (`ios-build.sh`, `ios-t
 ./gradlew ktlintFormat    # auto-fix formatting and import order
 ```
 
-`check` also renders every `@BatScreenPreview` variant with Roborazzi and Robolectric (`:android:core:design-system:recordRoborazziDebug`). A preview that crashes fails the build. The PNGs land in `android/core/design-system/build/outputs/roborazzi/`; open them to check layout, contrast and 200% font scale. They are not compared against committed goldens.
+`check` also renders every `@BatScreenPreview` variant with Roborazzi and Robolectric in the design system, `:android:core:ui` and every `:android:feature:*:impl` module (`recordRoborazziDebug`). A preview that crashes fails the build. A module that gains previews needs the same `roborazzi` block and test dependencies as `:android:core:design-system`, and an entry in the root `check` wiring. The PNGs land in each module's `build/outputs/roborazzi/`; open them to check layout, contrast and 200% font scale. They are not compared against committed goldens.
 
 `scripts/check-conventions.sh` enforces the mechanical CLAUDE.md rules: a `@BatScreenPreview` per Composable file, no dp literals in design-system components, icons only through `BatIcon`, braced `if`/`else`. Formatting settings live in `.editorconfig`.
 

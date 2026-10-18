@@ -24,6 +24,8 @@ tasks.check {
     dependsOn(installGitHooks)
     dependsOn(checkConventions)
     dependsOn(":android:core:design-system:recordRoborazziDebug")
+    listOf("core:ui", "feature:club:impl", "feature:home:impl", "feature:live:impl", "feature:players:impl", "feature:settings:impl")
+        .forEach { dependsOn(":android:$it:recordRoborazziDebug") }
     dependsOn(subprojects.map { "${it.path}:ktlintCheck" })
 }
 

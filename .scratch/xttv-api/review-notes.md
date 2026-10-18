@@ -37,7 +37,7 @@
 - deferred: Fixtures are sorted by start time though no ticket asks for it; the Fixture and League tests have no stale-on-failure case (covered in `XttvApiTest`).
 - deferred: The fake still binds Fixtures and League; harmless because XTTV wins in `initKoin`. Shrinks when the fake is removed.
 - fixed: While XTTV is unreachable, Home no longer shows the "choose" prompt. It maps the failed user-context stream to `HomeSelectionUi.Unavailable` (no hero, no View Club button) beside the Fixtures error, and Retry restarts it. No domain `UserContext.Unavailable` was needed.
-- deferred: Feature-module previews are not rendered by `check`; widen the Roborazzi package scan so the error previews are exercised.
+- fixed: Feature-module previews were not rendered by `check`. `:android:core:ui` and the five feature `impl` modules now run the Roborazzi scan, and the root `check` depends on them.
 - deferred: `FakeClubData` (club tests) and `FakeData` (home test) repeat the same XTTV fake; share it through a test-fixtures module once a third consumer appears.
 - fixed: Club and Team detail error states were not announced; both now set a polite live region (Club only on the error, not on the choose prompt).
 - fixed: Home showed the "choose" prompt for the user-context lookup (see above).
