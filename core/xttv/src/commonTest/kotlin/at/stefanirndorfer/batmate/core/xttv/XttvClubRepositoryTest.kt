@@ -2,12 +2,6 @@ package at.stefanirndorfer.batmate.core.xttv
 
 import at.stefanirndorfer.batmate.domain.club.Club
 import at.stefanirndorfer.batmate.domain.club.DataUnavailable
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.respond
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.headersOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -18,28 +12,17 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.TestTimeSource
 
 class XttvClubRepositoryTest {
-    private val requests = mutableListOf<String>()
-    private var failing = false
     private var list = XttvSamples.CLUBS
-    private val client = HttpClient(
-        MockEngine { request ->
-            requests += "${request.url.host}${request.url.encodedPath}"
-            val answers = mapOf(
-                "https://default.example.test/api/getClubs" to list,
-                "https://default.example.test/api/getClubDetails?id=8846" to XttvSamples.CLUB_8846,
-                "https://noettv.example.test/api/getClubDetails?id=9001" to XttvSamples.CLUB_9001,
-            )
-            val body = answers[request.url.toString()].takeUnless { failing }
-            if (body == null) {
-                respond("", HttpStatusCode.ServiceUnavailable)
-            } else {
-                respond(body, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/xml"))
-            }
-        },
-    )
+    private val xttv = FakeXttv {
+        mapOf(
+            "https://default.example.test/api/getClubs" to list,
+            "https://default.example.test/api/getClubDetails?id=8846" to XttvSamples.CLUB_8846,
+            "https://noettv.example.test/api/getClubDetails?id=9001" to XttvSamples.CLUB_9001,
+        )
+    }
     private val timeSource = TestTimeSource()
     private val repository = XttvClubRepository(
-        XttvApi(client, timeSource),
+        XttvApi(xttv.client, timeSource),
         XttvHostResolver(defaultHost = "https://default.example.test", hosts = mapOf("2" to "https://noettv.example.test")),
     )
 
@@ -68,8 +51,12 @@ class XttvClubRepositoryTest {
         repository.getClub("9001")
 
         assertEquals(
-            listOf("default.example.test/api/getClubs", "default.example.test/api/getClubDetails", "noettv.example.test/api/getClubDetails"),
-            requests,
+            listOf(
+                "https://default.example.test/api/getClubs",
+                "https://default.example.test/api/getClubDetails?id=8846",
+                "https://noettv.example.test/api/getClubDetails?id=9001",
+            ),
+            xttv.requests,
         )
     }
 
@@ -90,12 +77,12 @@ class XttvClubRepositoryTest {
         repository.searchClubs("")
         repository.searchClubs("krems")
 
-        assertEquals(1, requests.size)
+        assertEquals(1, xttv.requests.size)
     }
 
     @Test
     fun aFailedRequestThrowsDataUnavailable() = runTest {
-        failing = true
+        xttv.failing = true
 
         assertFailsWith<DataUnavailable> { repository.searchClubs("") }
         assertFailsWith<DataUnavailable> { repository.getClub("8846") }
@@ -105,7 +92,7 @@ class XttvClubRepositoryTest {
     fun aFailedRefreshServesTheStaleClubs() = runTest {
         val clubs = repository.searchClubs("")
         val club = repository.getClub("8846")
-        failing = true
+        xttv.failing = true
         timeSource += 1.hours + 1.minutes
 
         assertEquals(clubs, repository.searchClubs(""))

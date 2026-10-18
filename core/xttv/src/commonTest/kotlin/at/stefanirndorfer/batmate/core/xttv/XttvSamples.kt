@@ -32,6 +32,8 @@ object XttvSamples {
         </teams>
     """
     const val NO_TEAMS = "<teams/>"
+    const val TEAM_503_WITHOUT_LEAGUE =
+        "<teams><team><id>503</id><name>TTC Olympic Wien 3</name><clubId>8846</clubId><leagueId></leagueId></team></teams>"
     const val TEAM_501 =
         "<teams><team><id>501</id><name>TTC Olympic Wien 1</name><clubId>8846</clubId><leagueId>70</leagueId></team></teams>"
 

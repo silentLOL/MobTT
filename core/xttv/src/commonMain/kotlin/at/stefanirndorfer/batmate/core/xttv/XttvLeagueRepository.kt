@@ -20,6 +20,9 @@ class XttvLeagueRepository(
     }
 
     override suspend fun getStandings(leagueId: String): List<Standing> {
+        if (leagueId.isBlank()) {
+            return emptyList()
+        }
         val url = XttvEndpoints.leagueStandings(hosts.defaultHost, leagueId)
         return api.get(url, STANDINGS_TTL, StandingsXml.serializer()).standing
             .map { it.toDomain() }

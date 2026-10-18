@@ -4,42 +4,26 @@ import at.stefanirndorfer.batmate.domain.club.DataUnavailable
 import at.stefanirndorfer.batmate.domain.club.Fixture
 import at.stefanirndorfer.batmate.domain.club.FixtureScore
 import at.stefanirndorfer.batmate.domain.club.FixtureStatus
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.respond
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.headersOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlin.time.Instant
 
 class XttvFixtureRepositoryTest {
-    private val requests = mutableListOf<String>()
-    private var failing = false
     private val answers = mapOf(
         "https://default.example.test/api/getClubs" to XttvSamples.CLUBS,
         "https://default.example.test/api/getClubDetails?id=8846" to XttvSamples.CLUB_8846,
         "https://default.example.test/api/getTeamDetails?id=501" to XttvSamples.TEAM_501,
         "https://default.example.test/api/getTeamDetails?id=999" to XttvSamples.NO_TEAMS,
+        "https://default.example.test/api/getTeamDetails?id=503" to XttvSamples.TEAM_503_WITHOUT_LEAGUE,
         "https://default.example.test/api/getLeagueGames?leagueId=70" to XttvSamples.LEAGUE_70_GAMES,
     )
-    private val client = HttpClient(
-        MockEngine { request ->
-            requests += request.url.toString()
-            val body = answers[request.url.toString()].takeUnless { failing }
-            if (body == null) {
-                respond("", HttpStatusCode.ServiceUnavailable)
-            } else {
-                respond(body, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/xml"))
-            }
-        },
-    )
-    private val api = XttvApi(client)
+    private val xttv = FakeXttv(answers)
+    private val api = XttvApi(xttv.client)
     private val hosts = XttvHostResolver(defaultHost = "https://default.example.test")
     private val clubs = XttvClubRepository(api, hosts)
     private val repository = XttvFixtureRepository(api, hosts, XttvTeamRepository(api, hosts, clubs), clubs)
@@ -86,7 +70,7 @@ class XttvFixtureRepositoryTest {
 
     @Test
     fun aGameWithAnUnreadableDateIsSkippedNotFatal() = runTest {
-        assertEquals(false, repository.getFixtures("501").any { it.id == "9004" })
+        assertTrue(repository.getFixtures("501").none { it.id == "9004" })
     }
 
     @Test
@@ -95,17 +79,23 @@ class XttvFixtureRepositoryTest {
     }
 
     @Test
+    fun aTeamWithoutALeagueHasNoFixturesAndAsksXttvForNoGames() = runTest {
+        assertEquals(emptyList(), repository.getFixtures("503"))
+        assertTrue(xttv.requests.none { "getLeagueGames" in it })
+    }
+
+    @Test
     fun repeatedReadsAreServedFromTheCache() = runTest {
         repository.getFixtures("501")
-        val sent = requests.size
+        val sent = xttv.requests.size
         repository.getFixtures("501")
 
-        assertEquals(sent, requests.size)
+        assertEquals(sent, xttv.requests.size)
     }
 
     @Test
     fun aFailedRequestThrowsDataUnavailable() = runTest {
-        failing = true
+        xttv.failing = true
 
         assertFailsWith<DataUnavailable> { repository.getFixtures("501") }
     }

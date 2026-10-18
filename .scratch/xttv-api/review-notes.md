@@ -26,14 +26,14 @@
 - deferred: `getTeam` and the Club list use the default host; a Club or Team outside it returns `null`. Known limit of ADR-0008 until ticket 10.
 - fixed: Club and Team repository tests had no stale-on-failure case; both now cover it through the repository.
 - deferred: `getClub` assumes the list and details schemas are identical. Settles with the recorded XML in ticket 10.
-- deferred: Fixture and League test classes repeat the `MockEngine` harness (and the cache and failure tests); share a `fakeXttv(answers)` helper with the recorded-XML harness in ticket 10.
-- deferred: Naming nits: `home`/`away` in `GameXml.toDomain` (`homeMatchesWon`), `AUSTRIA` (`XTTV_TIME_ZONE`), and the `assertEquals(false, any { … })` in the Fixture test.
+- fixed: Fixture, League, Club and Team tests shared a copy-pasted `MockEngine` harness; they now use `FakeXttv`.
+- fixed: Naming nits (`homeMatchesWon`, `XTTV_TIME_ZONE`, `assertTrue(none { })`).
 - deferred: `getFixtures` picks its host through `getTeam` then `getClub`; same shape as the `getTeams` chain above, and a failed Club lookup throws `DataUnavailable` even when the games are cached.
 - deferred: Fixtures use the Club's Association host while League and standings use the default host, so the two can diverge for a non-default Association (ADR-0008). Settle with ticket 10.
-- deferred: A Team with a blank `leagueId` is not guarded in `getFixtures` or `getStandings`; the tests cover an unknown League only.
+- fixed: A Team with a blank `leagueId` (and a blank League id for standings) now returns an empty list without a request.
 - deferred: Ticket 05 reads "club and league game data" but only league games are used; no club-level games call.
 - deferred: DST tests miss the ambiguous 02:xx hour and the nonexistent spring-forward hour; `toInstant` picks an offset silently.
-- deferred: A Game with an unreadable date is dropped without a log, so schema drift shows as "no fixtures" instead of an error. Add a Kermit warning when ticket 10 fixes the real date format.
+- fixed: A Game with an unreadable date logs a Kermit warning. Fixing the real date format is still ticket 10.
 - deferred: Fixtures are sorted by start time though no ticket asks for it; the Fixture and League tests have no stale-on-failure case (covered in `XttvApiTest`).
 - deferred: The fake still binds Fixtures and League; harmless because XTTV wins in `initKoin`. Shrinks when the fake is removed.
 - deferred: While XTTV is unreachable, Home shows the "choose your player or club" prompt and no favorites (the user context could not be resolved), next to the Fixtures error. Needs a `UserContext.Unavailable` (or cached names) to be honest.

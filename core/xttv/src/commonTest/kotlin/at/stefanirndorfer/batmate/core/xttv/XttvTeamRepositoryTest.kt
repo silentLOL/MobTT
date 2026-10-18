@@ -3,12 +3,6 @@ package at.stefanirndorfer.batmate.core.xttv
 import at.stefanirndorfer.batmate.domain.club.DataUnavailable
 import at.stefanirndorfer.batmate.domain.club.LineupPlayer
 import at.stefanirndorfer.batmate.domain.club.Team
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.respond
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.headersOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -19,8 +13,6 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.TestTimeSource
 
 class XttvTeamRepositoryTest {
-    private val requests = mutableListOf<String>()
-    private var failing = false
     private val answers = mutableMapOf(
         "https://default.example.test/api/getClubs" to XttvSamples.CLUBS,
         "https://default.example.test/api/getClubDetails?id=8846" to XttvSamples.CLUB_8846,
@@ -30,19 +22,9 @@ class XttvTeamRepositoryTest {
         "https://default.example.test/api/getTeamDetails?id=501" to XttvSamples.TEAM_501,
         "https://default.example.test/api/getTeamDetails?id=999" to XttvSamples.NO_TEAMS,
     )
-    private val client = HttpClient(
-        MockEngine { request ->
-            requests += request.url.toString()
-            val body = answers[request.url.toString()].takeUnless { failing }
-            if (body == null) {
-                respond("", HttpStatusCode.ServiceUnavailable)
-            } else {
-                respond(body, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/xml"))
-            }
-        },
-    )
+    private val xttv = FakeXttv(answers)
     private val timeSource = TestTimeSource()
-    private val api = XttvApi(client, timeSource)
+    private val api = XttvApi(xttv.client, timeSource)
     private val hosts = XttvHostResolver(
         defaultHost = "https://default.example.test",
         hosts = mapOf("2" to "https://noettv.example.test"),
@@ -72,7 +54,7 @@ class XttvTeamRepositoryTest {
     fun aClubsTeamsAreAskedAtItsAssociationsHost() = runTest {
         repository.getTeams("9001")
 
-        assertEquals("https://noettv.example.test/api/getLeagueTeams?clubId=9001", requests.last())
+        assertEquals("https://noettv.example.test/api/getLeagueTeams?clubId=9001", xttv.requests.last())
     }
 
     @Test
@@ -90,12 +72,12 @@ class XttvTeamRepositoryTest {
         repository.getTeam("501")
         repository.getTeam("501")
 
-        assertEquals(1, requests.size)
+        assertEquals(1, xttv.requests.size)
     }
 
     @Test
     fun aFailedRequestThrowsDataUnavailable() = runTest {
-        failing = true
+        xttv.failing = true
 
         assertFailsWith<DataUnavailable> { repository.getTeam("501") }
         assertFailsWith<DataUnavailable> { repository.getTeams("8846") }
@@ -114,7 +96,7 @@ class XttvTeamRepositoryTest {
     fun aFailedRefreshServesTheStaleTeams() = runTest {
         val team = repository.getTeam("501")
         val teams = repository.getTeams("8846")
-        failing = true
+        xttv.failing = true
         timeSource += 1.hours + 1.minutes
 
         assertEquals(team, repository.getTeam("501"))
