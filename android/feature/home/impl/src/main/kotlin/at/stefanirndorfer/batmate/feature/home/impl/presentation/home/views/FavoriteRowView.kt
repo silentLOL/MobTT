@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -43,9 +44,18 @@ fun FavoriteRowView(
         ) {
             BatInitialsAvatar(initials = initialsOf(favorite.name), tint = tint)
             Column(
+                verticalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .weight(1f)
-                    .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier),
+                    .then(
+                        if (onClick != null) {
+                            Modifier
+                                .heightIn(min = BatDesign.sizing.minTouchTarget)
+                                .clickable(role = Role.Button, onClick = onClick)
+                        } else {
+                            Modifier
+                        },
+                    ),
             ) {
                 Text(text = favorite.name, color = BatDesign.colors.textPrimary, style = BatDesign.typography.bodyStrong)
                 favorite.detail?.let { detail ->

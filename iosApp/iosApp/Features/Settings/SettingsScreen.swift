@@ -43,7 +43,7 @@ struct SettingsScreen: View {
 
     @ViewBuilder
     private var mainContent: some View {
-        header(title: "settings_title", closeLabel: "core_close_button_cd") { onAction(.doneClicked) }
+        header(title: "settings_title", icon: .close, label: "core_close_button_cd") { onAction(.doneClicked) }
         SettingsChoiceRowView(
             title: String(localized: "settings_my_player_title"),
             value: state.myPlayerName,
@@ -79,7 +79,8 @@ struct SettingsScreen: View {
     private func pickerContent(_ picker: SettingsPickerUi) -> some View {
         header(
             title: picker.kind == .player ? "settings_picker_player_title" : "settings_picker_club_title",
-            closeLabel: "settings_picker_back_cd"
+            icon: .arrowBack,
+            label: "settings_picker_back_cd"
         ) { onAction(.pickerBackClicked) }
         DirectoryPickerView(
             query: picker.query,
@@ -89,14 +90,14 @@ struct SettingsScreen: View {
         )
     }
 
-    private func header(title: LocalizedStringKey, closeLabel: String.LocalizationValue, onClose: @escaping () -> Void) -> some View {
+    private func header(title: LocalizedStringKey, icon: BatIcon, label: String.LocalizationValue, onTap: @escaping () -> Void) -> some View {
         HStack {
             Text(title)
                 .batTextStyle(BatTypography.headline)
                 .foregroundStyle(BatColor.textPrimary)
                 .accessibilityAddTraits(.isHeader)
             Spacer(minLength: BatSpacing.sm)
-            BatIconButtonView(icon: .close, accessibilityText: String(localized: closeLabel), action: onClose)
+            BatIconButtonView(icon: icon, accessibilityText: String(localized: label), action: onTap)
         }
     }
 }

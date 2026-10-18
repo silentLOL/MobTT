@@ -12,14 +12,28 @@ final class SettingsViewModel {
     private var currentClubId: String?
     private var searchTask: Task<Void, Never>?
 
-    @ObservationIgnored private let observeUserContext = KoinHelper.shared.observeUserContext()
-    @ObservationIgnored private let setMyPlayer = KoinHelper.shared.getSetMyPlayerUseCase()
-    @ObservationIgnored private let setMyClub = KoinHelper.shared.getSetMyClubUseCase()
-    @ObservationIgnored private let searchPlayers = KoinHelper.shared.getSearchPlayersUseCase()
-    @ObservationIgnored private let searchClubs = KoinHelper.shared.getSearchClubsUseCase()
+    @ObservationIgnored private let observeUserContext: any AsyncSequence<DataResult, Never>
+    @ObservationIgnored private let setMyPlayer: (String) async throws -> Void
+    @ObservationIgnored private let setMyClub: (String) async throws -> Void
+    @ObservationIgnored private let searchPlayers: (String) async -> [PlayerSearchResult]
+    @ObservationIgnored private let searchClubs: (String) async -> [Club]
     @ObservationIgnored private let eventStream = AsyncStream<SettingsEvent>.makeStream()
 
     var events: AsyncStream<SettingsEvent> { eventStream.stream }
+
+    init(
+        observeUserContext: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeUserContext(),
+        setMyPlayer: @escaping (String) async throws -> Void = { try await KoinHelper.shared.getSetMyPlayerUseCase().invoke(playerId: $0) },
+        setMyClub: @escaping (String) async throws -> Void = { try await KoinHelper.shared.getSetMyClubUseCase().invoke(clubId: $0) },
+        searchPlayers: @escaping (String) async -> [PlayerSearchResult] = { (try? await KoinHelper.shared.getSearchPlayersUseCase().invoke(query: $0)) ?? [] },
+        searchClubs: @escaping (String) async -> [Club] = { (try? await KoinHelper.shared.getSearchClubsUseCase().invoke(query: $0)) ?? [] }
+    ) {
+        self.observeUserContext = observeUserContext
+        self.setMyPlayer = setMyPlayer
+        self.setMyClub = setMyClub
+        self.searchPlayers = searchPlayers
+        self.searchClubs = searchClubs
+    }
 
     var uiState: SettingsUiState {
         var result = state
@@ -89,10 +103,10 @@ final class SettingsViewModel {
     private func entries(for kind: PickerKind, query: String) async -> [DirectoryEntryUi] {
         switch kind {
         case .player:
-            let results = (try? await searchPlayers.invoke(query: query)) ?? []
+            let results = await searchPlayers(query)
             return results.map { DirectoryEntryUi(id: $0.player.id, title: $0.player.name, subtitle: $0.clubName, selected: false) }
         case .club:
-            let clubs = (try? await searchClubs.invoke(query: query)) ?? []
+            let clubs = await searchClubs(query)
             return clubs.map { DirectoryEntryUi(id: $0.id, title: $0.name, subtitle: nil, selected: false) }
         }
     }
@@ -102,8 +116,8 @@ final class SettingsViewModel {
         Task {
             do {
                 switch kind {
-                case .player: try await setMyPlayer.invoke(playerId: id)
-                case .club: try await setMyClub.invoke(clubId: id)
+                case .player: try await setMyPlayer(id)
+                case .club: try await setMyClub(id)
                 }
                 closePicker()
             } catch {

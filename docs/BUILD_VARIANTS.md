@@ -15,7 +15,7 @@ The code and module name stays `BatMate`; only the user-facing name has a space.
 
 `androidApp/build.gradle.kts` declares one flavor dimension, `environment`, with the flavors `deb`, `dev`, `beta` and `prod`. Each sets `applicationIdSuffix` and the `appName` manifest placeholder, which `AndroidManifest.xml` uses as `android:label`.
 
-Flavors multiply with the `debug` and `release` build types. Tasks are named `assemble<Flavor><BuildType>`, for example `:androidApp:assembleDevDebug`. The fake directory is compiled into the `debug` build type only (ADR-0005) and bound only in the `deb` environment; `dev`, `beta` and `prod` read XTTV (ADR-0007).
+Flavors multiply with the `debug` and `release` build types. Tasks are named `assemble<Flavor><BuildType>`, for example `:androidApp:assembleDevDebug`. The fake directory is compiled into the `debug` build type only (ADR-0005) and bound only in the `deb` environment, so `debRelease` is disabled; `dev`, `beta` and `prod` read XTTV (ADR-0007).
 
 ## iOS
 

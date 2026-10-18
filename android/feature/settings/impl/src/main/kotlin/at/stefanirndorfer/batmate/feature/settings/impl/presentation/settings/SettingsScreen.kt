@@ -131,7 +131,7 @@ private fun PickerContent(picker: SettingsPickerUi, onAction: (SettingsAction) -
     }
     SheetHeader(
         title = title,
-        icon = BatIcon.Close,
+        icon = BatIcon.ArrowBack,
         iconContentDescription = stringResource(R.string.settings_picker_back_cd),
         onIconClick = { onAction(SettingsAction.PickerBackClicked) },
     )

@@ -1,6 +1,10 @@
 package at.stefanirndorfer.batmate.domain.user
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import okio.FileSystem
@@ -56,5 +60,20 @@ class DataStoreFavoritesRepositoryTest {
         selection.saveSelection(UserSelection.MyClub("c1"))
 
         assertEquals(setOf(Favorite.Team("t1")), favorites.observeFavorites().first())
+    }
+
+    @Test
+    fun favoritesSurviveReopeningTheStore() = runTest {
+        val firstSession = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val firstStore = PreferenceDataStoreFactory.createWithPath(scope = firstSession, produceFile = { file })
+        DataStoreFavoritesRepository(firstStore).add(Favorite.Team("t1"))
+        firstSession.cancel()
+
+        val reopened = PreferenceDataStoreFactory.createWithPath(
+            scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined),
+            produceFile = { file },
+        )
+
+        assertEquals(setOf(Favorite.Team("t1")), DataStoreFavoritesRepository(reopened).observeFavorites().first())
     }
 }

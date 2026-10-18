@@ -8,6 +8,8 @@ struct BatTabBarItemView: View {
     var showsLiveIndicator: Bool = false
     let action: () -> Void
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     var body: some View {
         Button(action: action) {
             VStack(spacing: 0) {
@@ -22,7 +24,8 @@ struct BatTabBarItemView: View {
                     .foregroundStyle(tint)
                     .multilineTextAlignment(.center)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+                    // One-line labels in equal-width items cannot hold full size at accessibility sizes, so shrink.
+                    .minimumScaleFactor(dynamicTypeSize.isAccessibilitySize ? 0.5 : 0.7)
             }
             .padding(.horizontal, BatSpacing.sm)
             .padding(.vertical, BatSpacing.xs)
@@ -49,8 +52,6 @@ struct BatTabBarView<Content: View>: View {
                 .padding(.horizontal, BatSpacing.sm)
                 .padding(.vertical, BatSpacing.xs)
         }
-        // Equal-width items cannot hold a one-line label beyond this size; system tab bars cap their text the same way.
-        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         .background(BatColor.surface.ignoresSafeArea(edges: .bottom))
     }
 }

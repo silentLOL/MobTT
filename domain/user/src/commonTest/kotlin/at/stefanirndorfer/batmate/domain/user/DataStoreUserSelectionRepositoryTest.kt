@@ -1,6 +1,10 @@
 package at.stefanirndorfer.batmate.domain.user
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import okio.FileSystem
@@ -11,8 +15,8 @@ import kotlin.test.assertEquals
 class DataStoreUserSelectionRepositoryTest {
     private val file = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "batmate-${Random.nextLong()}.preferences_pb"
 
-    private fun openRepository() = DataStoreUserSelectionRepository(
-        PreferenceDataStoreFactory.createWithPath(produceFile = { file }),
+    private fun openRepository(scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)) = DataStoreUserSelectionRepository(
+        PreferenceDataStoreFactory.createWithPath(scope = scope, produceFile = { file }),
     )
 
     @Test
@@ -44,5 +48,14 @@ class DataStoreUserSelectionRepositoryTest {
         repository.saveSelection(UserSelection.MyPlayer("p1"))
 
         assertEquals(UserSelection.MyPlayer("p1"), repository.observeSelection().first())
+    }
+
+    @Test
+    fun choiceSurvivesReopeningTheStore() = runTest {
+        val firstSession = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        openRepository(firstSession).saveSelection(UserSelection.MyPlayer("p1"))
+        firstSession.cancel()
+
+        assertEquals(UserSelection.MyPlayer("p1"), openRepository().observeSelection().first())
     }
 }

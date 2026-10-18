@@ -17,6 +17,7 @@ enum BatIcon {
     case calendar
     case refresh
     case arrowForward
+    case arrowBack
 
     var image: Image {
         switch self {
@@ -36,6 +37,7 @@ enum BatIcon {
         case .calendar: Image(systemName: "calendar")
         case .refresh: Image(systemName: "arrow.clockwise")
         case .arrowForward: Image(systemName: "arrow.right")
+        case .arrowBack: Image(systemName: "arrow.left")
         }
     }
 }

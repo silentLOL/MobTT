@@ -92,3 +92,13 @@ android {
         buildConfig = true
     }
 }
+
+// `deb` gets its repositories from the fake directory, which only the debug build type carries (ADR-0005); a
+// release build of it would start with nothing bound. iOS has the same shape: `deb` is only the Debug configuration.
+androidComponents {
+    beforeVariants(selector().withFlavor("environment" to "deb")) { variant ->
+        if (variant.buildType == "release") {
+            variant.enable = false
+        }
+    }
+}
