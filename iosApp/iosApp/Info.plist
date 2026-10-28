@@ -4,6 +4,8 @@
 <dict>
 	<key>BatEnvironment</key>
 	<string>$(ENVIRONMENT)</string>
+	<key>BatXttvApiKey</key>
+	<string>$(XTTV_API_KEY)</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Inter-Regular.ttf</string>

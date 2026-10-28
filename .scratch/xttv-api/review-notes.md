@@ -49,3 +49,12 @@
 - deferred: `DataResult` casts its payload (`as? UserContext`) because SKIE erases the generic; a non-generic result per call would be type-safe.
 - fixed: iOS Club `.mine` is tested; `ClubViewModel` takes the user-context stream as an injectable default.
 - deferred: Error previews are not rendered or compared for Dynamic Type; there is no snapshot tooling on iOS.
+- fixed: A bad-key check that matched "Invalid API key" anywhere in a body could turn real data into `DataUnavailable`. It now matches only XTTV's leading comment, with a test.
+- fixed: ADR-0008's Decision still described `XttvHostResolver`; the host part is marked superseded.
+- deferred: `FEDERATION_TTL` lives in `XttvAssociationRepository.kt`; `xttvHost` is read five times in `XttvModule`; the "every federation" fan-out and the `Team` mapping are duplicated.
+- deferred: `createHttpClient` KDoc has a leftover hard wrap.
+- deferred: Ticket 10 is open: real recorded XML and host in `XttvSamples`, manual `dev` runs, request rate against TTLs, ADR-0008 status.
+- deferred: Nothing gates Favorites persistence on XTTV IDs in `prod` until the cross-Federation ID question is answered.
+- deferred: Spec story 16 (`deb` keeps the fake) and stories 7 and 22 (host per Association) disagree with the code.
+- deferred: `getLeague` fails if any one Federation's call fails, and a missing League costs the full fan-out.
+- deferred: An empty API key builds silently and shows as `DataUnavailable` at runtime; the invalid-key path is tested only through the association repository.

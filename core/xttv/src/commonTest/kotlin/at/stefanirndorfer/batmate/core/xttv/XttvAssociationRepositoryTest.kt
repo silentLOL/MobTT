@@ -2,12 +2,6 @@ package at.stefanirndorfer.batmate.core.xttv
 
 import at.stefanirndorfer.batmate.domain.club.Association
 import at.stefanirndorfer.batmate.domain.club.DataUnavailable
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.respond
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.headersOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -15,24 +9,14 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 class XttvAssociationRepositoryTest {
-    private val requestedHosts = mutableListOf<String>()
     private var xml = XttvSamples.FEDERATIONS
-    private var status = HttpStatusCode.OK
-    private val client = HttpClient(
-        MockEngine { request ->
-            requestedHosts += request.url.host
-            respond(xml, status, headersOf(HttpHeaders.ContentType, "application/xml"))
-        },
-    )
-    private val repository = XttvAssociationRepository(
-        XttvApi(client),
-        XttvHostResolver(defaultHost = "https://default.example.test", hosts = mapOf("2" to "https://noettv.example.test")),
-    )
+    private val xttv = FakeXttv { mapOf(XttvSamples.FEDERATIONS_URL to xml) }
+    private val repository = XttvAssociationRepository(XttvApi(xttv.client), XttvSamples.HOST)
 
     @Test
     fun federationsBecomeAssociations() = runTest {
-        assertEquals(Association("1", "Wiener Tischtennisverband (WTTV)"), repository.getAssociation("1"))
-        assertEquals("Niederösterreichischer Tischtennisverband (NÖTTV)", repository.getAssociation("2")?.name)
+        assertEquals(Association("188", "Niederösterreichischer Tischtennisverband"), repository.getAssociation("188"))
+        assertEquals("Kärntner Tischtennisverband", repository.getAssociation("190")?.name)
     }
 
     @Test
@@ -44,21 +28,35 @@ class XttvAssociationRepositoryTest {
     fun noFederationsAtAllIsNullNotAnError() = runTest {
         xml = XttvSamples.NO_FEDERATIONS
 
-        assertNull(repository.getAssociation("1"))
+        assertNull(repository.getAssociation("188"))
     }
 
     @Test
-    fun anAssociationIsAskedAtItsOwnHostAndOthersAtTheDefault() = runTest {
-        repository.getAssociation("1")
-        repository.getAssociation("2")
+    fun repeatedLookupsAreServedFromTheCache() = runTest {
+        repository.getAssociation("188")
+        repository.getAssociation("190")
 
-        assertEquals(listOf("default.example.test", "noettv.example.test"), requestedHosts)
+        assertEquals(1, xttv.requests.size)
+    }
+
+    @Test
+    fun aRejectedApiKeyThrowsDataUnavailableInsteadOfReadingAsNoData() = runTest {
+        xml = XttvSamples.INVALID_API_KEY
+
+        assertFailsWith<DataUnavailable> { repository.getAssociation("188") }
+    }
+
+    @Test
+    fun dataThatMentionsAnInvalidApiKeyIsNotMistakenForARejection() = runTest {
+        xml = "<federation_list><federation><id>1</id><name>Invalid API key Verband</name></federation></federation_list>"
+
+        assertEquals("Invalid API key Verband", repository.getAssociation("1")?.name)
     }
 
     @Test
     fun anUnreachableXttvThrowsDataUnavailable() = runTest {
-        status = HttpStatusCode.ServiceUnavailable
+        xttv.failing = true
 
-        assertFailsWith<DataUnavailable> { repository.getAssociation("1") }
+        assertFailsWith<DataUnavailable> { repository.getAssociation("188") }
     }
 }

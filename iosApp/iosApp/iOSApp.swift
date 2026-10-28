@@ -13,8 +13,16 @@ struct iOSApp: App {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
     }
 
+    private static var xttvApiKey: String {
+        Bundle.main.object(forInfoDictionaryKey: "BatXttvApiKey") as? String ?? ""
+    }
+
     init() {
-        KoinHelper.shared.start(environmentKey: Self.environmentKey, appVersion: Self.appVersion)
+        KoinHelper.shared.start(
+            environmentKey: Self.environmentKey,
+            appVersion: Self.appVersion,
+            xttvApiKey: Self.xttvApiKey
+        )
     }
 
     var body: some Scene {

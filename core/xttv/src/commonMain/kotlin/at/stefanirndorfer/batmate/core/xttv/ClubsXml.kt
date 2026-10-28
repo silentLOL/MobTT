@@ -5,17 +5,45 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-/** PROVISIONAL schema: XTTV's Club list and Club details. A Club names its Federation, our Association. */
+/** `getClubs`: one Federation's Clubs. The list names the Federation, our Association; its Clubs do not. */
 @Serializable
-@XmlSerialName("clubs")
-internal data class ClubsXml(val club: List<ClubXml> = emptyList())
+@XmlSerialName("club_list")
+internal data class ClubsXml(
+    @XmlSerialName("federation_id") @XmlElement(true) val federationId: String,
+    val club: List<ListedClubXml> = emptyList(),
+) {
+    fun toDomain() = club.map { Club(id = it.id, name = it.name, associationId = federationId) }
+}
 
 @Serializable
 @XmlSerialName("club")
+internal data class ListedClubXml(@XmlElement(true) val id: String, @XmlElement(true) val name: String)
+
+/** `getClubDetails`: a Club with its current Teams. */
+@Serializable
+@XmlSerialName("club")
 internal data class ClubXml(
+    @XmlElement(true) val id: String? = null,
+    @XmlElement(true) val name: String? = null,
+    @XmlSerialName("federation_id") @XmlElement(true) val federationId: String? = null,
+    @XmlSerialName("team_list") val teamList: ClubTeamsXml = ClubTeamsXml(),
+) {
+    /** Null for an unknown Club, which XTTV answers with an empty `<club/>`. */
+    fun toDomain(): Club? {
+        if (id == null || name == null || federationId == null) {
+            return null
+        }
+        return Club(id, name, federationId)
+    }
+}
+
+@Serializable
+internal data class ClubTeamsXml(val team: List<ClubTeamXml> = emptyList())
+
+@Serializable
+@XmlSerialName("team")
+internal data class ClubTeamXml(
     @XmlElement(true) val id: String,
     @XmlElement(true) val name: String,
-    @XmlElement(true) val federationId: String,
-) {
-    fun toDomain() = Club(id = id, name = name, associationId = federationId)
-}
+    @XmlSerialName("league_id") @XmlElement(true) val leagueId: String = "",
+)

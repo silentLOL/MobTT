@@ -14,19 +14,16 @@ import kotlin.test.assertTrue
 import kotlin.time.Instant
 
 class XttvFixtureRepositoryTest {
-    private val answers = mapOf(
-        "https://default.example.test/api/getClubs" to XttvSamples.CLUBS,
-        "https://default.example.test/api/getClubDetails?id=8846" to XttvSamples.CLUB_8846,
-        "https://default.example.test/api/getTeamDetails?id=501" to XttvSamples.TEAM_501,
-        "https://default.example.test/api/getTeamDetails?id=999" to XttvSamples.NO_TEAMS,
-        "https://default.example.test/api/getTeamDetails?id=503" to XttvSamples.TEAM_503_WITHOUT_LEAGUE,
-        "https://default.example.test/api/getLeagueGames?leagueId=70" to XttvSamples.LEAGUE_70_GAMES,
+    private val xttv = FakeXttv(
+        mapOf(
+            XttvSamples.TEAM_501_URL to XttvSamples.TEAM_501,
+            XttvSamples.TEAM_503_URL to XttvSamples.TEAM_503_WITHOUT_LEAGUE,
+            XttvSamples.UNKNOWN_TEAM_URL to XttvSamples.UNKNOWN_TEAM,
+            XttvSamples.GAMES_70_URL to XttvSamples.GAMES_70,
+        ),
     )
-    private val xttv = FakeXttv(answers)
     private val api = XttvApi(xttv.client)
-    private val hosts = XttvHostResolver(defaultHost = "https://default.example.test")
-    private val clubs = XttvClubRepository(api, hosts)
-    private val repository = XttvFixtureRepository(api, hosts, XttvTeamRepository(api, hosts, clubs), clubs)
+    private val repository = XttvFixtureRepository(api, XttvSamples.HOST, XttvTeamRepository(api, XttvSamples.HOST))
 
     private suspend fun fixture(id: String): Fixture = repository.getFixtures("501").first { it.id == id }
 
@@ -40,8 +37,8 @@ class XttvFixtureRepositoryTest {
         val finished = fixture("9002")
 
         assertEquals(FixtureStatus.Finished(FixtureScore(4, 6)), finished.status)
-        assertEquals("SK VÖEST Wien 1", finished.homeTeamName)
-        assertEquals("TTC Olympic Wien 1", finished.awayTeamName)
+        assertEquals("SK VÖEST 1", finished.homeTeamName)
+        assertEquals("TTC Olympic 1", finished.awayTeamName)
     }
 
     @Test

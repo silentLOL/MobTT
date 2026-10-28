@@ -6,9 +6,9 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-/** PROVISIONAL schema: XTTV's league details (a list of zero or one) and team standings. */
+/** `getLeagues`: one Federation's Leagues in the current season. */
 @Serializable
-@XmlSerialName("leagues")
+@XmlSerialName("federation_league_list")
 internal data class LeaguesXml(val league: List<LeagueXml> = emptyList())
 
 @Serializable
@@ -17,18 +17,21 @@ internal data class LeagueXml(@XmlElement(true) val id: String, @XmlElement(true
     fun toDomain() = League(id = id, name = name)
 }
 
+/** `getTeamStandings`. */
 @Serializable
-@XmlSerialName("standings")
-internal data class StandingsXml(val standing: List<StandingXml> = emptyList())
+@XmlSerialName("team_standing")
+internal data class StandingsXml(
+    @XmlSerialName("standing_row") val standing: List<StandingXml> = emptyList(),
+)
 
 @Serializable
-@XmlSerialName("standing")
+@XmlSerialName("standing_row")
 internal data class StandingXml(
-    @XmlElement(true) val position: Int,
-    @XmlElement(true) val teamId: String,
-    @XmlElement(true) val teamName: String,
-    @XmlElement(true) val played: Int,
+    @XmlElement(true) val rank: Int,
+    @XmlSerialName("team_id") @XmlElement(true) val teamId: String,
+    @XmlSerialName("team_short_name") @XmlElement(true) val teamName: String,
+    @XmlSerialName("games_played") @XmlElement(true) val played: Int,
     @XmlElement(true) val points: Int,
 ) {
-    fun toDomain() = Standing(position = position, teamId = teamId, teamName = teamName, played = played, points = points)
+    fun toDomain() = Standing(position = rank, teamId = teamId, teamName = teamName, played = played, points = points)
 }

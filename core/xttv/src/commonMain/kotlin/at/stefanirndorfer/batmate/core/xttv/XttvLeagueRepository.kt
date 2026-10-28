@@ -9,22 +9,25 @@ import kotlin.time.Duration.Companion.minutes
 private val LEAGUE_TTL = 1.hours
 private val STANDINGS_TTL = 5.minutes
 
-/** Both calls are asked at the default host, since a League id carries no Association (ADR-0008). */
 class XttvLeagueRepository(
     private val api: XttvApi,
-    private val hosts: XttvHostResolver,
+    private val host: String,
 ) : LeagueRepository {
+    /** XTTV lists Leagues per Federation only, so this reads each Federation's list (cached) until it finds [id]. */
     override suspend fun getLeague(id: String): League? {
-        val url = XttvEndpoints.league(hosts.defaultHost, id)
-        return api.get(url, LEAGUE_TTL, LeaguesXml.serializer()).league.firstOrNull { it.id == id }?.toDomain()
+        val federations = api.get(XttvEndpoints.federations(host), FEDERATION_TTL, FederationsXml.serializer()).federation
+        for (federation in federations) {
+            val leagues = api.get(XttvEndpoints.leagues(host, federation.id), LEAGUE_TTL, LeaguesXml.serializer())
+            leagues.league.firstOrNull { it.id == id }?.let { return it.toDomain() }
+        }
+        return null
     }
 
     override suspend fun getStandings(leagueId: String): List<Standing> {
         if (leagueId.isBlank()) {
             return emptyList()
         }
-        val url = XttvEndpoints.leagueStandings(hosts.defaultHost, leagueId)
-        return api.get(url, STANDINGS_TTL, StandingsXml.serializer()).standing
+        return api.get(XttvEndpoints.leagueStandings(host, leagueId), STANDINGS_TTL, StandingsXml.serializer()).standing
             .map { it.toDomain() }
             .sortedBy { it.position }
     }

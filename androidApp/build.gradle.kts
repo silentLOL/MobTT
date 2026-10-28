@@ -1,9 +1,17 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeCompiler)
 }
+
+// The XTTV API key is a secret: `xttv.apiKey` in the untracked `local.properties`, or `XTTV_API_KEY` in CI.
+val xttvApiKey: String = Properties()
+    .apply { rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use(::load) }
+    .getProperty("xttv.apiKey")
+    ?: System.getenv("XTTV_API_KEY")
+    ?: ""
 
 kotlin {
     compilerOptions {
@@ -42,6 +50,7 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        buildConfigField("String", "XTTV_API_KEY", "\"$xttvApiKey\"")
     }
     flavorDimensions += "environment"
     productFlavors {

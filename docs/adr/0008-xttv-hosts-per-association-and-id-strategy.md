@@ -1,6 +1,6 @@
 # ADR-0008: One XTTV host per Association, and plain string IDs
 
-**Status:** Proposed
+**Status:** Proposed (the host decision is superseded, see the 2026-10-28 update; the ID decision stands)
 **Date:** 2026-10-17
 **Deciders:** Stefan Irndorfer
 
@@ -10,7 +10,7 @@ Evidence for XTTV's layout is thin: the mockup mentions `oettv.xttv.at` and `wtt
 This ADR rests on assumptions the registration reply (see ADR-0007) will confirm or correct.
 
 ## Decision
-We will assume one XTTV host per Association until XTTV says otherwise. `Association` gets a base URL, and My Club, My Player and Favorites select their host through their Association. `AppConfig` carries only the default host. Lookup goes through a single `XttvHostResolver`, so a one-host answer is a one-line change.
+~~We will assume one XTTV host per Association until XTTV says otherwise. `Association` gets a base URL, and My Club, My Player and Favorites select their host through their Association. `AppConfig` carries only the default host. Lookup goes through a single `XttvHostResolver`, so a one-host answer is a one-line change.~~ Superseded: XTTV serves every Federation from one host, so `AppConfig.xttvHost` is the only host and `XttvHostResolver` is gone.
 
 We will keep XTTV's numeric IDs as plain strings (`"8846"`), with no prefix or wrapper. If real data shows IDs collide across Associations, we switch to the composite `"{associationId}:{id}"` and migrate stored Favorites.
 
@@ -40,3 +40,6 @@ Plain IDs are cheaper if XTTV IDs are globally unique, and the resolver contains
 - Do not ship Favorites persistence for XTTV-backed IDs to `prod` before XTTV answers the uniqueness question, or the migration is a live one.
 - Mark this ADR Accepted, or supersede it, once XTTV replies on base URLs and ID uniqueness.
 - `Association` and `Club` domain models may gain a base-URL or Association field when the first real response is recorded.
+
+## Update 2026-10-28: single host
+XTTV's per-method documentation shows one host, `https://oettv.xttv.at/xml/v1/<method>.php`, serving every Federation (`getFederations` lists them all, and `getClubs`/`getLeagues` take a `federationId`). The host-per-Association assumption is dropped, along with `XttvHostResolver`; repositories use `AppConfig.xttvHost`. The ID question is still open: IDs are unique per kind in every response seen so far, but this was not checked across Federations.

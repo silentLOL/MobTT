@@ -49,3 +49,6 @@ Option A costs one module and keeps the layering rules intact. The in-memory cac
 - `PlayerRepository.searchPlayers` and `TeamRepository.getLineup` stay on the fake until XTTV documents how it exposes them (`TeamDetail` is still PROVISIONAL).
 - Revisit the cache when we want offline use, or when XTTV states an acceptable request rate.
 - Access depends on XTTV's registration; until it is granted, work uses recorded sample XML only.
+
+## Update 2026-10-28: real API
+XTTV registration answered with an API key. The API is `https://oettv.xttv.at/xml/v1/<method>.php?apikey=…`, documented per method at xttv.at (`?page_id=…`). `:core:xttv` now uses the real URLs and schemas and is bound in every environment, `deb` included. The key comes from untracked local config (see `docs/BUILD_VARIANTS.md`) and is added by the HTTP client. XTTV answers a bad key with HTTP 200 and an empty `<xml>`, which `XttvApi` turns into `DataUnavailable`. XTTV lists Clubs and Leagues only per Federation, so `searchClubs` and `getLeague` read every Federation's list (cached). `getPlayerDetails` is blocked by XTTV for API access.

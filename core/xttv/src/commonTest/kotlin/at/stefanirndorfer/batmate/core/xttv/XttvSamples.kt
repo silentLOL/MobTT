@@ -1,84 +1,134 @@
 package at.stefanirndorfer.batmate.core.xttv
 
-/**
- * ASSUMED XTTV answers, written by hand: XTTV documents no schemas yet. Ticket 10 replaces these with recorded
- * responses; until then they pin down what our mappers expect, not what XTTV sends.
- */
+/** Answers shaped like XTTV's XML API v1 (trimmed from recorded responses, with unknown extra elements kept). */
 object XttvSamples {
+    const val HOST = "https://xttv.example.test"
+    private const val BASE = "$HOST/xml/v1"
+
+    const val FEDERATIONS_URL = "$BASE/getFederations.php"
     const val FEDERATIONS = """
-        <federations>
-            <federation><id>1</id><name>Wiener Tischtennisverband (WTTV)</name><region>Wien</region></federation>
-            <federation><id>2</id><name>Niederösterreichischer Tischtennisverband (NÖTTV)</name></federation>
-        </federations>
+        <federation_list>
+            <season_id>26</season_id>
+            <federation><id>188</id><name>Niederösterreichischer Tischtennisverband</name><short_name>NÖ</short_name><code>NÖTTV</code><www>x</www></federation>
+            <federation><id>190</id><name>Kärntner Tischtennisverband</name><short_name>Kärnten</short_name><code>KTTV</code><www></www></federation>
+        </federation_list>
     """
-    const val NO_FEDERATIONS = "<federations/>"
+    const val NO_FEDERATIONS = "<federation_list><season_id>26</season_id></federation_list>"
 
-    const val CLUBS = """
-        <clubs>
-            <club><id>8846</id><name>TTC Olympic Wien</name><federationId>1</federationId><city>Wien</city></club>
-            <club><id>9001</id><name>UTTC Olympia Krems</name><federationId>2</federationId></club>
-        </clubs>
+    const val CLUBS_188_URL = "$BASE/getClubs.php?federationId=188"
+    const val CLUBS_188 = """
+        <club_list>
+            <federation_id>188</federation_id>
+            <club><id>1</id><name>ATUS Gumpoldskirchen</name><short_name>Gumpoldskirchen</short_name><code>AGUM</code></club>
+            <club><id>3</id><name>Union Raika Allhartsberg</name><short_name>Allhartsberg</short_name><code>ALLH</code></club>
+        </club_list>
     """
-    const val NO_CLUBS = "<clubs/>"
-    const val CLUB_8846 =
-        "<club><id>8846</id><name>TTC Olympic Wien</name><federationId>1</federationId></club>"
-    const val CLUB_9001 =
-        "<club><id>9001</id><name>UTTC Olympia Krems</name><federationId>2</federationId></club>"
+    const val CLUBS_190_URL = "$BASE/getClubs.php?federationId=190"
+    const val CLUBS_190 = """
+        <club_list>
+            <federation_id>190</federation_id>
+            <club><id>77</id><name>TTC Krumpendorf</name><short_name>Krumpendorf</short_name><code>KRUM</code></club>
+        </club_list>
+    """
+    const val NO_CLUBS = "<club_list><federation_id>190</federation_id></club_list>"
 
-    const val CLUB_8846_TEAMS = """
-        <teams>
-            <team><id>501</id><name>TTC Olympic Wien 1</name><clubId>8846</clubId><leagueId>70</leagueId></team>
-            <team><id>502</id><name>TTC Olympic Wien 2</name><clubId>8846</clubId><leagueId>71</leagueId><captain>x</captain></team>
-        </teams>
+    const val CLUB_140_URL = "$BASE/getClubDetails.php?clubId=140"
+    const val CLUB_140 = """
+        <club>
+            <id>140</id><name>LINZ AG-FROSCHBERG</name><short_name>Linz-Froschberg AG</short_name><code>FROB</code>
+            <federation_id>191</federation_id>
+            <address><street>Europaplatz 31</street><city>Linz</city></address>
+            <team_list>
+                <team><id>501</id><name>LINZ AG Froschberg 1</name><code>FROB1</code><league_id>70</league_id><league_name>Bundesliga</league_name></team>
+                <team><id>502</id><name>Linz-Froschberg AG 2</name><code>FROB2</code><league_id>71</league_id><league_name>Landesliga</league_name></team>
+            </team_list>
+        </club>
     """
-    const val NO_TEAMS = "<teams/>"
+    const val CLUB_141_URL = "$BASE/getClubDetails.php?clubId=141"
+    const val CLUB_141_WITHOUT_TEAMS = "<club><id>141</id><name>ASKÖ Leer</name><federation_id>191</federation_id></club>"
+
+    const val TEAM_501_URL = "$BASE/getTeamDetails.php?teamId=501"
+    const val TEAM_501 = """
+        <team_details>
+            <id>501</id><name>LINZ AG Froschberg 1</name><code>FROB1</code><club_id>140</club_id><club_name>Linz-Froschberg AG</club_name>
+            <league_id>70</league_id><league_name>Bundesliga</league_name>
+            <team_location><id>165</id><name>Sportpark Lissfeld</name></team_location>
+            <player><id>60473</id><first_name>Phatsaraphon</first_name><last_name>Wonglakhon</last_name></player>
+        </team_details>
+    """
+    const val UNKNOWN_TEAM_URL = "$BASE/getTeamDetails.php?teamId=999"
+    const val UNKNOWN_TEAM = "<team_details><id>999</id><team_leader/></team_details>"
+    const val UNKNOWN_CLUB_URL = "$BASE/getClubDetails.php?clubId=999"
+    const val UNKNOWN_CLUB = "<club/>"
+    const val INVALID_API_KEY = "<!--Invalid API key.--><xml></xml>"
+    const val TEAM_503_URL = "$BASE/getTeamDetails.php?teamId=503"
     const val TEAM_503_WITHOUT_LEAGUE =
-        "<teams><team><id>503</id><name>TTC Olympic Wien 3</name><clubId>8846</clubId><leagueId></leagueId></team></teams>"
-    const val TEAM_501 =
-        "<teams><team><id>501</id><name>TTC Olympic Wien 1</name><clubId>8846</clubId><leagueId>70</leagueId></team></teams>"
+        "<team_details><id>503</id><name>FROB 3</name><club_id>140</club_id><league_id></league_id></team_details>"
 
-    const val LEAGUE_70_GAMES = """
-        <games>
-            <game>
-                <id>9001</id><homeTeamId>501</homeTeamId><homeTeamName>TTC Olympic Wien 1</homeTeamName>
-                <awayTeamId>600</awayTeamId><awayTeamName>SK VÖEST Wien 1</awayTeamName>
-                <date>2026-12-01T18:00</date><venue>Sporthalle Olympic</venue><homeMatches></homeMatches>
-            </game>
-            <game>
-                <id>9002</id><homeTeamId>600</homeTeamId><homeTeamName>SK VÖEST Wien 1</homeTeamName>
-                <awayTeamId>501</awayTeamId><awayTeamName>TTC Olympic Wien 1</awayTeamName>
-                <date>2026-07-01T18:00</date><homeMatches>4</homeMatches><awayMatches>6</awayMatches><extra>x</extra>
-            </game>
-            <game>
-                <id>9003</id><homeTeamId>600</homeTeamId><homeTeamName>SK VÖEST Wien 1</homeTeamName>
-                <awayTeamId>700</awayTeamId><awayTeamName>Nussdorf TTC 1</awayTeamName>
-                <date>2026-12-02T18:00</date>
-            </game>
-            <game>
-                <id>9004</id><homeTeamId>501</homeTeamId><homeTeamName>TTC Olympic Wien 1</homeTeamName>
-                <awayTeamId>700</awayTeamId><awayTeamName>Nussdorf TTC 1</awayTeamName>
-                <date>soon</date>
-            </game>
-            <game>
-                <id>9005</id><homeTeamId>501</homeTeamId><homeTeamName>TTC Olympic Wien 1</homeTeamName>
-                <awayTeamId>700</awayTeamId><awayTeamName>Nussdorf TTC 1</awayTeamName>
-                <date>2026-10-25T01:30</date><venue> </venue>
-            </game>
-            <game>
-                <id>9006</id><homeTeamId>501</homeTeamId><homeTeamName>TTC Olympic Wien 1</homeTeamName>
-                <awayTeamId>700</awayTeamId><awayTeamName>Nussdorf TTC 1</awayTeamName>
-                <date>2026-10-25T03:30</date>
-            </game>
-        </games>
+    const val LEAGUES_188_URL = "$BASE/getLeagues.php?federationId=188"
+    const val LEAGUES_188 = """
+        <federation_league_list>
+            <federation_id>188</federation_id><season_id>26</season_id>
+            <league><id>8001</id><name>NÖ Landesliga</name></league>
+        </federation_league_list>
+    """
+    const val LEAGUES_190_URL = "$BASE/getLeagues.php?federationId=190"
+    const val LEAGUES_190 = """
+        <federation_league_list>
+            <federation_id>190</federation_id><season_id>26</season_id>
+            <league><id>70</id><name>Kärntner Liga</name></league>
+        </federation_league_list>
     """
 
-    const val LEAGUE_70 = "<leagues><league><id>70</id><name>1. Landesliga Herren</name></league></leagues>"
-    const val NO_LEAGUES = "<leagues/>"
-    const val LEAGUE_70_STANDINGS = """
-        <standings>
-            <standing><position>2</position><teamId>600</teamId><teamName>SK VÖEST Wien 1</teamName><played>5</played><points>8</points></standing>
-            <standing><position>1</position><teamId>501</teamId><teamName>TTC Olympic Wien 1</teamName><played>5</played><points>10</points><sets>x</sets></standing>
-        </standings>
+    const val GAMES_70_URL = "$BASE/getLeagueGames.php?leagueId=70"
+    val GAMES_70 = """
+        <games_list>
+            <league_id>70</league_id><team_id></team_id>
+            ${game("9001", "501", "TTC Olympic 1", "600", "SK VÖEST 1", "01.12.2026", "18:00", location = "Sporthalle Olympic")}
+            ${game("9002", "600", "SK VÖEST 1", "501", "TTC Olympic 1", "01.07.2026", "18:00", home = "4", away = "6")}
+            ${game("9003", "600", "SK VÖEST 1", "700", "Nussdorf 1", "02.12.2026", "18:00")}
+            ${game("9004", "501", "TTC Olympic 1", "700", "Nussdorf 1", "soon", "")}
+            ${game("9005", "501", "TTC Olympic 1", "700", "Nussdorf 1", "25.10.2026", "01:30", location = " ")}
+            ${game("9006", "501", "TTC Olympic 1", "700", "Nussdorf 1", "25.10.2026", "03:30")}
+        </games_list>
     """
-    const val NO_STANDINGS = "<standings/>"
+
+    const val STANDINGS_70_URL = "$BASE/getTeamStandings.php?leagueId=70"
+    val STANDINGS_70 = """
+        <team_standing>
+            <league_id>70</league_id><tab_show>1</tab_show>
+            ${row(2, "600", "SK VÖEST 1", played = 5, points = 8)}
+            ${row(1, "501", "TTC Olympic 1", played = 5, points = 10)}
+        </team_standing>
+    """
+    const val STANDINGS_99_URL = "$BASE/getTeamStandings.php?leagueId=99"
+    const val NO_STANDINGS = "<team_standing><league_id>99</league_id></team_standing>"
+
+    private fun game(
+        id: String,
+        homeId: String,
+        homeName: String,
+        awayId: String,
+        awayName: String,
+        date: String,
+        time: String,
+        home: String = "",
+        away: String = "",
+        location: String = "",
+    ) = """
+        <game>
+            <game_id>$id</game_id><played>${home.length.coerceAtMost(1)}</played><date>$date</date><time>$time</time>
+            <team_home_id>$homeId</team_home_id><team_home_short_name>$homeName</team_home_short_name>
+            <team_away_id>$awayId</team_away_id><team_away_short_name>$awayName</team_away_short_name>
+            <matches_won_home>$home</matches_won_home><matches_won_away>$away</matches_won_away>
+            <location>$location</location><address><city>Wien</city></address>
+        </game>
+    """
+
+    private fun row(rank: Int, teamId: String, name: String, played: Int, points: Int) = """
+        <standing_row>
+            <rank>$rank</rank><rank_effect></rank_effect><team_id>$teamId</team_id><team_short_name>$name</team_short_name>
+            <games_played>$played</games_played><games_won>1</games_won><points>$points</points><sets_won>9</sets_won>
+        </standing_row>
+    """
 }

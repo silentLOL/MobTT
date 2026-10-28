@@ -1,7 +1,6 @@
 package at.stefanirndorfer.batmate.core.di
 
 import at.stefanirndorfer.batmate.core.network.AppConfig
-import at.stefanirndorfer.batmate.core.network.Environment
 import at.stefanirndorfer.batmate.core.network.networkModule
 import at.stefanirndorfer.batmate.core.platform.platformModule
 import at.stefanirndorfer.batmate.core.preferences.preferencesModule
@@ -23,18 +22,12 @@ private val sharedModules = listOf(
 )
 
 /**
- * The repositories that read XTTV: every environment except `deb`, which gets its repositories from the apps
- * (the fake directory). Bound after the app's own modules so XTTV wins over any fake the app still binds for
- * data XTTV does not serve yet.
+ * The repositories that read XTTV, in every environment. Bound after the app's own modules so XTTV wins over any
+ * fake the app still binds for data XTTV does not serve yet.
  */
-internal fun repositoryModules(config: AppConfig): List<Module> {
-    if (config.environment == Environment.Deb) {
-        return emptyList()
-    }
-    return listOf(xttvModule)
-}
+internal fun repositoryModules(): List<Module> = listOf(xttvModule)
 
 fun initKoin(config: AppConfig, appDeclaration: KoinAppDeclaration = {}): KoinApplication = startKoin {
     appDeclaration()
-    modules(sharedModules + networkModule(config) + repositoryModules(config))
+    modules(sharedModules + networkModule(config) + repositoryModules())
 }

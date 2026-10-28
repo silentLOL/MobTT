@@ -10,8 +10,6 @@ import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import kotlin.test.Test
 import kotlin.test.assertIs
-import kotlin.test.assertNull
-import kotlin.test.assertSame
 
 class RepositoryModulesTest {
     private val fakeAssociations = object : AssociationRepository {
@@ -24,19 +22,14 @@ class RepositoryModulesTest {
         val koin = koinApplication {
             modules(module { single { config } })
             modules(appModules.toList())
-            modules(repositoryModules(config))
+            modules(repositoryModules())
         }.koin
         return koin.getOrNull<AssociationRepository>().also { koin.close() }
     }
 
     @Test
-    fun debBindsNothingForTheAppsToFill() {
-        assertNull(associationRepository(Environment.Deb))
-    }
-
-    @Test
-    fun everyOtherEnvironmentReadsXttv() {
-        listOf(Environment.Dev, Environment.Beta, Environment.Prod).forEach { environment ->
+    fun everyEnvironmentReadsXttv() {
+        Environment.entries.forEach { environment ->
             assertIs<XttvAssociationRepository>(associationRepository(environment), environment.key)
         }
     }
@@ -45,13 +38,8 @@ class RepositoryModulesTest {
     fun xttvTakesPrecedenceOverAFakeAnAppBoundFirst() {
         val fake = module { single<AssociationRepository> { fakeAssociations } }
 
-        assertIs<XttvAssociationRepository>(associationRepository(Environment.Dev, fake))
-    }
-
-    @Test
-    fun debKeepsTheFakeTheAppBound() {
-        val fake = module { single<AssociationRepository> { fakeAssociations } }
-
-        assertSame(fakeAssociations, associationRepository(Environment.Deb, fake))
+        Environment.entries.forEach { environment ->
+            assertIs<XttvAssociationRepository>(associationRepository(environment, fake), environment.key)
+        }
     }
 }

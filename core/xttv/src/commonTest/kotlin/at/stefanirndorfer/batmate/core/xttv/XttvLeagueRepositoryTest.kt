@@ -10,18 +10,21 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 class XttvLeagueRepositoryTest {
-    private val answers = mapOf(
-        "https://default.example.test/api/getLeagueDetails?id=70" to XttvSamples.LEAGUE_70,
-        "https://default.example.test/api/getLeagueDetails?id=99" to XttvSamples.NO_LEAGUES,
-        "https://default.example.test/api/getTeamStandings?leagueId=70" to XttvSamples.LEAGUE_70_STANDINGS,
-        "https://default.example.test/api/getTeamStandings?leagueId=99" to XttvSamples.NO_STANDINGS,
+    private val xttv = FakeXttv(
+        mapOf(
+            XttvSamples.FEDERATIONS_URL to XttvSamples.FEDERATIONS,
+            XttvSamples.LEAGUES_188_URL to XttvSamples.LEAGUES_188,
+            XttvSamples.LEAGUES_190_URL to XttvSamples.LEAGUES_190,
+            XttvSamples.STANDINGS_70_URL to XttvSamples.STANDINGS_70,
+            XttvSamples.STANDINGS_99_URL to XttvSamples.NO_STANDINGS,
+        ),
     )
-    private val xttv = FakeXttv(answers)
-    private val repository = XttvLeagueRepository(XttvApi(xttv.client), XttvHostResolver(defaultHost = "https://default.example.test"))
+    private val repository = XttvLeagueRepository(XttvApi(xttv.client), XttvSamples.HOST)
 
     @Test
-    fun aLeagueIsLookedUpById() = runTest {
-        assertEquals(League("70", "1. Landesliga Herren"), repository.getLeague("70"))
+    fun aLeagueIsFoundInAnyFederationsList() = runTest {
+        assertEquals(League("70", "Kärntner Liga"), repository.getLeague("70"))
+        assertEquals(League("8001", "NÖ Landesliga"), repository.getLeague("8001"))
     }
 
     @Test
@@ -30,11 +33,11 @@ class XttvLeagueRepositoryTest {
     }
 
     @Test
-    fun standingsAreOrderedByPositionAndCarryPlayedAndPoints() = runTest {
+    fun standingsAreOrderedByRankAndCarryPlayedAndPoints() = runTest {
         assertEquals(
             listOf(
-                Standing(1, "501", "TTC Olympic Wien 1", played = 5, points = 10),
-                Standing(2, "600", "SK VÖEST Wien 1", played = 5, points = 8),
+                Standing(1, "501", "TTC Olympic 1", played = 5, points = 10),
+                Standing(2, "600", "SK VÖEST 1", played = 5, points = 8),
             ),
             repository.getStandings("70"),
         )

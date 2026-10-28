@@ -13,53 +13,35 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.TestTimeSource
 
 class XttvTeamRepositoryTest {
-    private val answers = mutableMapOf(
-        "https://default.example.test/api/getClubs" to XttvSamples.CLUBS,
-        "https://default.example.test/api/getClubDetails?id=8846" to XttvSamples.CLUB_8846,
-        "https://noettv.example.test/api/getClubDetails?id=9001" to XttvSamples.CLUB_9001,
-        "https://default.example.test/api/getLeagueTeams?clubId=8846" to XttvSamples.CLUB_8846_TEAMS,
-        "https://noettv.example.test/api/getLeagueTeams?clubId=9001" to XttvSamples.NO_TEAMS,
-        "https://default.example.test/api/getTeamDetails?id=501" to XttvSamples.TEAM_501,
-        "https://default.example.test/api/getTeamDetails?id=999" to XttvSamples.NO_TEAMS,
+    private val xttv = FakeXttv(
+        mapOf(
+            XttvSamples.CLUB_140_URL to XttvSamples.CLUB_140,
+            XttvSamples.CLUB_141_URL to XttvSamples.CLUB_141_WITHOUT_TEAMS,
+            XttvSamples.TEAM_501_URL to XttvSamples.TEAM_501,
+            XttvSamples.UNKNOWN_TEAM_URL to XttvSamples.UNKNOWN_TEAM,
+        ),
     )
-    private val xttv = FakeXttv(answers)
     private val timeSource = TestTimeSource()
     private val api = XttvApi(xttv.client, timeSource)
-    private val hosts = XttvHostResolver(
-        defaultHost = "https://default.example.test",
-        hosts = mapOf("2" to "https://noettv.example.test"),
-    )
     private var lineups: LineupSource? = null
-    private val repository get() = XttvTeamRepository(api, hosts, XttvClubRepository(api, hosts), lineups)
+    private val repository get() = XttvTeamRepository(api, XttvSamples.HOST, lineups)
 
     @Test
     fun aClubsTeamsMapToTheirClubAndLeague() = runTest {
         assertEquals(
-            listOf(Team("501", "TTC Olympic Wien 1", "8846", "70"), Team("502", "TTC Olympic Wien 2", "8846", "71")),
-            repository.getTeams("8846"),
+            listOf(Team("501", "LINZ AG Froschberg 1", "140", "70"), Team("502", "Linz-Froschberg AG 2", "140", "71")),
+            repository.getTeams("140"),
         )
     }
 
     @Test
     fun aClubWithNoTeamsIsAnEmptyListNotAnError() = runTest {
-        assertEquals(emptyList(), repository.getTeams("9001"))
+        assertEquals(emptyList(), repository.getTeams("141"))
     }
 
     @Test
-    fun anUnknownClubHasNoTeams() = runTest {
-        assertEquals(emptyList(), repository.getTeams("1"))
-    }
-
-    @Test
-    fun aClubsTeamsAreAskedAtItsAssociationsHost() = runTest {
-        repository.getTeams("9001")
-
-        assertEquals("https://noettv.example.test/api/getLeagueTeams?clubId=9001", xttv.requests.last())
-    }
-
-    @Test
-    fun aTeamIsLookedUpById() = runTest {
-        assertEquals(Team("501", "TTC Olympic Wien 1", "8846", "70"), repository.getTeam("501"))
+    fun aTeamIsLookedUpByIdAndItsPlayersAreIgnored() = runTest {
+        assertEquals(Team("501", "LINZ AG Froschberg 1", "140", "70"), repository.getTeam("501"))
     }
 
     @Test
@@ -80,7 +62,7 @@ class XttvTeamRepositoryTest {
         xttv.failing = true
 
         assertFailsWith<DataUnavailable> { repository.getTeam("501") }
-        assertFailsWith<DataUnavailable> { repository.getTeams("8846") }
+        assertFailsWith<DataUnavailable> { repository.getTeams("140") }
     }
 
     @Test
@@ -95,11 +77,11 @@ class XttvTeamRepositoryTest {
     @Test
     fun aFailedRefreshServesTheStaleTeams() = runTest {
         val team = repository.getTeam("501")
-        val teams = repository.getTeams("8846")
+        val teams = repository.getTeams("140")
         xttv.failing = true
         timeSource += 1.hours + 1.minutes
 
         assertEquals(team, repository.getTeam("501"))
-        assertEquals(teams, repository.getTeams("8846"))
+        assertEquals(teams, repository.getTeams("140"))
     }
 }

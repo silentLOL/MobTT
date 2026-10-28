@@ -31,6 +31,20 @@ class HttpClientFactoryTest {
     }
 
     @Test
+    fun aConfiguredApiKeyIsSentAsAQueryParameterAndNoneIsSentWithoutOne() = runTest {
+        val urls = mutableListOf<String>()
+        val engine = MockEngine { request ->
+            urls += request.url.toString()
+            respondOk()
+        }
+
+        createHttpClient(userAgent = "BatMate/1.2", apiKey = "secret", engine = engine).get("https://example.test/a?x=1")
+        createHttpClient(userAgent = "BatMate/1.2", engine = engine).get("https://example.test/a?x=1")
+
+        assertEquals(listOf("https://example.test/a?x=1&apikey=secret", "https://example.test/a?x=1"), urls)
+    }
+
+    @Test
     fun noMoreRequestsRunInParallelThanTheCap() = runTest {
         val lock = Mutex()
         var running = 0

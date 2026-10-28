@@ -15,7 +15,7 @@ The code and module name stays `BatMate`; only the user-facing name has a space.
 
 `androidApp/build.gradle.kts` declares one flavor dimension, `environment`, with the flavors `deb`, `dev`, `beta` and `prod`. Each sets `applicationIdSuffix` and the `appName` manifest placeholder, which `AndroidManifest.xml` uses as `android:label`.
 
-Flavors multiply with the `debug` and `release` build types. Tasks are named `assemble<Flavor><BuildType>`, for example `:androidApp:assembleDevDebug`. The fake directory is compiled into the `debug` build type only (ADR-0005) and bound only in the `deb` environment, so `debRelease` is disabled; `dev`, `beta` and `prod` read XTTV (ADR-0007).
+Flavors multiply with the `debug` and `release` build types. Tasks are named `assemble<Flavor><BuildType>`, for example `:androidApp:assembleDevDebug`. Every environment reads XTTV (ADR-0007). The fake directory is compiled into the `debug` build type only (ADR-0005) and still bound by the apps in debug builds, but XTTV is bound after it and wins; the fake only fills what XTTV does not serve yet. `debRelease` stays disabled. Every environment except `prod` logs requests (the `apikey` is redacted).
 
 ## iOS
 
@@ -40,3 +40,10 @@ Shared code reads the environment only through `AppConfig` (`:core:network`), in
 - iOS: `ENVIRONMENT` in the `.xcconfig`, exposed as the `BatEnvironment` Info.plist key and read in `iOSApp`. The app version is `CFBundleShortVersionString`.
 
 An unknown key stops the app at launch.
+
+## XTTV API key
+
+The key is a secret and never enters git. It reaches shared code as `AppConfig.xttvApiKey` (empty when unset, redacted in `toString`):
+
+- Android: `xttv.apiKey=…` in the untracked `local.properties`, or the `XTTV_API_KEY` environment variable (CI). `androidApp/build.gradle.kts` turns it into `BuildConfig.XTTV_API_KEY`.
+- iOS: `XTTV_API_KEY=…` in `iosApp/Configuration/Secrets.xcconfig` (untracked; copy `Secrets.xcconfig.example`), included by `Config.xcconfig` and exposed as the `BatXttvApiKey` Info.plist key. CI must write that file.

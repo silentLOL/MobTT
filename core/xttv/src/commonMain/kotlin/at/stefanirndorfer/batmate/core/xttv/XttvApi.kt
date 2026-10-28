@@ -23,6 +23,9 @@ import kotlin.time.TimeSource
 
 private val FAILED_REFRESH_BACKOFF = 1.minutes
 
+/** XTTV's answer to a missing or wrong key: a leading comment, then an empty `<xml>`. Data that merely says so does not match. */
+private val REJECTED_API_KEY = Regex("""^\s*(<\?xml[^>]*\?>\s*)?<!--\s*Invalid API key""")
+
 /**
  * The one door to XTTV: fetches [get]'s `url`, parses the XML and caches the result for its `ttl`.
  * A failed refresh serves the stale entry and leaves XTTV alone for a minute at most; with nothing cached
@@ -110,6 +113,9 @@ class XttvApi(
     private suspend fun <T : Any> download(url: String, serializer: KSerializer<T>): T {
         val response = client.get(url)
         check(response.status.isSuccess()) { "XTTV answered ${response.status} for $url" }
-        return xml.decodeFromString(serializer, response.bodyAsText())
+        val body = response.bodyAsText()
+        // XTTV answers a missing or wrong key with 200 and an empty `<xml>` document, which would read as "no data".
+        check(!REJECTED_API_KEY.containsMatchIn(body)) { "XTTV rejected the API key" }
+        return xml.decodeFromString(serializer, body)
     }
 }
