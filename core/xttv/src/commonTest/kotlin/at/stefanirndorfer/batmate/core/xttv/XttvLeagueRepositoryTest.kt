@@ -28,6 +28,18 @@ class XttvLeagueRepositoryTest {
     }
 
     @Test
+    fun aFederationsLeaguesAreListedFromItsOwnRequest() = runTest {
+        assertEquals(listOf(League("70", "Kärntner Liga")), repository.getLeagues("190"))
+        assertEquals(listOf(XttvSamples.LEAGUES_190_URL), xttv.requests)
+    }
+
+    @Test
+    fun anAssociationIdXttvCannotKnowListsNoLeaguesWithoutAsking() = runTest {
+        assertEquals(emptyList(), repository.getLeagues("wttv"))
+        assertEquals(emptyList(), xttv.requests)
+    }
+
+    @Test
     fun anUnknownLeagueIsNull() = runTest {
         assertNull(repository.getLeague("99"))
     }

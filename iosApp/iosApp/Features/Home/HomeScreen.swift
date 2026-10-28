@@ -63,7 +63,10 @@ struct HomeScreen: View {
                 FavoritePickerView(
                     picker: picker,
                     onQueryChange: { onAction(.pickerQueryChanged($0)) },
-                    onPlayerClick: { onAction(.pickerPlayerClicked(id: $0)) },
+                    onBrowsePlayersClick: { onAction(.browsePlayersClicked) },
+                    onDrillDownQueryChange: { onAction(.pickerQueryChanged($0)) },
+                    onDrillDownEntryClick: { onAction(.pickerDrillDownEntryClicked(id: $0)) },
+                    onDrillDownBack: { onAction(.pickerDrillDownBackClicked) },
                     onClubClick: { onAction(.pickerClubClicked(id: $0)) },
                     onDismiss: { onAction(.pickerDismissed) }
                 )

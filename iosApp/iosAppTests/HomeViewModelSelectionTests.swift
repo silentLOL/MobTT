@@ -83,7 +83,7 @@ struct HomeViewModelSelectionTests {
             observeFavorites: finite([Set<AnyHashable>()]),
             addFavorite: { _ in },
             removeFavorite: { _ in },
-            searchPlayers: { _ in [] },
+            playerLoaders: PlayerDrillDownFixtures().loaders,
             searchClubs: { _ in [] }
         )
     }

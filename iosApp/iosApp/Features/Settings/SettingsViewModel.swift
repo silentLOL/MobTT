@@ -11,11 +11,11 @@ final class SettingsViewModel {
     private var currentPlayerId: String?
     private var currentClubId: String?
     private var searchTask: Task<Void, Never>?
+    private let playerDrillDown: PlayerDrillDown
 
     @ObservationIgnored private let observeUserContext: any AsyncSequence<DataResult, Never>
     @ObservationIgnored private let setMyPlayer: (String) async throws -> Void
     @ObservationIgnored private let setMyClub: (String) async throws -> Void
-    @ObservationIgnored private let searchPlayers: (String) async -> [PlayerSearchResult]
     @ObservationIgnored private let searchClubs: (String) async -> [Club]
     @ObservationIgnored private let eventStream = AsyncStream<SettingsEvent>.makeStream()
 
@@ -25,20 +25,24 @@ final class SettingsViewModel {
         observeUserContext: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeUserContext(),
         setMyPlayer: @escaping (String) async throws -> Void = { try await KoinHelper.shared.getSetMyPlayerUseCase().invoke(playerId: $0) },
         setMyClub: @escaping (String) async throws -> Void = { try await KoinHelper.shared.getSetMyClubUseCase().invoke(clubId: $0) },
-        searchPlayers: @escaping (String) async -> [PlayerSearchResult] = { (try? await KoinHelper.shared.getSearchPlayersUseCase().invoke(query: $0)) ?? [] },
+        playerLoaders: PlayerDrillDownLoaders = .live,
         searchClubs: @escaping (String) async -> [Club] = { (try? await KoinHelper.shared.getSearchClubsUseCase().invoke(query: $0)) ?? [] }
     ) {
         self.observeUserContext = observeUserContext
         self.setMyPlayer = setMyPlayer
         self.setMyClub = setMyClub
-        self.searchPlayers = searchPlayers
+        self.playerDrillDown = PlayerDrillDown(loaders: playerLoaders)
         self.searchClubs = searchClubs
     }
 
     var uiState: SettingsUiState {
         var result = state
         result.picker = pickerKind.map { kind in
-            let currentId = kind == .player ? currentPlayerId : currentClubId
+            if kind == .player {
+                let drillDown = playerDrillDown.ui { $0 == currentPlayerId }
+                return SettingsPickerUi(kind: kind, query: drillDown.query, entries: drillDown.entries, playerDrillDown: drillDown)
+            }
+            let currentId = currentClubId
             let entries = pickerEntries.map {
                 DirectoryEntryUi(id: $0.id, title: $0.title, subtitle: $0.subtitle, selected: $0.id == currentId)
             }
@@ -65,11 +69,22 @@ final class SettingsViewModel {
         case .chooseClubClicked:
             openPicker(.club)
         case .pickerQueryChanged(let query):
-            pickerQuery = query
-            search()
+            if pickerKind == .player {
+                playerDrillDown.setQuery(query)
+            } else {
+                pickerQuery = query
+                search()
+            }
         case .pickerEntryClicked(let id):
-            choose(id)
+            if pickerKind == .player {
+                if case .player(let playerId) = playerDrillDown.select(id) {
+                    choose(playerId)
+                }
+            } else {
+                choose(id)
+            }
         case .pickerBackClicked:
+            if pickerKind == .player, playerDrillDown.back() { return }
             closePicker()
         case .doneClicked:
             eventStream.continuation.yield(.dismiss)
@@ -81,11 +96,16 @@ final class SettingsViewModel {
         pickerQuery = ""
         // A result computed for the other kind must not be shown, or its ids would be saved as the wrong choice.
         pickerEntries = []
-        search()
+        if kind == .player {
+            playerDrillDown.start()
+        } else {
+            search()
+        }
     }
 
     private func closePicker() {
         searchTask?.cancel()
+        playerDrillDown.cancel()
         pickerKind = nil
     }
 
@@ -94,11 +114,6 @@ final class SettingsViewModel {
         let query = pickerQuery
         searchTask?.cancel()
         searchTask = Task {
-            // Typing is debounced; an empty query (the picker just opened) searches at once.
-            if !query.isEmpty {
-                try? await Task.sleep(for: .milliseconds(300))
-            }
-            guard !Task.isCancelled else { return }
             let entries = await entries(for: kind, query: query)
             guard !Task.isCancelled else { return }
             pickerEntries = entries
@@ -108,8 +123,8 @@ final class SettingsViewModel {
     private func entries(for kind: PickerKind, query: String) async -> [DirectoryEntryUi] {
         switch kind {
         case .player:
-            let results = await searchPlayers(query)
-            return results.map { DirectoryEntryUi(id: $0.player.id, title: $0.player.name, subtitle: $0.clubName, selected: false) }
+            // Players are browsed through the drill-down, never searched.
+            return []
         case .club:
             let clubs = await searchClubs(query)
             return clubs.map { DirectoryEntryUi(id: $0.id, title: $0.name, subtitle: nil, selected: false) }

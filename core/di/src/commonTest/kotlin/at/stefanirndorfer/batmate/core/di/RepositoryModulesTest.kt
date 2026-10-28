@@ -14,6 +14,8 @@ import kotlin.test.assertIs
 class RepositoryModulesTest {
     private val fakeAssociations = object : AssociationRepository {
         override suspend fun getAssociation(id: String): Association? = null
+
+        override suspend fun getAssociations(): List<Association> = emptyList()
     }
 
     private fun associationRepository(environment: Environment, vararg appModules: Module): AssociationRepository? {

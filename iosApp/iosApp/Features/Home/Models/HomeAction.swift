@@ -6,7 +6,9 @@ enum HomeAction {
     case favoriteClubClicked(id: String)
     case removeFavoriteClicked(HomeFavoriteUi)
     case pickerQueryChanged(String)
-    case pickerPlayerClicked(id: String)
+    case browsePlayersClicked
+    case pickerDrillDownEntryClicked(id: String)
+    case pickerDrillDownBackClicked
     case pickerClubClicked(id: String)
     case pickerDismissed
 }

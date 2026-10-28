@@ -1,6 +1,7 @@
 package at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models
 
 import at.stefanirndorfer.batmate.core.ui.directory.models.DirectoryEntryUi
+import at.stefanirndorfer.batmate.core.ui.directory.models.PlayerStep
 import at.stefanirndorfer.batmate.domain.user.ResolvedFavorite
 import at.stefanirndorfer.batmate.domain.user.UpcomingFixtures
 
@@ -22,11 +23,17 @@ sealed interface HomeSelectionUi {
     ) : HomeSelectionUi
 }
 
-/** Entries are marked selected when they are already a Favorite. */
+/**
+ * Entries are marked selected when they are already a Favorite. While [step] is null the picker lists [clubs];
+ * otherwise it is in the Player drill-down at [step], listing its [entries] (Associations, Leagues or Players)
+ * under the names chosen so far in [breadcrumb].
+ */
 data class FavoritePickerUi(
     val query: String,
-    val players: List<DirectoryEntryUi>,
     val clubs: List<DirectoryEntryUi>,
+    val step: PlayerStep? = null,
+    val breadcrumb: String? = null,
+    val entries: List<DirectoryEntryUi> = emptyList(),
 )
 
 data class HomeUiState(

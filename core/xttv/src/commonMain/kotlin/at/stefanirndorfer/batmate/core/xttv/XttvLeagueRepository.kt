@@ -23,6 +23,13 @@ class XttvLeagueRepository(
         return null
     }
 
+    override suspend fun getLeagues(associationId: String): List<League> {
+        if (!XttvEndpoints.isXttvId(associationId)) {
+            return emptyList()
+        }
+        return api.get(XttvEndpoints.leagues(host, associationId), LEAGUE_TTL, LeaguesXml.serializer()).league.map { it.toDomain() }
+    }
+
     override suspend fun getStandings(leagueId: String): List<Standing> {
         if (!XttvEndpoints.isXttvId(leagueId)) {
             return emptyList()

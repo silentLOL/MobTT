@@ -31,11 +31,12 @@ struct HomeFavoriteUi: Identifiable, Equatable {
     var id: String { kind.key(for: entityId) }
 }
 
-/// Entries are marked selected when they are already a Favorite.
+/// Entries are marked selected when they are already a Favorite. Clubs are searched; Players are browsed Verband,
+/// League, Player, and while [playerDrillDown] is set it replaces the search.
 struct FavoritePickerUi: Equatable {
     let query: String
-    let players: [DirectoryEntryUi]
     let clubs: [DirectoryEntryUi]
+    var playerDrillDown: PlayerDrillDownUi?
 }
 
 struct HomeFixtureUi: Identifiable, Equatable {

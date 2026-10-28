@@ -1,5 +1,6 @@
 package at.stefanirndorfer.batmate.feature.home.impl.presentation.home
 
+import at.stefanirndorfer.batmate.core.ui.directory.models.PlayerStep
 import at.stefanirndorfer.batmate.domain.club.Association
 import at.stefanirndorfer.batmate.domain.club.AssociationRepository
 import at.stefanirndorfer.batmate.domain.club.Club
@@ -11,6 +12,8 @@ import at.stefanirndorfer.batmate.domain.club.GetClubOverviewUseCase
 import at.stefanirndorfer.batmate.domain.club.League
 import at.stefanirndorfer.batmate.domain.club.LeagueRepository
 import at.stefanirndorfer.batmate.domain.club.LineupPlayer
+import at.stefanirndorfer.batmate.domain.club.ListAssociationsUseCase
+import at.stefanirndorfer.batmate.domain.club.ListLeaguesUseCase
 import at.stefanirndorfer.batmate.domain.club.SearchClubsUseCase
 import at.stefanirndorfer.batmate.domain.club.Standing
 import at.stefanirndorfer.batmate.domain.club.Team
@@ -20,13 +23,13 @@ import at.stefanirndorfer.batmate.domain.player.PlayerRepository
 import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.Favorite
 import at.stefanirndorfer.batmate.domain.user.FavoritesRepository
+import at.stefanirndorfer.batmate.domain.user.ListLeaguePlayersUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveResolvedFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUpcomingFixturesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.ResolvedFavorite
-import at.stefanirndorfer.batmate.domain.user.SearchPlayersUseCase
 import at.stefanirndorfer.batmate.domain.user.UpcomingFixtures
 import at.stefanirndorfer.batmate.domain.user.UserSelection
 import at.stefanirndorfer.batmate.domain.user.UserSelectionRepository
@@ -36,6 +39,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -78,6 +82,8 @@ private class FakeData :
 
     override suspend fun getAssociation(id: String): Association? = read(Association("a1", "WTTV"))
 
+    override suspend fun getAssociations(): List<Association> = read(listOf(Association("a1", "WTTV")))
+
     override suspend fun getTeam(id: String): Team? = read(teams.firstOrNull { it.id == id })
 
     override suspend fun getTeams(clubId: String): List<Team> = read(teams)
@@ -86,13 +92,20 @@ private class FakeData :
 
     override suspend fun getLeague(id: String): League? = read(League(id, "Liga"))
 
+    override suspend fun getLeagues(associationId: String): List<League> = read(listOf(League("l1", "Liga")))
+
     override suspend fun getStandings(leagueId: String): List<Standing> = read(emptyList())
 
     override suspend fun getFixtures(teamId: String): List<Fixture> = read(emptyList())
 
     override suspend fun getPlayer(id: String): Player? = null
 
-    override suspend fun searchPlayers(query: String): List<Player> = emptyList()
+    var leaguePlayerReads = 0
+
+    override suspend fun getLeaguePlayers(leagueId: String): List<Player> {
+        leaguePlayerReads++
+        return read(listOf(Player("p1", "Anna Gruber", "c1"), Player("p2", "Jakob Irndorfer", "c1")))
+    }
 
     private val selection = MutableStateFlow<UserSelection>(UserSelection.MyClub("c1"))
 
@@ -137,8 +150,10 @@ class HomeViewModelTest {
             observeFavorites = ObserveFavoritesUseCase(data),
             addFavorite = AddFavoriteUseCase(data, data),
             removeFavorite = RemoveFavoriteUseCase(data),
-            searchPlayers = SearchPlayersUseCase(data, data),
             searchClubs = SearchClubsUseCase(data),
+            listAssociations = ListAssociationsUseCase(data),
+            listLeagues = ListLeaguesUseCase(data),
+            listLeaguePlayers = ListLeaguePlayersUseCase(data, data),
         )
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel
@@ -253,6 +268,67 @@ class HomeViewModelTest {
 
         val picker = viewModel.uiState.value.picker!!
         assertTrue(picker.clubs.isEmpty())
-        assertTrue(picker.players.isEmpty())
+        assertTrue(picker.entries.isEmpty())
+    }
+
+    @Test
+    fun browsingPlayersDrillsFromAssociationToLeagueToPlayersAndTogglesAFavorite() = runTest {
+        val viewModel = viewModel()
+        viewModel.onAction(HomeAction.AddFavoriteClicked)
+
+        viewModel.onAction(HomeAction.PickerBrowsePlayersClicked)
+        assertEquals(PlayerStep.ASSOCIATION, viewModel.uiState.value.picker!!.step)
+        assertEquals(listOf("a1"), viewModel.uiState.value.picker!!.entries.map { it.id })
+
+        viewModel.onAction(HomeAction.PickerPlayerClicked("a1"))
+        assertEquals(PlayerStep.LEAGUE, viewModel.uiState.value.picker!!.step)
+        assertEquals("WTTV", viewModel.uiState.value.picker!!.breadcrumb)
+
+        viewModel.onAction(HomeAction.PickerPlayerClicked("l1"))
+        val players = viewModel.uiState.value.picker!!
+        assertEquals(PlayerStep.PLAYER, players.step)
+        assertEquals("WTTV › Liga", players.breadcrumb)
+        assertEquals(listOf("p1", "p2"), players.entries.map { it.id })
+
+        viewModel.onAction(HomeAction.PickerPlayerClicked("p2"))
+
+        assertEquals(setOf(Favorite.Player("p2")), data.observeFavorites().first())
+        assertEquals(listOf("p2"), viewModel.uiState.value.picker!!.entries.filter { it.selected }.map { it.id })
+    }
+
+    @Test
+    fun theQueryFiltersTheCurrentStepLocallyWithoutReadingXttvAgain() = runTest {
+        val viewModel = viewModel()
+        viewModel.onAction(HomeAction.AddFavoriteClicked)
+        viewModel.onAction(HomeAction.PickerBrowsePlayersClicked)
+        viewModel.onAction(HomeAction.PickerPlayerClicked("a1"))
+        viewModel.onAction(HomeAction.PickerPlayerClicked("l1"))
+        assertEquals(1, data.leaguePlayerReads)
+
+        viewModel.onAction(HomeAction.PickerQueryChanged("irn"))
+        viewModel.onAction(HomeAction.PickerQueryChanged("irndorfer"))
+
+        assertEquals(listOf("p2"), viewModel.uiState.value.picker!!.entries.map { it.id })
+        assertEquals(1, data.leaguePlayerReads)
+    }
+
+    @Test
+    fun backGoesUpOneStepClearingTheQueryThenReturnsToClubsThenDismisses() = runTest {
+        val viewModel = viewModel()
+        viewModel.onAction(HomeAction.AddFavoriteClicked)
+        viewModel.onAction(HomeAction.PickerBrowsePlayersClicked)
+        viewModel.onAction(HomeAction.PickerPlayerClicked("a1"))
+        viewModel.onAction(HomeAction.PickerQueryChanged("zzz"))
+
+        viewModel.onAction(HomeAction.PickerBackClicked)
+        assertEquals(PlayerStep.ASSOCIATION, viewModel.uiState.value.picker!!.step)
+        assertEquals("", viewModel.uiState.value.picker!!.query)
+
+        viewModel.onAction(HomeAction.PickerBackClicked)
+        assertNull(viewModel.uiState.value.picker!!.step)
+        assertEquals(listOf("c1"), viewModel.uiState.value.picker!!.clubs.map { it.id })
+
+        viewModel.onAction(HomeAction.PickerBackClicked)
+        assertNull(viewModel.uiState.value.picker)
     }
 }

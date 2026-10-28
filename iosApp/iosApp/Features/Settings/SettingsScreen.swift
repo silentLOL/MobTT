@@ -77,17 +77,28 @@ struct SettingsScreen: View {
 
     @ViewBuilder
     private func pickerContent(_ picker: SettingsPickerUi) -> some View {
-        header(
-            title: picker.kind == .player ? "settings_picker_player_title" : "settings_picker_club_title",
-            icon: .arrowBack,
-            accessibilityLabel: "settings_picker_back_cd"
-        ) { onAction(.pickerBackClicked) }
-        DirectoryPickerView(
-            query: picker.query,
-            onQueryChange: { onAction(.pickerQueryChanged($0)) },
-            sections: [DirectorySectionUi(title: nil, entries: picker.entries)],
-            onEntryClick: { _, entry in onAction(.pickerEntryClicked(id: entry.id)) }
-        )
+        if let drillDown = picker.playerDrillDown {
+            header(
+                title: drillDown.step == .player ? "settings_picker_player_title" : drillDown.step.title,
+                icon: .arrowBack,
+                accessibilityLabel: drillDown.step == .association ? "settings_picker_back_cd" : "player_picker_back_cd"
+            ) { onAction(.pickerBackClicked) }
+            PlayerDrillDownView(
+                drillDown: drillDown,
+                onQueryChange: { onAction(.pickerQueryChanged($0)) },
+                onEntryClick: { onAction(.pickerEntryClicked(id: $0)) }
+            )
+        } else {
+            header(title: "settings_picker_club_title", icon: .arrowBack, accessibilityLabel: "settings_picker_back_cd") {
+                onAction(.pickerBackClicked)
+            }
+            DirectoryPickerView(
+                query: picker.query,
+                onQueryChange: { onAction(.pickerQueryChanged($0)) },
+                sections: [DirectorySectionUi(title: nil, entries: picker.entries)],
+                onEntryClick: { _, entry in onAction(.pickerEntryClicked(id: entry.id)) }
+            )
+        }
     }
 
     private func header(title: LocalizedStringKey, icon: BatIcon, accessibilityLabel: String.LocalizationValue, onTap: @escaping () -> Void) -> some View {
@@ -149,17 +160,58 @@ private let chosenPlayerState = SettingsUiState(
     .dynamicTypeSize(.accessibility2)
 }
 
-#Preview("Picker") {
+#Preview("Club picker") {
+    @Previewable @State var appearance = AppearanceChoice.system
+    SettingsScreen(
+        state: SettingsUiState(
+            picker: SettingsPickerUi(
+                kind: .club,
+                query: "",
+                entries: [DirectoryEntryUi(id: "nussdorf", title: "Nussdorf TTC", subtitle: nil, selected: true)]
+            )
+        ),
+        appearance: $appearance,
+        onAction: { _ in }
+    )
+}
+
+#Preview("Player picker, Verband step") {
     @Previewable @State var appearance = AppearanceChoice.system
     SettingsScreen(
         state: SettingsUiState(
             picker: SettingsPickerUi(
                 kind: .player,
                 query: "",
-                entries: [
-                    DirectoryEntryUi(id: "huber", title: "Michael Huber", subtitle: "TTC Olympic", selected: true),
-                    DirectoryEntryUi(id: "gruber", title: "Anna Gruber", subtitle: "TTC Olympic", selected: false),
-                ]
+                entries: [],
+                playerDrillDown: PlayerDrillDownUi(
+                    step: .association,
+                    contextName: nil,
+                    query: "",
+                    entries: [
+                        DirectoryEntryUi(id: "wttv", title: "Wiener Tischtennisverband (WTTV)", subtitle: nil, selected: false),
+                        DirectoryEntryUi(id: "noettv", title: "Niederösterreichischer Tischtennisverband (NÖTTV)", subtitle: nil, selected: false),
+                    ]
+                )
+            )
+        ),
+        appearance: $appearance,
+        onAction: { _ in }
+    )
+}
+
+#Preview("Player picker, Player step") {
+    @Previewable @State var appearance = AppearanceChoice.system
+    let entries = [
+        DirectoryEntryUi(id: "huber", title: "Michael Huber", subtitle: "TTC Olympic", selected: true),
+        DirectoryEntryUi(id: "gruber", title: "Anna Gruber", subtitle: "TTC Olympic", selected: false),
+    ]
+    SettingsScreen(
+        state: SettingsUiState(
+            picker: SettingsPickerUi(
+                kind: .player,
+                query: "",
+                entries: entries,
+                playerDrillDown: PlayerDrillDownUi(step: .player, contextName: "1. Landesliga Herren", query: "", entries: entries)
             )
         ),
         appearance: $appearance,

@@ -20,6 +20,8 @@ class FakeClubData :
 
     override suspend fun getAssociation(id: String): Association? = associations.firstOrNull { it.id == id }
 
+    override suspend fun getAssociations(): List<Association> = associations
+
     override suspend fun getTeam(id: String): Team? = teams.firstOrNull { it.id == id }
 
     override suspend fun getLineup(teamId: String): List<LineupPlayer> = lineups[teamId].orEmpty()
@@ -27,6 +29,8 @@ class FakeClubData :
     override suspend fun getTeams(clubId: String): List<Team> = teams.filter { it.clubId == clubId }
 
     override suspend fun getLeague(id: String): League? = leagues.firstOrNull { it.id == id }
+
+    override suspend fun getLeagues(associationId: String): List<League> = leagues
 
     override suspend fun getStandings(leagueId: String): List<Standing> = standings[leagueId].orEmpty()
 

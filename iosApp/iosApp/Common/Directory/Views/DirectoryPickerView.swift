@@ -6,13 +6,14 @@ struct DirectoryPickerView: View {
     let onQueryChange: (String) -> Void
     let sections: [DirectorySectionUi]
     let onEntryClick: (_ sectionIndex: Int, _ entry: DirectoryEntryUi) -> Void
+    var placeholder: String = String(localized: "core_search_placeholder")
 
     var body: some View {
         VStack(alignment: .leading, spacing: BatSpacing.md) {
             BatTextFieldView(
                 text: Binding(get: { query }, set: onQueryChange),
                 label: String(localized: "core_search_label"),
-                placeholder: String(localized: "core_search_placeholder"),
+                placeholder: placeholder,
                 leadingIcon: .search
             )
             if sections.allSatisfy({ $0.entries.isEmpty }) {

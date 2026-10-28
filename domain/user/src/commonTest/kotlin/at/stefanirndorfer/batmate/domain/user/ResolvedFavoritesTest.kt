@@ -23,13 +23,15 @@ private class Directory :
     AssociationRepository {
     override suspend fun getPlayer(id: String) = listOf(anna).firstOrNull { it.id == id }
 
-    override suspend fun searchPlayers(query: String) = listOf(anna)
+    override suspend fun getLeaguePlayers(leagueId: String) = listOf(anna)
 
     override suspend fun getClub(id: String) = listOf(olympic).firstOrNull { it.id == id }
 
     override suspend fun searchClubs(query: String) = listOf(olympic)
 
     override suspend fun getAssociation(id: String) = listOf(wttv).firstOrNull { it.id == id }
+
+    override suspend fun getAssociations() = listOf(wttv)
 }
 
 private class Favorites(initial: Set<Favorite>) : FavoritesRepository {
@@ -71,13 +73,8 @@ class ResolvedFavoritesTest {
     }
 
     @Test
-    fun playerSearchSkipsQueriesShorterThanThreeCharacters() = runTest {
-        assertEquals(emptyList(), SearchPlayersUseCase(directory, directory)(" an "))
-    }
-
-    @Test
-    fun playerSearchResultsCarryTheClubName() = runTest {
-        val results = SearchPlayersUseCase(directory, directory)("  ann ")
+    fun leaguePlayersCarryTheClubName() = runTest {
+        val results = ListLeaguePlayersUseCase(directory, directory)("l1")
 
         assertEquals(listOf(PlayerSearchResult(anna, "TTC Olympic")), results)
     }

@@ -69,15 +69,49 @@ struct HomeViewModelFavoritesTests {
         #expect(added.compactMap { ($0 as? FavoriteClub)?.id } == ["c1"])
     }
 
-    @Test func clickingASelectedEntryRemovesTheFavorite() async {
-        var removed: [Favorite] = []
-        let viewModel = makeViewModel(favorites: [FavoritePlayer(id: "p1") as AnyHashable], removeFavorite: { removed.append($0) })
-        await viewModel.observe()
+    @Test func browsingPlayersStartsTheDrillDownAndBackReturnsToTheSearch() async {
+        let viewModel = makeViewModel(clubs: [club])
+        viewModel.onAction(.addFavoriteClicked)
+        #expect(viewModel.uiState.picker?.playerDrillDown == nil)
 
-        viewModel.onAction(.pickerPlayerClicked(id: "p1"))
+        viewModel.onAction(.browsePlayersClicked)
+        await waitUntil { !(viewModel.uiState.picker?.playerDrillDown?.entries.isEmpty ?? true) }
+        #expect(viewModel.uiState.picker?.playerDrillDown?.step == .association)
+
+        viewModel.onAction(.pickerDrillDownBackClicked)
+        #expect(viewModel.uiState.picker != nil)
+        #expect(viewModel.uiState.picker?.playerDrillDown == nil)
+    }
+
+    @Test func pickingAPlayerFromTheDrillDownAddsTheFavorite() async {
+        var added: [Favorite] = []
+        let viewModel = await playerStep(addFavorite: { added.append($0) })
+
+        viewModel.onAction(.pickerDrillDownEntryClicked(id: "p1"))
+        await waitUntil { !added.isEmpty }
+
+        #expect(added.compactMap { ($0 as? FavoritePlayer)?.id } == ["p1"])
+    }
+
+    @Test func pickingAFavoritePlayerFromTheDrillDownRemovesIt() async {
+        var removed: [Favorite] = []
+        let viewModel = await playerStep(favorites: [FavoritePlayer(id: "p1") as AnyHashable], removeFavorite: { removed.append($0) })
+
+        #expect(viewModel.uiState.picker?.playerDrillDown?.entries.map(\.selected) == [true, false])
+        viewModel.onAction(.pickerDrillDownEntryClicked(id: "p1"))
         await waitUntil { !removed.isEmpty }
 
         #expect(removed.compactMap { ($0 as? FavoritePlayer)?.id } == ["p1"])
+    }
+
+    @Test func theDrillDownFiltersLocallyAndReadsEachStepOnce() async {
+        let fixtures = PlayerDrillDownFixtures()
+        let viewModel = await playerStep(fixtures: fixtures)
+
+        viewModel.onAction(.pickerQueryChanged("gru"))
+
+        #expect(viewModel.uiState.picker?.playerDrillDown?.entries.map(\.id) == ["p1"])
+        #expect(fixtures.reads.players == ["l1"])
     }
 
     @Test func removingFromHomeRemovesThatFavorite() async {
@@ -100,10 +134,28 @@ struct HomeViewModelFavoritesTests {
         #expect(viewModel.uiState.picker == nil)
     }
 
-    private func waitUntil(_ condition: () -> Bool) async {
-        for _ in 0..<100 where !condition() {
-            await Task.yield()
-        }
+    /// The picker open at the Player step of the first Verband's first League.
+    private func playerStep(
+        fixtures: PlayerDrillDownFixtures = PlayerDrillDownFixtures(),
+        favorites: Set<AnyHashable> = [],
+        addFavorite: @escaping (Favorite) async throws -> Void = { _ in },
+        removeFavorite: @escaping (Favorite) async throws -> Void = { _ in }
+    ) async -> HomeViewModel {
+        let viewModel = makeViewModel(
+            favorites: favorites,
+            playerLoaders: fixtures.loaders,
+            addFavorite: addFavorite,
+            removeFavorite: removeFavorite
+        )
+        await viewModel.observe()
+        viewModel.onAction(.addFavoriteClicked)
+        viewModel.onAction(.browsePlayersClicked)
+        await waitUntil { !(viewModel.uiState.picker?.playerDrillDown?.entries.isEmpty ?? true) }
+        viewModel.onAction(.pickerDrillDownEntryClicked(id: "w"))
+        await waitUntil { viewModel.uiState.picker?.playerDrillDown?.step == .league && !(viewModel.uiState.picker?.playerDrillDown?.entries.isEmpty ?? true) }
+        viewModel.onAction(.pickerDrillDownEntryClicked(id: "l1"))
+        await waitUntil { viewModel.uiState.picker?.playerDrillDown?.step == .player && !(viewModel.uiState.picker?.playerDrillDown?.entries.isEmpty ?? true) }
+        return viewModel
     }
 
     private func makeViewModel(
@@ -111,6 +163,7 @@ struct HomeViewModelFavoritesTests {
         resolved: [DataResult] = [],
         favorites: Set<AnyHashable> = [],
         clubs: [Club] = [],
+        playerLoaders: PlayerDrillDownLoaders = PlayerDrillDownFixtures().loaders,
         addFavorite: @escaping (Favorite) async throws -> Void = { _ in },
         removeFavorite: @escaping (Favorite) async throws -> Void = { _ in }
     ) -> HomeViewModel {
@@ -121,7 +174,7 @@ struct HomeViewModelFavoritesTests {
             observeFavorites: finite([favorites]),
             addFavorite: addFavorite,
             removeFavorite: removeFavorite,
-            searchPlayers: { _ in [] },
+            playerLoaders: playerLoaders,
             searchClubs: { _ in clubs }
         )
     }

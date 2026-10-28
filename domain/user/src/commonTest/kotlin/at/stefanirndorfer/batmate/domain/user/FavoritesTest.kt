@@ -26,7 +26,7 @@ private class FakeFavoritesRepository : FavoritesRepository {
 private object NoPlayers : PlayerRepository {
     override suspend fun getPlayer(id: String): Player? = null
 
-    override suspend fun searchPlayers(query: String): List<Player> = emptyList()
+    override suspend fun getLeaguePlayers(leagueId: String): List<Player> = emptyList()
 }
 
 class FavoritesTest {

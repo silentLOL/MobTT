@@ -8,16 +8,18 @@ import at.stefanirndorfer.batmate.domain.app.GetPlatformNameUseCase
 import at.stefanirndorfer.batmate.domain.club.ClubOverview
 import at.stefanirndorfer.batmate.domain.club.GetClubOverviewUseCase
 import at.stefanirndorfer.batmate.domain.club.GetTeamDetailUseCase
+import at.stefanirndorfer.batmate.domain.club.ListAssociationsUseCase
+import at.stefanirndorfer.batmate.domain.club.ListLeaguesUseCase
 import at.stefanirndorfer.batmate.domain.club.SearchClubsUseCase
 import at.stefanirndorfer.batmate.domain.club.TeamDetail
 import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
+import at.stefanirndorfer.batmate.domain.user.ListLeaguePlayersUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveResolvedFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUpcomingFixturesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.ResolvedFavorite
-import at.stefanirndorfer.batmate.domain.user.SearchPlayersUseCase
 import at.stefanirndorfer.batmate.domain.user.SetMyClubUseCase
 import at.stefanirndorfer.batmate.domain.user.SetMyPlayerUseCase
 import at.stefanirndorfer.batmate.domain.user.UserContext
@@ -84,8 +86,18 @@ object KoinHelper : KoinComponent {
         return useCase
     }
 
-    fun getSearchPlayersUseCase(): SearchPlayersUseCase {
-        val useCase: SearchPlayersUseCase by inject()
+    fun getListLeaguePlayersUseCase(): ListLeaguePlayersUseCase {
+        val useCase: ListLeaguePlayersUseCase by inject()
+        return useCase
+    }
+
+    fun getListAssociationsUseCase(): ListAssociationsUseCase {
+        val useCase: ListAssociationsUseCase by inject()
+        return useCase
+    }
+
+    fun getListLeaguesUseCase(): ListLeaguesUseCase {
+        val useCase: ListLeaguesUseCase by inject()
         return useCase
     }
 

@@ -49,13 +49,15 @@ private class FakeData :
 
     override suspend fun getPlayer(id: String) = Player("p1", "Anna", "c1").takeIf { it.id == id }
 
-    override suspend fun searchPlayers(query: String) = emptyList<Player>()
+    override suspend fun getLeaguePlayers(leagueId: String) = emptyList<Player>()
 
     override suspend fun getClub(id: String): Club? = club.takeIf { it.id == id }
 
     override suspend fun searchClubs(query: String) = listOf(club)
 
     override suspend fun getAssociation(id: String) = Association("a1", "WTTV")
+
+    override suspend fun getAssociations() = listOf(Association("a1", "WTTV"))
 
     override suspend fun getTeam(id: String) = teams.firstOrNull { it.id == id }
 
@@ -64,6 +66,8 @@ private class FakeData :
     override suspend fun getTeams(clubId: String) = teams.filter { it.clubId == clubId }
 
     override suspend fun getLeague(id: String) = League(id, "Liga")
+
+    override suspend fun getLeagues(associationId: String) = listOf(League("l1", "Liga"))
 
     override suspend fun getStandings(leagueId: String) = emptyList<Standing>()
 

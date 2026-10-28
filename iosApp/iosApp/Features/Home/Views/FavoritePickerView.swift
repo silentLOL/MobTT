@@ -3,38 +3,34 @@ import SwiftUI
 struct FavoritePickerView: View {
     let picker: FavoritePickerUi
     let onQueryChange: (String) -> Void
-    let onPlayerClick: (String) -> Void
+    let onBrowsePlayersClick: () -> Void
+    let onDrillDownQueryChange: (String) -> Void
+    let onDrillDownEntryClick: (String) -> Void
+    let onDrillDownBack: () -> Void
     let onClubClick: (String) -> Void
     let onDismiss: () -> Void
-
-    private static let playersSection = 0
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: BatSpacing.lg) {
-                HStack {
-                    Text("home_favorite_picker_title")
-                        .batTextStyle(BatTypography.headline)
-                        .foregroundStyle(BatColor.textPrimary)
-                        .accessibilityAddTraits(.isHeader)
-                    Spacer(minLength: BatSpacing.sm)
-                    BatIconButtonView(icon: .close, accessibilityText: String(localized: "core_close_button_cd"), action: onDismiss)
+                if let drillDown = picker.playerDrillDown {
+                    header(
+                        title: drillDown.step.title,
+                        icon: .arrowBack,
+                        accessibilityLabel: drillDown.step == .association ? "home_favorite_picker_back_cd" : "player_picker_back_cd",
+                        action: onDrillDownBack
+                    )
+                    PlayerDrillDownView(drillDown: drillDown, onQueryChange: onDrillDownQueryChange, onEntryClick: onDrillDownEntryClick)
+                } else {
+                    header(title: "home_favorite_picker_title", icon: .close, accessibilityLabel: "core_close_button_cd", action: onDismiss)
+                    BatSelectableRowView(label: String(localized: "home_favorite_browse_players"), isSelected: false, action: onBrowsePlayersClick)
+                    DirectoryPickerView(
+                        query: picker.query,
+                        onQueryChange: onQueryChange,
+                        sections: [DirectorySectionUi(title: String(localized: "core_clubs_section_title"), entries: picker.clubs)],
+                        onEntryClick: { _, entry in onClubClick(entry.id) }
+                    )
                 }
-                DirectoryPickerView(
-                    query: picker.query,
-                    onQueryChange: onQueryChange,
-                    sections: [
-                        DirectorySectionUi(title: String(localized: "core_players_section_title"), entries: picker.players),
-                        DirectorySectionUi(title: String(localized: "core_clubs_section_title"), entries: picker.clubs),
-                    ],
-                    onEntryClick: { sectionIndex, entry in
-                        if sectionIndex == Self.playersSection {
-                            onPlayerClick(entry.id)
-                        } else {
-                            onClubClick(entry.id)
-                        }
-                    }
-                )
             }
             .padding(.horizontal, BatSpacing.lg)
             .padding(.vertical, BatSpacing.lg)
@@ -43,33 +39,68 @@ struct FavoritePickerView: View {
         }
         .batBackground()
     }
+
+    private func header(
+        title: LocalizedStringKey,
+        icon: BatIcon,
+        accessibilityLabel: String.LocalizationValue,
+        action: @escaping () -> Void
+    ) -> some View {
+        HStack {
+            Text(title)
+                .batTextStyle(BatTypography.headline)
+                .foregroundStyle(BatColor.textPrimary)
+                .accessibilityAddTraits(.isHeader)
+            Spacer(minLength: BatSpacing.sm)
+            BatIconButtonView(icon: icon, accessibilityText: String(localized: accessibilityLabel), action: action)
+        }
+    }
 }
 
 private let previewPicker = FavoritePickerUi(
     query: "",
-    players: [
-        DirectoryEntryUi(id: "huber", title: "Michael Huber", subtitle: "TTC Olympic", selected: true),
-        DirectoryEntryUi(id: "gruber", title: "Anna Gruber", subtitle: "TTC Olympic", selected: false),
-    ],
     clubs: [DirectoryEntryUi(id: "nussdorf", title: "Nussdorf TTC", subtitle: nil, selected: false)]
 )
 
-#Preview("Results") {
-    FavoritePickerView(picker: previewPicker, onQueryChange: { _ in }, onPlayerClick: { _ in }, onClubClick: { _ in }, onDismiss: {})
-}
+private let previewDrillDown = FavoritePickerUi(
+    query: "",
+    clubs: [],
+    playerDrillDown: PlayerDrillDownUi(
+        step: .player,
+        contextName: "1. Landesliga Herren",
+        query: "",
+        entries: [
+            DirectoryEntryUi(id: "huber", title: "Michael Huber", subtitle: "TTC Olympic", selected: true),
+            DirectoryEntryUi(id: "gruber", title: "Anna Gruber", subtitle: "TTC Olympic", selected: false),
+        ]
+    )
+)
 
-#Preview("No matches") {
+private func previewPickerView(_ picker: FavoritePickerUi) -> FavoritePickerView {
     FavoritePickerView(
-        picker: FavoritePickerUi(query: "zzz", players: [], clubs: []),
+        picker: picker,
         onQueryChange: { _ in },
-        onPlayerClick: { _ in },
+        onBrowsePlayersClick: {},
+        onDrillDownQueryChange: { _ in },
+        onDrillDownEntryClick: { _ in },
+        onDrillDownBack: {},
         onClubClick: { _ in },
         onDismiss: {}
     )
-    .preferredColorScheme(.dark)
+}
+
+#Preview("Results") {
+    previewPickerView(previewPicker)
+}
+
+#Preview("Players step") {
+    previewPickerView(previewDrillDown)
+}
+
+#Preview("No matches") {
+    previewPickerView(FavoritePickerUi(query: "zzz", clubs: [])).preferredColorScheme(.dark)
 }
 
 #Preview("200% text") {
-    FavoritePickerView(picker: previewPicker, onQueryChange: { _ in }, onPlayerClick: { _ in }, onClubClick: { _ in }, onDismiss: {})
-        .dynamicTypeSize(.accessibility2)
+    previewPickerView(previewPicker).dynamicTypeSize(.accessibility2)
 }

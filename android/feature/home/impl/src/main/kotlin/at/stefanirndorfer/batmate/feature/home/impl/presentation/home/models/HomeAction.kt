@@ -17,7 +17,12 @@ sealed interface HomeAction {
 
     data class PickerQueryChanged(val query: String) : HomeAction
 
+    data object PickerBrowsePlayersClicked : HomeAction
+
+    /** An Association, League or Player entry of the drill-down; a Player entry toggles the Favorite. */
     data class PickerPlayerClicked(val id: String) : HomeAction
+
+    data object PickerBackClicked : HomeAction
 
     data class PickerClubClicked(val id: String) : HomeAction
 

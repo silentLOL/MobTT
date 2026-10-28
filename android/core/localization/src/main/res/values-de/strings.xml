@@ -29,6 +29,10 @@
     <string name="core_search_empty_body">Keine Treffer</string>
     <string name="core_players_section_title">Spieler</string>
     <string name="core_clubs_section_title">Vereine</string>
+    <string name="core_drilldown_association_title">Verband wählen</string>
+    <string name="core_drilldown_league_title">Liga wählen</string>
+    <string name="core_drilldown_player_title">Spieler wählen</string>
+    <string name="core_drilldown_back_cd">Zurück</string>
 
     <string name="home_choose_title">Wähle deinen Spieler oder Verein</string>
     <string name="home_choose_body">Wähle in den Einstellungen Mein Spieler oder Mein Verein, um den Start zu personalisieren.</string>
@@ -40,6 +44,7 @@
     <string name="home_favorites_empty_body">Merke dir Spieler und Vereine für den schnellen Zugriff.</string>
     <string name="home_favorite_remove_cd">%1$s aus Favoriten entfernen</string>
     <string name="home_favorite_picker_title">Favoriten hinzufügen</string>
+    <string name="home_favorite_picker_browse_players_button">Spieler nach Verband und Liga finden</string>
 
     <string name="settings_my_player_title">Mein Spieler</string>
     <string name="settings_my_club_title">Mein Verein</string>

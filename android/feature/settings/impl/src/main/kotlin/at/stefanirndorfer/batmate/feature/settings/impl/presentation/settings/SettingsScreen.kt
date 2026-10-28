@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -23,6 +24,7 @@ import at.stefanirndorfer.batmate.core.ui.ObserveAsEvents
 import at.stefanirndorfer.batmate.core.ui.directory.DirectoryPickerView
 import at.stefanirndorfer.batmate.core.ui.directory.models.DirectoryEntryUi
 import at.stefanirndorfer.batmate.core.ui.directory.models.DirectorySectionUi
+import at.stefanirndorfer.batmate.core.ui.directory.models.PlayerStep
 import at.stefanirndorfer.batmate.designsystem.icon.BatIcon
 import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
@@ -125,21 +127,33 @@ private fun MainContent(state: SettingsUiState, onAction: (SettingsAction) -> Un
 
 @Composable
 private fun PickerContent(picker: SettingsPickerUi, onAction: (SettingsAction) -> Unit) {
-    val title = when (picker.kind) {
-        PickerKind.PLAYER -> stringResource(R.string.settings_picker_player_title)
-        PickerKind.CLUB -> stringResource(R.string.settings_picker_club_title)
+    val title = when (picker.step) {
+        PlayerStep.ASSOCIATION -> stringResource(R.string.core_drilldown_association_title)
+        PlayerStep.LEAGUE -> stringResource(R.string.core_drilldown_league_title)
+        PlayerStep.PLAYER -> stringResource(R.string.core_drilldown_player_title)
+        null -> stringResource(R.string.settings_picker_club_title)
+    }
+    // Inside the drill-down, back goes up one step; from its first step and from the Club picker it returns to Settings.
+    val backDescription = if (picker.step == PlayerStep.LEAGUE || picker.step == PlayerStep.PLAYER) {
+        stringResource(R.string.core_drilldown_back_cd)
+    } else {
+        stringResource(R.string.settings_picker_back_cd)
     }
     SheetHeader(
         title = title,
         icon = BatIcon.ArrowBack,
-        iconContentDescription = stringResource(R.string.settings_picker_back_cd),
+        iconContentDescription = backDescription,
         onIconClick = { onAction(SettingsAction.PickerBackClicked) },
     )
+    if (picker.breadcrumb != null) {
+        Text(text = picker.breadcrumb, color = BatDesign.colors.textSecondary, style = BatDesign.typography.caption)
+    }
     DirectoryPickerView(
         query = picker.query,
         onQueryChange = { onAction(SettingsAction.PickerQueryChanged(it)) },
         sections = listOf(DirectorySectionUi(title = null, entries = picker.entries)),
         onEntryClick = { _, entry -> onAction(SettingsAction.PickerEntryClicked(entry.id)) },
+        entryRole = if (picker.step == PlayerStep.ASSOCIATION || picker.step == PlayerStep.LEAGUE) Role.Button else Role.RadioButton,
     )
 }
 
@@ -267,6 +281,29 @@ private fun SettingsScreenPickerPreview() {
                         DirectoryEntryUi("huber", "Michael Huber", "TTC Olympic", selected = true),
                         DirectoryEntryUi("gruber", "Anna Gruber", "TTC Olympic", selected = false),
                     ),
+                    step = PlayerStep.PLAYER,
+                    breadcrumb = "Wiener Tischtennisverband (WTTV) › 1. Landesliga Herren",
+                ),
+            ),
+            onAction = {},
+        )
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun SettingsScreenAssociationStepPreview() {
+    BatPreviewSurface {
+        SettingsScreen(
+            state = SettingsUiState(
+                picker = SettingsPickerUi(
+                    kind = PickerKind.PLAYER,
+                    query = "",
+                    entries = listOf(
+                        DirectoryEntryUi("wttv", "Wiener Tischtennisverband (WTTV)", null, selected = false),
+                        DirectoryEntryUi("noettv", "Niederösterreichischer Tischtennisverband (NÖTTV)", null, selected = false),
+                    ),
+                    step = PlayerStep.ASSOCIATION,
                 ),
             ),
             onAction = {},

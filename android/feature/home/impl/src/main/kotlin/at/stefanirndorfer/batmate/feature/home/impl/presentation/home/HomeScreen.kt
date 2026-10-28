@@ -107,8 +107,10 @@ fun HomeScreen(
         FavoritePickerSheet(
             picker = state.picker,
             onQueryChange = { onAction(HomeAction.PickerQueryChanged(it)) },
+            onBrowsePlayersClick = { onAction(HomeAction.PickerBrowsePlayersClicked) },
             onPlayerClick = { onAction(HomeAction.PickerPlayerClicked(it)) },
             onClubClick = { onAction(HomeAction.PickerClubClicked(it)) },
+            onBackClick = { onAction(HomeAction.PickerBackClicked) },
             onDismiss = { onAction(HomeAction.PickerDismissed) },
         )
     }

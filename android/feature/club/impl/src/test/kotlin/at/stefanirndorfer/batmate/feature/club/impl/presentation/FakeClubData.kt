@@ -47,6 +47,8 @@ class FakeClubData :
 
     override suspend fun getAssociation(id: String): Association? = read(Association("a1", "WTTV"))
 
+    override suspend fun getAssociations(): List<Association> = read(listOf(Association("a1", "WTTV")))
+
     override suspend fun getTeam(id: String): Team? = read(teams.firstOrNull { it.id == id })
 
     override suspend fun getTeams(clubId: String): List<Team> = read(teams)
@@ -55,13 +57,15 @@ class FakeClubData :
 
     override suspend fun getLeague(id: String): League? = read(League(id, "Liga"))
 
+    override suspend fun getLeagues(associationId: String): List<League> = read(listOf(League("l1", "Liga")))
+
     override suspend fun getStandings(leagueId: String): List<Standing> = read(emptyList())
 
     override suspend fun getFixtures(teamId: String): List<Fixture> = read(emptyList())
 
     override suspend fun getPlayer(id: String): Player? = null
 
-    override suspend fun searchPlayers(query: String): List<Player> = emptyList()
+    override suspend fun getLeaguePlayers(leagueId: String): List<Player> = emptyList()
 
     override fun observeSelection(): Flow<UserSelection> = flowOf(UserSelection.None)
 

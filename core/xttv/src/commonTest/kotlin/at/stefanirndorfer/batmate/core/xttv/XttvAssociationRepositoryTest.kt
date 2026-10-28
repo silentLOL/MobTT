@@ -20,6 +20,11 @@ class XttvAssociationRepositoryTest {
     }
 
     @Test
+    fun everyFederationIsListedAsAnAssociation() = runTest {
+        assertEquals(listOf("188", "190"), repository.getAssociations().map { it.id })
+    }
+
+    @Test
     fun anAssociationXttvDoesNotListIsNull() = runTest {
         assertNull(repository.getAssociation("99"))
     }

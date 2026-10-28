@@ -100,6 +100,101 @@ struct SettingsViewModelTests {
         #expect(viewModel.uiState.picker?.kind == .club)
     }
 
+    @Test func playerPickerStartsAtTheVerbandStep() async {
+        let viewModel = makeViewModel(emitting: [])
+
+        viewModel.onAction(.choosePlayerClicked)
+        await waitUntil { !(viewModel.uiState.picker?.playerDrillDown?.entries.isEmpty ?? true) }
+
+        let drillDown = viewModel.uiState.picker?.playerDrillDown
+        #expect(viewModel.uiState.picker?.kind == .player)
+        #expect(drillDown?.step == .association)
+        #expect(drillDown?.contextName == nil)
+        #expect(drillDown?.entries.map(\.title) == ["Wiener Tischtennisverband", "Niederösterreichischer Tischtennisverband"])
+    }
+
+    @Test func choosingAVerbandThenALeagueListsItsPlayers() async {
+        let fixtures = PlayerDrillDownFixtures()
+        let viewModel = makeViewModel(emitting: [], playerLoaders: fixtures.loaders)
+
+        viewModel.onAction(.choosePlayerClicked)
+        await waitUntil { !(viewModel.uiState.picker?.playerDrillDown?.entries.isEmpty ?? true) }
+        viewModel.onAction(.pickerEntryClicked(id: "w"))
+        await waitUntil { viewModel.uiState.picker?.playerDrillDown?.step == .league && !(viewModel.uiState.picker?.playerDrillDown?.entries.isEmpty ?? true) }
+
+        #expect(viewModel.uiState.picker?.playerDrillDown?.contextName == "Wiener Tischtennisverband")
+        #expect(viewModel.uiState.picker?.playerDrillDown?.entries.map(\.title) == ["1. Landesliga Herren", "Gebietsliga Nord"])
+
+        viewModel.onAction(.pickerEntryClicked(id: "l1"))
+        await waitUntil { viewModel.uiState.picker?.playerDrillDown?.step == .player && !(viewModel.uiState.picker?.playerDrillDown?.entries.isEmpty ?? true) }
+
+        let drillDown = viewModel.uiState.picker?.playerDrillDown
+        #expect(drillDown?.contextName == "1. Landesliga Herren")
+        #expect(drillDown?.entries == [
+            DirectoryEntryUi(id: "p1", title: "Anna Gruber", subtitle: "TTC Olympic", selected: false),
+            DirectoryEntryUi(id: "p2", title: "Michael Huber", subtitle: "Nussdorf TTC", selected: false),
+        ])
+        #expect(fixtures.reads.leagues == ["w"])
+        #expect(fixtures.reads.players == ["l1"])
+    }
+
+    @Test func typingOnlyFiltersTheStepLocallyWithoutReadingAgain() async {
+        let fixtures = PlayerDrillDownFixtures()
+        let viewModel = await playerStep(fixtures: fixtures)
+
+        viewModel.onAction(.pickerQueryChanged("HUB"))
+
+        #expect(viewModel.uiState.picker?.playerDrillDown?.entries.map(\.id) == ["p2"])
+        #expect(viewModel.uiState.picker?.query == "HUB")
+        viewModel.onAction(.pickerQueryChanged("nobody"))
+        #expect(viewModel.uiState.picker?.playerDrillDown?.entries.isEmpty == true)
+        await Task.yield()
+        #expect(fixtures.reads.players == ["l1"])
+        #expect(fixtures.reads.associations == 1)
+    }
+
+    @Test func backGoesOneStepBackAndClosesFromTheFirstStep() async {
+        let viewModel = await playerStep()
+
+        viewModel.onAction(.pickerBackClicked)
+        #expect(viewModel.uiState.picker?.playerDrillDown?.step == .league)
+        viewModel.onAction(.pickerBackClicked)
+        #expect(viewModel.uiState.picker?.playerDrillDown?.step == .association)
+        viewModel.onAction(.pickerBackClicked)
+        #expect(viewModel.uiState.picker == nil)
+    }
+
+    @Test func enteringAStepClearsTheFilter() async {
+        let viewModel = makeViewModel(emitting: [])
+        viewModel.onAction(.choosePlayerClicked)
+        await waitUntil { !(viewModel.uiState.picker?.playerDrillDown?.entries.isEmpty ?? true) }
+        viewModel.onAction(.pickerQueryChanged("wiener"))
+
+        viewModel.onAction(.pickerEntryClicked(id: "w"))
+
+        #expect(viewModel.uiState.picker?.query == "")
+    }
+
+    @Test func pickingAPlayerSavesItAndClosesThePicker() async {
+        var saved: [String] = []
+        let viewModel = await playerStep(setMyPlayer: { saved.append($0) })
+
+        viewModel.onAction(.pickerEntryClicked(id: "p2"))
+        await waitUntil { viewModel.uiState.picker == nil }
+
+        #expect(saved == ["p2"])
+        #expect(viewModel.uiState.picker == nil)
+    }
+
+    @Test func theChosenPlayerIsMarkedSelected() async {
+        let player = Player(id: "p1", name: "Anna Gruber", clubId: "c1")
+        let context = UserContextMyPlayer(player: player, club: club, association: association)
+        let viewModel = await playerStep(emitting: [DataResultSuccess(value: context)])
+        await viewModel.observe()
+
+        #expect(viewModel.uiState.picker?.playerDrillDown?.entries.map(\.selected) == [true, false])
+    }
+
     @Test func doneAsksTheSheetToDismiss() async {
         let viewModel = makeViewModel(emitting: [])
         var events = viewModel.events.makeAsyncIterator()
@@ -109,15 +204,27 @@ struct SettingsViewModelTests {
         #expect(await events.next() == .dismiss)
     }
 
-    private func waitUntil(_ condition: () -> Bool) async {
-        for _ in 0..<100 where !condition() {
-            await Task.yield()
-        }
+    /// A Player picker already at the Player step of the first Verband's first League.
+    private func playerStep(
+        fixtures: PlayerDrillDownFixtures = PlayerDrillDownFixtures(),
+        emitting results: [DataResult] = [],
+        setMyPlayer: @escaping (String) async throws -> Void = { _ in }
+    ) async -> SettingsViewModel {
+        let viewModel = makeViewModel(emitting: results, playerLoaders: fixtures.loaders, setMyPlayer: setMyPlayer)
+        viewModel.onAction(.choosePlayerClicked)
+        await waitUntil { !(viewModel.uiState.picker?.playerDrillDown?.entries.isEmpty ?? true) }
+        viewModel.onAction(.pickerEntryClicked(id: "w"))
+        await waitUntil { viewModel.uiState.picker?.playerDrillDown?.step == .league && !(viewModel.uiState.picker?.playerDrillDown?.entries.isEmpty ?? true) }
+        viewModel.onAction(.pickerEntryClicked(id: "l1"))
+        await waitUntil { viewModel.uiState.picker?.playerDrillDown?.step == .player && !(viewModel.uiState.picker?.playerDrillDown?.entries.isEmpty ?? true) }
+        return viewModel
     }
 
     private func makeViewModel(
         emitting results: [DataResult],
         clubs: [Club] = [],
+        playerLoaders: PlayerDrillDownLoaders = PlayerDrillDownFixtures().loaders,
+        setMyPlayer: @escaping (String) async throws -> Void = { _ in },
         setMyClub: @escaping (String) async throws -> Void = { _ in }
     ) -> SettingsViewModel {
         let stream = AsyncStream<DataResult> { continuation in
@@ -126,9 +233,9 @@ struct SettingsViewModelTests {
         }
         return SettingsViewModel(
             observeUserContext: stream,
-            setMyPlayer: { _ in },
+            setMyPlayer: setMyPlayer,
             setMyClub: setMyClub,
-            searchPlayers: { _ in [] },
+            playerLoaders: playerLoaders,
             searchClubs: { _ in clubs }
         )
     }

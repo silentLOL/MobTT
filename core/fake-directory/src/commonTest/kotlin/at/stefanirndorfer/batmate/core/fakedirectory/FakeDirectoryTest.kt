@@ -10,19 +10,20 @@ class FakeDirectoryTest {
     private val directory = FakeDirectory()
 
     @Test
-    fun blankQueryListsEveryPlayer() = runTest {
-        assertTrue(directory.searchPlayers("").size > 1)
+    fun aLeagueListsThePlayersOfItsTeamsClubsByName() = runTest {
+        assertEquals(listOf("Anna Gruber", "Michael Huber", "Sophie Wagner", "Lukas Bauer").sorted(), directory.getLeaguePlayers("landesliga1").map { it.name })
     }
 
     @Test
-    fun playersMatchOnNameOrClubIgnoringCase() = runTest {
-        assertEquals(listOf("huber"), directory.searchPlayers("michael").map { it.id })
-        assertEquals(listOf("huber", "gruber"), directory.searchPlayers("olympic").map { it.id })
+    fun anAssociationListsOnlyTheLeaguesItsClubsPlayIn() = runTest {
+        assertEquals(listOf("landesliga1", "landesliga2"), directory.getLeagues("wttv").map { it.id })
+        assertEquals(listOf("oberliga"), directory.getLeagues("stttv").map { it.id })
     }
 
     @Test
     fun everyPlayerAndClubResolvesItsParent() = runTest {
-        directory.searchPlayers("").forEach { assertTrue(directory.getClub(it.clubId) != null, it.id) }
+        directory.getAssociations().flatMap { directory.getLeagues(it.id) }.flatMap { directory.getLeaguePlayers(it.id) }
+            .forEach { assertTrue(directory.getClub(it.clubId) != null, it.id) }
         directory.searchClubs("").forEach { assertTrue(directory.getAssociation(it.associationId) != null, it.id) }
     }
 

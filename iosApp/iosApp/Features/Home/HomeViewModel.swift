@@ -9,7 +9,8 @@ final class HomeViewModel {
     private var favoriteKeys: Set<String> = []
     private var fixtures: HomeFixturesUi = .hidden
     private var pickerQuery: String?
-    private var pickerPlayers: [PlayerSearchResult] = []
+    private var browsingPlayers = false
+    private let playerDrillDown: PlayerDrillDown
     private var pickerClubs: [Club] = []
     private var searchTask: Task<Void, Never>?
     /// Bumped by a retry; the route restarts `observe()` when it changes.
@@ -21,7 +22,6 @@ final class HomeViewModel {
     @ObservationIgnored private let observeFavorites: any AsyncSequence<Set<AnyHashable>, Never>
     @ObservationIgnored private let addFavorite: (Favorite) async throws -> Void
     @ObservationIgnored private let removeFavorite: (Favorite) async throws -> Void
-    @ObservationIgnored private let searchPlayers: (String) async -> [PlayerSearchResult]
     @ObservationIgnored private let searchClubs: (String) async -> [Club]
     @ObservationIgnored private let eventStream = AsyncStream<HomeEvent>.makeStream()
 
@@ -32,7 +32,7 @@ final class HomeViewModel {
         observeFavorites: any AsyncSequence<Set<AnyHashable>, Never> = KoinHelper.shared.getObserveFavoritesUseCase().invoke(),
         addFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getAddFavoriteUseCase().invoke(favorite: $0) },
         removeFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getRemoveFavoriteUseCase().invoke(favorite: $0) },
-        searchPlayers: @escaping (String) async -> [PlayerSearchResult] = { (try? await KoinHelper.shared.getSearchPlayersUseCase().invoke(query: $0)) ?? [] },
+        playerLoaders: PlayerDrillDownLoaders = .live,
         searchClubs: @escaping (String) async -> [Club] = { (try? await KoinHelper.shared.getSearchClubsUseCase().invoke(query: $0)) ?? [] }
     ) {
         self.observeUserContext = observeUserContext
@@ -41,7 +41,7 @@ final class HomeViewModel {
         self.observeFavorites = observeFavorites
         self.addFavorite = addFavorite
         self.removeFavorite = removeFavorite
-        self.searchPlayers = searchPlayers
+        self.playerDrillDown = PlayerDrillDown(loaders: playerLoaders)
         self.searchClubs = searchClubs
     }
 
@@ -74,19 +74,35 @@ final class HomeViewModel {
         case .favoriteClubClicked(let id):
             eventStream.continuation.yield(.openClub(clubId: id))
         case .addFavoriteClicked:
-            pickerPlayers = []
+            browsingPlayers = false
             pickerClubs = []
             updatePickerQuery("")
+        case .browsePlayersClicked:
+            browsingPlayers = true
+            playerDrillDown.start()
+        case .pickerDrillDownEntryClicked(let id):
+            if case .player(let playerId) = playerDrillDown.select(id) {
+                toggle(kind: .player, entityId: playerId)
+            }
+        case .pickerDrillDownBackClicked:
+            if !playerDrillDown.back() {
+                playerDrillDown.cancel()
+                browsingPlayers = false
+            }
         case .removeFavoriteClicked(let favorite):
             Task { try? await removeFavorite(favorite.kind.toDomain(favorite.entityId)) }
         case .pickerQueryChanged(let query):
-            updatePickerQuery(query)
-        case .pickerPlayerClicked(let id):
-            toggle(kind: .player, entityId: id)
+            if browsingPlayers {
+                playerDrillDown.setQuery(query)
+            } else {
+                updatePickerQuery(query)
+            }
         case .pickerClubClicked(let id):
             toggle(kind: .club, entityId: id)
         case .pickerDismissed:
             searchTask?.cancel()
+            playerDrillDown.cancel()
+            browsingPlayers = false
             pickerQuery = nil
         }
     }
@@ -137,16 +153,9 @@ final class HomeViewModel {
         pickerQuery = query
         searchTask?.cancel()
         searchTask = Task {
-            // Typing is debounced; an empty query (the picker just opened) searches at once.
-            if !query.isEmpty {
-                try? await Task.sleep(for: .milliseconds(300))
-            }
-            guard !Task.isCancelled else { return }
-            let players = await searchPlayers(query)
             let clubs = await searchClubs(query)
             guard !Task.isCancelled else { return }
             // Results for an earlier query are kept until the new ones arrive, so the list does not flicker empty while typing.
-            pickerPlayers = players
             pickerClubs = clubs
         }
     }
@@ -154,14 +163,6 @@ final class HomeViewModel {
     private func pickerUi(for query: String) -> FavoritePickerUi {
         FavoritePickerUi(
             query: query,
-            players: pickerPlayers.map {
-                DirectoryEntryUi(
-                    id: $0.player.id,
-                    title: $0.player.name,
-                    subtitle: $0.clubName,
-                    selected: favoriteKeys.contains(FavoriteKind.player.key(for: $0.player.id))
-                )
-            },
             clubs: pickerClubs.map {
                 DirectoryEntryUi(
                     id: $0.id,
@@ -169,7 +170,8 @@ final class HomeViewModel {
                     subtitle: nil,
                     selected: favoriteKeys.contains(FavoriteKind.club.key(for: $0.id))
                 )
-            }
+            },
+            playerDrillDown: browsingPlayers ? playerDrillDown.ui { favoriteKeys.contains(FavoriteKind.player.key(for: $0)) } : nil
         )
     }
 }

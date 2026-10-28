@@ -110,9 +110,9 @@ class FakeDirectory(private val clock: Clock = Clock.System) :
 
     override suspend fun getPlayer(id: String): Player? = players.firstOrNull { it.id == id }
 
-    override suspend fun searchPlayers(query: String): List<Player> = players.filter { player ->
-        player.name.contains(query, ignoreCase = true) ||
-            clubs.firstOrNull { it.id == player.clubId }?.name?.contains(query, ignoreCase = true) == true
+    override suspend fun getLeaguePlayers(leagueId: String): List<Player> {
+        val clubIds = teams.filter { it.leagueId == leagueId }.map { it.clubId }.toSet()
+        return players.filter { it.clubId in clubIds }.sortedBy { it.name }
     }
 
     override suspend fun getClub(id: String): Club? = clubs.firstOrNull { it.id == id }
@@ -121,6 +121,8 @@ class FakeDirectory(private val clock: Clock = Clock.System) :
 
     override suspend fun getAssociation(id: String): Association? = associations.firstOrNull { it.id == id }
 
+    override suspend fun getAssociations(): List<Association> = associations
+
     override suspend fun getTeam(id: String): Team? = teams.firstOrNull { it.id == id }
 
     override suspend fun getTeams(clubId: String): List<Team> = teams.filter { it.clubId == clubId }
@@ -128,6 +130,11 @@ class FakeDirectory(private val clock: Clock = Clock.System) :
     override suspend fun getLineup(teamId: String): List<LineupPlayer> = lineups[teamId].orEmpty()
 
     override suspend fun getLeague(id: String): League? = leagues.firstOrNull { it.id == id }
+
+    override suspend fun getLeagues(associationId: String): List<League> {
+        val leagueIds = teams.filter { team -> clubs.firstOrNull { it.id == team.clubId }?.associationId == associationId }.map { it.leagueId }.toSet()
+        return leagues.filter { it.id in leagueIds }
+    }
 
     override suspend fun getStandings(leagueId: String): List<Standing> = standings[leagueId].orEmpty()
 

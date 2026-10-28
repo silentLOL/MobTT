@@ -1,15 +1,21 @@
 package at.stefanirndorfer.batmate.feature.settings.impl.presentation.settings
 
+import at.stefanirndorfer.batmate.core.ui.directory.models.PlayerStep
 import at.stefanirndorfer.batmate.domain.club.Association
 import at.stefanirndorfer.batmate.domain.club.AssociationRepository
 import at.stefanirndorfer.batmate.domain.club.Club
 import at.stefanirndorfer.batmate.domain.club.ClubRepository
 import at.stefanirndorfer.batmate.domain.club.DataUnavailable
+import at.stefanirndorfer.batmate.domain.club.League
+import at.stefanirndorfer.batmate.domain.club.LeagueRepository
+import at.stefanirndorfer.batmate.domain.club.ListAssociationsUseCase
+import at.stefanirndorfer.batmate.domain.club.ListLeaguesUseCase
 import at.stefanirndorfer.batmate.domain.club.SearchClubsUseCase
+import at.stefanirndorfer.batmate.domain.club.Standing
 import at.stefanirndorfer.batmate.domain.player.Player
 import at.stefanirndorfer.batmate.domain.player.PlayerRepository
+import at.stefanirndorfer.batmate.domain.user.ListLeaguePlayersUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
-import at.stefanirndorfer.batmate.domain.user.SearchPlayersUseCase
 import at.stefanirndorfer.batmate.domain.user.SetMyClubUseCase
 import at.stefanirndorfer.batmate.domain.user.SetMyPlayerUseCase
 import at.stefanirndorfer.batmate.domain.user.UserSelection
@@ -42,12 +48,13 @@ import kotlin.test.assertNull
 private class FakeData :
     ClubRepository,
     AssociationRepository,
+    LeagueRepository,
     PlayerRepository,
     UserSelectionRepository,
     AppearanceRepository {
     private val clubs = listOf(Club("c1", "TTC Olympic", "a1"), Club("c2", "Nussdorf TTC", "a2"))
     private val associations = listOf(Association("a1", "WTTV"), Association("a2", "ÖTTV"))
-    private val players = listOf(Player("p1", "Anna Gruber", "c1"))
+    private val players = listOf(Player("p1", "Anna Gruber", "c1"), Player("p2", "Jakob Irndorfer", "c1"))
 
     var unavailable = false
 
@@ -67,9 +74,30 @@ private class FakeData :
 
     override suspend fun getAssociation(id: String): Association? = associations.firstOrNull { it.id == id }
 
+    override suspend fun getAssociations(): List<Association> {
+        if (unavailable) {
+            throw DataUnavailable("XTTV is unavailable")
+        }
+        return associations
+    }
+
+    var leaguePlayerReads = 0
+
+    override suspend fun getLeague(id: String): League? = League(id, "Liga")
+
+    override suspend fun getLeagues(associationId: String): List<League> = listOf(League("l1", "1. Landesliga"))
+
+    override suspend fun getStandings(leagueId: String): List<Standing> = emptyList()
+
     override suspend fun getPlayer(id: String): Player? = players.firstOrNull { it.id == id }
 
-    override suspend fun searchPlayers(query: String): List<Player> = players
+    override suspend fun getLeaguePlayers(leagueId: String): List<Player> {
+        leaguePlayerReads++
+        if (unavailable) {
+            throw DataUnavailable("XTTV is unavailable")
+        }
+        return players
+    }
 
     var failSaves = false
     private val selection = MutableStateFlow<UserSelection>(UserSelection.None)
@@ -106,11 +134,19 @@ class SettingsViewModelTest {
             observeUserContext = ObserveUserContextUseCase(data, data, data, data),
             setMyPlayer = SetMyPlayerUseCase(data, data),
             setMyClub = SetMyClubUseCase(data),
-            searchPlayers = SearchPlayersUseCase(data, data),
             searchClubs = SearchClubsUseCase(data),
+            listAssociations = ListAssociationsUseCase(data),
+            listLeagues = ListLeaguesUseCase(data),
+            listLeaguePlayers = ListLeaguePlayersUseCase(data, data),
         )
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel
+    }
+
+    private fun SettingsViewModel.drillDownToPlayers() {
+        onAction(SettingsAction.ChoosePlayerClicked)
+        onAction(SettingsAction.PickerEntryClicked("a1"))
+        onAction(SettingsAction.PickerEntryClicked("l1"))
     }
 
     @Test
@@ -119,6 +155,7 @@ class SettingsViewModelTest {
 
         viewModel.onAction(SettingsAction.ChoosePlayerClicked)
         assertEquals(PickerKind.PLAYER, viewModel.uiState.value.picker?.kind)
+        viewModel.drillDownToPlayers()
         viewModel.onAction(SettingsAction.PickerEntryClicked("p1"))
 
         val state = viewModel.uiState.value
@@ -130,7 +167,7 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun aPickerSearchWhileXttvIsUnreachableShowsNoResultsInsteadOfCrashing() = runTest {
+    fun aPickerWhileXttvIsUnreachableShowsNoResultsInsteadOfCrashing() = runTest {
         val viewModel = viewModel()
         data.unavailable = true
 
@@ -141,9 +178,65 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun thePlayerPickerDrillsFromAssociationToLeagueToPlayers() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onAction(SettingsAction.ChoosePlayerClicked)
+        var picker = assertNotNull(viewModel.uiState.value.picker)
+        assertEquals(PlayerStep.ASSOCIATION, picker.step)
+        assertEquals(listOf("a1", "a2"), picker.entries.map { it.id })
+
+        viewModel.onAction(SettingsAction.PickerEntryClicked("a1"))
+        picker = assertNotNull(viewModel.uiState.value.picker)
+        assertEquals(PlayerStep.LEAGUE, picker.step)
+        assertEquals("WTTV", picker.breadcrumb)
+        assertEquals(listOf("l1"), picker.entries.map { it.id })
+
+        viewModel.onAction(SettingsAction.PickerEntryClicked("l1"))
+        picker = assertNotNull(viewModel.uiState.value.picker)
+        assertEquals(PlayerStep.PLAYER, picker.step)
+        assertEquals("WTTV › 1. Landesliga", picker.breadcrumb)
+        assertEquals(listOf("Anna Gruber", "Jakob Irndorfer"), picker.entries.map { it.title })
+        assertEquals(listOf("TTC Olympic", "TTC Olympic"), picker.entries.map { it.subtitle })
+    }
+
+    @Test
+    fun theQueryFiltersTheStepLocallyAndNeverReadsLeaguePlayersAgain() = runTest {
+        val viewModel = viewModel()
+        viewModel.drillDownToPlayers()
+        assertEquals(1, data.leaguePlayerReads)
+
+        viewModel.onAction(SettingsAction.PickerQueryChanged("irn"))
+        viewModel.onAction(SettingsAction.PickerQueryChanged("IRNDORFER"))
+
+        assertEquals(listOf("p2"), assertNotNull(viewModel.uiState.value.picker).entries.map { it.id })
+        assertEquals(1, data.leaguePlayerReads)
+    }
+
+    @Test
+    fun backGoesUpOneStepClearingTheQueryAndClosesFromTheFirstStep() = runTest {
+        val viewModel = viewModel()
+        viewModel.drillDownToPlayers()
+        viewModel.onAction(SettingsAction.PickerQueryChanged("zzz"))
+
+        viewModel.onAction(SettingsAction.PickerBackClicked)
+        var picker = assertNotNull(viewModel.uiState.value.picker)
+        assertEquals(PlayerStep.LEAGUE, picker.step)
+        assertEquals("", picker.query)
+        assertEquals("WTTV", picker.breadcrumb)
+
+        viewModel.onAction(SettingsAction.PickerBackClicked)
+        picker = assertNotNull(viewModel.uiState.value.picker)
+        assertEquals(PlayerStep.ASSOCIATION, picker.step)
+
+        viewModel.onAction(SettingsAction.PickerBackClicked)
+        assertNull(viewModel.uiState.value.picker)
+    }
+
+    @Test
     fun choosingAClubReplacesTheChosenPlayer() = runTest {
         val viewModel = viewModel()
-        viewModel.onAction(SettingsAction.ChoosePlayerClicked)
+        viewModel.drillDownToPlayers()
         viewModel.onAction(SettingsAction.PickerEntryClicked("p1"))
 
         viewModel.onAction(SettingsAction.ChooseClubClicked)
@@ -159,7 +252,7 @@ class SettingsViewModelTest {
     @Test
     fun leavingThePickerKeepsTheCurrentChoice() = runTest {
         val viewModel = viewModel()
-        viewModel.onAction(SettingsAction.ChoosePlayerClicked)
+        viewModel.drillDownToPlayers()
         viewModel.onAction(SettingsAction.PickerEntryClicked("p1"))
 
         viewModel.onAction(SettingsAction.ChooseClubClicked)
@@ -174,7 +267,7 @@ class SettingsViewModelTest {
     @Test
     fun aFailedSaveKeepsThePickerOpenAndTheChoiceUnchanged() = runTest {
         val viewModel = viewModel()
-        viewModel.onAction(SettingsAction.ChoosePlayerClicked)
+        viewModel.drillDownToPlayers()
         viewModel.onAction(SettingsAction.PickerEntryClicked("p1"))
 
         data.failSaves = true

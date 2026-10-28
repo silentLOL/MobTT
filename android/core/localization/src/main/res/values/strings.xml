@@ -29,6 +29,10 @@
     <string name="core_search_empty_body">No matches</string>
     <string name="core_players_section_title">Players</string>
     <string name="core_clubs_section_title">Clubs</string>
+    <string name="core_drilldown_association_title">Choose an Association</string>
+    <string name="core_drilldown_league_title">Choose a League</string>
+    <string name="core_drilldown_player_title">Choose a Player</string>
+    <string name="core_drilldown_back_cd">Back</string>
 
     <string name="home_choose_title">Choose your Player or Club</string>
     <string name="home_choose_body">Pick My Player or My Club in Settings to personalise Home.</string>
@@ -40,6 +44,7 @@
     <string name="home_favorites_empty_body">Bookmark Players and Clubs for quick access.</string>
     <string name="home_favorite_remove_cd">Remove %1$s from Favorites</string>
     <string name="home_favorite_picker_title">Add Favorites</string>
+    <string name="home_favorite_picker_browse_players_button">Find a Player by Association and League</string>
 
     <string name="settings_my_player_title">My Player</string>
     <string name="settings_my_club_title">My Club</string>
