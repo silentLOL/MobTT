@@ -18,7 +18,7 @@ class XttvFixtureRepository(
 ) : FixtureRepository {
     override suspend fun getFixtures(teamId: String): List<Fixture> {
         val team = teams.getTeam(teamId) ?: return emptyList()
-        if (team.leagueId.isBlank()) {
+        if (!XttvEndpoints.isXttvId(team.leagueId)) {
             return emptyList()
         }
         return api.get(XttvEndpoints.leagueGames(host, team.leagueId), FIXTURE_TTL, GamesXml.serializer()).game

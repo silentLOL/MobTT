@@ -4,6 +4,7 @@ import at.stefanirndorfer.batmate.domain.club.Association
 import at.stefanirndorfer.batmate.domain.club.AssociationRepository
 import at.stefanirndorfer.batmate.domain.club.Club
 import at.stefanirndorfer.batmate.domain.club.ClubRepository
+import at.stefanirndorfer.batmate.domain.club.DataUnavailable
 import at.stefanirndorfer.batmate.domain.club.SearchClubsUseCase
 import at.stefanirndorfer.batmate.domain.player.Player
 import at.stefanirndorfer.batmate.domain.player.PlayerRepository
@@ -48,9 +49,21 @@ private class FakeData :
     private val associations = listOf(Association("a1", "WTTV"), Association("a2", "ÖTTV"))
     private val players = listOf(Player("p1", "Anna Gruber", "c1"))
 
-    override suspend fun getClub(id: String): Club? = clubs.firstOrNull { it.id == id }
+    var unavailable = false
 
-    override suspend fun searchClubs(query: String): List<Club> = clubs
+    override suspend fun getClub(id: String): Club? {
+        if (unavailable) {
+            throw DataUnavailable("XTTV is unavailable")
+        }
+        return clubs.firstOrNull { it.id == id }
+    }
+
+    override suspend fun searchClubs(query: String): List<Club> {
+        if (unavailable) {
+            throw DataUnavailable("XTTV is unavailable")
+        }
+        return clubs
+    }
 
     override suspend fun getAssociation(id: String): Association? = associations.firstOrNull { it.id == id }
 
@@ -114,6 +127,17 @@ class SettingsViewModelTest {
         assertEquals("TTC Olympic", state.derivedClubName)
         assertEquals("WTTV", state.derivedAssociationName)
         assertNull(state.picker)
+    }
+
+    @Test
+    fun aPickerSearchWhileXttvIsUnreachableShowsNoResultsInsteadOfCrashing() = runTest {
+        val viewModel = viewModel()
+        data.unavailable = true
+
+        viewModel.onAction(SettingsAction.ChoosePlayerClicked)
+        assertEquals(emptyList(), viewModel.uiState.value.picker?.entries)
+        viewModel.onAction(SettingsAction.ChooseClubClicked)
+        assertEquals(emptyList(), viewModel.uiState.value.picker?.entries)
     }
 
     @Test

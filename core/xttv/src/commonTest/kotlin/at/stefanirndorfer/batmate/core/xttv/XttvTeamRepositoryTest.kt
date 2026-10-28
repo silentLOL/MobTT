@@ -45,6 +45,13 @@ class XttvTeamRepositoryTest {
     }
 
     @Test
+    fun idsXttvCannotKnowGiveNothingAndAskXttvForNothing() = runTest {
+        assertNull(repository.getTeam("olympic-1"))
+        assertEquals(emptyList(), repository.getTeams("olympic"))
+        assertEquals(emptyList(), xttv.requests)
+    }
+
+    @Test
     fun anUnknownTeamIsNull() = runTest {
         assertNull(repository.getTeam("999"))
     }

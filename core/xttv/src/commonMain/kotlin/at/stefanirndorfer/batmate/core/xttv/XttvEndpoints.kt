@@ -5,6 +5,12 @@ package at.stefanirndorfer.batmate.core.xttv
  * never enters a URL here, the cache keys or the logs.
  */
 internal object XttvEndpoints {
+    /**
+     * XTTV ids are unsigned integers. Anything else (a leftover fake-directory id such as `olympic`) is unknown to
+     * XTTV, which answers it with an error comment instead of a document, so it is never asked.
+     */
+    fun isXttvId(id: String) = id.isNotEmpty() && id.all { it in '0'..'9' }
+
     private fun method(host: String, name: String, query: String? = null) = "$host/xml/v1/$name.php" + query?.let { "?$it" }.orEmpty()
 
     fun federations(host: String) = method(host, "getFederations")

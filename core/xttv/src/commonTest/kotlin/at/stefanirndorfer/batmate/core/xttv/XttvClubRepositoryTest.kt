@@ -55,6 +55,12 @@ class XttvClubRepositoryTest {
     }
 
     @Test
+    fun anIdXttvCannotKnowIsNullAndAsksXttvForNothing() = runTest {
+        assertNull(repository.getClub("olympic"))
+        assertEquals(emptyList(), xttv.requests)
+    }
+
+    @Test
     fun noClubsAtAllIsAnEmptyListNotAnError() = runTest {
         clubs190 = XttvSamples.NO_CLUBS
 

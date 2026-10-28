@@ -3,6 +3,7 @@ package at.stefanirndorfer.batmate.feature.settings.impl.presentation.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.stefanirndorfer.batmate.core.ui.directory.models.DirectoryEntryUi
+import at.stefanirndorfer.batmate.domain.club.DataUnavailable
 import at.stefanirndorfer.batmate.domain.club.SearchClubsUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.batmate.domain.user.SearchPlayersUseCase
@@ -95,13 +96,18 @@ class SettingsViewModel(
         }
     }
 
-    private suspend fun search(input: PickerInput): List<DirectoryEntryUi> = when (input.kind) {
-        PickerKind.PLAYER -> searchPlayers(input.query).map { result ->
-            DirectoryEntryUi(result.player.id, result.player.name, result.clubName, selected = false)
+    /** An unreachable XTTV reads as no results rather than ending the picker's stream. */
+    private suspend fun search(input: PickerInput): List<DirectoryEntryUi> = try {
+        when (input.kind) {
+            PickerKind.PLAYER -> searchPlayers(input.query).map { result ->
+                DirectoryEntryUi(result.player.id, result.player.name, result.clubName, selected = false)
+            }
+            PickerKind.CLUB -> searchClubs(input.query).map { club ->
+                DirectoryEntryUi(club.id, club.name, subtitle = null, selected = false)
+            }
         }
-        PickerKind.CLUB -> searchClubs(input.query).map { club ->
-            DirectoryEntryUi(club.id, club.name, subtitle = null, selected = false)
-        }
+    } catch (e: DataUnavailable) {
+        emptyList()
     }
 
     private fun PickerInput.toPicker(result: PickerResult?, userContext: UserContext): SettingsPickerUi {

@@ -14,7 +14,12 @@ class XttvClubRepository(
     private val api: XttvApi,
     private val host: String,
 ) : ClubRepository {
-    override suspend fun getClub(id: String): Club? = api.get(XttvEndpoints.club(host, id), CLUB_TTL, ClubXml.serializer()).toDomain()
+    override suspend fun getClub(id: String): Club? {
+        if (!XttvEndpoints.isXttvId(id)) {
+            return null
+        }
+        return api.get(XttvEndpoints.club(host, id), CLUB_TTL, ClubXml.serializer()).toDomain()
+    }
 
     override suspend fun searchClubs(query: String): List<Club> = allClubs()
         .filter { query.isBlank() || it.name.contains(query, ignoreCase = true) }

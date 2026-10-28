@@ -24,7 +24,7 @@ class XttvLeagueRepository(
     }
 
     override suspend fun getStandings(leagueId: String): List<Standing> {
-        if (leagueId.isBlank()) {
+        if (!XttvEndpoints.isXttvId(leagueId)) {
             return emptyList()
         }
         return api.get(XttvEndpoints.leagueStandings(host, leagueId), STANDINGS_TTL, StandingsXml.serializer()).standing

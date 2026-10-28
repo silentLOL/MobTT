@@ -51,6 +51,7 @@ class XttvLeagueRepositoryTest {
     @Test
     fun aBlankLeagueHasNoStandingsAndAsksXttvForNone() = runTest {
         assertEquals(emptyList(), repository.getStandings(""))
+        assertEquals(emptyList(), repository.getStandings("landesliga1"))
         assertEquals(emptyList(), xttv.requests)
     }
 

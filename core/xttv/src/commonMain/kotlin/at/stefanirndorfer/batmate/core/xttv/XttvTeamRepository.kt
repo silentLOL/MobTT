@@ -13,10 +13,20 @@ class XttvTeamRepository(
     private val host: String,
     private val lineups: LineupSource? = null,
 ) : TeamRepository {
-    override suspend fun getTeam(id: String): Team? = api.get(XttvEndpoints.team(host, id), TEAM_TTL, TeamXml.serializer()).toDomain()
+    override suspend fun getTeam(id: String): Team? {
+        if (!XttvEndpoints.isXttvId(id)) {
+            return null
+        }
+        return api.get(XttvEndpoints.team(host, id), TEAM_TTL, TeamXml.serializer()).toDomain()
+    }
 
-    override suspend fun getTeams(clubId: String): List<Team> = api.get(XttvEndpoints.club(host, clubId), TEAM_TTL, ClubXml.serializer()).teamList.team
-        .map { Team(id = it.id, name = it.name, clubId = clubId, leagueId = it.leagueId) }
+    override suspend fun getTeams(clubId: String): List<Team> {
+        if (!XttvEndpoints.isXttvId(clubId)) {
+            return emptyList()
+        }
+        return api.get(XttvEndpoints.club(host, clubId), TEAM_TTL, ClubXml.serializer()).teamList.team
+            .map { Team(id = it.id, name = it.name, clubId = clubId, leagueId = it.leagueId) }
+    }
 
     override suspend fun getLineup(teamId: String): List<LineupPlayer> = lineups?.lineup(teamId).orEmpty()
 }
