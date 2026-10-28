@@ -34,7 +34,7 @@ private class FakeDirectory :
 class UserContextTest {
     private val selections = FakeSelectionRepository()
     private val directory = FakeDirectory()
-    private val setMyPlayer = SetMyPlayerUseCase(selections)
+    private val setMyPlayer = SetMyPlayerUseCase(selections, directory)
     private val setMyClub = SetMyClubUseCase(selections)
     private val observe = ObserveUserContextUseCase(selections, directory, directory, directory)
 

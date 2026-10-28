@@ -71,6 +71,11 @@ class ResolvedFavoritesTest {
     }
 
     @Test
+    fun playerSearchSkipsQueriesShorterThanThreeCharacters() = runTest {
+        assertEquals(emptyList(), SearchPlayersUseCase(directory, directory)(" an "))
+    }
+
+    @Test
     fun playerSearchResultsCarryTheClubName() = runTest {
         val results = SearchPlayersUseCase(directory, directory)("  ann ")
 

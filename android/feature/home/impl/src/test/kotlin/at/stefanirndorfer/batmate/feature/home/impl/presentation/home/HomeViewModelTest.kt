@@ -135,7 +135,7 @@ class HomeViewModelTest {
                 GetClubOverviewUseCase(data, data, data, data, data),
             ),
             observeFavorites = ObserveFavoritesUseCase(data),
-            addFavorite = AddFavoriteUseCase(data),
+            addFavorite = AddFavoriteUseCase(data, data),
             removeFavorite = RemoveFavoriteUseCase(data),
             searchPlayers = SearchPlayersUseCase(data, data),
             searchClubs = SearchClubsUseCase(data),

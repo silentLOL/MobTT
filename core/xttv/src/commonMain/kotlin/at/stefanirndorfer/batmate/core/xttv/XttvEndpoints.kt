@@ -19,5 +19,6 @@ internal object XttvEndpoints {
     fun team(host: String, teamId: String) = method(host, "getTeamDetails", "teamId=$teamId")
     fun leagues(host: String, federationId: String) = method(host, "getLeagues", "federationId=$federationId")
     fun leagueGames(host: String, leagueId: String) = method(host, "getLeagueGames", "leagueId=$leagueId")
+    fun singleStandings(host: String, leagueId: String) = method(host, "getSingleStandings", "leagueId=$leagueId")
     fun leagueStandings(host: String, leagueId: String) = method(host, "getTeamStandings", "leagueId=$leagueId")
 }

@@ -1,7 +1,9 @@
 package at.stefanirndorfer.batmate.domain.user.di
 
+import at.stefanirndorfer.batmate.domain.player.PickedPlayerStore
 import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.DataStoreFavoritesRepository
+import at.stefanirndorfer.batmate.domain.user.DataStorePickedPlayerStore
 import at.stefanirndorfer.batmate.domain.user.DataStoreUserSelectionRepository
 import at.stefanirndorfer.batmate.domain.user.FavoritesRepository
 import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
@@ -20,6 +22,7 @@ import org.koin.dsl.module
 
 val userDomainModule = module {
     singleOf(::DataStoreUserSelectionRepository) bind UserSelectionRepository::class
+    singleOf(::DataStorePickedPlayerStore) bind PickedPlayerStore::class
     singleOf(::DataStoreFavoritesRepository) bind FavoritesRepository::class
     factoryOf(::SetMyPlayerUseCase)
     factoryOf(::SetMyClubUseCase)

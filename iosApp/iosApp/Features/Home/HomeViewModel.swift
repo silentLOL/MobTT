@@ -137,6 +137,11 @@ final class HomeViewModel {
         pickerQuery = query
         searchTask?.cancel()
         searchTask = Task {
+            // Typing is debounced; an empty query (the picker just opened) searches at once.
+            if !query.isEmpty {
+                try? await Task.sleep(for: .milliseconds(300))
+            }
+            guard !Task.isCancelled else { return }
             let players = await searchPlayers(query)
             let clubs = await searchClubs(query)
             guard !Task.isCancelled else { return }

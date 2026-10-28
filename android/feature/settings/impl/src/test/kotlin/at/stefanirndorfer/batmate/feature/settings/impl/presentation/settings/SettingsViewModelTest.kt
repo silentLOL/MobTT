@@ -104,7 +104,7 @@ class SettingsViewModelTest {
         val viewModel = SettingsViewModel(
             appearanceRepository = data,
             observeUserContext = ObserveUserContextUseCase(data, data, data, data),
-            setMyPlayer = SetMyPlayerUseCase(data),
+            setMyPlayer = SetMyPlayerUseCase(data, data),
             setMyClub = SetMyClubUseCase(data),
             searchPlayers = SearchPlayersUseCase(data, data),
             searchClubs = SearchClubsUseCase(data),

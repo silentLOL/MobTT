@@ -20,17 +20,29 @@ import at.stefanirndorfer.batmate.feature.settings.impl.presentation.settings.mo
 import at.stefanirndorfer.batmate.feature.settings.impl.presentation.settings.models.SettingsUiState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+private const val SEARCH_DEBOUNCE_MILLIS = 300L
+
+/** Typing is debounced; an empty query (the picker just opened) searches at once. */
+private fun searchDelayMillis(query: String?): Long {
+    if (query.isNullOrEmpty()) {
+        return 0L
+    }
+    return SEARCH_DEBOUNCE_MILLIS
+}
 
 private data class PickerInput(val kind: PickerKind, val query: String)
 
@@ -46,8 +58,8 @@ class SettingsViewModel(
 ) : ViewModel() {
     private val pickerInput = MutableStateFlow<PickerInput?>(null)
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val pickerResult: Flow<PickerResult?> = pickerInput.mapLatest { input ->
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    private val pickerResult: Flow<PickerResult?> = pickerInput.debounce { searchDelayMillis(it?.query) }.mapLatest { input ->
         input?.let { PickerResult(it, search(it)) }
     }
 

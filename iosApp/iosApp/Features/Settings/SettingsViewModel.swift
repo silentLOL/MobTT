@@ -94,6 +94,11 @@ final class SettingsViewModel {
         let query = pickerQuery
         searchTask?.cancel()
         searchTask = Task {
+            // Typing is debounced; an empty query (the picker just opened) searches at once.
+            if !query.isEmpty {
+                try? await Task.sleep(for: .milliseconds(300))
+            }
+            guard !Task.isCancelled else { return }
             let entries = await entries(for: kind, query: query)
             guard !Task.isCancelled else { return }
             pickerEntries = entries

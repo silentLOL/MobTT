@@ -28,7 +28,7 @@ private val REJECTED_API_KEY = Regex("""^\s*(<\?xml[^>]*\?>\s*)?<!--\s*Invalid A
 
 /**
  * The one door to XTTV: fetches [get]'s `url`, parses the XML and caches the result for its `ttl`.
- * A failed refresh serves the stale entry and leaves XTTV alone for a minute at most; with nothing cached
+ * A zero `ttl` is not cached at all. A failed refresh serves the stale entry and leaves XTTV alone for a minute at most; with nothing cached
  * it throws [DataUnavailable].
  */
 class XttvApi(
@@ -98,7 +98,10 @@ class XttvApi(
             try {
                 // Another owner may have finished between this caller's cache check and taking the slot.
                 val fresh = cachedEntry(url)?.takeIf { it.isFresh() }?.value as T?
-                val value = fresh ?: download(url, serializer).also { store(url, it, ttl) }
+                val value = fresh ?: download(url, serializer)
+                if (fresh == null && ttl.isPositive()) {
+                    store(url, value, ttl)
+                }
                 sharedResult.complete(value)
                 return value
             } catch (e: Throwable) {

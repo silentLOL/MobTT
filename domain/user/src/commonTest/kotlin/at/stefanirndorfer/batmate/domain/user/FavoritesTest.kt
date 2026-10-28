@@ -1,5 +1,7 @@
 package at.stefanirndorfer.batmate.domain.user
 
+import at.stefanirndorfer.batmate.domain.player.Player
+import at.stefanirndorfer.batmate.domain.player.PlayerRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -21,9 +23,15 @@ private class FakeFavoritesRepository : FavoritesRepository {
     }
 }
 
+private object NoPlayers : PlayerRepository {
+    override suspend fun getPlayer(id: String): Player? = null
+
+    override suspend fun searchPlayers(query: String): List<Player> = emptyList()
+}
+
 class FavoritesTest {
     private val favorites = FakeFavoritesRepository()
-    private val add = AddFavoriteUseCase(favorites)
+    private val add = AddFavoriteUseCase(favorites, NoPlayers)
     private val remove = RemoveFavoriteUseCase(favorites)
     private val observe = ObserveFavoritesUseCase(favorites)
     private val selections = FakeSelectionRepository()
@@ -82,7 +90,7 @@ class FavoritesTest {
     fun changingMyPlayerAndMyClubLeavesFavoritesUntouched() = runTest {
         add(Favorite.Team("t1"))
 
-        SetMyPlayerUseCase(selections)("p1")
+        SetMyPlayerUseCase(selections, NoPlayers)("p1")
         SetMyClubUseCase(selections)("c1")
 
         assertEquals(setOf(Favorite.Team("t1")), observe().first())
