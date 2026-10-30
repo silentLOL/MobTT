@@ -17,7 +17,7 @@ import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.Favorite
 import at.stefanirndorfer.batmate.domain.user.ListLeaguePlayersUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
-import at.stefanirndorfer.batmate.domain.user.ObserveResolvedFavoritesUseCase
+import at.stefanirndorfer.batmate.domain.user.ObserveHomeFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUpcomingFixturesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
@@ -61,7 +61,7 @@ private fun PickerInput.source(): PickerSource = path?.let { PickerSource.Player
 
 class HomeViewModel(
     private val observeUserContext: ObserveUserContextUseCase,
-    private val observeResolvedFavorites: ObserveResolvedFavoritesUseCase,
+    private val observeHomeFavorites: ObserveHomeFavoritesUseCase,
     private val observeUpcomingFixtures: ObserveUpcomingFixturesUseCase,
     private val observeFavorites: ObserveFavoritesUseCase,
     private val addFavorite: AddFavoriteUseCase,
@@ -85,7 +85,7 @@ class HomeViewModel(
     // The streams below end at a DataUnavailable; a retry restarts them all.
     private fun baseState(): Flow<HomeUiState> = combine(
         observeUserContext().map { it.toSelectionUi() }.catchUnavailable(HomeSelectionUi.Unavailable),
-        observeResolvedFavorites().catchUnavailable(emptyList()),
+        observeHomeFavorites().catchUnavailable(emptyList()),
         observeFavorites(),
         pickerInput,
         pickerResult,

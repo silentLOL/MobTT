@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] A shared Home Favorites stream omits a Favorite Player equal to My Player and a Favorite Club equal to My Club; other Favorites and the stored set are untouched
-- [ ] Changing My Player or My Club makes the previously hidden Favorite reappear
-- [ ] Registered in `:core:di` and reachable from the iOS Koin helper
-- [ ] Android Home lists Favorites from this stream
-- [ ] UseCase-seam tests cover a hidden hero Favorite, other Favorites unaffected, and reappearance; an Android Home ViewModel test shows the hero absent from the Favorites list
+- [x] A shared Home Favorites stream omits a Favorite Player equal to My Player and a Favorite Club equal to My Club; other Favorites and the stored set are untouched
+- [x] Changing My Player or My Club makes the previously hidden Favorite reappear
+- [x] Registered in `:core:di` and reachable from the iOS Koin helper
+- [x] Android Home lists Favorites from this stream
+- [x] UseCase-seam tests cover a hidden hero Favorite, other Favorites unaffected, and reappearance; an Android Home ViewModel test shows the hero absent from the Favorites list

@@ -16,6 +16,7 @@ import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.GetPlayerDetailUseCase
 import at.stefanirndorfer.batmate.domain.user.ListLeaguePlayersUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
+import at.stefanirndorfer.batmate.domain.user.ObserveHomeFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveResolvedFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUpcomingFixturesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
@@ -54,6 +55,8 @@ object KoinHelper : KoinComponent {
 
     fun observeResolvedFavorites(): Flow<DataResult<List<ResolvedFavorite>>> = getObserveResolvedFavoritesUseCase().invoke().asDataResult()
 
+    fun observeHomeFavorites(): Flow<DataResult<List<ResolvedFavorite>>> = getObserveHomeFavoritesUseCase().invoke().asDataResult()
+
     suspend fun loadClubOverview(clubId: String): DataResult<ClubOverview?> = dataResult { getGetClubOverviewUseCase().invoke(clubId) }
 
     suspend fun loadTeamDetail(teamId: String): DataResult<TeamDetail?> = dataResult { getGetTeamDetailUseCase().invoke(teamId) }
@@ -62,6 +65,11 @@ object KoinHelper : KoinComponent {
 
     fun getObserveResolvedFavoritesUseCase(): ObserveResolvedFavoritesUseCase {
         val useCase: ObserveResolvedFavoritesUseCase by inject()
+        return useCase
+    }
+
+    fun getObserveHomeFavoritesUseCase(): ObserveHomeFavoritesUseCase {
+        val useCase: ObserveHomeFavoritesUseCase by inject()
         return useCase
     }
 

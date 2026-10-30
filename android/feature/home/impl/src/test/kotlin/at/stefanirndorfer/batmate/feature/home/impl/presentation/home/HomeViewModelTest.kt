@@ -25,6 +25,7 @@ import at.stefanirndorfer.batmate.domain.user.Favorite
 import at.stefanirndorfer.batmate.domain.user.FavoritesRepository
 import at.stefanirndorfer.batmate.domain.user.ListLeaguePlayersUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
+import at.stefanirndorfer.batmate.domain.user.ObserveHomeFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveResolvedFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUpcomingFixturesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
@@ -143,7 +144,7 @@ class HomeViewModelTest {
         val userContext = ObserveUserContextUseCase(data, data, data, data)
         val viewModel = HomeViewModel(
             observeUserContext = userContext,
-            observeResolvedFavorites = ObserveResolvedFavoritesUseCase(data, data, data, data, data),
+            observeHomeFavorites = ObserveHomeFavoritesUseCase(ObserveResolvedFavoritesUseCase(data, data, data, data, data), data),
             observeUpcomingFixtures = ObserveUpcomingFixturesUseCase(
                 userContext,
                 GetClubOverviewUseCase(data, data, data, data, data),
@@ -205,6 +206,7 @@ class HomeViewModelTest {
 
     @Test
     fun addingAClubFromThePickerShowsItAsAResolvedFavoriteAndMarksItSelected() = runTest {
+        data.saveSelection(UserSelection.None)
         val viewModel = viewModel()
         viewModel.onAction(HomeAction.AddFavoriteClicked)
 
@@ -217,6 +219,7 @@ class HomeViewModelTest {
 
     @Test
     fun clickingASelectedPickerEntryAgainRemovesTheFavorite() = runTest {
+        data.saveSelection(UserSelection.None)
         val viewModel = viewModel()
         viewModel.onAction(HomeAction.AddFavoriteClicked)
         viewModel.onAction(HomeAction.PickerClubClicked("c1"))
@@ -230,6 +233,7 @@ class HomeViewModelTest {
 
     @Test
     fun removingAFavoriteFromHomeDropsItFromTheList() = runTest {
+        data.saveSelection(UserSelection.None)
         data.add(Favorite.Club("c1"))
         val viewModel = viewModel()
         assertEquals(1, viewModel.uiState.value.favorites.size)
@@ -249,6 +253,7 @@ class HomeViewModelTest {
 
     @Test
     fun dismissingThePickerClosesItAndKeepsTheFavorites() = runTest {
+        data.saveSelection(UserSelection.None)
         val viewModel = viewModel()
         viewModel.onAction(HomeAction.AddFavoriteClicked)
         viewModel.onAction(HomeAction.PickerClubClicked("c1"))
@@ -361,5 +366,17 @@ class HomeViewModelTest {
         val viewModel = viewModel()
 
         assertEquals(listOf(ResolvedFavorite(Favorite.Team("t1"), "Olympic 1", "TTC Olympic")), viewModel.uiState.value.favorites)
+    }
+
+    @Test
+    fun theHeroIsAbsentFromTheFavoritesListAndReturnsWhenTheHeroChanges() = runTest {
+        data.favorites.value = setOf(Favorite.Club("c1"), Favorite.Team("t1"))
+        val viewModel = viewModel()
+        assertEquals(listOf(Favorite.Team("t1")), viewModel.uiState.value.favorites.map { it.favorite })
+
+        data.saveSelection(UserSelection.None)
+
+        assertEquals(setOf<Favorite>(Favorite.Club("c1"), Favorite.Team("t1")), viewModel.uiState.value.favorites.map { it.favorite }.toSet())
+        assertEquals(setOf<Favorite>(Favorite.Club("c1"), Favorite.Team("t1")), data.favorites.value)
     }
 }
