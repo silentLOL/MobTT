@@ -8,7 +8,7 @@
 My Player and My Club must survive restarts. CLAUDE.md §1 shares the Data Layer (repositories) alongside the Domain Layer, and v1 stores them with DataStore through `:core:preferences`.
 
 ## Decision
-We will keep Favorites as `kind:id` entries in a single DataStore string set, in `DataStoreFavoritesRepository` behind `FavoritesRepository`, independent of the selection keys. We will keep only the chosen id in DataStore, inside `:domain:user`'s `DataStoreUserSelectionRepository`, behind the `UserSelectionRepository` interface. `:domain:user` depends on `:core:preferences`, which only provides the `DataStore<Preferences>`. Club and Association are always derived by `ObserveUserContextUseCase`. When the chosen Player or Club can no longer be resolved, it emits `UserContext.None` so the user is asked to choose again.
+We will keep Favorites as `kind:id` entries in a single DataStore string set, in `DataStoreFavoritesRepository` behind `FavoritesRepository`, independent of the selection keys. A Favorite entry holds only its kind and id: names, photos and other personal data are resolved from XTTV at display time and never persisted. We will keep only the chosen id in DataStore, inside `:domain:user`'s `DataStoreUserSelectionRepository`, behind the `UserSelectionRepository` interface. `:domain:user` depends on `:core:preferences`, which only provides the `DataStore<Preferences>`. Club and Association are always derived by `ObserveUserContextUseCase`. When the chosen Player or Club can no longer be resolved, it emits `UserContext.None` so the user is asked to choose again.
 
 ## Options Considered
 
