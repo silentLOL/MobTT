@@ -4,7 +4,7 @@
 
 ## Problem Statement
 
-Bat Mate only shows made-up data. Release builds bind no repositories at all, and debug builds serve a fake directory of Players, Clubs, Associations, Teams, Leagues and Fixtures. A player or fan cannot find their real Club, see their real Team's League table or learn when the next real Fixture is. XTTV, the source of Austrian table tennis results, publishes an XML API, but its public page names only the methods. It gives no base URL, parameters or schemas, and access requires registering by email.
+MobTT only shows made-up data. Release builds bind no repositories at all, and debug builds serve a fake directory of Players, Clubs, Associations, Teams, Leagues and Fixtures. A player or fan cannot find their real Club, see their real Team's League table or learn when the next real Fixture is. XTTV, the source of Austrian table tennis results, publishes an XML API, but its public page names only the methods. It gives no base URL, parameters or schemas, and access requires registering by email.
 
 ## Solution
 

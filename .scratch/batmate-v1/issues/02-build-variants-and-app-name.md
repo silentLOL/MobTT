@@ -1,6 +1,6 @@
 # 02: Build variants and app name
 
-**What to build:** both platforms build in four environments, `deb`, `dev`, `beta` and `prod`, and each installs with its own user-facing name: `[Debug] Bat Mate`, `[Dev] Bat Mate`, `[Beta] Bat Mate` and `Bat Mate`. The code and module name stays `BatMate`.
+**What to build:** both platforms build in four environments, `deb`, `dev`, `beta` and `prod`, and each installs with its own user-facing name: `[Debug] MobTT`, `[Dev] MobTT`, `[Beta] MobTT` and `MobTT`. The package prefix stays `at.stefanirndorfer.batmate`.
 
 **Blocked by:** None (can start immediately)
 

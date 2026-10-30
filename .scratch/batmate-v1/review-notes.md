@@ -67,7 +67,7 @@
 - declined: Value classes for ids and trimming `LineupPlayer.playerId`. Same reasoning as earlier entries; the type is provisional.
 - deferred: Missing Team or Club shows Retry, same as a network failure. Revisit with domain errors and the real repositories (TODO in both ViewModels).
 - fixed: Team detail League table row put the stats beside the name, so names wrapped to three lines at 200% text on Android. Stats now sit under the name on both platforms (found by running the app).
-- deferred: iOS shell header ("Bat Mate" top bar) fills most of the screen at accessibility text sizes. Existing shell code, affects every screen.
+- deferred: iOS shell header ("MobTT" top bar) fills most of the screen at accessibility text sizes. Existing shell code, affects every screen.
 - fixed: iOS tab bar kept a Dynamic Type cap below 200%, then a shrink-to-fit label and a two-column reflow were both tried and rejected after running the app (words broke mid-word at accessibility sizes). Now icon-only at accessibility sizes with the label kept for VoiceOver and the Large Content Viewer; exception written in `CODING_STANDARDS.md` §12.
 - fixed: Reopen test for the user selection and Favorites (the earlier deferral held that DataStore forbids two stores on one file; cancelling the first store's scope releases it). Ran three times on the iOS simulator target without flakiness.
 - fixed: No restart test for the Android appearance. Added `DataStoreAppearanceRepositoryTest`.

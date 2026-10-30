@@ -1,4 +1,4 @@
-# Bat Mate v1: follow Clubs, Teams, Players and Fixtures
+# MobTT v1: follow Clubs, Teams, Players and Fixtures
 
 Status: ready-for-agent
 
@@ -10,7 +10,7 @@ Austrian table tennis Players and fans have no pleasant native mobile way to fol
 
 ## Solution
 
-Bat Mate is a native Android and iOS app that reads XTTV data and presents it in four areas: Home, Club, Players and Live. The user picks **My Player** once and the app derives their Club and Association from it. Users with no Player choose **My Club** instead. They can bookmark Players, Teams and Clubs as **Favorites** for quick access from Home. There is no account or login: everything the user chooses is stored on the device. The app is available in German and English.
+MobTT is a native Android and iOS app that reads XTTV data and presents it in four areas: Home, Club, Players and Live. The user picks **My Player** once and the app derives their Club and Association from it. Users with no Player choose **My Club** instead. They can bookmark Players, Teams and Clubs as **Favorites** for quick access from Home. There is no account or login: everything the user chooses is stored on the device. The app is available in German and English.
 
 ## User Stories
 
@@ -61,7 +61,7 @@ Bat Mate is a native Android and iOS app that reads XTTV data and presents it in
 - **iOS:** Swift ViewModels and SwiftUI views in `iosApp`, using the shared framework from `shared-umbrella` with SKIE.
 - **Design system:** Android tokens and components already exist. The iOS equivalents (colour sets, Swift accessors, shadow and background modifiers, matching components) must be built with the same token names and the same contrast-corrected values (ADR-0003).
 - **Localization:** German and English from the first screen, using `{module}_{context}_{type}` string keys. Inter is bundled through `:android:core:localization` on Android.
-- **Naming:** the user-facing name is "Bat Mate"; `BatMate` remains the code and module name.
+- **Naming:** the user-facing name is "MobTT"; the package prefix `at.stefanirndorfer.batmate` remains the code name.
 - **Workflow:** work lands on a feature branch off `develop` and goes through a pull request.
 
 ## Testing Decisions
