@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -47,6 +49,17 @@ fun BatHeroPill(text: String, modifier: Modifier = Modifier) {
         color = BatDesign.colors.onHero,
         style = BatDesign.typography.overline,
     )
+}
+
+/** The pill on a row as tall as a touch target, so a trailing action overlaid at the top end never covers the text below. */
+@Composable
+fun BatHeroPillRow(text: String, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.heightIn(min = BatDesign.sizing.minTouchTarget),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        BatHeroPill(text = text)
+    }
 }
 
 @Composable

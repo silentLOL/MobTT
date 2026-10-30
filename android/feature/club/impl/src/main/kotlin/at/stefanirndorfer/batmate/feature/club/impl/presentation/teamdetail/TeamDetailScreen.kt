@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,7 +31,7 @@ import at.stefanirndorfer.batmate.designsystem.ui.components.BatCard
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatEmptyState
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatFavoriteButton
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatHeroCard
-import at.stefanirndorfer.batmate.designsystem.ui.components.BatHeroPill
+import at.stefanirndorfer.batmate.designsystem.ui.components.BatHeroPillRow
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatPrimaryButton
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.batmate.domain.club.TeamDetail
@@ -118,12 +117,12 @@ private fun ContentView(
         verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.lg),
     ) {
         BatHeroCard(modifier = Modifier.fillMaxWidth()) {
-            Row(horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.md)) {
+            Box(modifier = Modifier.fillMaxWidth()) {
                 Column(
-                    modifier = Modifier.weight(1f).semantics(mergeDescendants = true) {},
+                    modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {},
                     verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm),
                 ) {
-                    BatHeroPill(text = stringResource(R.string.team_detail_hero_overline))
+                    BatHeroPillRow(text = stringResource(R.string.team_detail_hero_overline))
                     Text(text = detail.team.name, color = BatDesign.colors.onHero, style = BatDesign.typography.display)
                     Text(text = detail.clubName, color = BatDesign.colors.onHero, style = BatDesign.typography.body)
                 }
@@ -136,6 +135,7 @@ private fun ContentView(
                     stateDescription = stringResource(
                         if (isFavorite) R.string.core_favorite_on_state else R.string.core_favorite_off_state,
                     ),
+                    modifier = Modifier.align(Alignment.TopEnd),
                     onClick = { onAction(TeamDetailAction.FavoriteClicked) },
                 )
             }
