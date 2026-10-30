@@ -48,7 +48,7 @@ fun BatScreenScaffold(
 private fun BatScreenScaffoldPreview() {
     BatTheme {
         BatScreenScaffold(
-            topBar = { BatTopBar(title = "Bat Mate") },
+            topBar = { BatTopBar(title = "MobTT") },
         ) { padding ->
             Text(text = "Content", modifier = Modifier.padding(padding))
         }

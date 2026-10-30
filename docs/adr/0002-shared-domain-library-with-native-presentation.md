@@ -5,7 +5,7 @@
 **Deciders:** Tech Lead
 
 ## Context
-BatMate targets Android and iOS and must feel first-class on both. We had to
+MobTT targets Android and iOS and must feel first-class on both. We had to
 decide how much of the app to share via Kotlin Multiplatform. The forces:
 
 - **Correctness & maintenance:** business rules (UseCases, data access,

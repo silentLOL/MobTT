@@ -28,7 +28,7 @@ import at.stefanirndorfer.batmate.feature.players.impl.navigation.playersGraph
 import at.stefanirndorfer.batmate.feature.settings.impl.presentation.settings.SettingsSheet
 
 @Composable
-fun BatMateApp(modifier: Modifier = Modifier) {
+fun MobTTApp(modifier: Modifier = Modifier) {
     val navigator = remember { BackStackGlobalNavigator(HomeDestination) }
     BatScreenScaffold(
         modifier = modifier,
@@ -80,8 +80,8 @@ fun BatMateApp(modifier: Modifier = Modifier) {
 
 @BatScreenPreview
 @Composable
-private fun BatMateAppPreview() {
+private fun MobTTAppPreview() {
     BatTheme {
-        BatMateApp()
+        MobTTApp()
     }
 }

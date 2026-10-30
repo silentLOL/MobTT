@@ -20,26 +20,26 @@ struct BatScreenScaffoldView<TopBar: View, BottomBar: View, Content: View>: View
 
 #Preview {
     BatScreenScaffoldView {
-        BatTopBarView(title: "Bat Mate")
+        BatTopBarView(title: "MobTT")
     } bottomBar: {
         BatTabBarView {
             BatTabBarItemView(icon: .home, label: "Home", isSelected: true) {}
             BatTabBarItemView(icon: .live, label: "Live", isSelected: false) {}
         }
     } content: {
-        BatEmptyStateView(icon: .home, title: "Welcome to Bat Mate", message: "Your results will show up here.")
+        BatEmptyStateView(icon: .home, title: "Welcome to MobTT", message: "Your results will show up here.")
     }
 }
 
 #Preview("Dark") {
     BatScreenScaffoldView {
-        BatTopBarView(title: "Bat Mate")
+        BatTopBarView(title: "MobTT")
     } bottomBar: {
         BatTabBarView {
             BatTabBarItemView(icon: .home, label: "Home", isSelected: true) {}
         }
     } content: {
-        BatEmptyStateView(icon: .home, title: "Welcome to Bat Mate", message: "Your results will show up here.")
+        BatEmptyStateView(icon: .home, title: "Welcome to MobTT", message: "Your results will show up here.")
     }
     .preferredColorScheme(.dark)
 }

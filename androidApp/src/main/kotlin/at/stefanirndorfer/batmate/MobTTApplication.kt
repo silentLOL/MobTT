@@ -9,7 +9,7 @@ import at.stefanirndorfer.batmate.feature.home.impl.di.homeModule
 import at.stefanirndorfer.batmate.feature.settings.impl.di.settingsModule
 import org.koin.android.ext.koin.androidContext
 
-class BatMateApplication : Application() {
+class MobTTApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         val config = AppConfig(
@@ -18,7 +18,7 @@ class BatMateApplication : Application() {
             BuildConfig.XTTV_API_KEY,
         )
         initKoin(config) {
-            androidContext(this@BatMateApplication)
+            androidContext(this@MobTTApplication)
             modules(directoryModules + listOf(clubModule, homeModule, settingsModule))
         }
     }

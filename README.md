@@ -1,4 +1,4 @@
-# BatMate
+# MobTT
 
 A Kotlin Multiplatform app for Android and iOS built as a Shared Domain Library with fully native presentation. See [CLAUDE.md](./CLAUDE.md) for the architecture and [docs/adr](./docs/adr/README.md) for the reasoning behind it.
 

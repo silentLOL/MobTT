@@ -77,11 +77,11 @@ extension BatTopBarView where Actions == EmptyView {
 #Preview {
     BatPreviewMatrix {
         VStack(spacing: BatSpacing.md) {
-            BatTopBarView(title: "Bat Mate", badge: "Pro", subtitle: "Vienna Table Tennis Association (WTTV)") {
+            BatTopBarView(title: "MobTT", badge: "Pro", subtitle: "Vienna Table Tennis Association (WTTV)") {
                 BatIconButtonView(icon: .darkMode, accessibilityText: "Dark mode") {}
                 BatIconButtonView(icon: .settings, accessibilityText: "Settings") {}
             }
-            BatTopBarView(title: "Bat Mate")
+            BatTopBarView(title: "MobTT")
         }
     }
 }
@@ -90,13 +90,13 @@ extension BatTopBarView where Actions == EmptyView {
     BatPreviewMatrix {
         VStack(spacing: BatSpacing.md) {
             BatTopBarView(
-                title: "Bat Mate Championship Overview",
+                title: "MobTT Championship Overview",
                 badge: "Pro",
                 subtitle: "Lower Austrian Table Tennis Association, Division 1 West"
             ) {
                 BatIconButtonView(icon: .settings, accessibilityText: "Settings") {}
             }
-            BatTopBarView(title: "Bat Mate", badge: "Beta")
+            BatTopBarView(title: "MobTT", badge: "Beta")
         }
     }
 }

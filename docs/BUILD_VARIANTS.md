@@ -4,12 +4,12 @@ Both platforms build in four environments. Each installs with its own name and i
 
 | Environment | App name | Android `applicationId` | iOS bundle id |
 |---|---|---|---|
-| `deb` | `[Debug] Bat Mate` | `at.stefanirndorfer.batmate.deb` | `…batmate.BatMate.deb` |
-| `dev` | `[Dev] Bat Mate` | `at.stefanirndorfer.batmate.dev` | `…batmate.BatMate.dev` |
-| `beta` | `[Beta] Bat Mate` | `at.stefanirndorfer.batmate.beta` | `…batmate.BatMate.beta` |
-| `prod` | `Bat Mate` | `at.stefanirndorfer.batmate` | `…batmate.BatMate` |
+| `deb` | `[Debug] MobTT` | `at.stefanirndorfer.batmate.deb` | `…batmate.MobTT.deb` |
+| `dev` | `[Dev] MobTT` | `at.stefanirndorfer.batmate.dev` | `…batmate.MobTT.dev` |
+| `beta` | `[Beta] MobTT` | `at.stefanirndorfer.batmate.beta` | `…batmate.MobTT.beta` |
+| `prod` | `MobTT` | `at.stefanirndorfer.batmate` | `…batmate.MobTT` |
 
-The code and module name stays `BatMate`; only the user-facing name has a space.
+The app is named `MobTT`; the package, application ID and bundle ID keep the original `at.stefanirndorfer.batmate` prefix.
 
 ## Android
 

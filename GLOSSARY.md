@@ -1,6 +1,6 @@
-# BatMate Domain
+# MobTT Domain
 
-BatMate lets Austrian table tennis players and fans follow clubs, teams, players and league fixtures, using data published by XTTV. Terms below are named in English in code; the German name used by the sport is given in each definition.
+MobTT lets Austrian table tennis players and fans follow clubs, teams, players and league fixtures, using data published by XTTV. Terms below are named in English in code; the German name used by the sport is given in each definition.
 
 ## Language
 

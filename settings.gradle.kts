@@ -1,4 +1,4 @@
-rootProject.name = "BatMate"
+rootProject.name = "MobTT"
 
 pluginManagement {
     includeBuild("build-logic")

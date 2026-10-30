@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="core_app_title">Bat Mate</string>
+    <string name="core_app_title">MobTT</string>
     <string name="core_tab_home_label">Home</string>
     <string name="core_tab_club_label">Club</string>
     <string name="core_tab_players_label">Players</string>
@@ -8,7 +8,7 @@
     <string name="core_settings_button_cd">Settings</string>
     <string name="core_close_button_cd">Close</string>
 
-    <string name="home_empty_title">Welcome to Bat Mate</string>
+    <string name="home_empty_title">Welcome to MobTT</string>
     <string name="home_empty_body">Your results, form and next Fixture will show up here.</string>
     <string name="club_empty_title">No Club yet</string>
     <string name="club_empty_body">Your Club, its Teams and the League tables will show up here.</string>

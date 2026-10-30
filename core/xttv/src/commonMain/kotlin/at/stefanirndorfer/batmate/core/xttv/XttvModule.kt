@@ -17,7 +17,7 @@ val xttvModule = module {
         val config = get<AppConfig>()
         XttvApi(
             createHttpClient(
-                userAgent = "BatMate/${config.appVersion}",
+                userAgent = "MobTT/${config.appVersion}",
                 apiKey = config.xttvApiKey,
                 logRequests = config.environment != Environment.Prod,
             ),

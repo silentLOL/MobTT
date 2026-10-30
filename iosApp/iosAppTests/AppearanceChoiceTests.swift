@@ -1,7 +1,7 @@
 import SwiftUI
 import Testing
 
-@testable import BatMate
+@testable import MobTT
 
 struct AppearanceChoiceTests {
     @Test func storedValuesRoundTripThroughTheRawValue() {

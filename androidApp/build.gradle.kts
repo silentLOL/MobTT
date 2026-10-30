@@ -58,24 +58,24 @@ android {
             dimension = "environment"
             buildConfigField("String", "ENVIRONMENT", "\"deb\"")
             applicationIdSuffix = ".deb"
-            manifestPlaceholders["appName"] = "[Debug] Bat Mate"
+            manifestPlaceholders["appName"] = "[Debug] MobTT"
         }
         create("dev") {
             dimension = "environment"
             buildConfigField("String", "ENVIRONMENT", "\"dev\"")
             applicationIdSuffix = ".dev"
-            manifestPlaceholders["appName"] = "[Dev] Bat Mate"
+            manifestPlaceholders["appName"] = "[Dev] MobTT"
         }
         create("beta") {
             dimension = "environment"
             buildConfigField("String", "ENVIRONMENT", "\"beta\"")
             applicationIdSuffix = ".beta"
-            manifestPlaceholders["appName"] = "[Beta] Bat Mate"
+            manifestPlaceholders["appName"] = "[Beta] MobTT"
         }
         create("prod") {
             dimension = "environment"
             buildConfigField("String", "ENVIRONMENT", "\"prod\"")
-            manifestPlaceholders["appName"] = "Bat Mate"
+            manifestPlaceholders["appName"] = "MobTT"
         }
     }
     packaging {

@@ -17,7 +17,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1F44B8E51E0DCBA0639A7806 /* BatMate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BatMate.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1F44B8E51E0DCBA0639A7806 /* MobTT.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MobTT.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1B2C3D4E5F60718293A4B01 /* iosAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iosAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -83,7 +83,7 @@
 		37B5C0D403674EAE955F258F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1F44B8E51E0DCBA0639A7806 /* BatMate.app */,
+				1F44B8E51E0DCBA0639A7806 /* MobTT.app */,
 				A1B2C3D4E5F60718293A4B01 /* iosAppTests.xctest */,
 			);
 			name = Products;
@@ -112,7 +112,7 @@
 			packageProductDependencies = (
 			);
 			productName = iosApp;
-			productReference = 1F44B8E51E0DCBA0639A7806 /* BatMate.app */;
+			productReference = 1F44B8E51E0DCBA0639A7806 /* MobTT.app */;
 			productType = "com.apple.product-type.application";
 		};
 		A1B2C3D4E5F60718293A4B03 /* iosAppTests */ = {
@@ -623,7 +623,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BatMate.app/BatMate";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MobTT.app/MobTT";
 			};
 			name = Debug;
 		};
@@ -645,7 +645,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BatMate.app/BatMate";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MobTT.app/MobTT";
 			};
 			name = Dev;
 		};
@@ -667,7 +667,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BatMate.app/BatMate";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MobTT.app/MobTT";
 			};
 			name = Beta;
 		};
@@ -689,7 +689,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BatMate.app/BatMate";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MobTT.app/MobTT";
 			};
 			name = Release;
 		};

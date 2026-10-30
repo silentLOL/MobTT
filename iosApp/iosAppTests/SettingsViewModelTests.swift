@@ -1,7 +1,7 @@
 import Shared
 import Testing
 
-@testable import BatMate
+@testable import MobTT
 
 @MainActor
 struct SettingsViewModelTests {

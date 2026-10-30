@@ -44,7 +44,7 @@ This project is a Kotlin Multiplatform (KMP) application using a Shared Domain L
 **iOS:** Swift ViewModels and SwiftUI views live in `iosApp/` (Xcode). Dependencies are resolved via a `KoinHelper` exported from `shared-umbrella`.
 
 ## 3. Build Variants & Flavors
-Both platforms share a four-environment flavor setup: `deb`, `dev`, `beta`, `prod`. Each produces a distinct app name (`[Debug] Bat Mate`, `[Dev] Bat Mate`, `[Beta] Bat Mate`, `Bat Mate`). Document the per-platform mechanism (manifest placeholders vs. `.xcconfig`) in `docs/BUILD_VARIANTS.md`.
+Both platforms share a four-environment flavor setup: `deb`, `dev`, `beta`, `prod`. Each produces a distinct app name (`[Debug] MobTT`, `[Dev] MobTT`, `[Beta] MobTT`, `MobTT`). Document the per-platform mechanism (manifest placeholders vs. `.xcconfig`) in `docs/BUILD_VARIANTS.md`.
 
 ## 4. Folder Structure
 ```plaintext

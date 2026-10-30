@@ -105,7 +105,7 @@ private fun BatTopBarPreview() {
     BatPreviewSurface {
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.md)) {
             BatTopBar(
-                title = "Bat Mate",
+                title = "MobTT",
                 badge = "Pro",
                 subtitle = "Vienna Table Tennis Association (WTTV)",
                 actions = {
@@ -113,7 +113,7 @@ private fun BatTopBarPreview() {
                     BatIconButton(icon = BatIcon.Settings, contentDescription = "Settings", onClick = {})
                 },
             )
-            BatTopBar(title = "Bat Mate")
+            BatTopBar(title = "MobTT")
         }
     }
 }
@@ -124,14 +124,14 @@ private fun BatTopBarLongContentPreview() {
     BatPreviewSurface {
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.md)) {
             BatTopBar(
-                title = "Bat Mate Championship Overview",
+                title = "MobTT Championship Overview",
                 badge = "Pro",
                 subtitle = "Lower Austrian Table Tennis Association, Division 1 West",
                 actions = {
                     BatIconButton(icon = BatIcon.Settings, contentDescription = "Settings", onClick = {})
                 },
             )
-            BatTopBar(title = "Bat Mate", badge = "Beta")
+            BatTopBar(title = "MobTT", badge = "Beta")
         }
     }
 }

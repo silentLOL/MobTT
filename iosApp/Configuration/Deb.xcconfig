@@ -1,6 +1,6 @@
 #include "Config.xcconfig"
 
 ENVIRONMENT=deb
-APP_NAME=[Debug] Bat Mate
+APP_NAME=[Debug] MobTT
 BUNDLE_ID_SUFFIX=.deb
 KOTLIN_FRAMEWORK_BUILD_TYPE=debug

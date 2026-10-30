@@ -1,6 +1,6 @@
 import Shared
 
-@testable import BatMate
+@testable import MobTT
 
 /// One Verband with two Leagues; the first League has two Players of two Clubs. Records every read, so tests can
 /// tell that a step is read once and typing never reads again.

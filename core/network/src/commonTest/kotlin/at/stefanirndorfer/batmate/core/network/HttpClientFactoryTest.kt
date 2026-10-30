@@ -18,7 +18,7 @@ class HttpClientFactoryTest {
     fun everyRequestIdentifiesTheApp() = runTest {
         var userAgent: String? = null
         val client = createHttpClient(
-            userAgent = "BatMate/1.2 (contact@example.test)",
+            userAgent = "MobTT/1.2 (contact@example.test)",
             engine = MockEngine { request ->
                 userAgent = request.headers[HttpHeaders.UserAgent]
                 respondOk()
@@ -27,7 +27,7 @@ class HttpClientFactoryTest {
 
         client.get("https://example.test/clubs")
 
-        assertEquals("BatMate/1.2 (contact@example.test)", userAgent)
+        assertEquals("MobTT/1.2 (contact@example.test)", userAgent)
     }
 
     @Test
@@ -38,8 +38,8 @@ class HttpClientFactoryTest {
             respondOk()
         }
 
-        createHttpClient(userAgent = "BatMate/1.2", apiKey = "secret", engine = engine).get("https://example.test/a?x=1")
-        createHttpClient(userAgent = "BatMate/1.2", engine = engine).get("https://example.test/a?x=1")
+        createHttpClient(userAgent = "MobTT/1.2", apiKey = "secret", engine = engine).get("https://example.test/a?x=1")
+        createHttpClient(userAgent = "MobTT/1.2", engine = engine).get("https://example.test/a?x=1")
 
         assertEquals(listOf("https://example.test/a?x=1&apikey=secret", "https://example.test/a?x=1"), urls)
     }
@@ -50,7 +50,7 @@ class HttpClientFactoryTest {
         var running = 0
         var peak = 0
         val client = createHttpClient(
-            userAgent = "BatMate/1.2",
+            userAgent = "MobTT/1.2",
             engine = MockEngine {
                 lock.withLock {
                     running++

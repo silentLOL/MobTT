@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
                 onDispose {}
             }
             BatTheme(darkTheme = darkTheme) {
-                BatMateApp()
+                MobTTApp()
             }
         }
     }

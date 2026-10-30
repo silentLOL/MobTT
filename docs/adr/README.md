@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-This directory holds the BatMate architecture decision log. See
+This directory holds the MobTT architecture decision log. See
 [ADR-0001](0001-record-architecture-decisions.md) for why we keep ADRs and how
 the process works. New records start from [template.md](template.md).
 
