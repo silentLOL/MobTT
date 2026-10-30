@@ -4,6 +4,7 @@ struct HomeRoute: View {
     let onOpenSettings: () -> Void
     let onOpenMyClub: () -> Void
     let onOpenClub: (String) -> Void
+    let onOpenTeam: (String) -> Void
 
     @State private var viewModel = HomeViewModel()
 
@@ -16,6 +17,7 @@ struct HomeRoute: View {
                     case .openSettings: onOpenSettings()
                     case .openMyClub: onOpenMyClub()
                     case .openClub(let clubId): onOpenClub(clubId)
+                    case .openTeam(let teamId): onOpenTeam(teamId)
                     }
                 }
             }
@@ -25,6 +27,14 @@ struct HomeRoute: View {
 struct HomeScreen: View {
     let state: HomeUiState
     let onAction: (HomeAction) -> Void
+
+    private func openAction(for favorite: HomeFavoriteUi) -> (() -> Void)? {
+        switch favorite.kind {
+        case .club: { onAction(.favoriteClubClicked(id: favorite.entityId)) }
+        case .team: { onAction(.favoriteTeamClicked(id: favorite.entityId)) }
+        case .player: nil
+        }
+    }
 
     var body: some View {
         ScrollView {
@@ -49,7 +59,7 @@ struct HomeScreen: View {
                         ForEach(state.favorites) { favorite in
                             FavoriteRowView(
                                 favorite: favorite,
-                                onClick: favorite.kind == .club ? { onAction(.favoriteClubClicked(id: favorite.entityId)) } : nil,
+                                onClick: openAction(for: favorite),
                                 onRemoveClick: { onAction(.removeFavoriteClicked(favorite)) }
                             )
                         }
@@ -83,6 +93,7 @@ private let loadedState = HomeUiState(
     favorites: [
         HomeFavoriteUi(kind: .player, entityId: "gruber", name: "Anna Gruber", detail: "TTC Olympic"),
         HomeFavoriteUi(kind: .club, entityId: "nussdorf", name: "Nussdorf TTC", detail: "Wiener Tischtennisverband (WTTV)"),
+        HomeFavoriteUi(kind: .team, entityId: "olympic-1", name: "TTC Olympic 1", detail: "TTC Olympic"),
     ]
 )
 

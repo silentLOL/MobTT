@@ -17,13 +17,13 @@ struct HomeViewModelFavoritesTests {
         #expect(viewModel.uiState.favorites == [HomeFavoriteUi(kind: .club, entityId: "c1", name: "TTC Olympic", detail: "WTTV")])
     }
 
-    @Test func teamFavoritesAreLeftOutOfTheList() async {
-        let resolved = ResolvedFavorite(favorite: FavoriteTeam(id: "t1"), name: "Olympic 1", detail: nil)
+    @Test func teamFavoritesAppearInTheListWithTheirClub() async {
+        let resolved = ResolvedFavorite(favorite: FavoriteTeam(id: "t1"), name: "Olympic 1", detail: "TTC Olympic")
         let viewModel = makeViewModel(resolved: [success([resolved])])
 
         await viewModel.observe()
 
-        #expect(viewModel.uiState.favorites.isEmpty)
+        #expect(viewModel.uiState.favorites == [HomeFavoriteUi(kind: .team, entityId: "t1", name: "Olympic 1", detail: "TTC Olympic")])
     }
 
     @Test func unavailableFavoritesShowNoneRatherThanStaleOnes() async {
@@ -122,6 +122,16 @@ struct HomeViewModelFavoritesTests {
         await waitUntil { !removed.isEmpty }
 
         #expect(removed.compactMap { ($0 as? FavoriteClub)?.id } == ["c1"])
+    }
+
+    @Test func removingATeamFromHomeRemovesThatFavorite() async {
+        var removed: [Favorite] = []
+        let viewModel = makeViewModel(removeFavorite: { removed.append($0) })
+
+        viewModel.onAction(.removeFavoriteClicked(HomeFavoriteUi(kind: .team, entityId: "t1", name: "Olympic 1", detail: nil)))
+        await waitUntil { !removed.isEmpty }
+
+        #expect(removed.compactMap { ($0 as? FavoriteTeam)?.id } == ["t1"])
     }
 
     @Test func dismissingThePickerClosesIt() {

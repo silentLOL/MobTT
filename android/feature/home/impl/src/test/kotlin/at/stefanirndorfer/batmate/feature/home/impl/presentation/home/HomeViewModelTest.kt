@@ -142,7 +142,7 @@ class HomeViewModelTest {
         val userContext = ObserveUserContextUseCase(data, data, data, data)
         val viewModel = HomeViewModel(
             observeUserContext = userContext,
-            observeResolvedFavorites = ObserveResolvedFavoritesUseCase(data, data, data, data),
+            observeResolvedFavorites = ObserveResolvedFavoritesUseCase(data, data, data, data, data),
             observeUpcomingFixtures = ObserveUpcomingFixturesUseCase(
                 userContext,
                 GetClubOverviewUseCase(data, data, data, data, data),

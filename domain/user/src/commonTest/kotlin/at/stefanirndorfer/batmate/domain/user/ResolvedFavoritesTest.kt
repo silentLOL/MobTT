@@ -4,6 +4,9 @@ import at.stefanirndorfer.batmate.domain.club.Association
 import at.stefanirndorfer.batmate.domain.club.AssociationRepository
 import at.stefanirndorfer.batmate.domain.club.Club
 import at.stefanirndorfer.batmate.domain.club.ClubRepository
+import at.stefanirndorfer.batmate.domain.club.LineupPlayer
+import at.stefanirndorfer.batmate.domain.club.Team
+import at.stefanirndorfer.batmate.domain.club.TeamRepository
 import at.stefanirndorfer.batmate.domain.player.Player
 import at.stefanirndorfer.batmate.domain.player.PlayerRepository
 import kotlinx.coroutines.flow.Flow
@@ -16,11 +19,13 @@ import kotlin.test.assertEquals
 private val wttv = Association("a1", "WTTV")
 private val olympic = Club("c1", "TTC Olympic", associationId = "a1")
 private val anna = Player("p1", "Anna", clubId = "c1")
+private val olympic1 = Team("t1", "Olympic 1", clubId = "c1", leagueId = "l1")
 
 private class Directory :
     PlayerRepository,
     ClubRepository,
-    AssociationRepository {
+    AssociationRepository,
+    TeamRepository {
     override suspend fun getPlayer(id: String) = listOf(anna).firstOrNull { it.id == id }
 
     override suspend fun getLeaguePlayers(leagueId: String) = listOf(anna)
@@ -32,6 +37,12 @@ private class Directory :
     override suspend fun getAssociation(id: String) = listOf(wttv).firstOrNull { it.id == id }
 
     override suspend fun getAssociations() = listOf(wttv)
+
+    override suspend fun getTeam(id: String) = listOf(olympic1).firstOrNull { it.id == id }
+
+    override suspend fun getTeams(clubId: String) = listOf(olympic1)
+
+    override suspend fun getLineup(teamId: String) = emptyList<LineupPlayer>()
 }
 
 private class Favorites(initial: Set<Favorite>) : FavoritesRepository {
@@ -56,6 +67,7 @@ class ResolvedFavoritesTest {
         directory,
         directory,
         directory,
+        directory,
     )
 
     @Test
@@ -73,6 +85,13 @@ class ResolvedFavoritesTest {
     }
 
     @Test
+    fun teamFavoriteShowsNameAndClub() = runTest {
+        val resolved = observe(Favorite.Team("t1"))().first()
+
+        assertEquals(listOf(ResolvedFavorite(Favorite.Team("t1"), "Olympic 1", "TTC Olympic")), resolved)
+    }
+
+    @Test
     fun leaguePlayersCarryTheClubName() = runTest {
         val results = ListLeaguePlayersUseCase(directory, directory)("l1")
 
@@ -81,7 +100,7 @@ class ResolvedFavoritesTest {
 
     @Test
     fun favoritesThatCannotBeResolvedAreLeftOut() = runTest {
-        val resolved = observe(Favorite.Player("gone"), Favorite.Team("t1"), Favorite.Club("c1"))().first()
+        val resolved = observe(Favorite.Player("gone"), Favorite.Team("gone"), Favorite.Club("c1"))().first()
 
         assertEquals(listOf(Favorite.Club("c1")), resolved.map { it.favorite })
     }

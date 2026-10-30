@@ -56,6 +56,21 @@ private extension FavoriteRowView {
                 onRemoveClick: {}
             )
             FavoriteRowView(
+                favorite: HomeFavoriteUi(kind: .team, entityId: "t", name: "TTC Olympic 1", detail: "TTC Olympic"),
+                onClick: {},
+                onRemoveClick: {}
+            )
+            FavoriteRowView(
+                favorite: HomeFavoriteUi(
+                    kind: .team,
+                    entityId: "lt",
+                    name: "Union Tischtennisclub St. Pölten Nord-West 1",
+                    detail: "Union Tischtennisclub St. Pölten Nord-West"
+                ),
+                onClick: {},
+                onRemoveClick: {}
+            )
+            FavoriteRowView(
                 favorite: HomeFavoriteUi(
                     kind: .player,
                     entityId: "l",

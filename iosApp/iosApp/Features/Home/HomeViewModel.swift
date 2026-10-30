@@ -73,6 +73,8 @@ final class HomeViewModel {
             eventStream.continuation.yield(.openMyClub)
         case .favoriteClubClicked(let id):
             eventStream.continuation.yield(.openClub(clubId: id))
+        case .favoriteTeamClicked(let id):
+            eventStream.continuation.yield(.openTeam(teamId: id))
         case .addFavoriteClicked:
             browsingPlayers = false
             pickerClubs = []
@@ -119,7 +121,7 @@ final class HomeViewModel {
     private func observeResolved() async {
         for await result in observeResolvedFavorites {
             switch onEnum(of: result) {
-            case .success(let success): favorites = (success.value as? [ResolvedFavorite])?.compactMap { $0.toUi() } ?? []
+            case .success(let success): favorites = (success.value as? [ResolvedFavorite])?.map { $0.toUi() } ?? []
             case .unavailable: favorites = []
             }
         }
@@ -181,26 +183,27 @@ private extension FavoriteKind {
         switch self {
         case .player: FavoritePlayer(id: entityId)
         case .club: FavoriteClub(id: entityId)
+        case .team: FavoriteTeam(id: entityId)
         }
     }
 }
 
 private extension Favorite {
-    var key: String? {
+    var key: String {
         switch onEnum(of: self) {
         case .player(let favorite): FavoriteKind.player.key(for: favorite.id)
         case .club(let favorite): FavoriteKind.club.key(for: favorite.id)
-        case .team: nil
+        case .team(let favorite): FavoriteKind.team.key(for: favorite.id)
         }
     }
 }
 
 private extension ResolvedFavorite {
-    func toUi() -> HomeFavoriteUi? {
+    func toUi() -> HomeFavoriteUi {
         switch onEnum(of: favorite) {
         case .player(let player): HomeFavoriteUi(kind: .player, entityId: player.id, name: name, detail: detail)
         case .club(let club): HomeFavoriteUi(kind: .club, entityId: club.id, name: name, detail: detail)
-        case .team: nil
+        case .team(let team): HomeFavoriteUi(kind: .team, entityId: team.id, name: name, detail: detail)
         }
     }
 }

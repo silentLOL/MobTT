@@ -14,3 +14,5 @@
 - [x] Previews cover favourited, not favourited and a long-name state
 
 **Manual check outstanding:** 200% font scale and TalkBack on a device.
+
+**Follow-up:** Team Favorites were dropped by the shared domain, so a favourited Team did not show on Android Home when this ticket closed. Ticket 03 fixed that in the domain. Android Home shows the row but has no tap-through to the Team screen.

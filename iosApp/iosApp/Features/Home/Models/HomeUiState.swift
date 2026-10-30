@@ -18,6 +18,7 @@ extension HomeSelectionUi {
 enum FavoriteKind: String {
     case player
     case club
+    case team
 
     func key(for entityId: String) -> String { "\(rawValue)-\(entityId)" }
 }

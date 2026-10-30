@@ -65,11 +65,14 @@ struct HomeViewModelSelectionTests {
         viewModel.onAction(.chooseClicked)
         viewModel.onAction(.viewClubClicked)
         viewModel.onAction(.favoriteClubClicked(id: "c1"))
+        viewModel.onAction(.favoriteTeamClicked(id: "t1"))
 
         guard case .openSettings? = await events.next() else { Issue.record("expected openSettings"); return }
         guard case .openMyClub? = await events.next() else { Issue.record("expected openMyClub"); return }
         guard case .openClub(let clubId)? = await events.next() else { Issue.record("expected openClub"); return }
         #expect(clubId == "c1")
+        guard case .openTeam(let teamId)? = await events.next() else { Issue.record("expected openTeam"); return }
+        #expect(teamId == "t1")
     }
 
     private func makeViewModel(
