@@ -78,6 +78,16 @@ private fun FavoriteRowViewPreview() {
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
             FavoriteRowView(ResolvedFavorite(Favorite.Player("p"), "Anna Gruber", "TTC Olympic"), onRemoveClick = {})
             FavoriteRowView(ResolvedFavorite(Favorite.Club("c"), "Nussdorf TTC", "WTTV"), onRemoveClick = {}, onClick = {})
+            FavoriteRowView(ResolvedFavorite(Favorite.Team("t"), "TTC Olympic 1", "TTC Olympic"), onRemoveClick = {}, onClick = {})
+            FavoriteRowView(
+                ResolvedFavorite(
+                    Favorite.Team("lt"),
+                    "Union Tischtennisclub St. Pölten Nord-West 1",
+                    "Union Tischtennisclub St. Pölten Nord-West",
+                ),
+                onRemoveClick = {},
+                onClick = {},
+            )
             FavoriteRowView(
                 ResolvedFavorite(
                     Favorite.Player("l"),

@@ -38,6 +38,7 @@ fun HomeRoute(
     onOpenSettings: () -> Unit,
     onOpenMyClub: () -> Unit,
     onOpenClub: (String) -> Unit,
+    onOpenTeam: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
@@ -47,6 +48,7 @@ fun HomeRoute(
             HomeEvent.OpenSettings -> onOpenSettings()
             HomeEvent.OpenMyClub -> onOpenMyClub()
             is HomeEvent.OpenClub -> onOpenClub(event.clubId)
+            is HomeEvent.OpenTeam -> onOpenTeam(event.teamId)
         }
     }
     HomeScreen(state = uiState, onAction = viewModel::onAction, modifier = modifier)
@@ -94,8 +96,14 @@ fun HomeScreen(
                 state.favorites.forEach { favorite ->
                     FavoriteRowView(
                         favorite = favorite,
-                        onClick = (favorite.favorite as? Favorite.Club)?.let { club ->
-                            { onAction(HomeAction.FavoriteClubClicked(club.id)) }
+                        onClick = when (val item = favorite.favorite) {
+                            is Favorite.Club -> {
+                                { onAction(HomeAction.FavoriteClubClicked(item.id)) }
+                            }
+                            is Favorite.Team -> {
+                                { onAction(HomeAction.FavoriteTeamClicked(item.id)) }
+                            }
+                            is Favorite.Player -> null
                         },
                         onRemoveClick = { onAction(HomeAction.RemoveFavoriteClicked(favorite.favorite)) },
                     )

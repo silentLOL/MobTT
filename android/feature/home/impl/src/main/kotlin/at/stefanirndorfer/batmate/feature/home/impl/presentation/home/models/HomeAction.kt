@@ -13,6 +13,8 @@ sealed interface HomeAction {
 
     data class FavoriteClubClicked(val clubId: String) : HomeAction
 
+    data class FavoriteTeamClicked(val teamId: String) : HomeAction
+
     data class RemoveFavoriteClicked(val favorite: Favorite) : HomeAction
 
     data class PickerQueryChanged(val query: String) : HomeAction

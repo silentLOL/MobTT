@@ -34,6 +34,7 @@ import at.stefanirndorfer.batmate.domain.user.UpcomingFixtures
 import at.stefanirndorfer.batmate.domain.user.UserSelection
 import at.stefanirndorfer.batmate.domain.user.UserSelectionRepository
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models.HomeAction
+import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models.HomeEvent
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models.HomeSelectionUi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -115,7 +116,7 @@ private class FakeData :
         this.selection.value = selection
     }
 
-    private val favorites = MutableStateFlow<Set<Favorite>>(emptySet())
+    val favorites = MutableStateFlow<Set<Favorite>>(emptySet())
 
     override fun observeFavorites(): Flow<Set<Favorite>> = favorites
 
@@ -330,5 +331,24 @@ class HomeViewModelTest {
 
         viewModel.onAction(HomeAction.PickerBackClicked)
         assertNull(viewModel.uiState.value.picker)
+    }
+
+    @Test
+    fun tappingATeamFavoriteOpensThatTeam() = runTest {
+        val viewModel = viewModel()
+        val events = mutableListOf<HomeEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect { events += it } }
+
+        viewModel.onAction(HomeAction.FavoriteTeamClicked("t1"))
+
+        assertEquals(listOf<HomeEvent>(HomeEvent.OpenTeam("t1")), events)
+    }
+
+    @Test
+    fun aTeamFavoriteIsListedWithItsClub() = runTest {
+        data.favorites.value = setOf(Favorite.Team("t1"))
+        val viewModel = viewModel()
+
+        assertEquals(listOf(ResolvedFavorite(Favorite.Team("t1"), "Olympic 1", "TTC Olympic")), viewModel.uiState.value.favorites)
     }
 }
