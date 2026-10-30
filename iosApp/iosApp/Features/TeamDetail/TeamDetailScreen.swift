@@ -54,9 +54,9 @@ private struct ContentView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: BatSpacing.lg) {
                 BatHeroCardView {
-                    HStack(alignment: .top, spacing: BatSpacing.md) {
+                    ZStack(alignment: .topTrailing) {
                         VStack(alignment: .leading, spacing: BatSpacing.sm) {
-                            BatHeroPillView(text: String(localized: "team_detail_hero_overline"))
+                            BatHeroPillRowView(text: String(localized: "team_detail_hero_overline"))
                             Text(detail.teamName)
                                 .batTextStyle(BatTypography.display)
                                 .foregroundStyle(BatColor.onHero)

@@ -26,6 +26,19 @@ struct BatHeroPillView: View {
     }
 }
 
+/// The pill on a row as tall as a touch target, so a trailing action overlaid at the top end never covers the text below.
+struct BatHeroPillRowView: View {
+    let text: String
+
+    var body: some View {
+        HStack(spacing: 0) {
+            BatHeroPillView(text: text)
+            Spacer(minLength: 0)
+        }
+        .frame(minHeight: BatSizing.minTouchTarget)
+    }
+}
+
 struct BatHeroStatRowView<Content: View>: View {
     @ViewBuilder let content: () -> Content
 
