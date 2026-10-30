@@ -37,4 +37,8 @@ object BatIcon {
     @DrawableRes val ArrowForward = R.drawable.bat_ic_arrow_forward
 
     @DrawableRes val ArrowBack = R.drawable.bat_ic_arrow_back
+
+    @DrawableRes val Star = R.drawable.bat_ic_star
+
+    @DrawableRes val StarFilled = R.drawable.bat_ic_star_filled
 }

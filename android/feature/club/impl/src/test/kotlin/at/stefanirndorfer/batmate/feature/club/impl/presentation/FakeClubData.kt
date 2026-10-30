@@ -15,10 +15,14 @@ import at.stefanirndorfer.batmate.domain.club.Team
 import at.stefanirndorfer.batmate.domain.club.TeamRepository
 import at.stefanirndorfer.batmate.domain.player.Player
 import at.stefanirndorfer.batmate.domain.player.PlayerRepository
+import at.stefanirndorfer.batmate.domain.user.Favorite
+import at.stefanirndorfer.batmate.domain.user.FavoritesRepository
 import at.stefanirndorfer.batmate.domain.user.UserSelection
 import at.stefanirndorfer.batmate.domain.user.UserSelectionRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.update
 
 /** XTTV stand-in: every read throws [DataUnavailable] while [unavailable] is set. */
 class FakeClubData :
@@ -28,8 +32,10 @@ class FakeClubData :
     LeagueRepository,
     FixtureRepository,
     PlayerRepository,
-    UserSelectionRepository {
+    UserSelectionRepository,
+    FavoritesRepository {
     var unavailable = false
+    val favorites = MutableStateFlow<Set<Favorite>>(emptySet())
     var teams = listOf(Team("t1", "Olympic 1", "c1", "l1"))
 
     private val club = Club("c1", "TTC Olympic", "a1")
@@ -70,4 +76,10 @@ class FakeClubData :
     override fun observeSelection(): Flow<UserSelection> = flowOf(UserSelection.None)
 
     override suspend fun saveSelection(selection: UserSelection) = Unit
+
+    override fun observeFavorites(): Flow<Set<Favorite>> = favorites
+
+    override suspend fun add(favorite: Favorite) = favorites.update { it + favorite }
+
+    override suspend fun remove(favorite: Favorite) = favorites.update { it - favorite }
 }

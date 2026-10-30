@@ -10,5 +10,5 @@ sealed interface ClubUiState {
 
     data object Error : ClubUiState
 
-    data class Content(val overview: ClubOverview) : ClubUiState
+    data class Content(val overview: ClubOverview, val isFavorite: Boolean = false) : ClubUiState
 }

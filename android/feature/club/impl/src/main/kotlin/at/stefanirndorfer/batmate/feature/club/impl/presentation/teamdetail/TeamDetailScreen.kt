@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,6 +30,7 @@ import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatCard
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatEmptyState
+import at.stefanirndorfer.batmate.designsystem.ui.components.BatFavoriteButton
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatHeroCard
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatHeroPill
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatPrimaryButton
@@ -67,7 +69,7 @@ fun TeamDetailScreen(
     when (state) {
         TeamDetailUiState.Loading -> LoadingView(modifier)
         TeamDetailUiState.Error -> ErrorView(onRetry = { onAction(TeamDetailAction.RetryClicked) }, modifier = modifier)
-        is TeamDetailUiState.Content -> ContentView(state.detail, modifier)
+        is TeamDetailUiState.Content -> ContentView(state.detail, state.isFavorite, onAction, modifier)
     }
 }
 
@@ -102,7 +104,12 @@ private fun ErrorView(onRetry: () -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ContentView(detail: TeamDetail, modifier: Modifier = Modifier) {
+private fun ContentView(
+    detail: TeamDetail,
+    isFavorite: Boolean,
+    onAction: (TeamDetailAction) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -110,11 +117,27 @@ private fun ContentView(detail: TeamDetail, modifier: Modifier = Modifier) {
             .padding(BatDesign.spacing.lg),
         verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.lg),
     ) {
-        BatHeroCard(modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}) {
-            Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
-                BatHeroPill(text = stringResource(R.string.team_detail_hero_overline))
-                Text(text = detail.team.name, color = BatDesign.colors.onHero, style = BatDesign.typography.display)
-                Text(text = detail.clubName, color = BatDesign.colors.onHero, style = BatDesign.typography.body)
+        BatHeroCard(modifier = Modifier.fillMaxWidth()) {
+            Row(horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.md)) {
+                Column(
+                    modifier = Modifier.weight(1f).semantics(mergeDescendants = true) {},
+                    verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm),
+                ) {
+                    BatHeroPill(text = stringResource(R.string.team_detail_hero_overline))
+                    Text(text = detail.team.name, color = BatDesign.colors.onHero, style = BatDesign.typography.display)
+                    Text(text = detail.clubName, color = BatDesign.colors.onHero, style = BatDesign.typography.body)
+                }
+                BatFavoriteButton(
+                    isFavorite = isFavorite,
+                    contentDescription = stringResource(
+                        if (isFavorite) R.string.team_detail_favorite_remove_cd else R.string.team_detail_favorite_add_cd,
+                        detail.team.name,
+                    ),
+                    stateDescription = stringResource(
+                        if (isFavorite) R.string.core_favorite_on_state else R.string.core_favorite_off_state,
+                    ),
+                    onClick = { onAction(TeamDetailAction.FavoriteClicked) },
+                )
             }
         }
         Column {
@@ -171,6 +194,14 @@ private fun TeamDetailScreenErrorPreview() {
 private fun TeamDetailScreenLoadedPreview() {
     BatPreviewSurface {
         TeamDetailScreen(state = TeamDetailUiState.Content(teamDetailPreview), onAction = {})
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun TeamDetailScreenFavoritePreview() {
+    BatPreviewSurface {
+        TeamDetailScreen(state = TeamDetailUiState.Content(teamDetailPreview, isFavorite = true), onAction = {})
     }
 }
 

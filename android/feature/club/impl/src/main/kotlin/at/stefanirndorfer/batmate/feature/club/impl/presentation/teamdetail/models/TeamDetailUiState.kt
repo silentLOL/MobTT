@@ -7,5 +7,5 @@ sealed interface TeamDetailUiState {
 
     data object Error : TeamDetailUiState
 
-    data class Content(val detail: TeamDetail) : TeamDetailUiState
+    data class Content(val detail: TeamDetail, val isFavorite: Boolean = false) : TeamDetailUiState
 }

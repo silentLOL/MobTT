@@ -5,7 +5,11 @@ import androidx.lifecycle.viewModelScope
 import at.stefanirndorfer.batmate.core.ui.RetryTrigger
 import at.stefanirndorfer.batmate.core.ui.catchUnavailable
 import at.stefanirndorfer.batmate.domain.club.GetClubOverviewUseCase
+import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
+import at.stefanirndorfer.batmate.domain.user.Favorite
+import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
+import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.models.ClubAction
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.models.ClubEvent
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.models.ClubSource
@@ -27,6 +31,9 @@ class ClubViewModel(
     source: ClubSource,
     observeUserContext: ObserveUserContextUseCase,
     private val getClubOverview: GetClubOverviewUseCase,
+    private val observeFavorites: ObserveFavoritesUseCase,
+    private val addFavorite: AddFavoriteUseCase,
+    private val removeFavorite: RemoveFavoriteUseCase,
 ) : ViewModel() {
     private val retry = RetryTrigger()
 
@@ -47,7 +54,14 @@ class ClubViewModel(
                 emit(ClubUiState.NoClub)
             } else {
                 emit(ClubUiState.Loading)
-                emit(load(id))
+                val state = load(id)
+                if (state is ClubUiState.Content) {
+                    observeFavorites().collect { favorites ->
+                        emit(state.copy(isFavorite = Favorite.Club(id) in favorites))
+                    }
+                } else {
+                    emit(state)
+                }
             }
         }
         .catchUnavailable(ClubUiState.Error)
@@ -60,6 +74,19 @@ class ClubViewModel(
             ClubAction.ChooseClicked -> viewModelScope.launch { eventChannel.send(ClubEvent.OpenSettings) }
             is ClubAction.TeamClicked -> viewModelScope.launch { eventChannel.send(ClubEvent.OpenTeam(action.teamId)) }
             ClubAction.RetryClicked -> retry.retry()
+            ClubAction.FavoriteClicked -> toggleFavorite()
+        }
+    }
+
+    private fun toggleFavorite() {
+        val content = uiState.value as? ClubUiState.Content ?: return
+        val favorite = Favorite.Club(content.overview.club.id)
+        viewModelScope.launch {
+            if (content.isFavorite) {
+                removeFavorite(favorite)
+            } else {
+                addFavorite(favorite)
+            }
         }
     }
 

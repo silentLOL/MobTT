@@ -4,13 +4,13 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] The Club and Team screens show a star that reflects whether the item is a Favorite
-- [ ] Tapping the star adds or removes the Favorite, and Home shows the change
-- [ ] The ViewModels expose the Favorite state in their single UI state and handle the toggle through `onAction`; screens stay stateless
-- [ ] ViewModel tests cover toggling on and off against fake repositories and assert only observable outcomes
-- [ ] German and English strings, with accessibility labels that announce the state and the action
-- [ ] Previews cover favourited, not favourited and a long-name state
+- [x] The Club and Team screens show a star that reflects whether the item is a Favorite
+- [x] Tapping the star adds or removes the Favorite, and Home shows the change
+- [x] The ViewModels expose the Favorite state in their single UI state and handle the toggle through `onAction`; screens stay stateless
+- [x] ViewModel tests cover toggling on and off against fake repositories and assert only observable outcomes
+- [x] German and English strings, with accessibility labels that announce the state and the action
+- [x] Previews cover favourited, not favourited and a long-name state
 
 **Manual check outstanding:** 200% font scale and TalkBack on a device.

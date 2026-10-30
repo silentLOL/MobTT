@@ -7,6 +7,6 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val clubModule = module {
-    viewModel { params -> ClubViewModel(params.get<ClubSource>(), get(), get()) }
-    viewModel { params -> TeamDetailViewModel(params.get<String>(), get()) }
+    viewModel { params -> ClubViewModel(params.get<ClubSource>(), get(), get(), get(), get(), get()) }
+    viewModel { params -> TeamDetailViewModel(params.get<String>(), get(), get(), get(), get()) }
 }

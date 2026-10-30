@@ -1,7 +1,11 @@
 package at.stefanirndorfer.batmate.feature.club.impl.presentation.club
 
 import at.stefanirndorfer.batmate.domain.club.GetClubOverviewUseCase
+import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
+import at.stefanirndorfer.batmate.domain.user.Favorite
+import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
+import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.FakeClubData
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.models.ClubAction
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.models.ClubSource
@@ -18,6 +22,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
@@ -36,6 +41,9 @@ class ClubViewModelTest {
             source = ClubSource.Specific("c1"),
             observeUserContext = ObserveUserContextUseCase(data, data, data, data),
             getClubOverview = GetClubOverviewUseCase(data, data, data, data, data),
+            observeFavorites = ObserveFavoritesUseCase(data),
+            addFavorite = AddFavoriteUseCase(data, data),
+            removeFavorite = RemoveFavoriteUseCase(data),
         )
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel
@@ -70,5 +78,46 @@ class ClubViewModelTest {
 
         val state = assertIs<ClubUiState.Content>(viewModel.uiState.value)
         assertTrue(state.overview.teams.isEmpty())
+    }
+
+    @Test
+    fun aClubThatIsNotFavoriteShowsAsNotFavorite() = runTest {
+        val viewModel = viewModel()
+
+        assertFalse(assertIs<ClubUiState.Content>(viewModel.uiState.value).isFavorite)
+    }
+
+    @Test
+    fun tappingTheStarAddsTheClubAsFavoriteAndTappingAgainRemovesIt() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onAction(ClubAction.FavoriteClicked)
+        assertEquals(setOf<Favorite>(Favorite.Club("c1")), data.favorites.value)
+        assertTrue(assertIs<ClubUiState.Content>(viewModel.uiState.value).isFavorite)
+
+        viewModel.onAction(ClubAction.FavoriteClicked)
+        assertEquals(emptySet(), data.favorites.value)
+        assertFalse(assertIs<ClubUiState.Content>(viewModel.uiState.value).isFavorite)
+    }
+
+    @Test
+    fun aClubAlreadyFavoriteShowsAsFavoriteAndOtherFavoritesStayUntouched() = runTest {
+        data.favorites.value = setOf(Favorite.Club("c1"), Favorite.Team("t1"))
+        val viewModel = viewModel()
+        assertTrue(assertIs<ClubUiState.Content>(viewModel.uiState.value).isFavorite)
+
+        viewModel.onAction(ClubAction.FavoriteClicked)
+
+        assertEquals(setOf<Favorite>(Favorite.Team("t1")), data.favorites.value)
+    }
+
+    @Test
+    fun tappingTheStarWithoutContentChangesNothing() = runTest {
+        data.unavailable = true
+        val viewModel = viewModel()
+
+        viewModel.onAction(ClubAction.FavoriteClicked)
+
+        assertEquals(emptySet(), data.favorites.value)
     }
 }

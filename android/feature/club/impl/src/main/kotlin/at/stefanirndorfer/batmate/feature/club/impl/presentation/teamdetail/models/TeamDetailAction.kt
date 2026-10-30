@@ -2,4 +2,6 @@ package at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.mod
 
 sealed interface TeamDetailAction {
     data object RetryClicked : TeamDetailAction
+
+    data object FavoriteClicked : TeamDetailAction
 }

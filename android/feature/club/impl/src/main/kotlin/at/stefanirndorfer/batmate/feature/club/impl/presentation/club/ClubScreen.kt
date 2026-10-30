@@ -3,6 +3,7 @@ package at.stefanirndorfer.batmate.feature.club.impl.presentation.club
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,6 +28,7 @@ import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatEmptyState
+import at.stefanirndorfer.batmate.designsystem.ui.components.BatFavoriteButton
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatHeroCard
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatHeroPill
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatPrimaryButton
@@ -87,7 +89,7 @@ fun ClubScreen(
             announce = true,
             modifier = modifier,
         )
-        is ClubUiState.Content -> ContentView(state.overview, onAction, modifier)
+        is ClubUiState.Content -> ContentView(state.overview, state.isFavorite, onAction, modifier)
     }
 }
 
@@ -129,7 +131,12 @@ private fun MessageView(
 }
 
 @Composable
-private fun ContentView(overview: ClubOverview, onAction: (ClubAction) -> Unit, modifier: Modifier = Modifier) {
+private fun ContentView(
+    overview: ClubOverview,
+    isFavorite: Boolean,
+    onAction: (ClubAction) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -138,10 +145,26 @@ private fun ContentView(overview: ClubOverview, onAction: (ClubAction) -> Unit, 
         verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.lg),
     ) {
         BatHeroCard(modifier = Modifier.fillMaxWidth()) {
-            Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
-                BatHeroPill(text = stringResource(R.string.club_hero_overline))
-                Text(text = overview.club.name, color = BatDesign.colors.onHero, style = BatDesign.typography.display)
-                Text(text = overview.association.name, color = BatDesign.colors.onHero, style = BatDesign.typography.body)
+            Row(horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.md)) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm),
+                ) {
+                    BatHeroPill(text = stringResource(R.string.club_hero_overline))
+                    Text(text = overview.club.name, color = BatDesign.colors.onHero, style = BatDesign.typography.display)
+                    Text(text = overview.association.name, color = BatDesign.colors.onHero, style = BatDesign.typography.body)
+                }
+                BatFavoriteButton(
+                    isFavorite = isFavorite,
+                    contentDescription = stringResource(
+                        if (isFavorite) R.string.club_favorite_remove_cd else R.string.club_favorite_add_cd,
+                        overview.club.name,
+                    ),
+                    stateDescription = stringResource(
+                        if (isFavorite) R.string.core_favorite_on_state else R.string.core_favorite_off_state,
+                    ),
+                    onClick = { onAction(ClubAction.FavoriteClicked) },
+                )
             }
         }
         Column {
@@ -191,6 +214,14 @@ private fun ClubScreenErrorPreview() {
 private fun ClubScreenLoadedPreview() {
     BatPreviewSurface {
         ClubScreen(state = ClubUiState.Content(clubOverviewPreview), onAction = {})
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun ClubScreenFavoritePreview() {
+    BatPreviewSurface {
+        ClubScreen(state = ClubUiState.Content(clubOverviewPreview, isFavorite = true), onAction = {})
     }
 }
 
