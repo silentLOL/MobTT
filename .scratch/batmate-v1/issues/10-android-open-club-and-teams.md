@@ -1,10 +1,11 @@
+---
+status: ready-for-agent
+blocked_by: [3, 6, 8]
+---
+
 # 10: Android: open a Club and see its Teams
 
 **What to build:** on Android the user opens a Club from My Club, My Player's Club or a Favorite Club, and sees its Teams. Each Team shows its League, its standing in that League and its next Fixture, or a "free week" when it has none. Until the XTTV API exists this runs against the fake directory, so the slice is demoable now. It carries the shared League, Fixture and standing domain that the iOS ticket reuses.
-
-**Blocked by:** 03, 06, 08
-
-**Status:** ready-for-agent
 
 - [x] Domain models exist for League, Fixture and a Team's standing, using the glossary terms; a Fixture's score counts Matches won, and existing `Team` users keep working
 - [x] Repository interfaces for Teams, Leagues and Fixtures live in separate files from any implementation

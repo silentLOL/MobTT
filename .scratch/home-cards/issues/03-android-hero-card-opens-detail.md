@@ -1,10 +1,11 @@
+---
+status: ready-for-agent
+blocked_by: [1]
+---
+
 # 03: Android: the hero card opens its detail
 
 **What to build:** on Android, the hero card on Home is tappable. The My Player hero opens that Player's detail; the My Club hero opens the existing Club screen, which must show a top-left back chevron when opened from Home.
-
-**Blocked by:** 01 (Android: a Player Favorite opens Player detail).
-
-**Status:** ready-for-agent
 
 - [ ] Tapping the hero for My Player opens Player detail; tapping the hero for My Club opens that Club
 - [ ] The Club screen shows a top-left back chevron when opened from Home, and it returns to Home

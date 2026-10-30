@@ -1,10 +1,11 @@
+---
+status: resolved
+blocked_by: []
+---
+
 # 01: Shared KMP foundation
 
 **What to build:** both apps start with a shared Kotlin core that a UseCase can run on. A `bat.kmp.library` convention plugin exists beside `bat.android.library`, `:core:di` exposes `initKoin` and both apps call it at launch. The template `shared` module is replaced by `shared-umbrella`, which is the only framework Xcode links, and SKIE is applied. A trivial UseCase proves a `kotlin-test` test runs on Android and iOS targets.
-
-**Blocked by:** None (can start immediately)
-
-**Status:** done
 
 - [x] Shared modules in `core/` and `domain/` apply `bat.kmp.library` and target Android and iOS
 - [x] `initKoin` registers modules from a single place and is called by the Android app and the iOS app

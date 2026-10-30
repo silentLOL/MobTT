@@ -1,10 +1,11 @@
+---
+status: resolved
+blocked_by: [5, 6]
+---
+
 # 07: Android error states for unavailable data
 
 **What to build:** On Android, when XTTV cannot be reached the user sees a clear, retryable error on Home, Club and Team detail, and can tell it apart from "this Club has no Teams".
-
-**Blocked by:** 05 Fixtures from XTTV, 06 League standings from XTTV.
-
-**Status:** done
 
 - [x] Home, Club and Team detail each show an error state with a retry action when a repository throws `DataUnavailable`.
 - [x] Retry reloads the data; success clears the error.

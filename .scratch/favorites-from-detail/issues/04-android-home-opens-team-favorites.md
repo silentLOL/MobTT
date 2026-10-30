@@ -1,10 +1,13 @@
+---
+status: resolved
+blocked_by: []
+---
+
 # 04: Android: Home opens a Team Favorite
 
 **What to build:** on Android, tapping a Team Favorite in Home's Favorites list opens that Team's detail screen, the way a Club Favorite already opens its Club. Ticket 03 made Home list Team Favorites, but their rows have no tap-through on Android; the Team screen is already reachable through the Club feature's public navigation entry, so Home only needs to depend on that API module.
 
-**Blocked by:** None (can start immediately). Tickets 01 and 03 are committed.
-
-**Status:** done
+Note: None (can start immediately). Tickets 01 and 03 are committed.
 
 - [x] Tapping a Team Favorite row opens that Team's detail screen
 - [x] Club Favorite rows still open the Club, and Player rows stay non-interactive, as today

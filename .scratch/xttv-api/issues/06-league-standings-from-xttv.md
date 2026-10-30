@@ -1,10 +1,11 @@
+---
+status: resolved
+blocked_by: [4]
+---
+
 # 06: League standings from XTTV
 
 **What to build:** The League table on Team detail and the Club screen shows real standings, ordered by position.
-
-**Blocked by:** 04 Teams from XTTV.
-
-**Status:** done
 
 - [x] `LeagueRepository.getLeague` and `getStandings` are backed by XTTV's league and team-standings data.
 - [x] Standings are ordered by position and carry played and points.

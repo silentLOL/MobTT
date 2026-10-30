@@ -1,6 +1,7 @@
-# Home cards open their detail screens
+---
+---
 
-**Status:** ready-for-agent
+# Home cards open their detail screens
 
 ## Problem Statement
 

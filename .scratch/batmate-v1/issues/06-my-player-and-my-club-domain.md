@@ -1,10 +1,11 @@
+---
+status: resolved
+blocked_by: [1]
+---
+
 # 06: My Player and My Club domain
 
 **What to build:** the shared domain can remember who the user is. A user chooses My Player or My Club, exactly one is active, and the Club and Association shown are always derived. The choice survives restarts.
-
-**Blocked by:** 01
-
-**Status:** done
 
 - [x] Domain models exist for Association, Club, Team and Player, using the glossary terms, with a Player belonging to exactly one Club
 - [x] UseCases set and observe the user's choice as `Flow` or `suspend`

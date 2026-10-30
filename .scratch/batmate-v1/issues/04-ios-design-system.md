@@ -1,10 +1,11 @@
+---
+status: resolved
+blocked_by: []
+---
+
 # 04: iOS design system
 
 **What to build:** the iOS app has the same visual language as Android. Colours, typography, spacing, shadows and background follow the same token names and the contrast-corrected values from ADR-0003, and SwiftUI components mirror the Android ones.
-
-**Blocked by:** None (can start immediately)
-
-**Status:** done
 
 - [x] Palette and semantic colour sets exist in the asset catalog, with dark appearances on the semantic sets
 - [x] `BatColor`, `BatTypography`, `BatSpacing` and shape and sizing accessors use the same names as Android

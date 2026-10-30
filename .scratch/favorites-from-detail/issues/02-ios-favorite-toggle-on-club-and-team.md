@@ -1,10 +1,11 @@
+---
+status: resolved
+blocked_by: []
+---
+
 # 02: iOS: favorite toggle on Club and Team screens
 
 **What to build:** on iOS, the Club and Team screens show a star. Tapping it adds or removes the shown Club or Team as a Favorite, and Home reflects the change. It uses the existing Favorites UseCases through the Koin helper; persistence and deduplication already exist and do not change.
-
-**Blocked by:** None (can start immediately).
-
-**Status:** done
 
 - [x] The Club and Team screens show a star that reflects whether the item is a Favorite
 - [x] Tapping the star adds or removes the Favorite, and Home shows the change for Clubs (Teams on Home: ticket 03)

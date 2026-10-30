@@ -1,10 +1,11 @@
+---
+status: resolved
+blocked_by: [5, 6]
+---
+
 # 08: iOS error states for unavailable data
 
 **What to build:** On iOS, the same behaviour as ticket 07: a retryable error on Home, Club and Team detail, distinct from an empty result, with the data error arriving in Swift as a typed error through SKIE.
-
-**Blocked by:** 05 Fixtures from XTTV, 06 League standings from XTTV.
-
-**Status:** done
 
 - [x] The Swift ViewModels catch `DataUnavailable` as a typed error, with no string matching.
 - [x] Home, Club and Team detail show an error state with retry; success clears it.

@@ -1,6 +1,7 @@
-# Favorites from detail screens
+---
+---
 
-**Status:** ready-for-agent
+# Favorites from detail screens
 
 ## Problem Statement
 

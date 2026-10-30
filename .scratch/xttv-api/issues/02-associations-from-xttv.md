@@ -1,10 +1,11 @@
+---
+status: resolved
+blocked_by: [1]
+---
+
 # 02: Associations from XTTV
 
 **What to build:** The first real data end to end. The Association list comes from XTTV (its "Federation" list), the host that serves each Association is chosen in one place, and every non-debug build on both platforms binds the XTTV-backed repositories while `deb` keeps the fake directory. This removes the release `TODO` and is the first slice that can be demoed against recorded data. See ADR-0007 and ADR-0008.
-
-**Blocked by:** 01 XTTV client foundation.
-
-**Status:** done
 
 - [x] `AssociationRepository` returns Associations built from recorded XTTV federation XML; XTTV's "Federation" term appears only in the data layer.
 - [x] A single host resolver maps an Association to its host, with `AppConfig` supplying the default host.

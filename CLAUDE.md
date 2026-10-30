@@ -217,7 +217,15 @@ Moved to [`CODING_STANDARDS.md`](CODING_STANDARDS.md) §16.
 Issues and specs live as markdown files under `.scratch/<feature>/`. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
-Default five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), recorded as a `Status:` line in each issue file. See `docs/agents/triage-labels.md`.
+The five canonical roles, except `wontfix` is written as `wont-do` and `needs-info` as `needs-human`. See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 Single-context: one `GLOSSARY.md` at the repo root plus `docs/adr/`. See `docs/agents/domain.md`.
+
+## Tracker contract
+
+These rules point at the operations in `docs/agents/issue-tracker.md` and win over any template or step inside a skill:
+
+- Ticket files follow the "Ticket file format", which wins over any ticket template inside a skill.
+- Working a ticket starts with "Claim", the first write before any other work, and ends with "Resolve". The commit that finishes the ticket's work, after any review fixes, carries the Resolve: tick its boxes and set `status: resolved` before running `git commit`. A ticket is never left `claimed` once its work is committed.
+- A map with no open tickets and nothing under "Not yet specified" is completed by "Complete the map".

@@ -1,10 +1,11 @@
+---
+status: resolved
+blocked_by: []
+---
+
 # 01: Android: a Player Favorite opens Player detail
 
 **What to build:** on Android, tapping a Player Favorite row on Home opens a new Player detail screen showing the Player's name, Club and Association, a Favorite star and a top-left back chevron. A Player that cannot be resolved shows an unavailable state. This includes the shared way of resolving one Player to those details.
-
-**Blocked by:** None (can start immediately).
-
-**Status:** done
 
 - [x] A shared UseCase resolves a Player ID to name, Club name and Association name; an unresolvable Player yields a data-unavailable result, not an exception. It is registered in `:core:di` and reachable from the iOS Koin helper
 - [x] Tapping a Player Favorite row opens that Player's detail; Club and Team rows behave as today

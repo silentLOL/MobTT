@@ -1,10 +1,11 @@
+---
+status: needs-human
+blocked_by: [6]
+---
+
 # 10: Verify against the live API and settle ADR-0008
 
 **What to build:** Replace the hand-written sample XML with real XTTV responses and confirm the assumptions the earlier tickets rest on: the host layout, how IDs are unique, authentication and acceptable request rate. This needs registration with XTTV, which only the project owner can do.
-
-**Blocked by:** XTTV's reply to the registration email, and 06 League standings from XTTV.
-
-**Status:** ready-for-human
 
 **Progress:** Registration email sent to XTTV on 2026-10-18 (asks the ADR-0008 questions: access, base URLs, schemas, ID uniqueness, date format, staging, request rate). Waiting for the reply; tickets 09 and 10 resume then.
 
@@ -15,3 +16,7 @@
 - [ ] If IDs collide, the composite ID format and a Favorites migration are specified before anything ships to `prod`.
 - [ ] The request rate XTTV allows is checked against the TTLs and concurrency cap, and they are adjusted if needed.
 - [ ] Favorites persistence on XTTV IDs is cleared to ship, or held back.
+
+## Comments
+
+- 2026-10-30: Blocked by: XTTV's reply to the registration email, and 06 League standings from XTTV.

@@ -1,10 +1,11 @@
+---
+status: resolved
+blocked_by: [3]
+---
+
 # 04: Teams from XTTV
 
 **What to build:** The Club screen's Teams list and Team lookup show real Teams. A Club with no Teams shows an empty list, never an error.
-
-**Blocked by:** 03 Clubs from XTTV.
-
-**Status:** done
 
 - [x] `TeamRepository.getTeams` and `getTeam` are backed by XTTV's league-team and team-detail data, mapping each Team to its Club and League.
 - [x] A Club with no Teams returns an empty list; an unknown Team returns `null`; a failed request throws `DataUnavailable`.

@@ -1,10 +1,13 @@
+---
+status: ready-for-agent
+blocked_by: [10, 11]
+---
+
 # 12: Upcoming Fixtures for My Player's Teams on Home
 
 **What to build:** on both platforms, Home shows the upcoming Fixtures for the Teams of My Player (or the Teams of My Club), each with date, time, opponent and venue. A Team with no Fixture reads as a free week, not as an error.
 
-**Blocked by:** 10, 11
-
-**Status:** ready-for-agent (the venue field is `needs-info` until the XTTV docs or sample responses exist)
+Note: ready-for-agent (the venue field is `needs-info` until the XTTV docs or sample responses exist)
 
 - [x] A shared UseCase observes upcoming Fixtures for the Teams derived from the user's choice, ordered by date
 - [x] Home on Android and on iOS shows date, time, opponent and venue per Fixture, with the free-week state

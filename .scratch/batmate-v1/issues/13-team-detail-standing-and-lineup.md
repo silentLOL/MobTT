@@ -1,10 +1,11 @@
+---
+status: ready-for-human
+blocked_by: [10, 11]
+---
+
 # 13: Team detail: full standing and lineup
 
 **What to build:** tapping a Team opens its detail, showing the full League table with the Team highlighted and the Team's lineup of Players.
-
-**Blocked by:** 10, 11
-
-**Status:** ready-for-human
 
 Built against the fake directory at the owner's explicit request, although the XTTV docs are still missing. `TeamDetail`, `LineupPlayer` and `TeamRepository.getLineup` are **provisional**: the lineup content and the full League table shape are not in the documented API (spec "Blocked on API"). Revisit them when the XTTV docs or sample responses arrive; the real repository may reshape them. Lineup rows are not tappable because the Player profile does not exist yet.
 

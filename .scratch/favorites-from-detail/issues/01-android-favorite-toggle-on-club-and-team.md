@@ -1,10 +1,11 @@
+---
+status: resolved
+blocked_by: []
+---
+
 # 01: Android: favorite toggle on Club and Team screens
 
 **What to build:** on Android, the Club and Team screens show a star. Tapping it adds or removes the shown Club or Team as a Favorite, and Home reflects the change. It uses the existing Favorites UseCases; persistence, deduplication and independence from My Player and My Club already exist and do not change.
-
-**Blocked by:** None (can start immediately).
-
-**Status:** done
 
 - [x] The Club and Team screens show a star that reflects whether the item is a Favorite
 - [x] Tapping the star adds or removes the Favorite, and Home shows the change

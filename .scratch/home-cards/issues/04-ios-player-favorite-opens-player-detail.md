@@ -1,10 +1,13 @@
+---
+status: ready-for-agent
+blocked_by: [1]
+---
+
 # 04: iOS: a Player Favorite opens Player detail
 
 **What to build:** on iOS, tapping a Player Favorite row on Home opens a new Player detail view showing the Player's name, Club and Association, a Favorite star and the native back chevron at the top left. A Player that cannot be resolved shows an unavailable state.
 
-**Blocked by:** 01 (Android: a Player Favorite opens Player detail), for the shared Player resolution.
-
-**Status:** ready-for-agent
+Note: 01 (Android: a Player Favorite opens Player detail), for the shared Player resolution.
 
 - [ ] Tapping a Player Favorite row opens that Player's detail; Club and Team rows behave as today
 - [ ] A Player route in the Home `NavigationStack` in `ShellScreen`, like the Club and Team routes

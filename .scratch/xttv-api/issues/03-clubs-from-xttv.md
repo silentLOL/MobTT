@@ -1,10 +1,11 @@
+---
+status: resolved
+blocked_by: [2]
+---
+
 # 03: Clubs from XTTV
 
 **What to build:** Club search and lookup use real XTTV data. A user can search for their Club by name, open it and set it as My Club, and the Club's Association (and so its XTTV host) is derived automatically.
-
-**Blocked by:** 02 Associations from XTTV.
-
-**Status:** done
 
 - [x] `ClubRepository.getClub` and `searchClubs` are backed by the Club list and Club details from XTTV.
 - [x] A blank query lists everything; otherwise results match on Club name, as today.

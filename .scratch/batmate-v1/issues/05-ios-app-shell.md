@@ -1,10 +1,11 @@
+---
+status: resolved
+blocked_by: [1, 4]
+---
+
 # 05: iOS app shell
 
 **What to build:** launching the iOS app shows a native shell with the four tabs Home, Club, Players and Live, a Settings sheet, and an empty state per tab. Text is German or English following the device language.
-
-**Blocked by:** 01, 04
-
-**Status:** done
 
 - [x] A `TabView` presents the four tabs, built only from the iOS design system
 - [x] `.xcstrings` hold German and English using the `{module}_{context}_{type}` keys

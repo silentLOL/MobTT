@@ -1,11 +1,13 @@
 # Triage Labels
 
-| Role              | Label in our tracker | Meaning                                  |
-| ----------------- | -------------------- | ---------------------------------------- |
-| `needs-triage`    | `needs-triage`       | Maintainer needs to evaluate this issue  |
-| `needs-info`      | `needs-info`         | Waiting on reporter for more information |
-| `ready-for-agent` | `ready-for-agent`    | Fully specified, ready for an AFK agent  |
-| `ready-for-human` | `ready-for-human`    | Requires human implementation            |
-| `wontfix`         | `wontfix`            | Will not be actioned                     |
+The skills speak of five triage roles. A role is written as a string in the Ticket's `status` front matter key, from the Tracker contract's [Status vocabulary](../../.agents/skills/frontier-setup/references/tracker-contract.md#status-vocabulary):
 
-When a skill mentions a role, use the corresponding label string from this table.
+| Role in mattpocock/skills | `status` written |
+|---|---|
+| `needs-triage` | `needs-triage` |
+| `needs-info` | `needs-human` |
+| `ready-for-agent` | `ready-for-agent` |
+| `ready-for-human` | `ready-for-human` |
+| `wontfix` | `wont-do` |
+
+When a skill mentions a role, write the string from this table.

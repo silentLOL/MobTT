@@ -1,6 +1,7 @@
-# MobTT v1: follow Clubs, Teams, Players and Fixtures
+---
+---
 
-Status: ready-for-agent
+# MobTT v1: follow Clubs, Teams, Players and Fixtures
 
 Scope note: the parts that depend on the undocumented XTTV XML v1 API are listed under "Blocked on API" in Further Notes and are `needs-info` until the docs or sample responses are provided. Everything else is ready to build.
 

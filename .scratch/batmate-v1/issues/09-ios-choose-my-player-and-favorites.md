@@ -1,10 +1,11 @@
+---
+status: resolved
+blocked_by: [5, 6, 7]
+---
+
 # 09: iOS: choose My Player and Favorites on Home
 
 **What to build:** on iOS the user opens Settings, picks My Player or My Club, and sees Home reflect it, with their Favorites as quick access. Until the XTTV API exists this runs against the same fake directory, so the slice is demoable now.
-
-**Blocked by:** 05, 06, 07
-
-**Status:** done
 
 - [x] The Settings sheet offers My Player and My Club, and the Club and Association are shown derived, not editable
 - [x] Home shows the chosen Player or Club, and Favorites as quick access with add and remove

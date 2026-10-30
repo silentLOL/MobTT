@@ -1,6 +1,7 @@
-# Spec: Real data from the XTTV API
+---
+---
 
-**Status:** ready-for-agent
+# Spec: Real data from the XTTV API
 
 ## Problem Statement
 
