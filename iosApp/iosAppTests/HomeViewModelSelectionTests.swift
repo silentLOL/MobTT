@@ -90,7 +90,7 @@ struct HomeViewModelSelectionTests {
     ) -> HomeViewModel {
         HomeViewModel(
             observeUserContext: finite(userContext),
-            observeResolvedFavorites: finite([DataResult]()),
+            observeHomeFavorites: finite([DataResult]()),
             observeUpcomingFixtures: finite(fixtures),
             observeFavorites: finite([Set<AnyHashable>()]),
             addFavorite: { _ in },

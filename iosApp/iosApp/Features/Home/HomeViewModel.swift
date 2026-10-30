@@ -17,7 +17,7 @@ final class HomeViewModel {
     private(set) var retryCount = 0
 
     @ObservationIgnored private let observeUserContext: any AsyncSequence<DataResult, Never>
-    @ObservationIgnored private let observeResolvedFavorites: any AsyncSequence<DataResult, Never>
+    @ObservationIgnored private let observeHomeFavorites: any AsyncSequence<DataResult, Never>
     @ObservationIgnored private let observeUpcomingFixtures: any AsyncSequence<UpcomingFixtures, Never>
     @ObservationIgnored private let observeFavorites: any AsyncSequence<Set<AnyHashable>, Never>
     @ObservationIgnored private let addFavorite: (Favorite) async throws -> Void
@@ -27,7 +27,7 @@ final class HomeViewModel {
 
     init(
         observeUserContext: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeUserContext(),
-        observeResolvedFavorites: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeResolvedFavorites(),
+        observeHomeFavorites: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeHomeFavorites(),
         observeUpcomingFixtures: any AsyncSequence<UpcomingFixtures, Never> = KoinHelper.shared.getObserveUpcomingFixturesUseCase().invoke(),
         observeFavorites: any AsyncSequence<Set<AnyHashable>, Never> = KoinHelper.shared.getObserveFavoritesUseCase().invoke(),
         addFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getAddFavoriteUseCase().invoke(favorite: $0) },
@@ -36,7 +36,7 @@ final class HomeViewModel {
         searchClubs: @escaping (String) async -> [Club] = { (try? await KoinHelper.shared.getSearchClubsUseCase().invoke(query: $0)) ?? [] }
     ) {
         self.observeUserContext = observeUserContext
-        self.observeResolvedFavorites = observeResolvedFavorites
+        self.observeHomeFavorites = observeHomeFavorites
         self.observeUpcomingFixtures = observeUpcomingFixtures
         self.observeFavorites = observeFavorites
         self.addFavorite = addFavorite
@@ -125,7 +125,7 @@ final class HomeViewModel {
     }
 
     private func observeResolved() async {
-        for await result in observeResolvedFavorites {
+        for await result in observeHomeFavorites {
             switch onEnum(of: result) {
             case .success(let success): favorites = (success.value as? [ResolvedFavorite])?.map { $0.toUi() } ?? []
             case .unavailable: favorites = []

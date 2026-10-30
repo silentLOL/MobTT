@@ -17,6 +17,23 @@ struct HomeViewModelFavoritesTests {
         #expect(viewModel.uiState.favorites == [HomeFavoriteUi(kind: .club, entityId: "c1", name: "TTC Olympic", detail: "WTTV")])
     }
 
+    @Test func theHeroIsAbsentFromTheListAndReappearsWhenTheHeroChanges() async {
+        let hero = ResolvedFavorite(favorite: FavoriteClub(id: "c1"), name: "TTC Olympic", detail: "WTTV")
+        let other = ResolvedFavorite(favorite: FavoriteTeam(id: "t1"), name: "Olympic 1", detail: "TTC Olympic")
+        // The shared Home stream omits the hero Favorite, then includes it once My Club points elsewhere.
+        let viewModel = makeViewModel(resolved: [success([other])])
+
+        await viewModel.observe()
+
+        #expect(viewModel.uiState.favorites.map(\.entityId) == ["t1"])
+
+        let changed = makeViewModel(resolved: [success([other]), success([hero, other])])
+
+        await changed.observe()
+
+        #expect(changed.uiState.favorites.map(\.entityId) == ["c1", "t1"])
+    }
+
     @Test func teamFavoritesAppearInTheListWithTheirClub() async {
         let resolved = ResolvedFavorite(favorite: FavoriteTeam(id: "t1"), name: "Olympic 1", detail: "TTC Olympic")
         let viewModel = makeViewModel(resolved: [success([resolved])])
@@ -179,7 +196,7 @@ struct HomeViewModelFavoritesTests {
     ) -> HomeViewModel {
         HomeViewModel(
             observeUserContext: finite(userContext),
-            observeResolvedFavorites: finite(resolved),
+            observeHomeFavorites: finite(resolved),
             observeUpcomingFixtures: finite([UpcomingFixturesNoSelection.shared as UpcomingFixtures]),
             observeFavorites: finite([favorites]),
             addFavorite: addFavorite,

@@ -1,5 +1,5 @@
 ---
-status: ready-for-agent
+status: resolved
 blocked_by: [2]
 ---
 
@@ -7,6 +7,6 @@ blocked_by: [2]
 
 **What to build:** on iOS, Home's Favorites list no longer repeats the Player or Club shown as the hero card, using the shared filtered stream from ticket 02. The stored Favorite reappears when the hero changes.
 
-- [ ] iOS Home lists Favorites from the shared stream that omits the hero Favorite
-- [ ] Changing the hero makes the previously hidden Favorite reappear
-- [ ] Swift tests at the Home ViewModel seam cover the hero absent from the Favorites list and its reappearance
+- [x] iOS Home lists Favorites from the shared stream that omits the hero Favorite
+- [x] Changing the hero makes the previously hidden Favorite reappear
+- [x] Swift tests at the Home ViewModel seam cover the hero absent from the Favorites list and its reappearance
