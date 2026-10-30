@@ -1,5 +1,5 @@
 ---
-status: ready-for-agent
+status: resolved
 blocked_by: [1]
 ---
 
@@ -9,11 +9,11 @@ blocked_by: [1]
 
 Note: 01 (Android: a Player Favorite opens Player detail), for the shared Player resolution.
 
-- [ ] Tapping a Player Favorite row opens that Player's detail; Club and Team rows behave as today
-- [ ] A Player route in the Home `NavigationStack` in `ShellScreen`, like the Club and Team routes
-- [ ] Player detail shows name, Club, Association, a Favorite star that adds or removes the Favorite, and a back chevron at the top left
-- [ ] An unresolvable Player shows an unavailable state instead of going blank
-- [ ] Swift tests at the Home ViewModel seam cover the Player-row tap; the Player detail ViewModel covers loaded, unavailable and star toggle
-- [ ] Previews for the Player detail and a Player row; VoiceOver labels and button trait, 44pt touch targets, Dynamic Type safe, String Catalog EN and DE
+- [x] Tapping a Player Favorite row opens that Player's detail; Club and Team rows behave as today
+- [x] A Player route in the Home `NavigationStack` in `ShellScreen`, like the Club and Team routes
+- [x] Player detail shows name, Club, Association, a Favorite star that adds or removes the Favorite, and a back chevron at the top left
+- [x] An unresolvable Player shows an unavailable state instead of going blank
+- [x] Swift tests at the Home ViewModel seam cover the Player-row tap; the Player detail ViewModel covers loaded, unavailable and star toggle
+- [x] Previews for the Player detail and a Player row; VoiceOver labels and button trait, 44pt touch targets, Dynamic Type safe, String Catalog EN and DE
 
 **Manual check outstanding:** VoiceOver, 200% Dynamic Type and the back chevron on a device.

@@ -5,6 +5,7 @@ struct HomeRoute: View {
     let onOpenMyClub: () -> Void
     let onOpenClub: (String) -> Void
     let onOpenTeam: (String) -> Void
+    let onOpenPlayer: (String) -> Void
 
     @State private var viewModel = HomeViewModel()
 
@@ -18,6 +19,7 @@ struct HomeRoute: View {
                     case .openMyClub: onOpenMyClub()
                     case .openClub(let clubId): onOpenClub(clubId)
                     case .openTeam(let teamId): onOpenTeam(teamId)
+                    case .openPlayer(let playerId): onOpenPlayer(playerId)
                     }
                 }
             }
@@ -32,7 +34,7 @@ struct HomeScreen: View {
         switch favorite.kind {
         case .club: { onAction(.favoriteClubClicked(id: favorite.entityId)) }
         case .team: { onAction(.favoriteTeamClicked(id: favorite.entityId)) }
-        case .player: nil
+        case .player: { onAction(.favoritePlayerClicked(id: favorite.entityId)) }
         }
     }
 

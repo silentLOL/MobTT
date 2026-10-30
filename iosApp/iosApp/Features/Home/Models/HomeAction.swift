@@ -5,6 +5,7 @@ enum HomeAction {
     case retryFixturesClicked
     case favoriteClubClicked(id: String)
     case favoriteTeamClicked(id: String)
+    case favoritePlayerClicked(id: String)
     case removeFavoriteClicked(HomeFavoriteUi)
     case pickerQueryChanged(String)
     case browsePlayersClicked
@@ -19,4 +20,5 @@ enum HomeEvent {
     case openMyClub
     case openClub(clubId: String)
     case openTeam(teamId: String)
+    case openPlayer(playerId: String)
 }

@@ -4,6 +4,10 @@ private struct ClubDetailRoute: Hashable {
     let clubId: String
 }
 
+private struct PlayerDestination: Hashable {
+    let playerId: String
+}
+
 private struct TeamDestination: Hashable {
     let teamId: String
 }
@@ -44,7 +48,8 @@ struct ShellScreen: View {
                         onOpenSettings: { isSettingsPresented = true },
                         onOpenMyClub: { selectedTab = .club },
                         onOpenClub: { homePath.append(ClubDetailRoute(clubId: $0)) },
-                        onOpenTeam: { homePath.append(TeamDestination(teamId: $0)) }
+                        onOpenTeam: { homePath.append(TeamDestination(teamId: $0)) },
+                        onOpenPlayer: { homePath.append(PlayerDestination(playerId: $0)) }
                     )
                     .toolbar(.hidden, for: .navigationBar)
                     .navigationDestination(for: ClubDetailRoute.self) { route in
@@ -59,6 +64,12 @@ struct ShellScreen: View {
                     }
                     .navigationDestination(for: TeamDestination.self) { route in
                         teamDetail(route)
+                    }
+                    .navigationDestination(for: PlayerDestination.self) { route in
+                        PlayerDetailRoute(playerId: route.playerId)
+                            .navigationTitle(String(localized: "player_detail_hero_overline"))
+                            .navigationBarTitleDisplayMode(.inline)
+                            .batBackground()
                     }
                 }
                 .tag(ShellTab.home)

@@ -1,0 +1,3 @@
+enum PlayerDetailAction {
+    case favoriteClicked
+}

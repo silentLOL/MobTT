@@ -75,6 +75,8 @@ final class HomeViewModel {
             eventStream.continuation.yield(.openClub(clubId: id))
         case .favoriteTeamClicked(let id):
             eventStream.continuation.yield(.openTeam(teamId: id))
+        case .favoritePlayerClicked(let id):
+            eventStream.continuation.yield(.openPlayer(playerId: id))
         case .addFavoriteClicked:
             browsingPlayers = false
             pickerClubs = []
