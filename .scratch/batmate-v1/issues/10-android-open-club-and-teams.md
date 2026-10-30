@@ -26,3 +26,4 @@ blocked_by: [3, 6, 8]
 
 ## Comments
 - 2026-10-30: Android 200% font-scale previews inspected (Club screen). Layout holds with no clipping, but in the hero the Favorite star narrows the title column, so a long Association name breaks mid-word ("Tischtennisverba/nd"). Same hero pattern on Team and Player detail. Left unchecked until decided: move the star out of the name column, or accept it. TalkBack still needs a device.
+- 2026-10-30: Hero star layout fixed on Android in d545382: the star is overlaid top-end and the name uses the full width; the Club 200% preview no longer breaks "Tischtennisverband". Still unchecked: TalkBack on a device. The extreme Player long-name preview still breaks one word, accepted.

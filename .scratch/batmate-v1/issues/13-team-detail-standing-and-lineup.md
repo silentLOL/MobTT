@@ -18,3 +18,4 @@ Built against the fake directory at the owner's explicit request, although the X
 
 ## Comments
 - 2026-10-30: Android 200% font-scale previews inspected (Team detail, loaded): standing and lineup wrap cleanly; the "This Team" badge sits slightly indented under the row text, cosmetic only. iOS half not inspected, so left unchecked.
+- 2026-10-30: Hero star layout fixed on Android (d545382) and iOS (c59e3f6) for Team detail: star overlaid top-end, name at full width. iOS not yet seen in Xcode previews. Still unchecked: iOS Dynamic Type and VoiceOver, TalkBack on a device.

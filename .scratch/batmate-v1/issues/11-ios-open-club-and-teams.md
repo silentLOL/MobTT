@@ -17,3 +17,4 @@ blocked_by: [5, 9, 10]
 
 ## Comments
 - 2026-10-30: Not inspected: iOS previews need Xcode and VoiceOver/Dynamic Type need a device or simulator. Left unchecked.
+- 2026-10-30: Hero star layout fixed on iOS in c59e3f6 (Club): star overlaid top-end, name at full width. Build and tests pass, but not yet seen in Xcode previews. Still unchecked: VoiceOver and Dynamic Type on a device or simulator.

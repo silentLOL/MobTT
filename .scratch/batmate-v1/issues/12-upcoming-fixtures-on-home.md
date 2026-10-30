@@ -23,3 +23,4 @@ Note: ready-for-agent (the venue field is `needs-info` until the XTTV docs or sa
 
 ## Comments
 - 2026-10-30: Android 200% font-scale previews inspected (Home with Fixtures): no clipping, Fixture cards wrap cleanly. iOS half not inspected, so left unchecked.
+- 2026-10-30: Hero star change (d545382, c59e3f6) does not touch the Home Fixtures views. Android 200% inspected earlier; iOS 200% and VoiceOver still unchecked.
