@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [x] The Club and Team screens show a star that reflects whether the item is a Favorite
-- [ ] Tapping the star adds or removes the Favorite, and Home shows the change
+- [x] Tapping the star adds or removes the Favorite, and Home shows the change for Clubs (Teams on Home: ticket 03)
 - [x] The Swift ViewModels expose the Favorite state in their UI state and handle the toggle through their action entry point, with an injection seam for tests
 - [x] ViewModel tests cover toggling on and off and assert only observable outcomes
 - [x] German and English strings in the string catalog, with VoiceOver labels that announce the state and the action
@@ -15,4 +15,4 @@
 
 **Manual check outstanding:** 200% Dynamic Type and VoiceOver on a device.
 
-**Open:** iOS Home leaves Team Favorites out of its list, so a favourited Team does not show on Home yet. Decide whether Home lists Teams here or in a separate ticket.
+**Split out:** iOS Home leaves Team Favorites out of its list; ticket 03 covers listing them.

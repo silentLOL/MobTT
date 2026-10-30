@@ -62,4 +62,4 @@ The Club and Team screens each show a star toggle. Tapping it adds or removes th
 ## Further Notes
 
 - Vocabulary follows `GLOSSARY.md`: Favorite, Player, Team, Club, My Player, My Club. The glossary needs no change.
-- Tickets: 01 Android and 02 iOS, independent of each other.
+- Tickets: 01 Android and 02 iOS, independent of each other. 03 makes iOS Home list Team Favorites, which it left out before this feature.
