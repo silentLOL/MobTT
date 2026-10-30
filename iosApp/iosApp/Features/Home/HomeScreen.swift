@@ -41,7 +41,12 @@ struct HomeScreen: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: BatSpacing.lg) {
-                MySelectionView(selection: state.selection, onChooseClick: { onAction(.chooseClicked) })
+                MySelectionView(
+                    selection: state.selection,
+                    onChooseClick: { onAction(.chooseClicked) },
+                    onPlayerClick: { onAction(.heroPlayerClicked(id: $0)) },
+                    onClubClick: { onAction(.heroClubClicked(id: $0)) }
+                )
                 if state.selection.isChosen {
                     BatSecondaryButtonView(title: String(localized: "home_view_club_button")) { onAction(.viewClubClicked) }
                 }
@@ -91,7 +96,7 @@ struct HomeScreen: View {
 }
 
 private let loadedState = HomeUiState(
-    selection: .player(name: "Michael Huber", clubName: "TTC Olympic", associationName: "Wiener Tischtennisverband (WTTV)"),
+    selection: .player(name: "Michael Huber", clubName: "TTC Olympic", associationName: "Wiener Tischtennisverband (WTTV)", playerId: "huber"),
     favorites: [
         HomeFavoriteUi(kind: .player, entityId: "gruber", name: "Anna Gruber", detail: "TTC Olympic"),
         HomeFavoriteUi(kind: .club, entityId: "nussdorf", name: "Nussdorf TTC", detail: "Wiener Tischtennisverband (WTTV)"),
@@ -118,7 +123,8 @@ private let loadedState = HomeUiState(
                 selection: .player(
                     name: "Katharina Habsburg-Lothringen-Esterházy",
                     clubName: "Union Tischtennisclub St. Pölten Nord-West",
-                    associationName: "Niederösterreichischer Tischtennisverband (NÖTTV)"
+                    associationName: "Niederösterreichischer Tischtennisverband (NÖTTV)",
+                    playerId: "p2"
                 ),
                 favorites: [
                     HomeFavoriteUi(
@@ -156,7 +162,7 @@ private let loadedState = HomeUiState(
     BatPreviewMatrix {
         HomeScreen(
             state: HomeUiState(
-                selection: .club(name: "Nussdorf TTC", associationName: "Wiener Tischtennisverband (WTTV)"),
+                selection: .club(name: "Nussdorf TTC", associationName: "Wiener Tischtennisverband (WTTV)", clubId: "nussdorf"),
                 favorites: loadedState.favorites
             ),
             onAction: { _ in }

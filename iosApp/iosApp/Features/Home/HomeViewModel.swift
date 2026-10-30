@@ -71,6 +71,10 @@ final class HomeViewModel {
             eventStream.continuation.yield(.openSettings)
         case .viewClubClicked:
             eventStream.continuation.yield(.openMyClub)
+        case .heroPlayerClicked(let id):
+            eventStream.continuation.yield(.openPlayer(playerId: id))
+        case .heroClubClicked(let id):
+            eventStream.continuation.yield(.openClub(clubId: id))
         case .favoriteClubClicked(let id):
             eventStream.continuation.yield(.openClub(clubId: id))
         case .favoriteTeamClicked(let id):
@@ -215,9 +219,9 @@ private extension UserContext {
         switch onEnum(of: self) {
         case .none: .none
         case .myPlayer(let context):
-            .player(name: context.player.name, clubName: context.club.name, associationName: context.association.name)
+            .player(name: context.player.name, clubName: context.club.name, associationName: context.association.name, playerId: context.player.id)
         case .myClub(let context):
-            .club(name: context.club.name, associationName: context.association.name)
+            .club(name: context.club.name, associationName: context.association.name, clubId: context.club.id)
         }
     }
 }

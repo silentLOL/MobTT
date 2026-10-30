@@ -14,7 +14,7 @@ struct HomeViewModelSelectionTests {
 
         await viewModel.observe()
 
-        #expect(viewModel.uiState.selection == .player(name: "Anna Gruber", clubName: "Nussdorf TTC", associationName: "WTTV"))
+        #expect(viewModel.uiState.selection == .player(name: "Anna Gruber", clubName: "Nussdorf TTC", associationName: "WTTV", playerId: "p1"))
     }
 
     @Test func chosenClubShowsItsAssociation() async {
@@ -23,7 +23,7 @@ struct HomeViewModelSelectionTests {
 
         await viewModel.observe()
 
-        #expect(viewModel.uiState.selection == .club(name: "Nussdorf TTC", associationName: "WTTV"))
+        #expect(viewModel.uiState.selection == .club(name: "Nussdorf TTC", associationName: "WTTV", clubId: "c1"))
     }
 
     @Test func nothingChosenShowsThePromptToChoose() async {
@@ -67,6 +67,8 @@ struct HomeViewModelSelectionTests {
         viewModel.onAction(.favoriteClubClicked(id: "c1"))
         viewModel.onAction(.favoriteTeamClicked(id: "t1"))
         viewModel.onAction(.favoritePlayerClicked(id: "p1"))
+        viewModel.onAction(.heroPlayerClicked(id: "p1"))
+        viewModel.onAction(.heroClubClicked(id: "c1"))
 
         guard case .openSettings? = await events.next() else { Issue.record("expected openSettings"); return }
         guard case .openMyClub? = await events.next() else { Issue.record("expected openMyClub"); return }
@@ -76,6 +78,10 @@ struct HomeViewModelSelectionTests {
         #expect(teamId == "t1")
         guard case .openPlayer(let playerId)? = await events.next() else { Issue.record("expected openPlayer"); return }
         #expect(playerId == "p1")
+        guard case .openPlayer(let heroPlayerId)? = await events.next() else { Issue.record("expected openPlayer for the hero"); return }
+        #expect(heroPlayerId == "p1")
+        guard case .openClub(let heroClubId)? = await events.next() else { Issue.record("expected openClub for the hero"); return }
+        #expect(heroClubId == "c1")
     }
 
     private func makeViewModel(

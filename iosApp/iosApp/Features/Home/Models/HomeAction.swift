@@ -3,6 +3,8 @@ enum HomeAction {
     case addFavoriteClicked
     case viewClubClicked
     case retryFixturesClicked
+    case heroPlayerClicked(id: String)
+    case heroClubClicked(id: String)
     case favoriteClubClicked(id: String)
     case favoriteTeamClicked(id: String)
     case favoritePlayerClicked(id: String)
