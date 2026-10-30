@@ -15,3 +15,6 @@ Built against the fake directory at the owner's explicit request, although the X
 - [x] UseCase-seam tests against fake repositories cover standing order and an empty lineup
 - [x] Previews cover loaded, empty lineup and error on both platforms
 - [ ] Accessibility rules and 200% text scaling hold on both platforms (previews include 200%; not yet inspected visually)
+
+## Comments
+- 2026-10-30: Android 200% font-scale previews inspected (Team detail, loaded): standing and lineup wrap cleanly; the "This Team" badge sits slightly indented under the row text, cosmetic only. iOS half not inspected, so left unchecked.

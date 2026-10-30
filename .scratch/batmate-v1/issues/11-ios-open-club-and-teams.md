@@ -14,3 +14,6 @@ blocked_by: [5, 9, 10]
 - [x] The fake directory stays bound only in a non-production configuration
 - [ ] Accessibility labels, traits, 44pt targets and Dynamic Type follow the rules in CLAUDE.md
 - [x] The iOS build passes (`docs/DEVELOPMENT.md`)
+
+## Comments
+- 2026-10-30: Not inspected: iOS previews need Xcode and VoiceOver/Dynamic Type need a device or simulator. Left unchecked.

@@ -20,3 +20,6 @@ Note: ready-for-agent (the venue field is `needs-info` until the XTTV docs or sa
 ## Out of scope
 
 - Live scores (needs-info, later ticket)
+
+## Comments
+- 2026-10-30: Android 200% font-scale previews inspected (Home with Fixtures): no clipping, Fixture cards wrap cleanly. iOS half not inspected, so left unchecked.

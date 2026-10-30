@@ -23,3 +23,6 @@ blocked_by: [3, 6, 8]
 
 - Real XTTV repositories and bindings (API ticket)
 - Team detail, lineup and full standing (13)
+
+## Comments
+- 2026-10-30: Android 200% font-scale previews inspected (Club screen). Layout holds with no clipping, but in the hero the Favorite star narrows the title column, so a long Association name breaks mid-word ("Tischtennisverba/nd"). Same hero pattern on Team and Player detail. Left unchecked until decided: move the star out of the name column, or accept it. TalkBack still needs a device.
