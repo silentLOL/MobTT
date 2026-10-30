@@ -6,6 +6,7 @@ import at.stefanirndorfer.batmate.domain.user.DataStoreFavoritesRepository
 import at.stefanirndorfer.batmate.domain.user.DataStorePickedPlayerStore
 import at.stefanirndorfer.batmate.domain.user.DataStoreUserSelectionRepository
 import at.stefanirndorfer.batmate.domain.user.FavoritesRepository
+import at.stefanirndorfer.batmate.domain.user.GetPlayerDetailUseCase
 import at.stefanirndorfer.batmate.domain.user.ListLeaguePlayersUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveResolvedFavoritesUseCase
@@ -33,4 +34,5 @@ val userDomainModule = module {
     factoryOf(::ObserveResolvedFavoritesUseCase)
     factoryOf(::ObserveUpcomingFixturesUseCase)
     factoryOf(::ListLeaguePlayersUseCase)
+    factoryOf(::GetPlayerDetailUseCase)
 }

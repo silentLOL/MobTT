@@ -345,6 +345,17 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun tappingAPlayerFavoriteOpensThatPlayer() = runTest {
+        val viewModel = viewModel()
+        val events = mutableListOf<HomeEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect { events += it } }
+
+        viewModel.onAction(HomeAction.FavoritePlayerClicked("p1"))
+
+        assertEquals(listOf<HomeEvent>(HomeEvent.OpenPlayer("p1")), events)
+    }
+
+    @Test
     fun aTeamFavoriteIsListedWithItsClub() = runTest {
         data.favorites.value = setOf(Favorite.Team("t1"))
         val viewModel = viewModel()

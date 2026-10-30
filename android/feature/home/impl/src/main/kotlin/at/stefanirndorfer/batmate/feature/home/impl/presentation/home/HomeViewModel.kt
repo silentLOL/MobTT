@@ -116,6 +116,7 @@ class HomeViewModel(
             HomeAction.ViewClubClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenMyClub) }
             HomeAction.RetryFixturesClicked -> retry.retry()
             is HomeAction.FavoriteClubClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenClub(action.clubId)) }
+            is HomeAction.FavoritePlayerClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenPlayer(action.playerId)) }
             is HomeAction.FavoriteTeamClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenTeam(action.teamId)) }
             is HomeAction.RemoveFavoriteClicked -> viewModelScope.launch { removeFavorite(action.favorite) }
             is HomeAction.PickerQueryChanged -> pickerInput.update { it?.copy(query = action.query) }

@@ -6,6 +6,7 @@ import at.stefanirndorfer.batmate.core.network.AppConfig
 import at.stefanirndorfer.batmate.core.network.Environment
 import at.stefanirndorfer.batmate.feature.club.impl.di.clubModule
 import at.stefanirndorfer.batmate.feature.home.impl.di.homeModule
+import at.stefanirndorfer.batmate.feature.players.impl.di.playersModule
 import at.stefanirndorfer.batmate.feature.settings.impl.di.settingsModule
 import org.koin.android.ext.koin.androidContext
 
@@ -19,7 +20,7 @@ class MobTTApplication : Application() {
         )
         initKoin(config) {
             androidContext(this@MobTTApplication)
-            modules(directoryModules + listOf(clubModule, homeModule, settingsModule))
+            modules(directoryModules + listOf(clubModule, homeModule, playersModule, settingsModule))
         }
     }
 }

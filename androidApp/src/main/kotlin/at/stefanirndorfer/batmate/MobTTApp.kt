@@ -19,6 +19,7 @@ import at.stefanirndorfer.batmate.designsystem.ui.components.BatNavigationBar
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatNavigationItem
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatScreenScaffold
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatTopBar
+import at.stefanirndorfer.batmate.designsystem.ui.components.BatTopBarBack
 import at.stefanirndorfer.batmate.feature.club.impl.navigation.clubGraph
 import at.stefanirndorfer.batmate.feature.home.api.HomeDestination
 import at.stefanirndorfer.batmate.feature.home.impl.navigation.homeGraph
@@ -35,6 +36,11 @@ fun MobTTApp(modifier: Modifier = Modifier) {
         topBar = {
             BatTopBar(
                 title = stringResource(R.string.core_app_title),
+                back = if (navigator.backStack.size > 1) {
+                    BatTopBarBack(stringResource(R.string.core_topbar_back_cd), onClick = navigator::goBack)
+                } else {
+                    null
+                },
                 actions = {
                     BatIconButton(
                         icon = BatIcon.Settings,

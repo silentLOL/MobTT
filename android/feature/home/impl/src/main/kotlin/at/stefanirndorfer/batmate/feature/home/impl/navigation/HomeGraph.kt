@@ -8,6 +8,7 @@ import at.stefanirndorfer.batmate.feature.club.api.navigateToTeamDetail
 import at.stefanirndorfer.batmate.feature.home.api.HomeDestination
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.HomeRoute
 import at.stefanirndorfer.batmate.feature.navigation.GlobalNavigator
+import at.stefanirndorfer.batmate.feature.players.api.navigateToPlayerDetail
 
 fun EntryProviderScope<NavKey>.homeGraph(navigator: GlobalNavigator) {
     entry<HomeDestination> {
@@ -15,6 +16,7 @@ fun EntryProviderScope<NavKey>.homeGraph(navigator: GlobalNavigator) {
             onOpenSettings = navigator::openSettings,
             onOpenMyClub = navigator::navigateToClub,
             onOpenClub = navigator::navigateToClubDetail,
+            onOpenPlayer = navigator::navigateToPlayerDetail,
             onOpenTeam = navigator::navigateToTeamDetail,
         )
     }

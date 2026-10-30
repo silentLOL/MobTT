@@ -43,12 +43,16 @@ fun BatLogoMark(modifier: Modifier = Modifier) {
     }
 }
 
+/** The chevron at the top left that returns to the previous screen. */
+class BatTopBarBack(val contentDescription: String, val onClick: () -> Unit)
+
 @Composable
 fun BatTopBar(
     title: String,
     modifier: Modifier = Modifier,
     badge: String? = null,
     subtitle: String? = null,
+    back: BatTopBarBack? = null,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     val colors = BatDesign.colors
@@ -65,6 +69,9 @@ fun BatTopBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.md),
         ) {
+            if (back != null) {
+                BatIconButton(icon = BatIcon.ArrowBack, contentDescription = back.contentDescription, onClick = back.onClick)
+            }
             BatLogoMark()
             Column(modifier = Modifier.weight(1f)) {
                 Row(
@@ -114,6 +121,7 @@ private fun BatTopBarPreview() {
                 },
             )
             BatTopBar(title = "MobTT")
+            BatTopBar(title = "MobTT", back = BatTopBarBack("Back", onClick = {}))
         }
     }
 }

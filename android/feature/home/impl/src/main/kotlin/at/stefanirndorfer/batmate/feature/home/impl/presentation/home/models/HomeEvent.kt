@@ -7,5 +7,7 @@ sealed interface HomeEvent {
 
     data class OpenClub(val clubId: String) : HomeEvent
 
+    data class OpenPlayer(val playerId: String) : HomeEvent
+
     data class OpenTeam(val teamId: String) : HomeEvent
 }

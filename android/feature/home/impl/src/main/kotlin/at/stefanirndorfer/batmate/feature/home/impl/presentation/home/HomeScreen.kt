@@ -38,6 +38,7 @@ fun HomeRoute(
     onOpenSettings: () -> Unit,
     onOpenMyClub: () -> Unit,
     onOpenClub: (String) -> Unit,
+    onOpenPlayer: (String) -> Unit,
     onOpenTeam: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = koinViewModel(),
@@ -48,6 +49,7 @@ fun HomeRoute(
             HomeEvent.OpenSettings -> onOpenSettings()
             HomeEvent.OpenMyClub -> onOpenMyClub()
             is HomeEvent.OpenClub -> onOpenClub(event.clubId)
+            is HomeEvent.OpenPlayer -> onOpenPlayer(event.playerId)
             is HomeEvent.OpenTeam -> onOpenTeam(event.teamId)
         }
     }
@@ -103,7 +105,9 @@ fun HomeScreen(
                             is Favorite.Team -> {
                                 { onAction(HomeAction.FavoriteTeamClicked(item.id)) }
                             }
-                            is Favorite.Player -> null
+                            is Favorite.Player -> {
+                                { onAction(HomeAction.FavoritePlayerClicked(item.id)) }
+                            }
                         },
                         onRemoveClick = { onAction(HomeAction.RemoveFavoriteClicked(favorite.favorite)) },
                     )
