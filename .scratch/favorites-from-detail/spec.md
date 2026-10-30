@@ -4,17 +4,17 @@
 
 ## Problem Statement
 
-A user can only make something a Favorite from the picker on Home. When they are already looking at a Club, Team or Player they care about, they have to leave, open the picker and search for it again. Favorites should also be clearly safe to keep: they must never store personal data about the people the user follows.
+A user can only make something a Favorite from the picker on Home. When they are already looking at a Club or Team they care about, they have to leave, open the picker and search for it again. Favorites should also be clearly safe to keep: they must never store personal data about the people the user follows.
 
 ## Solution
 
-Every Club, Team and Player screen shows a star toggle. Tapping it adds or removes that item as a Favorite, and the state is reflected immediately and on Home. Favorites keep persisting only as IDs on the device, as they do today. Adding and removing from Home stays as it is.
+The Club and Team screens each show a star toggle. Tapping it adds or removes that item as a Favorite, and the state is reflected immediately and on Home. Favorites keep persisting only as IDs on the device, as they do today. Adding and removing from Home stays as it is.
 
 ## User Stories
 
 1. As a user viewing a Club, I want to mark it as a Favorite, so that I can reach it quickly from Home.
 2. As a user viewing a Team, I want to mark it as a Favorite, so that I can reach it quickly from Home.
-3. As a user viewing a Player, I want to mark them as a Favorite, so that I can reach them quickly from Home.
+3. As a user viewing a Team or Club, I want to find it again on Home without searching, so that I skip the picker.
 4. As a user viewing something that is already a Favorite, I want the star to show it is one, so that I do not add it twice or wonder.
 5. As a user viewing a Favorite, I want to tap the star to remove it, so that Home stays relevant without leaving the screen.
 6. As a user, I want the star state to match Home after I toggle it, so that the two never disagree.
@@ -35,7 +35,7 @@ Every Club, Team and Player screen shows a star toggle. Tapping it adds or remov
 - Persisted entries hold IDs only. Names, photos and other personal data are resolved from XTTV at display time and never written into a Favorite. ADR-0004 states this explicitly.
 - "Modify" means managing the list through add and remove. Reordering and per-Favorite notes or nicknames are not offered; free text about a person would be personal data.
 - Teams stay favouritable, per the glossary.
-- The Club, Team and Player screens each gain a star toggle driven by their ViewModel: it observes whether the shown item is a Favorite and sends add or remove through the existing `onAction` entry point. Screens stay stateless. On iOS, Swift ViewModels do the same through the Koin helper.
+- The Club and Team screens each gain a star toggle driven by their ViewModel: it observes whether the shown item is a Favorite and sends add or remove through the existing `onAction` entry point. Screens stay stateless. On iOS, Swift ViewModels do the same through the Koin helper.
 - Removal needs no confirmation. Re-adding is one tap on the same star.
 - Default platform backup behaviour is kept, so IDs restore on a new device.
 - Strings are added in German and English on both platforms, with the same accessibility wording.
@@ -57,8 +57,9 @@ Every Club, Team and Player screen shows a star toggle. Tapping it adds or remov
 - Excluding Favorites from device backup.
 - Settling XTTV ID uniqueness across Federations (ADR-0008, xttv-api issue 10).
 - Changes to Home's picker and row removal.
+- A Player toggle: there is no Player detail screen yet, only the Players search and list. It becomes a small follow-up once that screen exists.
 
 ## Further Notes
 
 - Vocabulary follows `GLOSSARY.md`: Favorite, Player, Team, Club, My Player, My Club. The glossary needs no change.
-- The Club, Team and Player screens may not all exist yet; the slice covers those that do and adds the toggle to the rest as they land.
+- Tickets: 01 Android and 02 iOS, independent of each other.
