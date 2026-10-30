@@ -4,13 +4,14 @@ import SwiftUI
 struct BatIconButtonView: View {
     let icon: BatIcon
     let accessibilityText: String
+    var tint: Color = BatColor.textSecondary
     let action: () -> Void
 
     @ScaledMetric private var scale: CGFloat = 1
 
     var body: some View {
         Button(action: action) {
-            BatIconView(icon: icon)
+            BatIconView(icon: icon, tint: tint)
                 .frame(width: BatSizing.iconButton * scale, height: BatSizing.iconButton * scale)
                 .background(BatColor.surfaceMuted, in: BatShapes.full)
                 .frame(minWidth: BatSizing.minTouchTarget, minHeight: BatSizing.minTouchTarget)

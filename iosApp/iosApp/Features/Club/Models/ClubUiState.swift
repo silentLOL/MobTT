@@ -24,6 +24,7 @@ struct ClubOverviewUi: Equatable {
     let clubName: String
     let associationName: String
     let teams: [TeamUi]
+    var isFavorite = false
 }
 
 enum ClubUiState: Equatable {

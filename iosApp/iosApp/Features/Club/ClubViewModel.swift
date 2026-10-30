@@ -10,12 +10,16 @@ final class ClubViewModel {
     private let source: ClubSource
     private var clubId: String?
     private var loadTask: Task<Void, Never>?
+    @ObservationIgnored private var favorites: Set<AnyHashable> = []
     /// Bumped by a retry; the route restarts `observe()` when it changes.
     private(set) var retryCount = 0
 
     private let loadOverview: (String) async throws -> DataResult
 
     @ObservationIgnored private let observeUserContext: any AsyncSequence<DataResult, Never>
+    @ObservationIgnored private let observeFavorites: any AsyncSequence<Set<AnyHashable>, Never>
+    @ObservationIgnored private let addFavorite: (Favorite) async throws -> Void
+    @ObservationIgnored private let removeFavorite: (Favorite) async throws -> Void
     @ObservationIgnored private let eventStream = AsyncStream<ClubEvent>.makeStream()
 
     var events: AsyncStream<ClubEvent> { eventStream.stream }
@@ -23,15 +27,28 @@ final class ClubViewModel {
     init(
         source: ClubSource,
         observeUserContext: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeUserContext(),
-        loadOverview: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadClubOverview(clubId: $0) }
+        loadOverview: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadClubOverview(clubId: $0) },
+        observeFavorites: any AsyncSequence<Set<AnyHashable>, Never> = KoinHelper.shared.getObserveFavoritesUseCase().invoke(),
+        addFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getAddFavoriteUseCase().invoke(favorite: $0) },
+        removeFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getRemoveFavoriteUseCase().invoke(favorite: $0) }
     ) {
         self.source = source
         self.observeUserContext = observeUserContext
         self.loadOverview = loadOverview
+        self.observeFavorites = observeFavorites
+        self.addFavorite = addFavorite
+        self.removeFavorite = removeFavorite
     }
 
     /// Runs until the calling task is cancelled.
     func observe() async {
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask { @MainActor in await self.observeClub() }
+            group.addTask { @MainActor in await self.observeFavoriteState() }
+        }
+    }
+
+    private func observeClub() async {
         switch source {
         case .specific(let clubId):
             self.clubId = clubId
@@ -65,6 +82,39 @@ final class ClubViewModel {
         case .retryClicked:
             loadTask?.cancel()
             retryCount += 1
+        case .favoriteClicked:
+            toggleFavorite()
+        }
+    }
+
+    private func observeFavoriteState() async {
+        for await set in observeFavorites {
+            favorites = set
+            refreshFavorite()
+        }
+    }
+
+    private func refreshFavorite() {
+        guard case .content(var overview) = uiState, let clubId else { return }
+        let isFavorite = isFavoriteClub(clubId)
+        guard overview.isFavorite != isFavorite else { return }
+        overview.isFavorite = isFavorite
+        uiState = .content(overview)
+    }
+
+    private func isFavoriteClub(_ clubId: String) -> Bool {
+        favorites.contains { ($0 as? FavoriteClub)?.id == clubId }
+    }
+
+    private func toggleFavorite() {
+        guard case .content(let overview) = uiState, let clubId else { return }
+        let favorite = FavoriteClub(id: clubId)
+        Task {
+            if overview.isFavorite {
+                try? await removeFavorite(favorite)
+            } else {
+                try? await addFavorite(favorite)
+            }
         }
     }
 
@@ -74,7 +124,7 @@ final class ClubViewModel {
             let result = try await loadOverview(clubId)
             guard !Task.isCancelled else { return }
             switch onEnum(of: result) {
-            case .success(let success): uiState = (success.value as? ClubOverview).map { .content($0.toUi()) } ?? .error
+            case .success(let success): uiState = (success.value as? ClubOverview).map { .content($0.toUi(isFavorite: isFavoriteClub(clubId))) } ?? .error
             case .unavailable: uiState = .error
             }
         } catch {
@@ -84,8 +134,8 @@ final class ClubViewModel {
 }
 
 private extension ClubOverview {
-    func toUi() -> ClubOverviewUi {
-        ClubOverviewUi(clubName: club.name, associationName: association.name, teams: teams.map { $0.toUi() })
+    func toUi(isFavorite: Bool) -> ClubOverviewUi {
+        ClubOverviewUi(clubName: club.name, associationName: association.name, teams: teams.map { $0.toUi() }, isFavorite: isFavorite)
     }
 }
 

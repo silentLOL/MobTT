@@ -21,6 +21,7 @@ struct TeamDetailUi: Equatable {
     let leagueName: String?
     let standings: [StandingRowUi]
     let lineup: [LineupPlayerUi]
+    var isFavorite = false
 }
 
 enum TeamDetailUiState: Equatable {

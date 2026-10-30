@@ -9,15 +9,33 @@ final class TeamDetailViewModel {
 
     private let teamId: String
     private var loadTask: Task<Void, Never>?
+    @ObservationIgnored private var favorites: Set<AnyHashable> = []
 
     private let loadDetail: (String) async throws -> DataResult
+    @ObservationIgnored private let observeFavorites: any AsyncSequence<Set<AnyHashable>, Never>
+    @ObservationIgnored private let addFavorite: (Favorite) async throws -> Void
+    @ObservationIgnored private let removeFavorite: (Favorite) async throws -> Void
 
     init(
         teamId: String,
-        loadDetail: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadTeamDetail(teamId: $0) }
+        loadDetail: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadTeamDetail(teamId: $0) },
+        observeFavorites: any AsyncSequence<Set<AnyHashable>, Never> = KoinHelper.shared.getObserveFavoritesUseCase().invoke(),
+        addFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getAddFavoriteUseCase().invoke(favorite: $0) },
+        removeFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getRemoveFavoriteUseCase().invoke(favorite: $0) }
     ) {
         self.teamId = teamId
         self.loadDetail = loadDetail
+        self.observeFavorites = observeFavorites
+        self.addFavorite = addFavorite
+        self.removeFavorite = removeFavorite
+    }
+
+    /// Follows the Favorites until the calling task is cancelled. The load itself runs from `loadIfNeeded()`.
+    func observe() async {
+        for await set in observeFavorites {
+            favorites = set
+            refreshFavorite()
+        }
     }
 
     /// Starts the first load once. It runs outside the view's task, so leaving and returning to the screen neither reloads nor strands it on `.loading`.
@@ -31,6 +49,32 @@ final class TeamDetailViewModel {
         case .retryClicked:
             loadTask?.cancel()
             loadTask = Task { await load() }
+        case .favoriteClicked:
+            toggleFavorite()
+        }
+    }
+
+    private func refreshFavorite() {
+        guard case .content(var detail) = uiState else { return }
+        let isFavorite = isFavoriteTeam
+        guard detail.isFavorite != isFavorite else { return }
+        detail.isFavorite = isFavorite
+        uiState = .content(detail)
+    }
+
+    private var isFavoriteTeam: Bool {
+        favorites.contains { ($0 as? FavoriteTeam)?.id == teamId }
+    }
+
+    private func toggleFavorite() {
+        guard case .content(let detail) = uiState else { return }
+        let favorite = FavoriteTeam(id: teamId)
+        Task {
+            if detail.isFavorite {
+                try? await removeFavorite(favorite)
+            } else {
+                try? await addFavorite(favorite)
+            }
         }
     }
 
@@ -40,7 +84,7 @@ final class TeamDetailViewModel {
             let result = try await loadDetail(teamId)
             guard !Task.isCancelled else { return }
             switch onEnum(of: result) {
-            case .success(let success): uiState = (success.value as? TeamDetail).map { .content($0.toUi()) } ?? .error
+            case .success(let success): uiState = (success.value as? TeamDetail).map { .content($0.toUi(isFavorite: isFavoriteTeam)) } ?? .error
             case .unavailable: uiState = .error
             }
         } catch {
@@ -50,7 +94,7 @@ final class TeamDetailViewModel {
 }
 
 private extension TeamDetail {
-    func toUi() -> TeamDetailUi {
+    func toUi(isFavorite: Bool) -> TeamDetailUi {
         TeamDetailUi(
             teamName: team.name,
             clubName: clubName,
@@ -65,7 +109,8 @@ private extension TeamDetail {
                     isThisTeam: isThisTeam(standing: $0)
                 )
             },
-            lineup: lineup.map { LineupPlayerUi(id: $0.playerId, name: $0.name) }
+            lineup: lineup.map { LineupPlayerUi(id: $0.playerId, name: $0.name) },
+            isFavorite: isFavorite
         )
     }
 }

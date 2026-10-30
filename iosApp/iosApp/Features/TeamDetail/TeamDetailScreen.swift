@@ -10,6 +10,7 @@ struct TeamDetailRoute: View {
     var body: some View {
         TeamDetailScreen(state: viewModel.uiState, onAction: viewModel.onAction)
             .onAppear { viewModel.loadIfNeeded() }
+            .task { await viewModel.observe() }
     }
 }
 
@@ -40,29 +41,43 @@ struct TeamDetailScreen: View {
             }
             .onAppear { AccessibilityNotification.Announcement(String(localized: "team_detail_error_body")).post() }
         case .content(let detail):
-            ContentView(detail: detail)
+            ContentView(detail: detail, onAction: onAction)
         }
     }
 }
 
 private struct ContentView: View {
     let detail: TeamDetailUi
+    let onAction: (TeamDetailAction) -> Void
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: BatSpacing.lg) {
                 BatHeroCardView {
-                    VStack(alignment: .leading, spacing: BatSpacing.sm) {
-                        BatHeroPillView(text: String(localized: "team_detail_hero_overline"))
-                        Text(detail.teamName)
-                            .batTextStyle(BatTypography.display)
-                            .foregroundStyle(BatColor.onHero)
-                        Text(detail.clubName)
-                            .batTextStyle(BatTypography.body)
-                            .foregroundStyle(BatColor.onHero)
+                    HStack(alignment: .top, spacing: BatSpacing.md) {
+                        VStack(alignment: .leading, spacing: BatSpacing.sm) {
+                            BatHeroPillView(text: String(localized: "team_detail_hero_overline"))
+                            Text(detail.teamName)
+                                .batTextStyle(BatTypography.display)
+                                .foregroundStyle(BatColor.onHero)
+                            Text(detail.clubName)
+                                .batTextStyle(BatTypography.body)
+                                .foregroundStyle(BatColor.onHero)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityElement(children: .combine)
+                        BatFavoriteButtonView(
+                            isFavorite: detail.isFavorite,
+                            accessibilityText: detail.isFavorite
+                                ? String(localized: "team_detail_favorite_remove_cd \(detail.teamName)")
+                                : String(localized: "team_detail_favorite_add_cd \(detail.teamName)"),
+                            accessibilityState: detail.isFavorite
+                                ? String(localized: "core_favorite_on_state")
+                                : String(localized: "core_favorite_off_state"),
+                            action: { onAction(.favoriteClicked) }
+                        )
                     }
                 }
-                .accessibilityElement(children: .combine)
                 VStack(alignment: .leading, spacing: 0) {
                     BatSectionHeaderView(title: detail.leagueName ?? String(localized: "team_detail_standing_title"))
                     if detail.standings.isEmpty {
@@ -123,6 +138,12 @@ private struct SectionMessage: View {
 #Preview("Loaded") {
     BatPreviewMatrix {
         TeamDetailScreen(state: .content(TeamDetailPreviewData.loaded), onAction: { _ in })
+    }
+}
+
+#Preview("Favorite") {
+    BatPreviewMatrix {
+        TeamDetailScreen(state: .content(TeamDetailPreviewData.favorite), onAction: { _ in })
     }
 }
 

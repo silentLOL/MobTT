@@ -3,6 +3,12 @@ import Foundation
 enum ClubPreviewData {
     private static let kickoff = Date(timeIntervalSince1970: 1_800_000_000)
 
+    static var favorite: ClubOverviewUi {
+        var overview = overview
+        overview.isFavorite = true
+        return overview
+    }
+
     static let overview = ClubOverviewUi(
         clubName: "TTC Olympic",
         associationName: "Wiener Tischtennisverband (WTTV)",

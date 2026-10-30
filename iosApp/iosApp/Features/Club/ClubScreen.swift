@@ -85,17 +85,30 @@ private struct ContentView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: BatSpacing.lg) {
                 BatHeroCardView {
-                    VStack(alignment: .leading, spacing: BatSpacing.sm) {
-                        BatHeroPillView(text: String(localized: "club_hero_overline"))
-                        Text(overview.clubName)
-                            .batTextStyle(BatTypography.display)
-                            .foregroundStyle(BatColor.onHero)
-                        Text(overview.associationName)
-                            .batTextStyle(BatTypography.body)
-                            .foregroundStyle(BatColor.onHero)
+                    HStack(alignment: .top, spacing: BatSpacing.md) {
+                        VStack(alignment: .leading, spacing: BatSpacing.sm) {
+                            BatHeroPillView(text: String(localized: "club_hero_overline"))
+                            Text(overview.clubName)
+                                .batTextStyle(BatTypography.display)
+                                .foregroundStyle(BatColor.onHero)
+                            Text(overview.associationName)
+                                .batTextStyle(BatTypography.body)
+                                .foregroundStyle(BatColor.onHero)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityElement(children: .combine)
+                        BatFavoriteButtonView(
+                            isFavorite: overview.isFavorite,
+                            accessibilityText: overview.isFavorite
+                                ? String(localized: "club_favorite_remove_cd \(overview.clubName)")
+                                : String(localized: "club_favorite_add_cd \(overview.clubName)"),
+                            accessibilityState: overview.isFavorite
+                                ? String(localized: "core_favorite_on_state")
+                                : String(localized: "core_favorite_off_state"),
+                            action: { onAction(.favoriteClicked) }
+                        )
                     }
                 }
-                .accessibilityElement(children: .combine)
                 VStack(alignment: .leading, spacing: 0) {
                     BatSectionHeaderView(title: String(localized: "club_teams_title"))
                     if overview.teams.isEmpty {
@@ -136,6 +149,12 @@ private struct ContentView: View {
 #Preview("Loaded") {
     BatPreviewMatrix {
         ClubScreen(state: .content(ClubPreviewData.overview), onAction: { _ in })
+    }
+}
+
+#Preview("Favorite") {
+    BatPreviewMatrix {
+        ClubScreen(state: .content(ClubPreviewData.favorite), onAction: { _ in })
     }
 }
 

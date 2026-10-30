@@ -1,6 +1,12 @@
 import Foundation
 
 enum TeamDetailPreviewData {
+    static var favorite: TeamDetailUi {
+        var detail = loaded
+        detail.isFavorite = true
+        return detail
+    }
+
     static let loaded = TeamDetailUi(
         teamName: "TTC Olympic 1",
         clubName: "TTC Olympic",
