@@ -72,6 +72,8 @@ fun HomeScreen(
         MySelectionView(
             selection = state.selection,
             onChooseClick = { onAction(HomeAction.ChooseClicked) },
+            onPlayerClick = { onAction(HomeAction.HeroPlayerClicked(it)) },
+            onClubClick = { onAction(HomeAction.HeroClubClicked(it)) },
         )
         if (state.selection is HomeSelectionUi.Player || state.selection is HomeSelectionUi.Club) {
             BatSecondaryButton(
@@ -129,7 +131,7 @@ fun HomeScreen(
 }
 
 private val loadedState = HomeUiState(
-    selection = HomeSelectionUi.Player("Michael Huber", "TTC Olympic", "Wiener Tischtennisverband (WTTV)"),
+    selection = HomeSelectionUi.Player("Michael Huber", "TTC Olympic", "Wiener Tischtennisverband (WTTV)", "p1"),
     favorites = listOf(
         ResolvedFavorite(Favorite.Player("gruber"), "Anna Gruber", "TTC Olympic"),
         ResolvedFavorite(Favorite.Club("nussdorf"), "Nussdorf TTC", "Wiener Tischtennisverband (WTTV)"),
@@ -162,6 +164,7 @@ private fun HomeScreenLongNamePreview() {
                     "Katharina Habsburg-Lothringen-Esterházy",
                     "Union Tischtennisclub St. Pölten Nord-West",
                     "Niederösterreichischer Tischtennisverband (NÖTTV)",
+                    "p2",
                 ),
                 favorites = listOf(
                     ResolvedFavorite(
@@ -197,7 +200,7 @@ private fun HomeScreenFixturesUnavailablePreview() {
 private fun HomeScreenMyClubPreview() {
     BatPreviewSurface {
         HomeScreen(
-            state = loadedState.copy(selection = HomeSelectionUi.Club("Nussdorf TTC", "Wiener Tischtennisverband (WTTV)")),
+            state = loadedState.copy(selection = HomeSelectionUi.Club("Nussdorf TTC", "Wiener Tischtennisverband (WTTV)", "c1")),
             onAction = {},
         )
     }

@@ -15,11 +15,13 @@ sealed interface HomeSelectionUi {
         val name: String,
         val clubName: String,
         val associationName: String,
+        val playerId: String,
     ) : HomeSelectionUi
 
     data class Club(
         val name: String,
         val associationName: String,
+        val clubId: String,
     ) : HomeSelectionUi
 }
 

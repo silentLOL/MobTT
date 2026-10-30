@@ -115,6 +115,8 @@ class HomeViewModel(
             HomeAction.AddFavoriteClicked -> pickerInput.value = PickerInput()
             HomeAction.ViewClubClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenMyClub) }
             HomeAction.RetryFixturesClicked -> retry.retry()
+            is HomeAction.HeroPlayerClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenPlayer(action.playerId)) }
+            is HomeAction.HeroClubClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenClub(action.clubId)) }
             is HomeAction.FavoriteClubClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenClub(action.clubId)) }
             is HomeAction.FavoritePlayerClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenPlayer(action.playerId)) }
             is HomeAction.FavoriteTeamClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenTeam(action.teamId)) }
@@ -185,8 +187,8 @@ class HomeViewModel(
 
     private fun UserContext.toSelectionUi(): HomeSelectionUi = when (this) {
         UserContext.None -> HomeSelectionUi.None
-        is UserContext.MyPlayer -> HomeSelectionUi.Player(player.name, club.name, association.name)
-        is UserContext.MyClub -> HomeSelectionUi.Club(club.name, association.name)
+        is UserContext.MyPlayer -> HomeSelectionUi.Player(player.name, club.name, association.name, player.id)
+        is UserContext.MyClub -> HomeSelectionUi.Club(club.name, association.name, club.id)
     }
 
     private companion object {

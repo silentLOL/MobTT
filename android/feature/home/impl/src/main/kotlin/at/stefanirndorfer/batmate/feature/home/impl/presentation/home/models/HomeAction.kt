@@ -11,6 +11,10 @@ sealed interface HomeAction {
 
     data object RetryFixturesClicked : HomeAction
 
+    data class HeroPlayerClicked(val playerId: String) : HomeAction
+
+    data class HeroClubClicked(val clubId: String) : HomeAction
+
     data class FavoriteClubClicked(val clubId: String) : HomeAction
 
     data class FavoritePlayerClicked(val playerId: String) : HomeAction

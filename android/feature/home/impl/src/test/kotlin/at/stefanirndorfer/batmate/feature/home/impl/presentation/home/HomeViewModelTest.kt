@@ -100,7 +100,7 @@ private class FakeData :
 
     override suspend fun getFixtures(teamId: String): List<Fixture> = read(emptyList())
 
-    override suspend fun getPlayer(id: String): Player? = null
+    override suspend fun getPlayer(id: String): Player? = read(Player("p1", "Anna Gruber", "c1").takeIf { it.id == id })
 
     var leaguePlayerReads = 0
 
@@ -182,7 +182,7 @@ class HomeViewModelTest {
         data.unavailable = false
         viewModel.onAction(HomeAction.RetryFixturesClicked)
 
-        assertEquals(HomeSelectionUi.Club("TTC Olympic", "WTTV"), viewModel.uiState.value.selection)
+        assertEquals(HomeSelectionUi.Club("TTC Olympic", "WTTV", "c1"), viewModel.uiState.value.selection)
     }
 
     @Test
@@ -358,6 +358,30 @@ class HomeViewModelTest {
         viewModel.onAction(HomeAction.FavoritePlayerClicked("p1"))
 
         assertEquals(listOf<HomeEvent>(HomeEvent.OpenPlayer("p1")), events)
+    }
+
+    @Test
+    fun tappingThePlayerHeroOpensThatPlayer() = runTest {
+        data.saveSelection(UserSelection.MyPlayer("p1"))
+        val viewModel = viewModel()
+        val events = mutableListOf<HomeEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect { events += it } }
+
+        assertEquals(HomeSelectionUi.Player("Anna Gruber", "TTC Olympic", "WTTV", "p1"), viewModel.uiState.value.selection)
+        viewModel.onAction(HomeAction.HeroPlayerClicked("p1"))
+
+        assertEquals(listOf<HomeEvent>(HomeEvent.OpenPlayer("p1")), events)
+    }
+
+    @Test
+    fun tappingTheClubHeroOpensThatClub() = runTest {
+        val viewModel = viewModel()
+        val events = mutableListOf<HomeEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect { events += it } }
+
+        viewModel.onAction(HomeAction.HeroClubClicked("c1"))
+
+        assertEquals(listOf<HomeEvent>(HomeEvent.OpenClub("c1")), events)
     }
 
     @Test
