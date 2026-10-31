@@ -9,6 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.stefanirndorfer.mobtt.designsystem.theme.BatTheme
 import at.stefanirndorfer.mobtt.feature.settings.api.Appearance
@@ -19,6 +20,7 @@ class MainActivity : ComponentActivity() {
     private val appearanceRepository: AppearanceRepository by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 

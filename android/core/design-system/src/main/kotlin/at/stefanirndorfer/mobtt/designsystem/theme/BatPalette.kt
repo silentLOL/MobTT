@@ -29,6 +29,10 @@ object BatPalette {
     val Brand900 = Color(0xFF1E3A8A)
     val Brand950 = Color(0xFF172554)
 
+    /** Austrian flag red (Pantone 032) and a darker step for the logo ramp. */
+    val Red500 = Color(0xFFED2939)
+    val Red700 = Color(0xFFB01220)
+
     val Indigo700 = Color(0xFF4338CA)
 
     val Rose100 = Color(0xFFFFE4E6)
