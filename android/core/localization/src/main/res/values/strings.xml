@@ -1,12 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Loco xml export: Android strings
+ Project:  MobTT
+ Locale: en, English
+ Tagged: android
+ Exported by: Stefan Irndorfer
+ Exported at: Sat, 31 Oct 2026 12:57:31 +0100
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="core_app_title">MobTT</string>
     <string name="core_tab_home_label">Home</string>
     <string name="core_tab_club_label">Club</string>
     <string name="core_tab_players_label">Players</string>
     <string name="core_settings_button_cd">Settings</string>
     <string name="core_close_button_cd">Close</string>
-
     <string name="home_empty_title">Welcome to MobTT</string>
     <string name="home_empty_body">Your results, form and next Fixture will show up here.</string>
     <string name="club_empty_title">No Club yet</string>
@@ -23,14 +30,12 @@
     <string name="players_unavailable_title">Players unavailable</string>
     <string name="players_unavailable_body">XTTV could not be reached. Check your connection and try again.</string>
     <string name="players_retry_button">Try again</string>
-
     <string name="settings_title">Settings</string>
     <string name="settings_appearance_title">Appearance</string>
     <string name="settings_appearance_system_option">Follow system</string>
     <string name="settings_appearance_light_option">Light</string>
     <string name="settings_appearance_dark_option">Dark</string>
     <string name="settings_done_button">Done</string>
-
     <string name="core_search_label">Search</string>
     <string name="core_search_placeholder">Name or Club</string>
     <string name="core_search_empty_body">No matches</string>
@@ -42,11 +47,10 @@
     <string name="core_drilldown_back_cd">Back</string>
     <string name="core_favorite_on_state">Favorite</string>
     <string name="core_favorite_off_state">Not a Favorite</string>
-
     <string name="home_choose_title">Choose your Player or Club</string>
-    <string name="home_choose_body">Find your Player or your Club to personalise Home.</string>
-    <string name="home_choose_player_button">Find my Player</string>
-    <string name="home_choose_club_button">Find my Club</string>
+    <string name="home_choose_body">Choose a Player or a Club to personalise Home.</string>
+    <string name="home_choose_player_button">A Player</string>
+    <string name="home_choose_club_button">A Club</string>
     <string name="home_my_player_overline">My Player</string>
     <string name="home_my_club_overline">My Club</string>
     <string name="home_favorites_title">Favorites</string>
@@ -54,7 +58,6 @@
     <string name="home_favorites_empty_body">Bookmark Players and Clubs for quick access.</string>
     <string name="home_favorite_picker_title">Add Favorites</string>
     <string name="home_favorite_picker_browse_players_button">Find a Player by Association and League</string>
-
     <string name="settings_my_player_title">My Player</string>
     <string name="settings_my_club_title">My Club</string>
     <string name="settings_choose_button">Choose</string>
