@@ -131,26 +131,6 @@ struct HomeViewModelFavoritesTests {
         #expect(fixtures.reads.players == ["l1"])
     }
 
-    @Test func removingFromHomeRemovesThatFavorite() async {
-        var removed: [Favorite] = []
-        let viewModel = makeViewModel(removeFavorite: { removed.append($0) })
-
-        viewModel.onAction(.removeFavoriteClicked(HomeFavoriteUi(kind: .club, entityId: "c1", name: "TTC Olympic", detail: nil)))
-        await waitUntil { !removed.isEmpty }
-
-        #expect(removed.compactMap { ($0 as? FavoriteClub)?.id } == ["c1"])
-    }
-
-    @Test func removingATeamFromHomeRemovesThatFavorite() async {
-        var removed: [Favorite] = []
-        let viewModel = makeViewModel(removeFavorite: { removed.append($0) })
-
-        viewModel.onAction(.removeFavoriteClicked(HomeFavoriteUi(kind: .team, entityId: "t1", name: "Olympic 1", detail: nil)))
-        await waitUntil { !removed.isEmpty }
-
-        #expect(removed.compactMap { ($0 as? FavoriteTeam)?.id } == ["t1"])
-    }
-
     @Test func dismissingThePickerClosesIt() {
         let viewModel = makeViewModel()
 

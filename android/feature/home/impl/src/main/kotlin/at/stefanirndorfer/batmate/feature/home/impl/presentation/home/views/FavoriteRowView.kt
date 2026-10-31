@@ -16,13 +16,11 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import at.stefanirndorfer.batmate.core.localization.R
-import at.stefanirndorfer.batmate.designsystem.icon.BatIcon
 import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatAvatarTint
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatCard
-import at.stefanirndorfer.batmate.designsystem.ui.components.BatIconButton
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatInitialsAvatar
 import at.stefanirndorfer.batmate.domain.user.Favorite
 import at.stefanirndorfer.batmate.domain.user.ResolvedFavorite
@@ -31,7 +29,6 @@ import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.formatting
 @Composable
 fun FavoriteRowView(
     favorite: ResolvedFavorite,
-    onRemoveClick: () -> Unit,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
 ) {
@@ -73,11 +70,6 @@ fun FavoriteRowView(
                     Text(text = detail, color = BatDesign.colors.textSecondary, style = BatDesign.typography.caption)
                 }
             }
-            BatIconButton(
-                icon = BatIcon.Close,
-                contentDescription = stringResource(R.string.home_favorite_remove_cd, favorite.name),
-                onClick = onRemoveClick,
-            )
         }
     }
 }
@@ -87,16 +79,15 @@ fun FavoriteRowView(
 private fun FavoriteRowViewPreview() {
     BatPreviewSurface {
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
-            FavoriteRowView(ResolvedFavorite(Favorite.Player("p"), "Anna Gruber", "TTC Olympic"), onRemoveClick = {}, onClick = {})
-            FavoriteRowView(ResolvedFavorite(Favorite.Club("c"), "Nussdorf TTC", "WTTV"), onRemoveClick = {}, onClick = {})
-            FavoriteRowView(ResolvedFavorite(Favorite.Team("t"), "TTC Olympic 1", "TTC Olympic"), onRemoveClick = {}, onClick = {})
+            FavoriteRowView(ResolvedFavorite(Favorite.Player("p"), "Anna Gruber", "TTC Olympic"), onClick = {})
+            FavoriteRowView(ResolvedFavorite(Favorite.Club("c"), "Nussdorf TTC", "WTTV"), onClick = {})
+            FavoriteRowView(ResolvedFavorite(Favorite.Team("t"), "TTC Olympic 1", "TTC Olympic"), onClick = {})
             FavoriteRowView(
                 ResolvedFavorite(
                     Favorite.Team("lt"),
                     "Union Tischtennisclub St. Pölten Nord-West 1",
                     "Union Tischtennisclub St. Pölten Nord-West",
                 ),
-                onRemoveClick = {},
                 onClick = {},
             )
             FavoriteRowView(
@@ -105,7 +96,6 @@ private fun FavoriteRowViewPreview() {
                     "Katharina Habsburg-Lothringen-Esterházy",
                     "Union Tischtennisclub St. Pölten Nord-West",
                 ),
-                onRemoveClick = {},
                 onClick = {},
             )
         }

@@ -86,8 +86,6 @@ final class HomeViewModel {
                 playerDrillDown.cancel()
                 browsingPlayers = false
             }
-        case .removeFavoriteClicked(let favorite):
-            Task { try? await removeFavorite(favorite.kind.toDomain(favorite.entityId)) }
         case .pickerQueryChanged(let query):
             if browsingPlayers {
                 playerDrillDown.setQuery(query)

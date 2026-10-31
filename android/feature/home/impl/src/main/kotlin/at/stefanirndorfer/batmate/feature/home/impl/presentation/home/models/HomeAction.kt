@@ -1,7 +1,5 @@
 package at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models
 
-import at.stefanirndorfer.batmate.domain.user.Favorite
-
 sealed interface HomeAction {
     data object ChooseClicked : HomeAction
 
@@ -16,8 +14,6 @@ sealed interface HomeAction {
     data class FavoritePlayerClicked(val playerId: String) : HomeAction
 
     data class FavoriteTeamClicked(val teamId: String) : HomeAction
-
-    data class RemoveFavoriteClicked(val favorite: Favorite) : HomeAction
 
     data class PickerQueryChanged(val query: String) : HomeAction
 

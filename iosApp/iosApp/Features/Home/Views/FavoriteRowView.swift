@@ -3,7 +3,6 @@ import SwiftUI
 struct FavoriteRowView: View {
     let favorite: HomeFavoriteUi
     var onClick: (() -> Void)?
-    let onRemoveClick: () -> Void
 
     var body: some View {
         BatCardView(padding: BatSpacing.md) {
@@ -15,11 +14,6 @@ struct FavoriteRowView: View {
                 } else {
                     labels
                 }
-                BatIconButtonView(
-                    icon: .close,
-                    accessibilityText: String(localized: "home_favorite_remove_cd \(favorite.name)"),
-                    action: onRemoveClick
-                )
             }
         }
     }
@@ -47,18 +41,15 @@ private extension FavoriteRowView {
     BatPreviewMatrix {
         VStack(spacing: BatSpacing.sm) {
             FavoriteRowView(
-                favorite: HomeFavoriteUi(kind: .player, entityId: "p", name: "Anna Gruber", detail: "TTC Olympic"),
-                onRemoveClick: {}
+                favorite: HomeFavoriteUi(kind: .player, entityId: "p", name: "Anna Gruber", detail: "TTC Olympic")
             )
             FavoriteRowView(
                 favorite: HomeFavoriteUi(kind: .club, entityId: "c", name: "Nussdorf TTC", detail: "WTTV"),
-                onClick: {},
-                onRemoveClick: {}
+                onClick: {}
             )
             FavoriteRowView(
                 favorite: HomeFavoriteUi(kind: .team, entityId: "t", name: "TTC Olympic 1", detail: "TTC Olympic"),
-                onClick: {},
-                onRemoveClick: {}
+                onClick: {}
             )
             FavoriteRowView(
                 favorite: HomeFavoriteUi(
@@ -67,8 +58,7 @@ private extension FavoriteRowView {
                     name: "Union Tischtennisclub St. Pölten Nord-West 1",
                     detail: "Union Tischtennisclub St. Pölten Nord-West"
                 ),
-                onClick: {},
-                onRemoveClick: {}
+                onClick: {}
             )
             FavoriteRowView(
                 favorite: HomeFavoriteUi(
@@ -76,8 +66,7 @@ private extension FavoriteRowView {
                     entityId: "l",
                     name: "Katharina Habsburg-Lothringen-Esterházy",
                     detail: "Union Tischtennisclub St. Pölten Nord-West"
-                ),
-                onRemoveClick: {}
+                )
             )
         }
     }

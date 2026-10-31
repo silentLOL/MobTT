@@ -71,8 +71,7 @@ struct HomeScreen: View {
                         ForEach(state.favorites) { favorite in
                             FavoriteRowView(
                                 favorite: favorite,
-                                onClick: openAction(for: favorite),
-                                onRemoveClick: { onAction(.removeFavoriteClicked(favorite)) }
+                                onClick: openAction(for: favorite)
                             )
                         }
                     }

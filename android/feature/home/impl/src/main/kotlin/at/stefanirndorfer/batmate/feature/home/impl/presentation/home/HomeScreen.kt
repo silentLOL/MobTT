@@ -106,7 +106,6 @@ fun HomeScreen(
                                     { onAction(HomeAction.FavoritePlayerClicked(item.id)) }
                                 }
                             },
-                            onRemoveClick = { onAction(HomeAction.RemoveFavoriteClicked(favorite.favorite)) },
                         )
                     }
                 }

@@ -49,7 +49,6 @@
     <string name="home_favorites_title">Favorites</string>
     <string name="home_favorites_add_button">Add</string>
     <string name="home_favorites_empty_body">Bookmark Players and Clubs for quick access.</string>
-    <string name="home_favorite_remove_cd">Remove %1$s from Favorites</string>
     <string name="home_favorite_picker_title">Add Favorites</string>
     <string name="home_favorite_picker_browse_players_button">Find a Player by Association and League</string>
 

@@ -191,18 +191,6 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun removingAFavoriteFromHomeDropsItFromTheList() = runTest {
-        data.saveSelection(UserSelection.None)
-        data.add(Favorite.Club("c1"))
-        val viewModel = viewModel()
-        assertEquals(1, viewModel.uiState.value.favorites.size)
-
-        viewModel.onAction(HomeAction.RemoveFavoriteClicked(Favorite.Club("c1")))
-
-        assertTrue(viewModel.uiState.value.favorites.isEmpty())
-    }
-
-    @Test
     fun aFavoriteThatCannotBeResolvedIsLeftOut() = runTest {
         data.add(Favorite.Club("gone"))
         val viewModel = viewModel()

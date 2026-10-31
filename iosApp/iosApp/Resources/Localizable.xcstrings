@@ -647,23 +647,6 @@
         }
       }
     },
-    "home_favorite_remove_cd %@": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ aus Favoriten entfernen"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Remove %@ from Favorites"
-          }
-        }
-      }
-    },
     "home_favorites_add_button": {
       "extractionState": "manual",
       "localizations": {

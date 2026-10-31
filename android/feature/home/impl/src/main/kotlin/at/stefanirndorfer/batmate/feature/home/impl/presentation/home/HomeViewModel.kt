@@ -106,7 +106,6 @@ class HomeViewModel(
             is HomeAction.FavoriteClubClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenClub(action.clubId)) }
             is HomeAction.FavoritePlayerClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenPlayer(action.playerId)) }
             is HomeAction.FavoriteTeamClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenTeam(action.teamId)) }
-            is HomeAction.RemoveFavoriteClicked -> viewModelScope.launch { removeFavorite(action.favorite) }
             is HomeAction.PickerQueryChanged -> pickerInput.update { it?.copy(query = action.query) }
             HomeAction.PickerBrowsePlayersClicked -> pickerInput.update { it?.copy(query = "", path = PlayerPath()) }
             is HomeAction.PickerPlayerClicked -> choosePlayerEntry(action.id)
