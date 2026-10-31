@@ -56,7 +56,7 @@ struct PlayersViewModelTests {
     @Test func choosingAnAssociationClosesTheSheetAndEnablesTheClubRow() async {
         let viewModel = await chooseAssociation(makeViewModel())
 
-        #expect(viewModel.uiState.associationName == "Wiener Tischtennis-Verband")
+        #expect(viewModel.uiState.associationName == "WTTV")
         #expect(viewModel.uiState.isClubEnabled)
         #expect(viewModel.uiState.sheet == nil)
     }
@@ -105,7 +105,7 @@ struct PlayersViewModelTests {
         viewModel.onAction(.sheetEntryClicked(id: "a2"))
 
         let state = viewModel.uiState
-        #expect(state.associationName == "Kärntner Tischtennisverband")
+        #expect(state.associationName == "KTTV")
         #expect(state.clubName == nil)
         #expect(state.query == "")
         #expect(state.list == .noClub)

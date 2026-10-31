@@ -82,7 +82,7 @@ class PlayersViewModel(
     /** An unreachable XTTV reads as an empty sheet rather than an error. */
     private suspend fun loadPickerEntries(kind: PlayersPickerKind, current: PlayersUiState): List<DirectoryEntryUi> = try {
         when (kind) {
-            PlayersPickerKind.ASSOCIATION -> listAssociations().map { DirectoryEntryUi(it.id, it.name, subtitle = null, selected = false) }
+            PlayersPickerKind.ASSOCIATION -> listAssociations().map { DirectoryEntryUi(it.id, it.code, subtitle = null, selected = false) }
             PlayersPickerKind.CLUB -> listAssociationClubs(current.association!!.id).map {
                 DirectoryEntryUi(it.id, it.name, subtitle = null, selected = false)
             }

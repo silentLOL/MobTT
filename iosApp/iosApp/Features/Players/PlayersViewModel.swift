@@ -115,7 +115,7 @@ final class PlayersViewModel {
             associations = .loading
             sheetTask?.cancel()
             sheetTask = Task { [loadAssociations] in
-                let result = await Self.read(loadAssociations) { ($0 as? [Association])?.map { Choice(id: $0.id, name: $0.name) } }
+                let result = await Self.read(loadAssociations) { ($0 as? [Association])?.map { Choice(id: $0.id, name: $0.code) } }
                 guard !Task.isCancelled else { return }
                 associations = result
             }

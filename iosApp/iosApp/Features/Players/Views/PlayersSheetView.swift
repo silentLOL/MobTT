@@ -9,23 +9,21 @@ struct PlayersSheetView: View {
     let onDismiss: () -> Void
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: BatSpacing.lg) {
-                HStack {
-                    Text(title)
-                        .batTextStyle(BatTypography.headline)
-                        .foregroundStyle(BatColor.textPrimary)
-                        .accessibilityAddTraits(.isHeader)
-                    Spacer(minLength: BatSpacing.sm)
-                    BatIconButtonView(icon: .close, accessibilityText: String(localized: "core_close_button_cd"), action: onDismiss)
-                }
-                content
+        VStack(alignment: .leading, spacing: BatSpacing.lg) {
+            HStack {
+                Text(title)
+                    .batTextStyle(BatTypography.headline)
+                    .foregroundStyle(BatColor.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
+                Spacer(minLength: BatSpacing.sm)
+                BatIconButtonView(icon: .close, accessibilityText: String(localized: "core_close_button_cd"), action: onDismiss)
             }
-            .padding(.horizontal, BatSpacing.lg)
-            .padding(.vertical, BatSpacing.lg)
-            .frame(maxWidth: BatSizing.maxContentWidth)
-            .frame(maxWidth: .infinity)
+            content
         }
+        .padding(.horizontal, BatSpacing.lg)
+        .padding(.vertical, BatSpacing.lg)
+        .frame(maxWidth: BatSizing.maxContentWidth, maxHeight: .infinity, alignment: .top)
+        .frame(maxWidth: .infinity)
         .batBackground()
     }
 
@@ -53,7 +51,8 @@ struct PlayersSheetView: View {
                 onQueryChange: onQueryChange,
                 sections: [DirectorySectionUi(title: nil, entries: entries)],
                 onEntryClick: { _, entry in onEntryClick(entry.id) },
-                placeholder: String(localized: "core_search_placeholder")
+                placeholder: String(localized: "core_search_placeholder"),
+                scrollsList: true
             )
         }
     }

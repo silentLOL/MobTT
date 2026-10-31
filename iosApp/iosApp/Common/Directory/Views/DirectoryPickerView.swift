@@ -1,12 +1,14 @@
 import SwiftUI
 
 /// Shows one "no matches" message when every section is empty, so a search that found nothing says so.
+/// With [scrollsList] the search field stays put and only the hits scroll; the view then fills the height it is offered.
 struct DirectoryPickerView: View {
     let query: String
     let onQueryChange: (String) -> Void
     let sections: [DirectorySectionUi]
     let onEntryClick: (_ sectionIndex: Int, _ entry: DirectoryEntryUi) -> Void
     var placeholder: String = String(localized: "core_search_placeholder")
+    var scrollsList = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: BatSpacing.md) {
@@ -16,6 +18,20 @@ struct DirectoryPickerView: View {
                 placeholder: placeholder,
                 leadingIcon: .search
             )
+            if scrollsList {
+                ScrollView {
+                    list
+                }
+                .scrollBounceBehavior(.basedOnSize)
+            } else {
+                list
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var list: some View {
+        VStack(alignment: .leading, spacing: BatSpacing.md) {
             if sections.allSatisfy({ $0.entries.isEmpty }) {
                 Text("core_search_empty_body")
                     .batTextStyle(BatTypography.body)
@@ -40,6 +56,7 @@ struct DirectoryPickerView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

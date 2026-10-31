@@ -122,7 +122,7 @@ class PlayersViewModelTest {
 
         viewModel.onAction(PlayersAction.PickerEntryClicked("a2"))
 
-        assertEquals("OÖ Verband", viewModel.uiState.value.association?.name)
+        assertEquals("OÖTTV", viewModel.uiState.value.association?.name)
         assertNull(viewModel.uiState.value.picker)
     }
 
