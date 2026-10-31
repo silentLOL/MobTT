@@ -1,9 +1,23 @@
 import SwiftUI
 
 struct PlayersRoute: View {
-    let onOpenPlayer: (String) -> Void
+    var onOpenPlayer: (String) -> Void = { _ in }
+    var onChooseClub: (String) -> Void = { _ in }
+    var onDone: () -> Void = {}
 
-    @State private var viewModel = PlayersViewModel()
+    @State private var viewModel: PlayersViewModel
+
+    init(
+        mode: PlayersMode = .browse,
+        onOpenPlayer: @escaping (String) -> Void = { _ in },
+        onChooseClub: @escaping (String) -> Void = { _ in },
+        onDone: @escaping () -> Void = {}
+    ) {
+        self.onOpenPlayer = onOpenPlayer
+        self.onChooseClub = onChooseClub
+        self.onDone = onDone
+        _viewModel = State(initialValue: PlayersViewModel(mode: mode))
+    }
 
     var body: some View {
         PlayersScreen(state: viewModel.uiState, onAction: viewModel.onAction)
@@ -11,6 +25,8 @@ struct PlayersRoute: View {
                 for await event in viewModel.events {
                     switch event {
                     case .openPlayer(let playerId): onOpenPlayer(playerId)
+                    case .clubChosen(let clubId): onChooseClub(clubId)
+                    case .done: onDone()
                     }
                 }
             }
@@ -36,7 +52,9 @@ struct PlayersScreen: View {
                     hint: String(localized: "players_club_disabled_hint"),
                     isEnabled: state.isClubEnabled
                 ) { onAction(.clubRowClicked) }
-                list
+                if state.showsPlayers {
+                    list
+                }
             }
             .padding(BatSpacing.lg)
             .frame(maxWidth: BatSizing.maxContentWidth)
@@ -116,5 +134,11 @@ struct PlayersScreen: View {
 #Preview("Players") {
     BatPreviewMatrix {
         PlayersScreen(state: PlayersPreviewData.chosen, onAction: { _ in })
+    }
+}
+
+#Preview("Pick a Club") {
+    BatPreviewMatrix {
+        PlayersScreen(state: PlayersUiState(associationName: "OÖTTV", showsPlayers: false), onAction: { _ in })
     }
 }

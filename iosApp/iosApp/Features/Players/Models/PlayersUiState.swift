@@ -37,6 +37,8 @@ struct PlayersUiState: Equatable {
     var clubName: String?
     var query = ""
     var list: PlayersListUi = .noClub
+    /// False when the flow ends at the Club, so there is no Player list below the two rows.
+    var showsPlayers = true
     var sheet: PlayersSheetUi?
 
     var isClubEnabled: Bool { associationName != nil }

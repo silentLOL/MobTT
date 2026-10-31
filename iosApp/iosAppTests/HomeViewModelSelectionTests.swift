@@ -34,18 +34,40 @@ struct HomeViewModelSelectionTests {
         #expect(viewModel.uiState.selection == .none)
     }
 
-    @Test func actionsEmitTheMatchingEvents() async {
+    @Test func theChoosePromptAsksPlayerOrClubAndDismissingClosesIt() {
+        let viewModel = makeViewModel()
+
+        viewModel.onAction(.chooseClicked)
+        #expect(viewModel.uiState.isChoosingHero)
+
+        viewModel.onAction(.chooseDismissed)
+        #expect(!viewModel.uiState.isChoosingHero)
+    }
+
+    @Test func choosingPlayerOrClubClosesThePromptAndOpensTheMatchingFlow() async {
         let viewModel = makeViewModel()
         var events = viewModel.events.makeAsyncIterator()
 
         viewModel.onAction(.chooseClicked)
+        viewModel.onAction(.choosePlayerClicked)
+        #expect(!viewModel.uiState.isChoosingHero)
+        viewModel.onAction(.chooseClicked)
+        viewModel.onAction(.chooseClubClicked)
+
+        guard case .chooseMyPlayer? = await events.next() else { Issue.record("expected chooseMyPlayer"); return }
+        guard case .chooseMyClub? = await events.next() else { Issue.record("expected chooseMyClub"); return }
+    }
+
+    @Test func actionsEmitTheMatchingEvents() async {
+        let viewModel = makeViewModel()
+        var events = viewModel.events.makeAsyncIterator()
+
         viewModel.onAction(.favoriteClubClicked(id: "c1"))
         viewModel.onAction(.favoriteTeamClicked(id: "t1"))
         viewModel.onAction(.favoritePlayerClicked(id: "p1"))
         viewModel.onAction(.heroPlayerClicked(id: "p1"))
         viewModel.onAction(.heroClubClicked(id: "c1"))
 
-        guard case .openSettings? = await events.next() else { Issue.record("expected openSettings"); return }
         guard case .openClub(let clubId)? = await events.next() else { Issue.record("expected openClub"); return }
         #expect(clubId == "c1")
         guard case .openTeam(let teamId)? = await events.next() else { Issue.record("expected openTeam"); return }

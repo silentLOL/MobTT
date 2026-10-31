@@ -37,7 +37,8 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeRoute(
-    onOpenSettings: () -> Unit,
+    onChoosePlayer: () -> Unit,
+    onChooseClub: () -> Unit,
     onOpenClub: (String) -> Unit,
     onOpenPlayer: (String) -> Unit,
     onOpenTeam: (String) -> Unit,
@@ -47,7 +48,8 @@ fun HomeRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
-            HomeEvent.OpenSettings -> onOpenSettings()
+            HomeEvent.OpenChoosePlayer -> onChoosePlayer()
+            HomeEvent.OpenChooseClub -> onChooseClub()
             is HomeEvent.OpenClub -> onOpenClub(event.clubId)
             is HomeEvent.OpenPlayer -> onOpenPlayer(event.playerId)
             is HomeEvent.OpenTeam -> onOpenTeam(event.teamId)
@@ -74,7 +76,8 @@ fun HomeScreen(
         ) {
             MySelectionView(
                 selection = state.selection,
-                onChooseClick = { onAction(HomeAction.ChooseClicked) },
+                onChoosePlayerClick = { onAction(HomeAction.ChoosePlayerClicked) },
+                onChooseClubClick = { onAction(HomeAction.ChooseClubClicked) },
                 onPlayerClick = { onAction(HomeAction.HeroPlayerClicked(it)) },
                 onClubClick = { onAction(HomeAction.HeroClubClicked(it)) },
             )

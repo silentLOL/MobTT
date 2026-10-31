@@ -1,6 +1,8 @@
 package at.stefanirndorfer.batmate.feature.club.impl.presentation.club
 
 import at.stefanirndorfer.batmate.domain.club.GetClubOverviewUseCase
+import at.stefanirndorfer.batmate.domain.club.ListAssociationClubsUseCase
+import at.stefanirndorfer.batmate.domain.club.ListAssociationsUseCase
 import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.Favorite
 import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
@@ -37,15 +39,17 @@ class ClubViewModelTest {
     @After
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun TestScope.viewModel(): ClubViewModel {
+    private fun TestScope.viewModel(source: ClubSource = ClubSource.Specific("c1")): ClubViewModel {
         val viewModel = ClubViewModel(
-            source = ClubSource.Specific("c1"),
+            source = source,
             observeUserContext = ObserveUserContextUseCase(data, data, data, data),
             getClubOverview = GetClubOverviewUseCase(data, data, data, data, data),
             observeFavorites = ObserveFavoritesUseCase(data),
             addFavorite = AddFavoriteUseCase(data, data),
             removeFavorite = RemoveFavoriteUseCase(data),
             rememberPlayer = RememberPlayerUseCase(data),
+            listAssociations = ListAssociationsUseCase(data),
+            listAssociationClubs = ListAssociationClubsUseCase(data),
         )
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel
@@ -121,5 +125,26 @@ class ClubViewModelTest {
         viewModel.onAction(ClubAction.FavoriteClicked)
 
         assertEquals(emptySet(), data.favorites.value)
+    }
+
+    @Test
+    fun withoutAClubTheTabOffersTheAssociationAndClubPicker() = runTest {
+        val viewModel = viewModel(ClubSource.Mine)
+
+        val state = assertIs<ClubUiState.NoClub>(viewModel.uiState.value)
+        assertEquals(null, state.picker.association)
+    }
+
+    @Test
+    fun pickingAClubInTheTabShowsItWithoutSavingItAsMyClub() = runTest {
+        val viewModel = viewModel(ClubSource.Mine)
+
+        viewModel.onAction(ClubAction.AssociationRowClicked)
+        viewModel.onAction(ClubAction.PickerEntryClicked("a1"))
+        viewModel.onAction(ClubAction.ClubRowClicked)
+        viewModel.onAction(ClubAction.PickerEntryClicked("c1"))
+
+        assertEquals("c1", assertIs<ClubUiState.Content>(viewModel.uiState.value).overview.club.id)
+        assertEquals(emptyList(), data.saved)
     }
 }

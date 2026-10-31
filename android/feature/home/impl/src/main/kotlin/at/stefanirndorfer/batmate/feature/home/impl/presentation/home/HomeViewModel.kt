@@ -99,7 +99,8 @@ class HomeViewModel(
 
     fun onAction(action: HomeAction) {
         when (action) {
-            HomeAction.ChooseClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenSettings) }
+            HomeAction.ChoosePlayerClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenChoosePlayer) }
+            HomeAction.ChooseClubClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenChooseClub) }
             HomeAction.AddFavoriteClicked -> pickerInput.value = PickerInput()
             is HomeAction.HeroPlayerClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenPlayer(action.playerId)) }
             is HomeAction.HeroClubClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenClub(action.clubId)) }

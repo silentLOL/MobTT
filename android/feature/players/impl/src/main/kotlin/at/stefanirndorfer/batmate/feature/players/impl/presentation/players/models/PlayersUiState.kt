@@ -1,22 +1,13 @@
 package at.stefanirndorfer.batmate.feature.players.impl.presentation.players.models
 
-import at.stefanirndorfer.batmate.core.ui.directory.models.DirectoryEntryUi
+import at.stefanirndorfer.batmate.core.ui.directory.models.AssociationClubSheetUi
+import at.stefanirndorfer.batmate.core.ui.directory.models.PickedUi
+
+/** Whether tapping a Player opens their screen or makes them My Player. */
+enum class PlayersMode { Browse, ChooseMine }
 
 /** A Player of the chosen Club; [rcPoints] is null when XTTV gives none. */
 data class PlayerEntryUi(val id: String, val name: String, val rcPoints: Int?)
-
-/** An Association or Club the user chose. */
-data class PickedUi(val id: String, val name: String)
-
-enum class PlayersPickerKind { ASSOCIATION, CLUB }
-
-/** The open bottom sheet. [entries] are already filtered by [query]. */
-data class PlayersPickerUi(
-    val kind: PlayersPickerKind,
-    val query: String,
-    val entries: List<DirectoryEntryUi>,
-    val isLoading: Boolean,
-)
 
 /** What fills the screen below the two rows. */
 sealed interface PlayersListUi {
@@ -37,5 +28,5 @@ data class PlayersUiState(
     val club: PickedUi? = null,
     val query: String = "",
     val list: PlayersListUi = PlayersListUi.PickClub,
-    val picker: PlayersPickerUi? = null,
+    val picker: AssociationClubSheetUi? = null,
 )

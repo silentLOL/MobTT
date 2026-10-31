@@ -21,18 +21,20 @@ import at.stefanirndorfer.batmate.designsystem.ui.components.BatCard
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatHeroCard
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatHeroPill
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatPrimaryButton
+import at.stefanirndorfer.batmate.designsystem.ui.components.BatSecondaryButton
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models.HomeSelectionUi
 
 @Composable
 fun MySelectionView(
     selection: HomeSelectionUi,
-    onChooseClick: () -> Unit,
+    onChoosePlayerClick: () -> Unit,
+    onChooseClubClick: () -> Unit,
     onPlayerClick: (String) -> Unit,
     onClubClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when (selection) {
-        HomeSelectionUi.None -> ChoosePromptView(onChooseClick = onChooseClick, modifier = modifier)
+        HomeSelectionUi.None -> ChoosePromptView(onChoosePlayerClick, onChooseClubClick, modifier)
         HomeSelectionUi.Unavailable -> Unit
         is HomeSelectionUi.Player -> HeroView(
             overline = stringResource(R.string.home_my_player_overline),
@@ -87,7 +89,7 @@ private fun HeroView(
 }
 
 @Composable
-private fun ChoosePromptView(onChooseClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun ChoosePromptView(onChoosePlayerClick: () -> Unit, onChooseClubClick: () -> Unit, modifier: Modifier = Modifier) {
     BatCard(modifier = modifier.fillMaxWidth()) {
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.md)) {
             Text(
@@ -102,8 +104,13 @@ private fun ChoosePromptView(onChooseClick: () -> Unit, modifier: Modifier = Mod
                 style = BatDesign.typography.body,
             )
             BatPrimaryButton(
-                text = stringResource(R.string.home_choose_button),
-                onClick = onChooseClick,
+                text = stringResource(R.string.home_choose_player_button),
+                onClick = onChoosePlayerClick,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            BatSecondaryButton(
+                text = stringResource(R.string.home_choose_club_button),
+                onClick = onChooseClubClick,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -115,14 +122,15 @@ private fun ChoosePromptView(onChooseClick: () -> Unit, modifier: Modifier = Mod
 private fun MySelectionViewPreview() {
     BatPreviewSurface {
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.lg)) {
-            MySelectionView(selection = HomeSelectionUi.None, onChooseClick = {}, onPlayerClick = {}, onClubClick = {})
+            MySelectionView(selection = HomeSelectionUi.None, onChoosePlayerClick = {}, onChooseClubClick = {}, onPlayerClick = {}, onClubClick = {})
             MySelectionView(
                 selection = HomeSelectionUi.Player("Michael Huber", "TTC Olympic", "WTTV", "p1"),
-                onChooseClick = {},
+                onChoosePlayerClick = {},
+                onChooseClubClick = {},
                 onPlayerClick = {},
                 onClubClick = {},
             )
-            MySelectionView(selection = HomeSelectionUi.Club("Nussdorf TTC", "WTTV", "c1"), onChooseClick = {}, onPlayerClick = {}, onClubClick = {})
+            MySelectionView(selection = HomeSelectionUi.Club("Nussdorf TTC", "WTTV", "c1"), onChoosePlayerClick = {}, onChooseClubClick = {}, onPlayerClick = {}, onClubClick = {})
             MySelectionView(
                 selection = HomeSelectionUi.Player(
                     "Katharina Habsburg-Lothringen-Esterházy",
@@ -130,7 +138,8 @@ private fun MySelectionViewPreview() {
                     "Niederösterreichischer Tischtennisverband (NÖTTV)",
                     "p2",
                 ),
-                onChooseClick = {},
+                onChoosePlayerClick = {},
+                onChooseClubClick = {},
                 onPlayerClick = {},
                 onClubClick = {},
             )

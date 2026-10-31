@@ -7,6 +7,8 @@ import Shared
 @MainActor
 @Observable
 final class PlayersViewModel {
+    private let mode: PlayersMode
+
     private struct Choice {
         let id: String
         let name: String
@@ -34,20 +36,28 @@ final class PlayersViewModel {
     @ObservationIgnored private let loadClubs: (String) async throws -> DataResult
     @ObservationIgnored private let loadPlayers: (String) async throws -> DataResult
     @ObservationIgnored private let rememberPlayer: (Player) async throws -> Void
+    @ObservationIgnored private let setMyPlayer: (String) async throws -> Void
+    @ObservationIgnored private let setMyClub: (String) async throws -> Void
     @ObservationIgnored private let eventStream = AsyncStream<PlayersEvent>.makeStream()
 
     var events: AsyncStream<PlayersEvent> { eventStream.stream }
 
     init(
+        mode: PlayersMode = .browse,
         loadAssociations: @escaping () async throws -> DataResult = { try await KoinHelper.shared.listAssociations() },
         loadClubs: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.listAssociationClubs(associationId: $0) },
         loadPlayers: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.listClubPlayers(clubId: $0) },
-        rememberPlayer: @escaping (Player) async throws -> Void = { try await KoinHelper.shared.getRememberPlayerUseCase().invoke(player: $0) }
+        rememberPlayer: @escaping (Player) async throws -> Void = { try await KoinHelper.shared.getRememberPlayerUseCase().invoke(player: $0) },
+        setMyPlayer: @escaping (String) async throws -> Void = { try await KoinHelper.shared.getSetMyPlayerUseCase().invoke(playerId: $0) },
+        setMyClub: @escaping (String) async throws -> Void = { try await KoinHelper.shared.getSetMyClubUseCase().invoke(clubId: $0) }
     ) {
+        self.mode = mode
         self.loadAssociations = loadAssociations
         self.loadClubs = loadClubs
         self.loadPlayers = loadPlayers
         self.rememberPlayer = rememberPlayer
+        self.setMyPlayer = setMyPlayer
+        self.setMyClub = setMyClub
     }
 
     var uiState: PlayersUiState {
@@ -56,6 +66,7 @@ final class PlayersViewModel {
             clubName: club?.name,
             query: query,
             list: listUi,
+            showsPlayers: mode.showsPlayers,
             sheet: sheetKind.map { PlayersSheetUi(kind: $0, query: sheetQuery, content: sheetContent($0)) }
         )
     }
@@ -143,7 +154,10 @@ final class PlayersViewModel {
             }
         case .club:
             guard case .ready(let all) = clubs, let entry = all.first(where: { $0.id == id }) else { return }
-            if club?.id != entry.id {
+            if !mode.showsPlayers {
+                club = entry
+                chooseClub(entry)
+            } else if club?.id != entry.id {
                 club = entry
                 query = ""
                 loadClubPlayers(entry)
@@ -171,11 +185,30 @@ final class PlayersViewModel {
         }
     }
 
+    /// The Club is the end of the flow: it is either saved as My Club or handed to the caller.
+    private func chooseClub(_ club: Choice) {
+        Task {
+            if mode == .myClub {
+                guard (try? await setMyClub(club.id)) != nil else { return }
+                eventStream.continuation.yield(.done)
+            } else {
+                eventStream.continuation.yield(.clubChosen(clubId: club.id))
+            }
+        }
+    }
+
     private func openPlayer(playerId: String, name: String) {
         guard let club else { return }
         Task {
-            try? await rememberPlayer(Player(id: playerId, name: name, clubId: club.id))
-            eventStream.continuation.yield(.openPlayer(playerId: playerId))
+            if mode == .myPlayer {
+                // A failed save keeps the screen open so the Player can be tapped again.
+                guard (try? await rememberPlayer(Player(id: playerId, name: name, clubId: club.id))) != nil,
+                      (try? await setMyPlayer(playerId)) != nil else { return }
+                eventStream.continuation.yield(.done)
+            } else {
+                try? await rememberPlayer(Player(id: playerId, name: name, clubId: club.id))
+                eventStream.continuation.yield(.openPlayer(playerId: playerId))
+            }
         }
     }
 

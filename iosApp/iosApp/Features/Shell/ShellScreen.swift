@@ -8,6 +8,11 @@ private struct PlayerDestination: Hashable {
     let playerId: String
 }
 
+/// The Players flow reused to choose the hero: a Player (saved as My Player) or a Club (saved as My Club).
+private struct ChooseHeroDestination: Hashable {
+    let mode: PlayersMode
+}
+
 private struct TeamDestination: Hashable {
     let teamId: String
 }
@@ -53,7 +58,8 @@ struct ShellScreen: View {
             TabView(selection: $selectedTab) {
                 NavigationStack(path: $homePath) {
                     HomeRoute(
-                        onOpenSettings: { isSettingsPresented = true },
+                        onChooseMyPlayer: { homePath.append(ChooseHeroDestination(mode: .myPlayer)) },
+                        onChooseMyClub: { homePath.append(ChooseHeroDestination(mode: .myClub)) },
                         onOpenClub: { homePath.append(ClubDetailRoute(clubId: $0)) },
                         onOpenTeam: { homePath.append(TeamDestination(teamId: $0)) },
                         onOpenPlayer: { homePath.append(PlayerDestination(playerId: $0)) }
@@ -70,6 +76,12 @@ struct ShellScreen: View {
                         .navigationBarTitleDisplayMode(.inline)
                         .batBackground()
                     }
+                    .navigationDestination(for: ChooseHeroDestination.self) { route in
+                        PlayersRoute(mode: route.mode, onDone: { homePath = NavigationPath() })
+                            .navigationTitle(String(localized: route.mode == .myPlayer ? "home_choose_player_title" : "home_choose_club_title"))
+                            .navigationBarTitleDisplayMode(.inline)
+                            .batBackground()
+                    }
                     .navigationDestination(for: TeamDestination.self) { route in
                         teamDetail(route, path: $homePath)
                     }
@@ -82,9 +94,7 @@ struct ShellScreen: View {
                 }
                 .tag(ShellTab.home)
                 NavigationStack(path: $clubPath) {
-                    ClubRoute(
-                        source: .mine,
-                        onOpenSettings: { isSettingsPresented = true },
+                    ClubTabRoute(
                         onOpenTeam: { clubPath.append(TeamDestination(teamId: $0)) },
                         onOpenPlayer: { clubPath.append(PlayerDestination(playerId: $0)) }
                     )

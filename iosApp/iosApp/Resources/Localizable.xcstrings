@@ -307,6 +307,23 @@
         }
       }
     },
+    "core_cancel_button": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abbrechen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        }
+      }
+    },
     "core_clubs_section_title": {
       "extractionState": "manual",
       "localizations": {
@@ -483,13 +500,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wähle in den Einstellungen Mein Spieler oder Mein Verein, um den Start zu personalisieren."
+            "value": "Wähle einen Spieler oder einen Verein, um den Start zu personalisieren."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pick My Player or My Club in Settings to personalise Home."
+            "value": "Choose a Player or a Club to personalise Home."
           }
         }
       }
@@ -500,13 +517,98 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Einstellungen öffnen"
+            "value": "Auswählen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Open Settings"
+            "value": "Choose"
+          }
+        }
+      }
+    },
+    "home_choose_club_button": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einen Verein"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Club"
+          }
+        }
+      }
+    },
+    "home_choose_club_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle deinen Verein"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose your Club"
+          }
+        }
+      }
+    },
+    "home_choose_dialog_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wonach suchst du?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What are you looking for?"
+          }
+        }
+      }
+    },
+    "home_choose_player_button": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einen Spieler"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Player"
+          }
+        }
+      }
+    },
+    "home_choose_player_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle deinen Spieler"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose your Player"
           }
         }
       }

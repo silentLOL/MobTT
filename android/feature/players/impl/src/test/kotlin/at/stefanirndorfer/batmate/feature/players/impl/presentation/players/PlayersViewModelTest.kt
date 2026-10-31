@@ -1,5 +1,6 @@
 package at.stefanirndorfer.batmate.feature.players.impl.presentation.players
 
+import at.stefanirndorfer.batmate.core.ui.directory.models.AssociationClubSheetKind
 import at.stefanirndorfer.batmate.domain.club.Association
 import at.stefanirndorfer.batmate.domain.club.AssociationRepository
 import at.stefanirndorfer.batmate.domain.club.Club
@@ -14,13 +15,18 @@ import at.stefanirndorfer.batmate.domain.club.TeamRepository
 import at.stefanirndorfer.batmate.domain.player.Player
 import at.stefanirndorfer.batmate.domain.player.PlayerRepository
 import at.stefanirndorfer.batmate.domain.user.RememberPlayerUseCase
+import at.stefanirndorfer.batmate.domain.user.SetMyPlayerUseCase
+import at.stefanirndorfer.batmate.domain.user.UserSelection
+import at.stefanirndorfer.batmate.domain.user.UserSelectionRepository
 import at.stefanirndorfer.batmate.feature.players.impl.presentation.players.models.PlayersAction
 import at.stefanirndorfer.batmate.feature.players.impl.presentation.players.models.PlayersEvent
 import at.stefanirndorfer.batmate.feature.players.impl.presentation.players.models.PlayersListUi
-import at.stefanirndorfer.batmate.feature.players.impl.presentation.players.models.PlayersPickerKind
+import at.stefanirndorfer.batmate.feature.players.impl.presentation.players.models.PlayersMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -36,9 +42,11 @@ private class FakeDirectory :
     ClubRepository,
     AssociationRepository,
     TeamRepository,
-    PlayerRepository {
+    PlayerRepository,
+    UserSelectionRepository {
     var unavailable = false
     val remembered = mutableListOf<Player>()
+    val saved = mutableListOf<UserSelection>()
 
     private val clubs = listOf(Club("c1", "TTC Olympic", "a1"), Club("c2", "Nussdorf TTC", "a1"), Club("c3", "Linz AG", "a2"))
 
@@ -72,6 +80,12 @@ private class FakeDirectory :
     override suspend fun remember(player: Player) {
         remembered += player
     }
+
+    override fun observeSelection(): Flow<UserSelection> = flowOf(UserSelection.None)
+
+    override suspend fun saveSelection(selection: UserSelection) {
+        saved += selection
+    }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -84,11 +98,13 @@ class PlayersViewModelTest {
     @After
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun viewModel() = PlayersViewModel(
+    private fun viewModel(mode: PlayersMode = PlayersMode.Browse) = PlayersViewModel(
+        mode = mode,
         listAssociations = ListAssociationsUseCase(data),
         listAssociationClubs = ListAssociationClubsUseCase(data),
         listClubPlayers = ListClubPlayersUseCase(data),
         rememberPlayer = RememberPlayerUseCase(data),
+        setMyPlayer = SetMyPlayerUseCase(data, data),
     )
 
     private fun PlayersViewModel.pick(row: PlayersAction, entryId: String) {
@@ -117,7 +133,7 @@ class PlayersViewModelTest {
 
         viewModel.onAction(PlayersAction.AssociationRowClicked)
         val picker = viewModel.uiState.value.picker!!
-        assertEquals(PlayersPickerKind.ASSOCIATION, picker.kind)
+        assertEquals(AssociationClubSheetKind.ASSOCIATION, picker.kind)
         assertEquals(listOf("a1", "a2"), picker.entries.map { it.id })
 
         viewModel.onAction(PlayersAction.PickerEntryClicked("a2"))
@@ -201,5 +217,27 @@ class PlayersViewModelTest {
 
         assertEquals(listOf(Player("p1", "Anna Gruber", "c1")), data.remembered)
         assertEquals(PlayersEvent.OpenPlayer("p1"), viewModel.events.first())
+    }
+
+    @Test
+    fun whenChoosingMyPlayerTappingAPlayerSavesThemAndFinishesInsteadOfOpeningTheirScreen() = runTest {
+        val viewModel = viewModel(PlayersMode.ChooseMine)
+        viewModel.pickClub()
+
+        viewModel.onAction(PlayersAction.PlayerClicked("p1"))
+
+        assertEquals(listOf(Player("p1", "Anna Gruber", "c1")), data.remembered)
+        assertEquals(listOf<UserSelection>(UserSelection.MyPlayer("p1")), data.saved)
+        assertEquals(PlayersEvent.Chosen, viewModel.events.first())
+    }
+
+    @Test
+    fun browsingNeverChangesMyPlayer() = runTest {
+        val viewModel = viewModel()
+        viewModel.pickClub()
+
+        viewModel.onAction(PlayersAction.PlayerClicked("p1"))
+
+        assertEquals(emptyList(), data.saved)
     }
 }

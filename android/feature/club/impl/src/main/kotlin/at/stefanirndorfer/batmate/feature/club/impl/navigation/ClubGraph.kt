@@ -2,12 +2,14 @@ package at.stefanirndorfer.batmate.feature.club.impl.navigation
 
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import at.stefanirndorfer.batmate.feature.club.api.ChooseClubDestination
 import at.stefanirndorfer.batmate.feature.club.api.ClubDestination
 import at.stefanirndorfer.batmate.feature.club.api.ClubDetailDestination
 import at.stefanirndorfer.batmate.feature.club.api.LeagueDetailDestination
 import at.stefanirndorfer.batmate.feature.club.api.TeamDetailDestination
 import at.stefanirndorfer.batmate.feature.club.api.navigateToLeagueDetail
 import at.stefanirndorfer.batmate.feature.club.api.navigateToTeamDetail
+import at.stefanirndorfer.batmate.feature.club.impl.presentation.chooseclub.ChooseClubRoute
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.ClubRoute
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.models.ClubSource
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.LeagueDetailRoute
@@ -19,7 +21,6 @@ fun EntryProviderScope<NavKey>.clubGraph(navigator: GlobalNavigator) {
     entry<ClubDestination> {
         ClubRoute(
             source = ClubSource.Mine,
-            onOpenSettings = navigator::openSettings,
             onOpenTeam = navigator::navigateToTeamDetail,
             onOpenPlayer = navigator::navigateToPlayerDetail,
         )
@@ -27,10 +28,12 @@ fun EntryProviderScope<NavKey>.clubGraph(navigator: GlobalNavigator) {
     entry<ClubDetailDestination> { destination ->
         ClubRoute(
             source = ClubSource.Specific(destination.clubId),
-            onOpenSettings = navigator::openSettings,
             onOpenTeam = navigator::navigateToTeamDetail,
             onOpenPlayer = navigator::navigateToPlayerDetail,
         )
+    }
+    entry<ChooseClubDestination> {
+        ChooseClubRoute(onChosen = navigator::goBack)
     }
     entry<TeamDetailDestination> { destination ->
         TeamDetailRoute(

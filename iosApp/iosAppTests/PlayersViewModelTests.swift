@@ -32,7 +32,7 @@ struct PlayersViewModelTests {
 
         viewModel.onAction(.associationRowClicked)
         await waitUntil { viewModel.uiState.sheet?.content != .loading }
-        viewModel.onAction(.sheetQueryChanged("kärnt"))
+        viewModel.onAction(.sheetQueryChanged("kttv"))
 
         #expect(viewModel.uiState.sheet?.kind == .association)
         #expect(entryIds(viewModel) == ["a2"])
@@ -140,6 +140,57 @@ struct PlayersViewModelTests {
         #expect(playerId == "p1")
     }
 
+    @Test func inMyPlayerModeTappingAPlayerSavesThemAsMyPlayerAndFinishes() async {
+        var saved: [String] = []
+        var remembered: [String] = []
+        let viewModel = await chooseClub(await chooseAssociation(makeViewModel(
+            mode: .myPlayer,
+            rememberPlayer: { remembered.append($0.id) },
+            setMyPlayer: { saved.append($0) }
+        )))
+        await waitUntil { viewModel.uiState.list != .loading }
+        var iterator = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.playerClicked(playerId: "p2", name: "Zoe Zeller"))
+        let event = await iterator.next()
+
+        #expect(remembered == ["p2"])
+        #expect(saved == ["p2"])
+        #expect(event == .done)
+    }
+
+    @Test func inMyClubModeTheFlowEndsAtTheClubWithoutLoadingPlayers() async {
+        var saved: [String] = []
+        var playersLoaded = false
+        let viewModel = await chooseAssociation(makeViewModel(
+            mode: .myClub,
+            loadPlayers: { _ in playersLoaded = true; return self.success(self.lineup) },
+            setMyClub: { saved.append($0) }
+        ))
+        var iterator = viewModel.events.makeAsyncIterator()
+
+        let finished = await chooseClub(viewModel)
+        let event = await iterator.next()
+
+        #expect(!finished.uiState.showsPlayers)
+        #expect(finished.uiState.clubName == "Alpha TTC")
+        #expect(saved == ["c1"])
+        #expect(event == .done)
+        #expect(!playersLoaded)
+    }
+
+    @Test func inPickClubModeTheClubIsHandedBackAndNothingIsSaved() async {
+        var saved: [String] = []
+        let viewModel = await chooseAssociation(makeViewModel(mode: .pickClub, setMyClub: { saved.append($0) }))
+        var iterator = viewModel.events.makeAsyncIterator()
+
+        _ = await chooseClub(viewModel)
+        let event = await iterator.next()
+
+        #expect(event == .clubChosen(clubId: "c1"))
+        #expect(saved.isEmpty)
+    }
+
     private func chooseAssociation(_ viewModel: PlayersViewModel) async -> PlayersViewModel {
         viewModel.onAction(.associationRowClicked)
         await waitUntil { viewModel.uiState.sheet?.content != .loading }
@@ -165,16 +216,22 @@ struct PlayersViewModelTests {
     }
 
     private func makeViewModel(
+        mode: PlayersMode = .browse,
         loadAssociations: (() async throws -> DataResult)? = nil,
         loadClubs: ((String) async throws -> DataResult)? = nil,
         loadPlayers: ((String) async throws -> DataResult)? = nil,
-        rememberPlayer: @escaping (Player) async throws -> Void = { _ in }
+        rememberPlayer: @escaping (Player) async throws -> Void = { _ in },
+        setMyPlayer: @escaping (String) async throws -> Void = { _ in },
+        setMyClub: @escaping (String) async throws -> Void = { _ in }
     ) -> PlayersViewModel {
         PlayersViewModel(
+            mode: mode,
             loadAssociations: loadAssociations ?? { self.success(self.associations) },
             loadClubs: loadClubs ?? { _ in self.success(self.clubs) },
             loadPlayers: loadPlayers ?? { _ in self.success(self.lineup) },
-            rememberPlayer: rememberPlayer
+            rememberPlayer: rememberPlayer,
+            setMyPlayer: setMyPlayer,
+            setMyClub: setMyClub
         )
     }
 

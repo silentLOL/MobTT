@@ -10,6 +10,8 @@
     <string name="home_empty_title">Welcome to MobTT</string>
     <string name="home_empty_body">Your results, form and next Fixture will show up here.</string>
     <string name="club_empty_title">No Club yet</string>
+    <string name="choose_club_title">Choose My Club</string>
+    <string name="choose_club_body">Pick your Association, then your Club. It shows on Home as your hero card.</string>
     <string name="club_empty_body">Your Club, its Teams and the League tables will show up here.</string>
     <string name="players_association_label">Association</string>
     <string name="players_association_placeholder">Choose an Association</string>
@@ -42,8 +44,9 @@
     <string name="core_favorite_off_state">Not a Favorite</string>
 
     <string name="home_choose_title">Choose your Player or Club</string>
-    <string name="home_choose_body">Pick My Player or My Club in Settings to personalise Home.</string>
-    <string name="home_choose_button">Open Settings</string>
+    <string name="home_choose_body">Find your Player or your Club to personalise Home.</string>
+    <string name="home_choose_player_button">Find my Player</string>
+    <string name="home_choose_club_button">Find my Club</string>
     <string name="home_my_player_overline">My Player</string>
     <string name="home_my_club_overline">My Club</string>
     <string name="home_favorites_title">Favorites</string>
@@ -65,7 +68,6 @@
     <string name="settings_picker_player_title">Choose My Player</string>
     <string name="settings_picker_club_title">Choose My Club</string>
     <string name="settings_picker_back_cd">Back to Settings</string>
-    <string name="club_empty_button">Open Settings</string>
     <string name="club_hero_overline">Club</string>
     <string name="club_teams_title">Teams</string>
     <string name="club_players_title">Players</string>

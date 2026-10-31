@@ -10,6 +10,8 @@
     <string name="home_empty_title">Willkommen bei MobTT</string>
     <string name="home_empty_body">Deine Ergebnisse, Form und nächste Begegnung erscheinen hier.</string>
     <string name="club_empty_title">Noch kein Verein</string>
+    <string name="choose_club_title">Meinen Verein wählen</string>
+    <string name="choose_club_body">Wähle deinen Verband und dann deinen Verein. Er erscheint auf dem Start als deine Hauptkarte.</string>
     <string name="club_empty_body">Dein Verein, seine Mannschaften und die Ligatabellen erscheinen hier.</string>
     <string name="players_association_label">Verband</string>
     <string name="players_association_placeholder">Verband wählen</string>
@@ -42,8 +44,9 @@
     <string name="core_favorite_off_state">Kein Favorit</string>
 
     <string name="home_choose_title">Wähle deinen Spieler oder Verein</string>
-    <string name="home_choose_body">Wähle in den Einstellungen Mein Spieler oder Mein Verein, um den Start zu personalisieren.</string>
-    <string name="home_choose_button">Einstellungen öffnen</string>
+    <string name="home_choose_body">Finde deinen Spieler oder deinen Verein, um den Start zu personalisieren.</string>
+    <string name="home_choose_player_button">Meinen Spieler finden</string>
+    <string name="home_choose_club_button">Meinen Verein finden</string>
     <string name="home_my_player_overline">Mein Spieler</string>
     <string name="home_my_club_overline">Mein Verein</string>
     <string name="home_favorites_title">Favoriten</string>
@@ -65,7 +68,6 @@
     <string name="settings_picker_player_title">Mein Spieler wählen</string>
     <string name="settings_picker_club_title">Mein Verein wählen</string>
     <string name="settings_picker_back_cd">Zurück zu den Einstellungen</string>
-    <string name="club_empty_button">Einstellungen öffnen</string>
     <string name="club_hero_overline">Verein</string>
     <string name="club_teams_title">Mannschaften</string>
     <string name="club_players_title">Spieler</string>

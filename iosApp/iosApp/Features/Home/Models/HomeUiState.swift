@@ -46,4 +46,6 @@ struct HomeUiState: Equatable {
     var selection: HomeSelectionUi = .none
     var favorites: [HomeFavoriteUi] = []
     var picker: FavoritePickerUi?
+    /// True while the hero prompt asks whether to choose a Player or a Club.
+    var isChoosingHero = false
 }

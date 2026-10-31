@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct HomeRoute: View {
-    let onOpenSettings: () -> Void
+    let onChooseMyPlayer: () -> Void
+    let onChooseMyClub: () -> Void
     let onOpenClub: (String) -> Void
     let onOpenTeam: (String) -> Void
     let onOpenPlayer: (String) -> Void
@@ -14,7 +15,8 @@ struct HomeRoute: View {
             .task {
                 for await event in viewModel.events {
                     switch event {
-                    case .openSettings: onOpenSettings()
+                    case .chooseMyPlayer: onChooseMyPlayer()
+                    case .chooseMyClub: onChooseMyClub()
                     case .openClub(let clubId): onOpenClub(clubId)
                     case .openTeam(let teamId): onOpenTeam(teamId)
                     case .openPlayer(let playerId): onOpenPlayer(playerId)
@@ -78,6 +80,15 @@ struct HomeScreen: View {
                 }
             }
             .padding(BatSpacing.lg)
+        }
+        .confirmationDialog(
+            String(localized: "home_choose_dialog_title"),
+            isPresented: Binding(get: { state.isChoosingHero }, set: { if !$0 { onAction(.chooseDismissed) } }),
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "home_choose_player_button")) { onAction(.choosePlayerClicked) }
+            Button(String(localized: "home_choose_club_button")) { onAction(.chooseClubClicked) }
+            Button(String(localized: "core_cancel_button"), role: .cancel) {}
         }
         .sheet(isPresented: Binding(get: { state.picker != nil }, set: { if !$0 { onAction(.pickerDismissed) } })) {
             if let picker = state.picker {

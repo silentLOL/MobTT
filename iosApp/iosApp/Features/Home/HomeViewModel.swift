@@ -10,6 +10,7 @@ final class HomeViewModel {
     private var favorites: [HomeFavoriteUi] = []
     private var favoriteKeys: Set<String> = []
     private var pickerQuery: String?
+    private var isChoosingHero = false
     private var browsingPlayers = false
     private let playerDrillDown: PlayerDrillDown
     private var pickerClubs: [Club] = []
@@ -44,7 +45,7 @@ final class HomeViewModel {
     var events: AsyncStream<HomeEvent> { eventStream.stream }
 
     var uiState: HomeUiState {
-        HomeUiState(isLoading: !(hasSelection && hasFavorites), selection: selection, favorites: favorites, picker: pickerQuery.map(pickerUi))
+        HomeUiState(isLoading: !(hasSelection && hasFavorites), selection: selection, favorites: favorites, picker: pickerQuery.map(pickerUi), isChoosingHero: isChoosingHero)
     }
 
     /// Runs until the calling task is cancelled.
@@ -59,7 +60,15 @@ final class HomeViewModel {
     func onAction(_ action: HomeAction) {
         switch action {
         case .chooseClicked:
-            eventStream.continuation.yield(.openSettings)
+            isChoosingHero = true
+        case .choosePlayerClicked:
+            isChoosingHero = false
+            eventStream.continuation.yield(.chooseMyPlayer)
+        case .chooseClubClicked:
+            isChoosingHero = false
+            eventStream.continuation.yield(.chooseMyClub)
+        case .chooseDismissed:
+            isChoosingHero = false
         case .heroPlayerClicked(let id):
             eventStream.continuation.yield(.openPlayer(playerId: id))
         case .heroClubClicked(let id):

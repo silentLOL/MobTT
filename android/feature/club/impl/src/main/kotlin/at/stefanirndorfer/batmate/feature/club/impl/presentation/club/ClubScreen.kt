@@ -22,6 +22,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.stefanirndorfer.batmate.core.localization.R
 import at.stefanirndorfer.batmate.core.ui.ObserveAsEvents
+import at.stefanirndorfer.batmate.core.ui.directory.AssociationClubRows
+import at.stefanirndorfer.batmate.core.ui.directory.AssociationClubSheet
+import at.stefanirndorfer.batmate.core.ui.directory.models.AssociationClubUi
 import at.stefanirndorfer.batmate.designsystem.icon.BatIcon
 import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
@@ -49,7 +52,6 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun ClubRoute(
     source: ClubSource,
-    onOpenSettings: () -> Unit,
     onOpenTeam: (String) -> Unit,
     onOpenPlayer: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -61,7 +63,6 @@ fun ClubRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
-            ClubEvent.OpenSettings -> onOpenSettings()
             is ClubEvent.OpenTeam -> onOpenTeam(event.teamId)
             is ClubEvent.OpenPlayer -> onOpenPlayer(event.playerId)
         }
@@ -77,13 +78,7 @@ fun ClubScreen(
 ) {
     when (state) {
         ClubUiState.Loading -> LoadingView(modifier)
-        ClubUiState.NoClub -> MessageView(
-            title = stringResource(R.string.club_empty_title),
-            body = stringResource(R.string.club_empty_body),
-            buttonLabel = stringResource(R.string.club_empty_button),
-            onButtonClick = { onAction(ClubAction.ChooseClicked) },
-            modifier = modifier,
-        )
+        is ClubUiState.NoClub -> PickClubView(state.picker, onAction, modifier)
         ClubUiState.Error -> MessageView(
             title = stringResource(R.string.club_error_title),
             body = stringResource(R.string.club_error_body),
@@ -103,6 +98,36 @@ private fun LoadingView(modifier: Modifier = Modifier) {
         CircularProgressIndicator(
             modifier = Modifier.semantics { contentDescription = loadingLabel },
             color = BatDesign.colors.brand,
+        )
+    }
+}
+
+@Composable
+private fun PickClubView(picker: AssociationClubUi, onAction: (ClubAction) -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(BatDesign.spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.lg),
+    ) {
+        AssociationClubRows(
+            state = picker,
+            onAssociationClick = { onAction(ClubAction.AssociationRowClicked) },
+            onClubClick = { onAction(ClubAction.ClubRowClicked) },
+        )
+        BatEmptyState(
+            icon = BatIcon.Club,
+            title = stringResource(R.string.club_empty_title),
+            body = stringResource(R.string.club_empty_body),
+        )
+    }
+    picker.sheet?.let {
+        AssociationClubSheet(
+            sheet = it,
+            onQueryChange = { query -> onAction(ClubAction.PickerQueryChanged(query)) },
+            onEntryClick = { id -> onAction(ClubAction.PickerEntryClicked(id)) },
+            onDismiss = { onAction(ClubAction.PickerDismissed) },
         )
     }
 }
@@ -216,7 +241,7 @@ private fun ClubScreenLoadingPreview() {
 @Composable
 private fun ClubScreenNoClubPreview() {
     BatPreviewSurface {
-        ClubScreen(state = ClubUiState.NoClub, onAction = {})
+        ClubScreen(state = ClubUiState.NoClub(), onAction = {})
     }
 }
 

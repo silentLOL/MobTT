@@ -5,10 +5,19 @@ struct ClubRoute: View {
     let onOpenSettings: () -> Void
     let onOpenTeam: (String) -> Void
     let onOpenPlayer: (String) -> Void
+    /// Replaces the "choose in Settings" message when `.mine` has no Club.
+    let noClubContent: AnyView?
 
     @State private var viewModel: ClubViewModel
 
-    init(source: ClubSource, onOpenSettings: @escaping () -> Void, onOpenTeam: @escaping (String) -> Void, onOpenPlayer: @escaping (String) -> Void) {
+    init(
+        source: ClubSource,
+        onOpenSettings: @escaping () -> Void,
+        onOpenTeam: @escaping (String) -> Void,
+        onOpenPlayer: @escaping (String) -> Void,
+        noClubContent: AnyView? = nil
+    ) {
+        self.noClubContent = noClubContent
         self.source = source
         self.onOpenSettings = onOpenSettings
         self.onOpenTeam = onOpenTeam
@@ -17,7 +26,7 @@ struct ClubRoute: View {
     }
 
     var body: some View {
-        ClubScreen(state: viewModel.uiState, onAction: viewModel.onAction)
+        ClubScreen(state: viewModel.uiState, onAction: viewModel.onAction, noClubContent: noClubContent)
             .task(id: viewModel.retryCount) { await viewModel.observe() }
             .task {
                 for await event in viewModel.events {
@@ -34,6 +43,7 @@ struct ClubRoute: View {
 struct ClubScreen: View {
     let state: ClubUiState
     let onAction: (ClubAction) -> Void
+    var noClubContent: AnyView?
 
     var body: some View {
         switch state {
@@ -42,6 +52,8 @@ struct ClubScreen: View {
                 .tint(BatColor.brand)
                 .accessibilityLabel(Text("club_loading_cd"))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+        case .noClub where noClubContent != nil:
+            noClubContent
         case .noClub:
             MessageView(
                 title: String(localized: "club_empty_title"),

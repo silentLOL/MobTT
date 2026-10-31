@@ -35,6 +35,7 @@ class FakeClubData :
     UserSelectionRepository,
     FavoritesRepository {
     var unavailable = false
+    val saved = mutableListOf<UserSelection>()
     var leagueFixtures = emptyList<Fixture>()
     val favorites = MutableStateFlow<Set<Favorite>>(emptySet())
     var teams = listOf(Team("t1", "Olympic 1", "c1", "l1"))
@@ -78,7 +79,9 @@ class FakeClubData :
 
     override fun observeSelection(): Flow<UserSelection> = flowOf(UserSelection.None)
 
-    override suspend fun saveSelection(selection: UserSelection) = Unit
+    override suspend fun saveSelection(selection: UserSelection) {
+        saved += selection
+    }
 
     override fun observeFavorites(): Flow<Set<Favorite>> = favorites
 

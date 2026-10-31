@@ -12,6 +12,10 @@ data object ClubDestination : GlobalAppDestination
 @Serializable
 data class ClubDetailDestination(val clubId: String) : GlobalAppDestination
 
+/** The Association → Club search where choosing a Club makes it My Club; pushed from Home's choose prompt. */
+@Serializable
+data object ChooseClubDestination : GlobalAppDestination
+
 @Serializable
 data class TeamDetailDestination(val teamId: String) : GlobalAppDestination
 
@@ -26,3 +30,5 @@ fun GlobalNavigator.navigateToClubDetail(clubId: String) = navigate(ClubDetailDe
 fun GlobalNavigator.navigateToTeamDetail(teamId: String) = navigate(TeamDetailDestination(teamId))
 
 fun GlobalNavigator.navigateToLeagueDetail(leagueId: String, highlightTeamId: String? = null) = navigate(LeagueDetailDestination(leagueId, highlightTeamId))
+
+fun GlobalNavigator.navigateToChooseClub() = navigate(ChooseClubDestination)

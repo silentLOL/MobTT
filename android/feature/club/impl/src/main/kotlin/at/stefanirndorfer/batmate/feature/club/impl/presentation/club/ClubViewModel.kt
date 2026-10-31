@@ -4,8 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.stefanirndorfer.batmate.core.ui.RetryTrigger
 import at.stefanirndorfer.batmate.core.ui.catchUnavailable
+import at.stefanirndorfer.batmate.core.ui.directory.AssociationClubPicker
 import at.stefanirndorfer.batmate.domain.club.GetClubOverviewUseCase
 import at.stefanirndorfer.batmate.domain.club.LineupPlayer
+import at.stefanirndorfer.batmate.domain.club.ListAssociationClubsUseCase
+import at.stefanirndorfer.batmate.domain.club.ListAssociationsUseCase
 import at.stefanirndorfer.batmate.domain.player.Player
 import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.Favorite
@@ -21,8 +24,10 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -38,11 +43,22 @@ class ClubViewModel(
     private val addFavorite: AddFavoriteUseCase,
     private val removeFavorite: RemoveFavoriteUseCase,
     private val rememberPlayer: RememberPlayerUseCase,
+    listAssociations: ListAssociationsUseCase,
+    listAssociationClubs: ListAssociationClubsUseCase,
 ) : ViewModel() {
     private val retry = RetryTrigger()
 
+    /** The Club found through the picker while the user has no My Club; it is shown but never saved as My Club. */
+    private val pickedClubId = MutableStateFlow<String?>(null)
+    private val picker = AssociationClubPicker(
+        scope = viewModelScope,
+        listAssociations = listAssociations,
+        listAssociationClubs = listAssociationClubs,
+        onClubChosen = { pickedClubId.value = it.id },
+    )
+
     private val clubId: Flow<String?> = when (source) {
-        ClubSource.Mine -> observeUserContext().map { it.club?.id }
+        ClubSource.Mine -> combine(observeUserContext().map { it.club?.id }, pickedClubId) { mine, picked -> mine ?: picked }
         is ClubSource.Specific -> flowOf(source.clubId)
     }
 
@@ -55,7 +71,7 @@ class ClubViewModel(
     private fun states(): Flow<ClubUiState> = clubId
         .transformLatest { id ->
             if (id == null) {
-                emit(ClubUiState.NoClub)
+                picker.state.collect { emit(ClubUiState.NoClub(it)) }
             } else {
                 emit(ClubUiState.Loading)
                 val state = load(id)
@@ -75,7 +91,11 @@ class ClubViewModel(
 
     fun onAction(action: ClubAction) {
         when (action) {
-            ClubAction.ChooseClicked -> viewModelScope.launch { eventChannel.send(ClubEvent.OpenSettings) }
+            ClubAction.AssociationRowClicked -> picker.onAssociationRowClicked()
+            ClubAction.ClubRowClicked -> picker.onClubRowClicked()
+            is ClubAction.PickerQueryChanged -> picker.onQueryChanged(action.query)
+            is ClubAction.PickerEntryClicked -> picker.onEntryClicked(action.id)
+            ClubAction.PickerDismissed -> picker.onDismissed()
             is ClubAction.TeamClicked -> viewModelScope.launch { eventChannel.send(ClubEvent.OpenTeam(action.teamId)) }
             is ClubAction.PlayerClicked -> openPlayer(action.player)
             ClubAction.RetryClicked -> retry.retry()

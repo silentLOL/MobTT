@@ -1,7 +1,9 @@
 package at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models
 
 sealed interface HomeAction {
-    data object ChooseClicked : HomeAction
+    data object ChoosePlayerClicked : HomeAction
+
+    data object ChooseClubClicked : HomeAction
 
     data object AddFavoriteClicked : HomeAction
 

@@ -1,11 +1,11 @@
 package at.stefanirndorfer.batmate.feature.players.impl.presentation.players.preview
 
+import at.stefanirndorfer.batmate.core.ui.directory.models.AssociationClubSheetKind
+import at.stefanirndorfer.batmate.core.ui.directory.models.AssociationClubSheetUi
 import at.stefanirndorfer.batmate.core.ui.directory.models.DirectoryEntryUi
-import at.stefanirndorfer.batmate.feature.players.impl.presentation.players.models.PickedUi
+import at.stefanirndorfer.batmate.core.ui.directory.models.PickedUi
 import at.stefanirndorfer.batmate.feature.players.impl.presentation.players.models.PlayerEntryUi
 import at.stefanirndorfer.batmate.feature.players.impl.presentation.players.models.PlayersListUi
-import at.stefanirndorfer.batmate.feature.players.impl.presentation.players.models.PlayersPickerKind
-import at.stefanirndorfer.batmate.feature.players.impl.presentation.players.models.PlayersPickerUi
 import at.stefanirndorfer.batmate.feature.players.impl.presentation.players.models.PlayersUiState
 
 private val association = PickedUi("191", "Oberösterreichischer Tischtennisverband")
@@ -33,8 +33,8 @@ val playersLoadingPreview = playersLoadedPreview.copy(list = PlayersListUi.Loadi
 val playersUnavailablePreview = playersLoadedPreview.copy(list = PlayersListUi.Unavailable)
 
 val playersAssociationPickerPreview = playersNoAssociationPreview.copy(
-    picker = PlayersPickerUi(
-        kind = PlayersPickerKind.ASSOCIATION,
+    picker = AssociationClubSheetUi(
+        kind = AssociationClubSheetKind.ASSOCIATION,
         query = "",
         entries = listOf(
             DirectoryEntryUi("191", "Oberösterreichischer Tischtennisverband", subtitle = null, selected = true),

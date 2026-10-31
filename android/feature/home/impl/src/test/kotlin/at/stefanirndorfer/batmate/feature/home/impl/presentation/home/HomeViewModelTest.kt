@@ -350,4 +350,15 @@ class HomeViewModelTest {
         assertEquals(setOf<Favorite>(Favorite.Club("c1"), Favorite.Team("t1")), viewModel.uiState.value.favorites.map { it.favorite }.toSet())
         assertEquals(setOf<Favorite>(Favorite.Club("c1"), Favorite.Team("t1")), data.favorites.value)
     }
+
+    @Test
+    fun theChoosePromptOffersPlayerAndClubAsSeparateWays() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onAction(HomeAction.ChoosePlayerClicked)
+        assertEquals(HomeEvent.OpenChoosePlayer, viewModel.events.first())
+
+        viewModel.onAction(HomeAction.ChooseClubClicked)
+        assertEquals(HomeEvent.OpenChooseClub, viewModel.events.first())
+    }
 }
