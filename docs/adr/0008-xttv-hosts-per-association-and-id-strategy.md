@@ -1,6 +1,6 @@
 # ADR-0008: One XTTV host per Association, and plain string IDs
 
-**Status:** Proposed (the host decision is superseded, see the 2026-10-28 update; the ID decision stands)
+**Status:** Accepted (the host decision is superseded, see the 2026-10-28 update; the plain string ID decision stands)
 **Date:** 2026-10-17
 **Deciders:** Stefan Irndorfer
 
@@ -16,7 +16,7 @@ We will keep XTTV's numeric IDs as plain strings (`"8846"`), with no prefix or w
 
 ## Options Considered
 
-### Option A: Host per Association, plain string IDs — chosen (provisional)
+### Option A: Host per Association, plain string IDs — chosen (host part superseded)
 | Dimension        | Assessment |
 |------------------|------------|
 | Complexity       | Low |
@@ -38,8 +38,10 @@ Plain IDs are cheaper if XTTV IDs are globally unique, and the resolver contains
 
 ## Consequences
 - Do not ship Favorites persistence for XTTV-backed IDs to `prod` before XTTV answers the uniqueness question, or the migration is a live one.
-- Mark this ADR Accepted, or supersede it, once XTTV replies on base URLs and ID uniqueness.
 - `Association` and `Club` domain models may gain a base-URL or Association field when the first real response is recorded.
 
 ## Update 2026-10-28: single host
 XTTV's per-method documentation shows one host, `https://oettv.xttv.at/xml/v1/<method>.php`, serving every Federation (`getFederations` lists them all, and `getClubs`/`getLeagues` take a `federationId`). The host-per-Association assumption is dropped, along with `XttvHostResolver`; repositories use `AppConfig.xttvHost`. The ID question is still open: IDs are unique per kind in every response seen so far, but this was not checked across Federations.
+
+## Update 2026-10-31: accepted
+Verified against the live API (xttv-api ticket 10). The single host stands and plain string IDs are kept, so the composite ID and Favorites migration are not needed.
