@@ -23,6 +23,7 @@ struct iOSApp: App {
             appVersion: Self.appVersion,
             xttvApiKey: Self.xttvApiKey
         )
+        AppAnalytics.start(environmentKey: Self.environmentKey)
     }
 
     var body: some Scene {

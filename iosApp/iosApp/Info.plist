@@ -6,6 +6,15 @@
 	<string>$(ENVIRONMENT)</string>
 	<key>BatXttvApiKey</key>
 	<string>$(XTTV_API_KEY)</string>
+	<!-- Nothing is collected until Usage Consent allows it (UsageConsentCollection). -->
+	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
+	<false/>
+	<key>FIREBASE_CRASHLYTICS_COLLECTION_ENABLED</key>
+	<false/>
+	<key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS</key>
+	<false/>
+	<key>FirebaseAutomaticScreenReportingEnabled</key>
+	<false/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Inter-Regular.ttf</string>

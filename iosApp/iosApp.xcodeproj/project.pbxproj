@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C0DE0000000000000000F201 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = C0DE0000000000000000F101 /* FirebaseCore */; };
+		C0DE0000000000000000F202 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = C0DE0000000000000000F102 /* FirebaseAnalytics */; };
+		C0DE0000000000000000F203 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = C0DE0000000000000000F103 /* FirebaseCrashlytics */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		A1B2C3D4E5F60718293A4B09 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -57,6 +63,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0DE0000000000000000F201 /* FirebaseCore in Frameworks */,
+				C0DE0000000000000000F202 /* FirebaseAnalytics in Frameworks */,
+				C0DE0000000000000000F203 /* FirebaseCrashlytics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,6 +109,8 @@
 				27A8CB7C56235A84E4A61E7A /* Sources */,
 				B585DD5BF11F5074BF37D31D /* Frameworks */,
 				1F78221DACED804939CA699B /* Resources */,
+				C0DE0000000000000000F301 /* Select Firebase Config */,
+				C0DE0000000000000000F302 /* Upload Crashlytics dSYMs */,
 			);
 			buildRules = (
 			);
@@ -110,6 +121,9 @@
 			);
 			name = iosApp;
 			packageProductDependencies = (
+				C0DE0000000000000000F101 /* FirebaseCore */,
+				C0DE0000000000000000F102 /* FirebaseAnalytics */,
+				C0DE0000000000000000F103 /* FirebaseCrashlytics */,
 			);
 			productName = iosApp;
 			productReference = 1F44B8E51E0DCBA0639A7806 /* MobTT.app */;
@@ -168,6 +182,9 @@
 			mainGroup = 8F4D735C89349D31AA4B94BA;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
+			packageReferences = (
+				C0DE0000000000000000F001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			productRefGroup = 37B5C0D403674EAE955F258F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -214,6 +231,46 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if [ \"YES\" = \"$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED\" ]; then\n  echo \"Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \\\"YES\\\"\"\n  exit 0\nfi\ncd \"$SRCROOT/..\"\n./gradlew :shared-umbrella:embedAndSignAppleFrameworkForXcode\n";
+		};
+		C0DE0000000000000000F301 /* Select Firebase Config */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Select Firebase Config";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Copies the environment's Firebase config into the app; without one the SDK is never configured.\nCONFIG=\"$SRCROOT/Firebase/GoogleService-Info-${ENVIRONMENT}.plist\"\nDEST=\"$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/GoogleService-Info.plist\"\nif [ -f \"$CONFIG\" ]; then\n  cp \"$CONFIG\" \"$DEST\"\nelse\n  rm -f \"$DEST\"\n  echo \"note: $CONFIG not found; building with Firebase disabled\"\nfi\n";
+		};
+		C0DE0000000000000000F302 /* Upload Crashlytics dSYMs */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
+			);
+			name = "Upload Crashlytics dSYMs";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Uploads dSYMs for Dev, Beta and Release; the Debug configuration (deb) skips it.\nif [ \"$CONFIGURATION\" = \"Debug\" ]; then\n  exit 0\nfi\nif [ ! -f \"$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/GoogleService-Info.plist\" ]; then\n  echo \"note: no Firebase config; skipping the Crashlytics dSYM upload\"\n  exit 0\nfi\n\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -460,7 +517,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -694,6 +751,35 @@
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C0DE0000000000000000F001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 13.1.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C0DE0000000000000000F101 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C0DE0000000000000000F001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		C0DE0000000000000000F102 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C0DE0000000000000000F001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		C0DE0000000000000000F103 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C0DE0000000000000000F001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCConfigurationList section */
 		8888CEB96BF46AADDE99C4ED /* Build configuration list for PBXProject "iosApp" */ = {

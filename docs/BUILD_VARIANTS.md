@@ -58,3 +58,14 @@ Crashlytics and Analytics follow [ADR-0009](adr/0009-native-firebase-behind-inte
 - **No ads:** `AD_ID` and `ACCESS_ADSERVICES_AD_ID` are removed from the merged manifest, and ad personalization is off. Automatic screen reporting is off, so screen views are logged by hand.
 - **`deb`:** `src/deb/AndroidManifest.xml` deactivates Analytics in the SDK and `analyticsModule(analyticsEnabled = false)` binds the no-op tracker. Crashlytics stays on (after consent) and reports to the `deb` Firebase app.
 - **Interfaces:** features depend on `AnalyticsTracker` and `CrashReporter`, never on the Firebase SDK.
+
+## Firebase (iOS)
+
+Same project and rules as Android ([ADR-0009](adr/0009-native-firebase-behind-interfaces-opt-in-consent.md)); one iOS app per environment, using the bundle IDs above.
+
+- **Config:** `iosApp/Firebase/GoogleService-Info-<env>.plist` with `<env>` one of `deb`, `dev`, `beta`, `prod` (the `ENVIRONMENT` in the `.xcconfig`). The files are git-ignored; copy the `.plist.example` beside each. The "Select Firebase Config" build phase copies the matching file into the app.
+- **Without config:** the phase removes any stale copy, `AppAnalytics.start` finds no plist and never calls `FirebaseApp.configure()`, and the tracker and crash reporter stay no-ops. The build still succeeds.
+- **SDK:** added through Swift Package Manager (`FirebaseCore`, `FirebaseAnalytics`, `FirebaseCrashlytics`). `FirebaseAnalyticsIdentitySupport` is not linked, so there is no IDFA and no tracking prompt.
+- **Nothing before consent:** Info.plist turns off Analytics and Crashlytics auto-collection, ad personalization and automatic screen reporting. `UsageConsentCollection` switches collection on only while Usage Consent is allowed.
+- **`deb` (Debug):** the Analytics tracker is a no-op and the SDK's collection stays off; Crashlytics still reports (after consent) to the `deb` Firebase app.
+- **dSYMs:** the "Upload Crashlytics dSYMs" phase runs for Dev, Beta and Release (Dev now builds dSYMs) and is skipped for Debug and for builds without a plist.
