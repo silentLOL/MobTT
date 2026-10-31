@@ -133,4 +133,31 @@ object XttvSamples {
             <games_played>$played</games_played><games_won>1</games_won><points>$points</points><sets_won>9</sets_won>
         </standing_row>
     """
+
+    /**
+     * `getSingleStandings` as recorded 2026-10-31 for a 2. Landesliga (trimmed to three rows). Every field a Player row
+     * carries is here, including the ranking ones the Player screen does not read yet (research ticket 01 of
+     * player-detail-teams). `ranked` is 0 for a Player below the League's minimum games.
+     */
+    const val SINGLE_STANDINGS_RECORDED = """
+        <single_standing>
+         <league_id>8937</league_id>
+         <rc_usage>1</rc_usage>
+         <rc_type>rc</rc_type>
+         <standing_row>
+          <ranked>1</ranked><rank>1</rank><player_id>3680</player_id><player_first_name>Reinhard</player_first_name>
+          <player_last_name>Blauensteiner</player_last_name><player_name_suffix></player_name_suffix>
+          <player_pass_number>3386</player_pass_number><team_id>2271</team_id><team_code>UPÖL1</team_code><club_id>99</club_id>
+          <games_played>21</games_played><matches_won>52</matches_won><matches_lost>2</matches_lost>
+          <player_rc_id>27808</player_rc_id><player_rc_points>1757</player_rc_points><player_rc_deviation>64</player_rc_deviation>
+         </standing_row>
+         <standing_row>
+          <ranked>0</ranked><rank>5</rank><player_id>62323</player_id><player_first_name>Beispiel</player_first_name>
+          <player_last_name>Spieler</player_last_name><player_name_suffix></player_name_suffix>
+          <player_pass_number>9542</player_pass_number><team_id>54094</team_id><team_code>WOLK1</team_code><club_id>112</club_id>
+          <games_played>1</games_played><matches_won>0</matches_won><matches_lost>2</matches_lost>
+          <player_rc_id>28424</player_rc_id><player_rc_points>1576</player_rc_points><player_rc_deviation>68</player_rc_deviation>
+         </standing_row>
+        </single_standing>
+    """
 }

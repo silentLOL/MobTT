@@ -84,4 +84,18 @@ class XttvPlayerRepositoryTest {
 
         assertFailsWith<DataUnavailable> { repository.getLeaguePlayers("70") }
     }
+
+    @Test
+    fun aRecordedStandingsRowStillMapsToIdNameAndClub() = runTest {
+        val recorded = XttvPlayerRepository(
+            XttvApi(FakeXttv(mapOf(STANDINGS_70_URL to XttvSamples.SINGLE_STANDINGS_RECORDED)).client),
+            XttvSamples.HOST,
+            picked,
+        )
+
+        assertEquals(
+            listOf(Player("62323", "Beispiel Spieler", "112"), Player("3680", "Reinhard Blauensteiner", "99")),
+            recorded.getLeaguePlayers("70"),
+        )
+    }
 }
