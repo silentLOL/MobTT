@@ -14,6 +14,7 @@ struct PlayerDetailRoute: View {
 
     var body: some View {
         PlayerDetailScreen(state: viewModel.uiState, onAction: viewModel.onAction)
+            .onAppear { viewModel.screenShown() }
             .onAppear { viewModel.loadIfNeeded() }
             .task { await viewModel.observe() }
             .task {

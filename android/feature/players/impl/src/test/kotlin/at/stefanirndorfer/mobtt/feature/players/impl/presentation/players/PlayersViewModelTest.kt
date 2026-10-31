@@ -1,5 +1,7 @@
 package at.stefanirndorfer.mobtt.feature.players.impl.presentation.players
 
+import at.stefanirndorfer.mobtt.core.analytics.LoggedEvent
+import at.stefanirndorfer.mobtt.core.analytics.RecordingAnalyticsTracker
 import at.stefanirndorfer.mobtt.core.ui.directory.models.AssociationClubSheetKind
 import at.stefanirndorfer.mobtt.domain.club.Association
 import at.stefanirndorfer.mobtt.domain.club.AssociationRepository
@@ -91,6 +93,7 @@ private class FakeDirectory :
 @OptIn(ExperimentalCoroutinesApi::class)
 class PlayersViewModelTest {
     private val data = FakeDirectory()
+    private val analytics = RecordingAnalyticsTracker()
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -105,6 +108,7 @@ class PlayersViewModelTest {
         listClubPlayers = ListClubPlayersUseCase(data),
         rememberPlayer = RememberPlayerUseCase(data),
         setMyPlayer = SetMyPlayerUseCase(data, data),
+        analytics = analytics,
     )
 
     private fun PlayersViewModel.pick(row: PlayersAction, entryId: String) {
@@ -239,5 +243,37 @@ class PlayersViewModelTest {
         viewModel.onAction(PlayersAction.PlayerClicked("p1"))
 
         assertEquals(emptyList(), data.saved)
+    }
+
+    @Test
+    fun browsingReportsTheScreenAndThePlayerOpened() = runTest {
+        val viewModel = viewModel()
+        viewModel.pickClub()
+
+        viewModel.onAction(PlayersAction.PlayerClicked("p1"))
+
+        assertEquals(
+            listOf(
+                LoggedEvent("screen_view", mapOf("screen" to "players")),
+                LoggedEvent("detail_opened", mapOf("kind" to "player", "id" to "p1", "from" to "players")),
+            ),
+            analytics.events,
+        )
+    }
+
+    @Test
+    fun choosingMyPlayerReportsTheChoiceFromHome() = runTest {
+        val viewModel = viewModel(PlayersMode.ChooseMine)
+        viewModel.pickClub()
+
+        viewModel.onAction(PlayersAction.PlayerClicked("p1"))
+
+        assertEquals(
+            listOf(
+                LoggedEvent("screen_view", mapOf("screen" to "choose_player")),
+                LoggedEvent("my_player_selected", mapOf("source" to "home")),
+            ),
+            analytics.events,
+        )
     }
 }

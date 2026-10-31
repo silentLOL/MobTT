@@ -12,6 +12,7 @@ struct LeagueDetailRoute: View {
 
     var body: some View {
         LeagueDetailScreen(state: viewModel.uiState, onAction: viewModel.onAction)
+            .onAppear { viewModel.screenShown() }
             .onAppear { viewModel.loadIfNeeded() }
             .task {
                 for await event in viewModel.events {

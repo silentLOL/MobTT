@@ -129,11 +129,30 @@ struct TeamDetailViewModelTests {
         #expect(remembered == [Player(id: "p1", name: "Anna Gruber", clubId: "1")])
     }
 
+    @Test func reportsTheScreenViewTheLeagueOpenedAndTheFavorite() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(analytics: analytics) { _ in success }
+        viewModel.loadIfNeeded()
+        await waitUntil { viewModel.uiState != .loading }
+
+        viewModel.screenShown()
+        viewModel.onAction(.leagueClicked(leagueId: "l1"))
+        viewModel.onAction(.favoriteClicked)
+        await waitUntil { analytics.events.count == 3 }
+
+        #expect(analytics.events == [
+            LoggedEvent("screen_view", ["screen": "team_detail"]),
+            LoggedEvent("detail_opened", ["kind": "league", "id": "l1", "from": "team_detail"]),
+            LoggedEvent("favorite_toggled", ["kind": "team", "id": "7", "enabled": "true"]),
+        ])
+    }
+
     private func makeViewModel(
         favorites: [Set<AnyHashable>] = [],
         addFavorite: @escaping (Favorite) async throws -> Void = { _ in },
         removeFavorite: @escaping (Favorite) async throws -> Void = { _ in },
         rememberPlayer: @escaping (Player) async throws -> Void = { _ in },
+        analytics: any AnalyticsTracker = NoOpAnalyticsTracker(),
         loadDetail: @escaping (String) async throws -> DataResult
     ) -> TeamDetailViewModel {
         TeamDetailViewModel(
@@ -145,7 +164,8 @@ struct TeamDetailViewModelTests {
             },
             addFavorite: addFavorite,
             removeFavorite: removeFavorite,
-            rememberPlayer: rememberPlayer
+            rememberPlayer: rememberPlayer,
+            analytics: analytics
         )
     }
 

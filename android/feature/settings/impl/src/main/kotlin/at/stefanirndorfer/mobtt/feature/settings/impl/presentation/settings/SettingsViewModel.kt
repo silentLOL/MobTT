@@ -2,6 +2,17 @@ package at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsScreen
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsSetting
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsSource
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsTracker
+import at.stefanirndorfer.mobtt.core.analytics.NoOpAnalyticsTracker
+import at.stefanirndorfer.mobtt.core.analytics.SearchEvents
+import at.stefanirndorfer.mobtt.core.analytics.consentChanged
+import at.stefanirndorfer.mobtt.core.analytics.myClubSelected
+import at.stefanirndorfer.mobtt.core.analytics.myPlayerSelected
+import at.stefanirndorfer.mobtt.core.analytics.screenView
+import at.stefanirndorfer.mobtt.core.analytics.settingChanged
 import at.stefanirndorfer.mobtt.core.ui.directory.PlayerDrillDown
 import at.stefanirndorfer.mobtt.core.ui.directory.filteredBy
 import at.stefanirndorfer.mobtt.core.ui.directory.models.DirectoryEntryUi
@@ -63,7 +74,13 @@ class SettingsViewModel(
     listAssociations: ListAssociationsUseCase,
     listLeagues: ListLeaguesUseCase,
     listLeaguePlayers: ListLeaguePlayersUseCase,
+    private val analytics: AnalyticsTracker = NoOpAnalyticsTracker,
 ) : ViewModel() {
+    init {
+        analytics.screenView(AnalyticsScreen.SETTINGS)
+    }
+
+    private val searchEvents = SearchEvents(viewModelScope, analytics, AnalyticsScreen.SETTINGS)
     private val drillDown = PlayerDrillDown(listAssociations, listLeagues, listLeaguePlayers)
     private val pickerInput = MutableStateFlow<PickerInput?>(null)
     private var loaded: PickerResult? = null
@@ -94,13 +111,18 @@ class SettingsViewModel(
         when (action) {
             is SettingsAction.AppearanceSelected -> viewModelScope.launch {
                 appearanceRepository.saveAppearance(action.appearance)
+                analytics.settingChanged(AnalyticsSetting.APPEARANCE, action.appearance.name.lowercase())
             }
             is SettingsAction.UsageConsentToggled -> viewModelScope.launch {
                 setUsageConsent(action.allowed)
+                analytics.consentChanged(action.allowed, AnalyticsSource.SETTINGS)
             }
             SettingsAction.ChoosePlayerClicked -> pickerInput.value = PickerInput(PickerKind.PLAYER)
             SettingsAction.ChooseClubClicked -> pickerInput.value = PickerInput(PickerKind.CLUB)
-            is SettingsAction.PickerQueryChanged -> pickerInput.update { it?.copy(query = action.query) }
+            is SettingsAction.PickerQueryChanged -> {
+                pickerInput.update { it?.copy(query = action.query) }
+                searchEvents.onQueryChanged(action.query)
+            }
             is SettingsAction.PickerEntryClicked -> choose(action.id)
             SettingsAction.PickerBackClicked -> pickerInput.update { goBack(it) }
             SettingsAction.DoneClicked -> viewModelScope.launch {
@@ -118,8 +140,14 @@ class SettingsViewModel(
     private fun choose(id: String) {
         val input = pickerInput.value ?: return
         when {
-            input.kind == PickerKind.CLUB -> save { setMyClub(id) }
-            input.path.step == PlayerStep.PLAYER -> save { setMyPlayer(id) }
+            input.kind == PickerKind.CLUB -> save {
+                setMyClub(id)
+                analytics.myClubSelected(AnalyticsSource.SETTINGS)
+            }
+            input.path.step == PlayerStep.PLAYER -> save {
+                setMyPlayer(id)
+                analytics.myPlayerSelected(AnalyticsSource.SETTINGS)
+            }
             else -> enter(input, id)
         }
     }

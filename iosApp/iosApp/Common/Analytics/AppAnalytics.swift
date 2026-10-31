@@ -6,7 +6,9 @@ import Shared
 /// Without the plist the SDK is never configured and both are no-ops.
 @MainActor
 enum AppAnalytics {
-    private(set) static var tracker: any AnalyticsTracker = NoOpAnalyticsTracker()
+    /// Set once by `configure` at launch, before any ViewModel exists; ViewModels read it as an initializer default,
+    /// which is not main-actor isolated.
+    nonisolated(unsafe) private(set) static var tracker: any AnalyticsTracker = NoOpAnalyticsTracker()
     private(set) static var crashReporter: any CrashReporter = NoOpCrashReporter()
 
     /// Call before starting Koin: shared code logs to `crashReporter` from its first line.
@@ -14,10 +16,13 @@ enum AppAnalytics {
     static func configure(environmentKey: String) {
         guard Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil else { return }
         FirebaseApp.configure()
-        if environmentKey != "deb" {
-            tracker = FirebaseAnalyticsTracker()
-        }
+        tracker = chooseTracker(environmentKey: environmentKey) { FirebaseAnalyticsTracker() }
         crashReporter = FirebaseCrashReporter()
+    }
+
+    /// `deb` gets the no-op, so it records nothing.
+    nonisolated static func chooseTracker(environmentKey: String, firebase: () -> any AnalyticsTracker) -> any AnalyticsTracker {
+        environmentKey == "deb" ? NoOpAnalyticsTracker() : firebase()
     }
 
     /// Call after starting Koin: collection follows Usage Consent, at launch and on every change.

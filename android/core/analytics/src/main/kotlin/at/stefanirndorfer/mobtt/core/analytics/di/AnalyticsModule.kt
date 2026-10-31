@@ -19,11 +19,7 @@ import org.koin.dsl.module
 fun analyticsModule(analyticsEnabled: Boolean) = module {
     single<AnalyticsTracker> {
         val context = get<Context>()
-        if (context.firebaseConfigured() && analyticsEnabled) {
-            FirebaseAnalyticsTracker(context)
-        } else {
-            NoOpAnalyticsTracker
-        }
+        chooseTracker(analyticsEnabled && context.firebaseConfigured()) { FirebaseAnalyticsTracker(context) }
     }
     single<CrashReporter> {
         if (get<Context>().firebaseConfigured()) {
@@ -33,6 +29,13 @@ fun analyticsModule(analyticsEnabled: Boolean) = module {
         }
     }
     singleOf(::UsageConsentCollection)
+}
+
+/** The `deb` flavor passes false, so its tracker records nothing. */
+internal fun chooseTracker(enabled: Boolean, firebase: () -> AnalyticsTracker): AnalyticsTracker = if (enabled) {
+    firebase()
+} else {
+    NoOpAnalyticsTracker
 }
 
 private fun Context.firebaseConfigured() = FirebaseApp.getApps(this).isNotEmpty()

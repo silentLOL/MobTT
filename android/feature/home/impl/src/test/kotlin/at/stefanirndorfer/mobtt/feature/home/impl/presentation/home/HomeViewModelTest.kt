@@ -1,5 +1,8 @@
 package at.stefanirndorfer.mobtt.feature.home.impl.presentation.home
 
+import at.stefanirndorfer.mobtt.core.analytics.LoggedEvent
+import at.stefanirndorfer.mobtt.core.analytics.RecordingAnalyticsTracker
+import at.stefanirndorfer.mobtt.core.analytics.SearchEvents
 import at.stefanirndorfer.mobtt.core.ui.directory.models.PlayerStep
 import at.stefanirndorfer.mobtt.domain.club.Association
 import at.stefanirndorfer.mobtt.domain.club.AssociationRepository
@@ -42,6 +45,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -131,6 +135,7 @@ private class FakeData :
 @OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModelTest {
     private val data = FakeData()
+    private val analytics = RecordingAnalyticsTracker()
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -150,6 +155,7 @@ class HomeViewModelTest {
             listAssociations = ListAssociationsUseCase(data),
             listLeagues = ListLeaguesUseCase(data),
             listLeaguePlayers = ListLeaguePlayersUseCase(data, data),
+            analytics = analytics,
         )
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel
@@ -360,5 +366,55 @@ class HomeViewModelTest {
 
         viewModel.onAction(HomeAction.ChooseClubClicked)
         assertEquals(HomeEvent.OpenChooseClub, viewModel.events.first())
+    }
+
+    @Test
+    fun reportsTheScreenViewAndTheDetailsOpenedFromHome() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onAction(HomeAction.HeroPlayerClicked("p1"))
+        viewModel.onAction(HomeAction.FavoriteTeamClicked("t1"))
+
+        assertEquals(
+            listOf(
+                LoggedEvent("screen_view", mapOf("screen" to "home")),
+                LoggedEvent("detail_opened", mapOf("kind" to "player", "id" to "p1", "from" to "home")),
+                LoggedEvent("detail_opened", mapOf("kind" to "team", "id" to "t1", "from" to "home")),
+            ),
+            analytics.events,
+        )
+    }
+
+    @Test
+    fun togglingAFavoriteInThePickerReportsItsKindAndId() = runTest {
+        data.saveSelection(UserSelection.None)
+        val viewModel = viewModel()
+        viewModel.onAction(HomeAction.AddFavoriteClicked)
+
+        viewModel.onAction(HomeAction.PickerClubClicked("c1"))
+        viewModel.onAction(HomeAction.PickerClubClicked("c1"))
+
+        assertEquals(
+            listOf(
+                LoggedEvent("favorite_toggled", mapOf("kind" to "club", "id" to "c1", "enabled" to "true")),
+                LoggedEvent("favorite_toggled", mapOf("kind" to "club", "id" to "c1", "enabled" to "false")),
+            ),
+            analytics.events.drop(1),
+        )
+    }
+
+    @Test
+    fun searchReportsTheQueryLengthOnceTypingPausesAndNeverTheText() = runTest {
+        val viewModel = viewModel()
+        viewModel.onAction(HomeAction.AddFavoriteClicked)
+
+        viewModel.onAction(HomeAction.PickerQueryChanged("o"))
+        viewModel.onAction(HomeAction.PickerQueryChanged("olympic"))
+        advanceTimeBy(SearchEvents.SETTLE_MILLIS + 1)
+
+        assertEquals(
+            listOf(LoggedEvent("search_performed", mapOf("screen" to "home", "query_length" to 7L))),
+            analytics.events.drop(1),
+        )
     }
 }

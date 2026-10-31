@@ -2,6 +2,15 @@ package at.stefanirndorfer.mobtt.feature.players.impl.presentation.players
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsKind
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsScreen
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsSource
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsTracker
+import at.stefanirndorfer.mobtt.core.analytics.NoOpAnalyticsTracker
+import at.stefanirndorfer.mobtt.core.analytics.SearchEvents
+import at.stefanirndorfer.mobtt.core.analytics.detailOpened
+import at.stefanirndorfer.mobtt.core.analytics.myPlayerSelected
+import at.stefanirndorfer.mobtt.core.analytics.screenView
 import at.stefanirndorfer.mobtt.core.ui.directory.AssociationClubPicker
 import at.stefanirndorfer.mobtt.core.ui.directory.models.PickedUi
 import at.stefanirndorfer.mobtt.domain.club.DataUnavailable
@@ -45,7 +54,18 @@ class PlayersViewModel(
     private val listClubPlayers: ListClubPlayersUseCase,
     private val rememberPlayer: RememberPlayerUseCase,
     private val setMyPlayer: SetMyPlayerUseCase,
+    private val analytics: AnalyticsTracker = NoOpAnalyticsTracker,
 ) : ViewModel() {
+    private val screen = when (mode) {
+        PlayersMode.Browse -> AnalyticsScreen.PLAYERS
+        PlayersMode.ChooseMine -> AnalyticsScreen.CHOOSE_PLAYER
+    }
+    private val searchEvents = SearchEvents(viewModelScope, analytics, screen)
+
+    init {
+        analytics.screenView(screen)
+    }
+
     private val picker = AssociationClubPicker(
         scope = viewModelScope,
         listAssociations = listAssociations,
@@ -75,10 +95,16 @@ class PlayersViewModel(
         when (action) {
             PlayersAction.AssociationRowClicked -> picker.onAssociationRowClicked()
             PlayersAction.ClubRowClicked -> picker.onClubRowClicked()
-            is PlayersAction.PickerQueryChanged -> picker.onQueryChanged(action.query)
+            is PlayersAction.PickerQueryChanged -> {
+                picker.onQueryChanged(action.query)
+                searchEvents.onQueryChanged(action.query)
+            }
             is PlayersAction.PickerEntryClicked -> picker.onEntryClicked(action.id)
             PlayersAction.PickerDismissed -> picker.onDismissed()
-            is PlayersAction.QueryChanged -> changeQuery(action.query)
+            is PlayersAction.QueryChanged -> {
+                changeQuery(action.query)
+                searchEvents.onQueryChanged(action.query)
+            }
             is PlayersAction.PlayerClicked -> onPlayerClicked(action.playerId)
             PlayersAction.RetryClicked -> picker.state.value.club?.let(::loadPlayers)
         }
@@ -124,9 +150,13 @@ class PlayersViewModel(
             // XTTV cannot look a Player up by id, so they are remembered before My Player or their screen needs them.
             rememberPlayer(Player(entry.id, entry.name, club.id))
             when (mode) {
-                PlayersMode.Browse -> eventChannel.send(PlayersEvent.OpenPlayer(playerId))
+                PlayersMode.Browse -> {
+                    analytics.detailOpened(AnalyticsKind.PLAYER, playerId, from = screen)
+                    eventChannel.send(PlayersEvent.OpenPlayer(playerId))
+                }
                 PlayersMode.ChooseMine -> {
                     setMyPlayer(playerId)
+                    analytics.myPlayerSelected(AnalyticsSource.HOME)
                     eventChannel.send(PlayersEvent.Chosen)
                 }
             }

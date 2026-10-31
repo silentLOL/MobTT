@@ -16,15 +16,25 @@ final class LeagueDetailViewModel {
     var events: AsyncStream<LeagueDetailEvent> { eventStream.stream }
 
     private let loadDetail: (String) async throws -> DataResult
+    @ObservationIgnored private let analytics: any AnalyticsTracker
+    @ObservationIgnored private let screenViews: ScreenViewReporter
 
     init(
         leagueId: String,
         highlightTeamId: String? = nil,
-        loadDetail: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadLeagueDetail(leagueId: $0) }
+        loadDetail: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadLeagueDetail(leagueId: $0) },
+        analytics: any AnalyticsTracker = AppAnalytics.tracker
     ) {
         self.leagueId = leagueId
         self.highlightTeamId = highlightTeamId
         self.loadDetail = loadDetail
+        self.analytics = analytics
+        self.screenViews = ScreenViewReporter(tracker: analytics, screen: AnalyticsScreen.leagueDetail)
+    }
+
+    /// Reports the screen view, once per screen.
+    func screenShown() {
+        screenViews.report()
     }
 
     /// Starts the first load once. It runs outside the view's task, so leaving and returning to the screen neither reloads nor strands it on `.loading`.
@@ -39,6 +49,7 @@ final class LeagueDetailViewModel {
             loadTask?.cancel()
             loadTask = Task { await load() }
         case .teamClicked(let teamId):
+            analytics.detailOpened(kind: AnalyticsKind.team, id: teamId, from: AnalyticsScreen.leagueDetail)
             eventStream.continuation.yield(.openTeam(teamId: teamId))
         case .onlyTeamFixturesToggled(let enabled):
             onlyTeamFixtures = enabled

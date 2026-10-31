@@ -1,5 +1,7 @@
 package at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings
 
+import at.stefanirndorfer.mobtt.core.analytics.LoggedEvent
+import at.stefanirndorfer.mobtt.core.analytics.RecordingAnalyticsTracker
 import at.stefanirndorfer.mobtt.core.ui.directory.models.PlayerStep
 import at.stefanirndorfer.mobtt.domain.club.Association
 import at.stefanirndorfer.mobtt.domain.club.AssociationRepository
@@ -134,6 +136,7 @@ private class FakeData :
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest {
     private val data = FakeData()
+    private val analytics = RecordingAnalyticsTracker()
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -153,6 +156,7 @@ class SettingsViewModelTest {
             listAssociations = ListAssociationsUseCase(data),
             listLeagues = ListLeaguesUseCase(data),
             listLeaguePlayers = ListLeaguePlayersUseCase(data, data),
+            analytics = analytics,
         )
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel
@@ -339,5 +343,40 @@ class SettingsViewModelTest {
         viewModel.onAction(SettingsAction.DoneClicked)
 
         assertEquals(listOf<SettingsEvent>(SettingsEvent.Dismiss), events)
+    }
+
+    @Test
+    fun reportsTheScreenViewAppearanceAndConsentChanges() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onAction(SettingsAction.AppearanceSelected(Appearance.DARK))
+        viewModel.onAction(SettingsAction.UsageConsentToggled(allowed = true))
+
+        assertEquals(
+            listOf(
+                LoggedEvent("screen_view", mapOf("screen" to "settings")),
+                LoggedEvent("setting_changed", mapOf("setting" to "appearance", "value" to "dark")),
+                LoggedEvent("consent_changed", mapOf("enabled" to "true", "source" to "settings")),
+            ),
+            analytics.events,
+        )
+    }
+
+    @Test
+    fun savingMyPlayerOrMyClubReportsTheChoiceFromSettings() = runTest {
+        val viewModel = viewModel()
+        viewModel.drillDownToPlayers()
+        viewModel.onAction(SettingsAction.PickerEntryClicked("p1"))
+
+        viewModel.onAction(SettingsAction.ChooseClubClicked)
+        viewModel.onAction(SettingsAction.PickerEntryClicked("c1"))
+
+        assertEquals(
+            listOf(
+                LoggedEvent("my_player_selected", mapOf("source" to "settings")),
+                LoggedEvent("my_club_selected", mapOf("source" to "settings")),
+            ),
+            analytics.events.drop(1),
+        )
     }
 }

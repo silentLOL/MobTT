@@ -82,4 +82,26 @@ for file in $(find iosApp -name '*.swift' -not -path '*/build/*'); do
   fi
 done
 
+# docs/ANALYTICS.md is the event catalog: every name in the event constants, and every literal passed to logEvent,
+# must be listed there in backticks.
+catalog=$(grep -oE '`[a-z_]+`' docs/ANALYTICS.md | tr -d '`' | sort -u)
+unlisted() {
+  echo "$catalog" | grep -qx "$1" || return 0
+  return 1
+}
+for file in $(find android iosApp -name 'AnalyticsEvents.*' -not -path '*/build/*'); do
+  for value in $(grep -oE '= "[a-z_]+"' "$file" | grep -oE '[a-z_]+'); do
+    if unlisted "$value"; then
+      fail "$file: \"$value\" is not in the event catalog docs/ANALYTICS.md"
+    fi
+  done
+done
+for file in $(find android androidApp iosApp -name '*.kt' -o -name '*.swift' | grep -v '/build/' | grep -v '/src/test/' | grep -v 'iosAppTests'); do
+  for value in $(grep -oE 'logEvent\(("|_ ")[a-z_]+"' "$file" | grep -oE '"[a-z_]+"' | tr -d '"'); do
+    if unlisted "$value"; then
+      fail "$file: event \"$value\" is not in the event catalog docs/ANALYTICS.md"
+    fi
+  done
+done
+
 exit "$status"

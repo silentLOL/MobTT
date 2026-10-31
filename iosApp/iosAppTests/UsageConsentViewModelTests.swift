@@ -46,14 +46,26 @@ struct UsageConsentViewModelTests {
         #expect(saved.isEmpty)
     }
 
+    @Test func answeringReportsTheConsentChangeFromThePrompt() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(prompts: [true], analytics: analytics)
+        await viewModel.observe()
+
+        viewModel.onAction(.allowClicked)
+        await waitUntil { !analytics.events.isEmpty }
+
+        #expect(analytics.events == [LoggedEvent("consent_changed", ["enabled": "true", "source": "prompt"])])
+    }
+
     private func makeViewModel(
         prompts: [Bool],
-        setUsageConsent: @escaping (Bool) async throws -> Void = { _ in }
+        setUsageConsent: @escaping (Bool) async throws -> Void = { _ in },
+        analytics: any AnalyticsTracker = NoOpAnalyticsTracker()
     ) -> UsageConsentViewModel {
         let stream = AsyncStream<KotlinBoolean> { continuation in
             prompts.forEach { continuation.yield(KotlinBoolean(bool: $0)) }
             continuation.finish()
         }
-        return UsageConsentViewModel(observePrompt: stream, setUsageConsent: setUsageConsent)
+        return UsageConsentViewModel(observePrompt: stream, setUsageConsent: setUsageConsent, analytics: analytics)
     }
 }

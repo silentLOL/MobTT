@@ -2,6 +2,14 @@ package at.stefanirndorfer.mobtt.feature.home.impl.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsKind
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsScreen
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsTracker
+import at.stefanirndorfer.mobtt.core.analytics.NoOpAnalyticsTracker
+import at.stefanirndorfer.mobtt.core.analytics.SearchEvents
+import at.stefanirndorfer.mobtt.core.analytics.detailOpened
+import at.stefanirndorfer.mobtt.core.analytics.favoriteToggled
+import at.stefanirndorfer.mobtt.core.analytics.screenView
 import at.stefanirndorfer.mobtt.core.ui.catchUnavailable
 import at.stefanirndorfer.mobtt.core.ui.directory.PlayerDrillDown
 import at.stefanirndorfer.mobtt.core.ui.directory.filteredBy
@@ -65,7 +73,13 @@ class HomeViewModel(
     listAssociations: ListAssociationsUseCase,
     listLeagues: ListLeaguesUseCase,
     listLeaguePlayers: ListLeaguePlayersUseCase,
+    private val analytics: AnalyticsTracker = NoOpAnalyticsTracker,
 ) : ViewModel() {
+    init {
+        analytics.screenView(AnalyticsScreen.HOME)
+    }
+
+    private val searchEvents = SearchEvents(viewModelScope, analytics, AnalyticsScreen.HOME)
     private val drillDown = PlayerDrillDown(listAssociations, listLeagues, listLeaguePlayers)
     private val pickerInput = MutableStateFlow<PickerInput?>(null)
     private var loaded: PickerResult? = null
@@ -102,18 +116,36 @@ class HomeViewModel(
             HomeAction.ChoosePlayerClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenChoosePlayer) }
             HomeAction.ChooseClubClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenChooseClub) }
             HomeAction.AddFavoriteClicked -> pickerInput.value = PickerInput()
-            is HomeAction.HeroPlayerClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenPlayer(action.playerId)) }
-            is HomeAction.HeroClubClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenClub(action.clubId)) }
-            is HomeAction.FavoriteClubClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenClub(action.clubId)) }
-            is HomeAction.FavoritePlayerClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenPlayer(action.playerId)) }
-            is HomeAction.FavoriteTeamClicked -> viewModelScope.launch { eventChannel.send(HomeEvent.OpenTeam(action.teamId)) }
-            is HomeAction.PickerQueryChanged -> pickerInput.update { it?.copy(query = action.query) }
+            is HomeAction.HeroPlayerClicked -> openPlayer(action.playerId)
+            is HomeAction.HeroClubClicked -> openClub(action.clubId)
+            is HomeAction.FavoriteClubClicked -> openClub(action.clubId)
+            is HomeAction.FavoritePlayerClicked -> openPlayer(action.playerId)
+            is HomeAction.FavoriteTeamClicked -> openTeam(action.teamId)
+            is HomeAction.PickerQueryChanged -> {
+                pickerInput.update { it?.copy(query = action.query) }
+                searchEvents.onQueryChanged(action.query)
+            }
             HomeAction.PickerBrowsePlayersClicked -> pickerInput.update { it?.copy(query = "", path = PlayerPath()) }
             is HomeAction.PickerPlayerClicked -> choosePlayerEntry(action.id)
             is HomeAction.PickerClubClicked -> toggle(Favorite.Club(action.id))
             HomeAction.PickerBackClicked -> pickerInput.update { goBack(it) }
             HomeAction.PickerDismissed -> pickerInput.value = null
         }
+    }
+
+    private fun openPlayer(playerId: String) {
+        analytics.detailOpened(AnalyticsKind.PLAYER, playerId, from = AnalyticsScreen.HOME)
+        viewModelScope.launch { eventChannel.send(HomeEvent.OpenPlayer(playerId)) }
+    }
+
+    private fun openClub(clubId: String) {
+        analytics.detailOpened(AnalyticsKind.CLUB, clubId, from = AnalyticsScreen.HOME)
+        viewModelScope.launch { eventChannel.send(HomeEvent.OpenClub(clubId)) }
+    }
+
+    private fun openTeam(teamId: String) {
+        analytics.detailOpened(AnalyticsKind.TEAM, teamId, from = AnalyticsScreen.HOME)
+        viewModelScope.launch { eventChannel.send(HomeEvent.OpenTeam(teamId)) }
     }
 
     /** One step back through the Player drill-down; from its first step back to the Clubs, and from the Clubs the picker closes. */
@@ -147,11 +179,13 @@ class HomeViewModel(
 
     private fun toggle(favorite: Favorite) {
         viewModelScope.launch {
-            if (favorite in observeFavorites().first()) {
+            val wasFavorite = favorite in observeFavorites().first()
+            if (wasFavorite) {
                 removeFavorite(favorite)
             } else {
                 addFavorite(favorite)
             }
+            analytics.favoriteToggled(favorite.analyticsKind(), favorite.id, enabled = !wasFavorite)
         }
     }
 
@@ -175,6 +209,12 @@ class HomeViewModel(
         UserContext.None -> HomeSelectionUi.None
         is UserContext.MyPlayer -> HomeSelectionUi.Player(player.name, club.name, association.code, player.id)
         is UserContext.MyClub -> HomeSelectionUi.Club(club.name, association.code, club.id)
+    }
+
+    private fun Favorite.analyticsKind() = when (this) {
+        is Favorite.Player -> AnalyticsKind.PLAYER
+        is Favorite.Club -> AnalyticsKind.CLUB
+        is Favorite.Team -> AnalyticsKind.TEAM
     }
 
     private companion object {

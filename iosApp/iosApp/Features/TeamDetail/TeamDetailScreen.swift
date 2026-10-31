@@ -18,6 +18,7 @@ struct TeamDetailRoute: View {
 
     var body: some View {
         TeamDetailScreen(state: viewModel.uiState, onAction: viewModel.onAction)
+            .onAppear { viewModel.screenShown() }
             .onAppear { viewModel.loadIfNeeded() }
             .task { await viewModel.observe() }
             .task {

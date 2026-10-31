@@ -99,10 +99,48 @@ struct PlayerDetailViewModelTests {
         #expect(changes == 0)
     }
 
+    @Test func reportsTheScreenViewOnceHoweverOftenTheViewAppears() {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(analytics: analytics) { _ in success }
+
+        viewModel.screenShown()
+        viewModel.screenShown()
+
+        #expect(analytics.events == [LoggedEvent("screen_view", ["screen": "player_detail"])])
+    }
+
+    @Test func togglingTheStarReportsTheFavoriteWithoutAName() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(analytics: analytics) { _ in success }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+
+        viewModel.onAction(.favoriteClicked)
+        await waitUntil { !analytics.events.isEmpty }
+
+        #expect(analytics.events == [LoggedEvent("favorite_toggled", ["kind": "player", "id": "p1", "enabled": "true"])])
+    }
+
+    @Test func openingTheClubOrATeamReportsWhereFromAndNothingElse() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(analytics: analytics) { _ in success }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+
+        viewModel.onAction(.clubClicked)
+        viewModel.onAction(.teamClicked(id: "t1"))
+
+        #expect(analytics.events == [
+            LoggedEvent("detail_opened", ["kind": "club", "id": "1", "from": "player_detail"]),
+            LoggedEvent("detail_opened", ["kind": "team", "id": "t1", "from": "player_detail"]),
+        ])
+    }
+
     private func makeViewModel(
         favorites: [Set<AnyHashable>] = [],
         addFavorite: @escaping (Favorite) async throws -> Void = { _ in },
         removeFavorite: @escaping (Favorite) async throws -> Void = { _ in },
+        analytics: any AnalyticsTracker = NoOpAnalyticsTracker(),
         loadDetail: @escaping (String) async throws -> DataResult
     ) -> PlayerDetailViewModel {
         PlayerDetailViewModel(
@@ -113,7 +151,8 @@ struct PlayerDetailViewModelTests {
                 continuation.finish()
             },
             addFavorite: addFavorite,
-            removeFavorite: removeFavorite
+            removeFavorite: removeFavorite,
+            analytics: analytics
         )
     }
 

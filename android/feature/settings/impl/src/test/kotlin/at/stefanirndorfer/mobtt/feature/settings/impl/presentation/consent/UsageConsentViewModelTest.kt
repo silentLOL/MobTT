@@ -1,5 +1,7 @@
 package at.stefanirndorfer.mobtt.feature.settings.impl.presentation.consent
 
+import at.stefanirndorfer.mobtt.core.analytics.LoggedEvent
+import at.stefanirndorfer.mobtt.core.analytics.RecordingAnalyticsTracker
 import at.stefanirndorfer.mobtt.domain.user.ObserveUsageConsentPromptUseCase
 import at.stefanirndorfer.mobtt.domain.user.SetUsageConsentUseCase
 import at.stefanirndorfer.mobtt.domain.user.UsageConsent
@@ -45,6 +47,7 @@ private class FakeData :
 @OptIn(ExperimentalCoroutinesApi::class)
 class UsageConsentViewModelTest {
     private val data = FakeData()
+    private val analytics = RecordingAnalyticsTracker()
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -56,6 +59,7 @@ class UsageConsentViewModelTest {
         val viewModel = UsageConsentViewModel(
             observePrompt = ObserveUsageConsentPromptUseCase(data, data),
             setUsageConsent = SetUsageConsentUseCase(data),
+            analytics = analytics,
         )
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.isPromptVisible.collect {} }
         return viewModel
@@ -91,5 +95,18 @@ class UsageConsentViewModelTest {
 
         assertEquals(false, viewModel.isPromptVisible.value)
         assertEquals(UsageConsent.DECLINED, data.consent.first())
+    }
+
+    @Test
+    fun answeringReportsTheConsentChangeFromThePrompt() = runTest {
+        data.saveSelection(UserSelection.MyPlayer("p1"))
+        val viewModel = viewModel()
+
+        viewModel.onAction(UsageConsentAction.AllowClicked)
+
+        assertEquals(
+            listOf(LoggedEvent("consent_changed", mapOf("enabled" to "true", "source" to "prompt"))),
+            analytics.events,
+        )
     }
 }

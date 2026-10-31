@@ -22,6 +22,7 @@ roborazzi {
 dependencies {
     implementation(project(":android:feature:club:api"))
     implementation(project(":android:feature:players:api"))
+    implementation(project(":android:core:analytics"))
     implementation(project(":android:core:design-system"))
     implementation(project(":android:core:localization"))
     implementation(project(":android:core:ui"))

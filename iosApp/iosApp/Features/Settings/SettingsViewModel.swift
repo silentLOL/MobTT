@@ -20,6 +20,9 @@ final class SettingsViewModel {
     @ObservationIgnored private let setMyPlayer: (String) async throws -> Void
     @ObservationIgnored private let setMyClub: (String) async throws -> Void
     @ObservationIgnored private let searchClubs: (String) async -> [Club]
+    @ObservationIgnored private let analytics: any AnalyticsTracker
+    @ObservationIgnored private let screenViews: ScreenViewReporter
+    @ObservationIgnored private let searchEvents: SearchEvents
     @ObservationIgnored private let eventStream = AsyncStream<SettingsEvent>.makeStream()
 
     var events: AsyncStream<SettingsEvent> { eventStream.stream }
@@ -31,7 +34,9 @@ final class SettingsViewModel {
         setMyPlayer: @escaping (String) async throws -> Void = { try await KoinHelper.shared.getSetMyPlayerUseCase().invoke(playerId: $0) },
         setMyClub: @escaping (String) async throws -> Void = { try await KoinHelper.shared.getSetMyClubUseCase().invoke(clubId: $0) },
         playerLoaders: PlayerDrillDownLoaders = .live,
-        searchClubs: @escaping (String) async -> [Club] = { (try? await KoinHelper.shared.getSearchClubsUseCase().invoke(query: $0)) ?? [] }
+        searchClubs: @escaping (String) async -> [Club] = { (try? await KoinHelper.shared.getSearchClubsUseCase().invoke(query: $0)) ?? [] },
+        analytics: any AnalyticsTracker = AppAnalytics.tracker,
+        searchSettle: Duration = .seconds(1)
     ) {
         self.observeUserContext = observeUserContext
         self.observeUsageConsent = observeUsageConsent
@@ -40,6 +45,14 @@ final class SettingsViewModel {
         self.setMyClub = setMyClub
         self.playerDrillDown = PlayerDrillDown(loaders: playerLoaders)
         self.searchClubs = searchClubs
+        self.analytics = analytics
+        self.screenViews = ScreenViewReporter(tracker: analytics, screen: AnalyticsScreen.settings)
+        self.searchEvents = SearchEvents(tracker: analytics, screen: AnalyticsScreen.settings, settle: searchSettle)
+    }
+
+    /// Reports the screen view, once per screen.
+    func screenShown() {
+        screenViews.report()
     }
 
     var uiState: SettingsUiState {
@@ -90,6 +103,7 @@ final class SettingsViewModel {
         case .chooseClubClicked:
             openPicker(.club)
         case .pickerQueryChanged(let query):
+            searchEvents.queryChanged(query)
             if pickerKind == .player {
                 playerDrillDown.setQuery(query)
             } else {
@@ -107,8 +121,13 @@ final class SettingsViewModel {
         case .pickerBackClicked:
             if pickerKind == .player, playerDrillDown.back() { return }
             closePicker()
+        case .appearanceSelected(let choice):
+            analytics.settingChanged(setting: AnalyticsSetting.appearance, value: choice.rawValue)
         case .usageConsentToggled(let allowed):
-            Task { try? await setUsageConsent(allowed) }
+            Task {
+                guard (try? await setUsageConsent(allowed)) != nil else { return }
+                analytics.consentChanged(enabled: allowed, source: AnalyticsSource.settings)
+            }
         case .doneClicked:
             eventStream.continuation.yield(.dismiss)
         }
@@ -159,8 +178,12 @@ final class SettingsViewModel {
         Task {
             do {
                 switch kind {
-                case .player: try await setMyPlayer(id)
-                case .club: try await setMyClub(id)
+                case .player:
+                    try await setMyPlayer(id)
+                    analytics.myPlayerSelected(source: AnalyticsSource.settings)
+                case .club:
+                    try await setMyClub(id)
+                    analytics.myClubSelected(source: AnalyticsSource.settings)
                 }
                 closePicker()
             } catch {

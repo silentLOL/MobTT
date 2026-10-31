@@ -1,5 +1,7 @@
 package at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail
 
+import at.stefanirndorfer.mobtt.core.analytics.LoggedEvent
+import at.stefanirndorfer.mobtt.core.analytics.RecordingAnalyticsTracker
 import at.stefanirndorfer.mobtt.domain.club.GetTeamDetailUseCase
 import at.stefanirndorfer.mobtt.domain.club.LineupPlayer
 import at.stefanirndorfer.mobtt.domain.user.AddFavoriteUseCase
@@ -31,6 +33,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 class TeamDetailViewModelTest {
     private val data = FakeClubData()
+    private val analytics = RecordingAnalyticsTracker()
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -46,6 +49,7 @@ class TeamDetailViewModelTest {
             addFavorite = AddFavoriteUseCase(data, data),
             removeFavorite = RemoveFavoriteUseCase(data),
             rememberPlayer = RememberPlayerUseCase(data),
+            analytics = analytics,
         )
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel
@@ -134,5 +138,24 @@ class TeamDetailViewModelTest {
         viewModel.onAction(TeamDetailAction.PlayerClicked(player))
 
         assertEquals(listOf<TeamDetailEvent>(TeamDetailEvent.OpenPlayer(player.playerId)), events)
+    }
+
+    @Test
+    fun reportsTheScreenViewTheFavoriteAndTheDetailsOpened() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onAction(TeamDetailAction.FavoriteClicked)
+        viewModel.onAction(TeamDetailAction.LeagueClicked("l1"))
+        viewModel.onAction(TeamDetailAction.PlayerClicked(LineupPlayer(playerId = "p1", name = "Anna Huber")))
+
+        assertEquals(
+            listOf(
+                LoggedEvent("screen_view", mapOf("screen" to "team_detail")),
+                LoggedEvent("favorite_toggled", mapOf("kind" to "team", "id" to "t1", "enabled" to "true")),
+                LoggedEvent("detail_opened", mapOf("kind" to "league", "id" to "l1", "from" to "team_detail")),
+                LoggedEvent("detail_opened", mapOf("kind" to "player", "id" to "p1", "from" to "team_detail")),
+            ),
+            analytics.events,
+        )
     }
 }

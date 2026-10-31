@@ -21,6 +21,7 @@ struct PlayersRoute: View {
 
     var body: some View {
         PlayersScreen(state: viewModel.uiState, onAction: viewModel.onAction)
+            .onAppear { viewModel.screenShown() }
             .task {
                 for await event in viewModel.events {
                     switch event {

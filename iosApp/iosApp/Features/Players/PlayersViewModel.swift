@@ -38,6 +38,10 @@ final class PlayersViewModel {
     @ObservationIgnored private let rememberPlayer: (Player) async throws -> Void
     @ObservationIgnored private let setMyPlayer: (String) async throws -> Void
     @ObservationIgnored private let setMyClub: (String) async throws -> Void
+    @ObservationIgnored private let analytics: any AnalyticsTracker
+    @ObservationIgnored private let screen: String
+    @ObservationIgnored private let screenViews: ScreenViewReporter
+    @ObservationIgnored private let searchEvents: SearchEvents
     @ObservationIgnored private let eventStream = AsyncStream<PlayersEvent>.makeStream()
 
     var events: AsyncStream<PlayersEvent> { eventStream.stream }
@@ -49,7 +53,9 @@ final class PlayersViewModel {
         loadPlayers: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.listClubPlayers(clubId: $0) },
         rememberPlayer: @escaping (Player) async throws -> Void = { try await KoinHelper.shared.getRememberPlayerUseCase().invoke(player: $0) },
         setMyPlayer: @escaping (String) async throws -> Void = { try await KoinHelper.shared.getSetMyPlayerUseCase().invoke(playerId: $0) },
-        setMyClub: @escaping (String) async throws -> Void = { try await KoinHelper.shared.getSetMyClubUseCase().invoke(clubId: $0) }
+        setMyClub: @escaping (String) async throws -> Void = { try await KoinHelper.shared.getSetMyClubUseCase().invoke(clubId: $0) },
+        analytics: any AnalyticsTracker = AppAnalytics.tracker,
+        searchSettle: Duration = .seconds(1)
     ) {
         self.mode = mode
         self.loadAssociations = loadAssociations
@@ -58,6 +64,20 @@ final class PlayersViewModel {
         self.rememberPlayer = rememberPlayer
         self.setMyPlayer = setMyPlayer
         self.setMyClub = setMyClub
+        self.analytics = analytics
+        let screen = switch mode {
+        case .browse: AnalyticsScreen.players
+        case .myPlayer: AnalyticsScreen.choosePlayer
+        case .myClub, .pickClub: AnalyticsScreen.chooseClub
+        }
+        self.screen = screen
+        self.screenViews = ScreenViewReporter(tracker: analytics, screen: screen)
+        self.searchEvents = SearchEvents(tracker: analytics, screen: screen, settle: searchSettle)
+    }
+
+    /// Reports the screen view, once per screen.
+    func screenShown() {
+        screenViews.report()
     }
 
     var uiState: PlayersUiState {
@@ -75,11 +95,15 @@ final class PlayersViewModel {
         switch action {
         case .associationRowClicked: openSheet(.association)
         case .clubRowClicked: if association != nil { openSheet(.club) }
-        case .sheetQueryChanged(let text): sheetQuery = text
+        case .sheetQueryChanged(let text):
+            sheetQuery = text
+            searchEvents.queryChanged(text)
         case .sheetEntryClicked(let id): choose(id: id)
         case .sheetRetryClicked: if let sheetKind { loadSheet(sheetKind, force: true) }
         case .sheetDismissed: closeSheet()
-        case .queryChanged(let text): query = text
+        case .queryChanged(let text):
+            query = text
+            searchEvents.queryChanged(text)
         case .playerClicked(let playerId, let name): openPlayer(playerId: playerId, name: name)
         case .retryClicked: if let club { loadClubPlayers(club) }
         }
@@ -190,6 +214,7 @@ final class PlayersViewModel {
         Task {
             if mode == .myClub {
                 guard (try? await setMyClub(club.id)) != nil else { return }
+                analytics.myClubSelected(source: AnalyticsSource.home)
                 eventStream.continuation.yield(.done)
             } else {
                 eventStream.continuation.yield(.clubChosen(clubId: club.id))
@@ -204,9 +229,11 @@ final class PlayersViewModel {
                 // A failed save keeps the screen open so the Player can be tapped again.
                 guard (try? await rememberPlayer(Player(id: playerId, name: name, clubId: club.id))) != nil,
                       (try? await setMyPlayer(playerId)) != nil else { return }
+                analytics.myPlayerSelected(source: AnalyticsSource.home)
                 eventStream.continuation.yield(.done)
             } else {
                 try? await rememberPlayer(Player(id: playerId, name: name, clubId: club.id))
+                analytics.detailOpened(kind: AnalyticsKind.player, id: playerId, from: screen)
                 eventStream.continuation.yield(.openPlayer(playerId: playerId))
             }
         }

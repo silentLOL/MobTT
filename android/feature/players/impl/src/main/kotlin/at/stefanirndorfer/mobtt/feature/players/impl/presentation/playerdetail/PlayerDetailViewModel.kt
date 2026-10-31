@@ -2,6 +2,13 @@ package at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsKind
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsScreen
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsTracker
+import at.stefanirndorfer.mobtt.core.analytics.NoOpAnalyticsTracker
+import at.stefanirndorfer.mobtt.core.analytics.detailOpened
+import at.stefanirndorfer.mobtt.core.analytics.favoriteToggled
+import at.stefanirndorfer.mobtt.core.analytics.screenView
 import at.stefanirndorfer.mobtt.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.mobtt.domain.user.Favorite
 import at.stefanirndorfer.mobtt.domain.user.GetPlayerDetailUseCase
@@ -26,7 +33,12 @@ class PlayerDetailViewModel(
     private val observeFavorites: ObserveFavoritesUseCase,
     private val addFavorite: AddFavoriteUseCase,
     private val removeFavorite: RemoveFavoriteUseCase,
+    private val analytics: AnalyticsTracker = NoOpAnalyticsTracker,
 ) : ViewModel() {
+    init {
+        analytics.screenView(AnalyticsScreen.PLAYER_DETAIL)
+    }
+
     val uiState: StateFlow<PlayerDetailUiState> = flow {
         val detail = load()
         if (detail == null) {
@@ -45,13 +57,20 @@ class PlayerDetailViewModel(
         when (action) {
             PlayerDetailAction.FavoriteClicked -> toggleFavorite()
             PlayerDetailAction.ClubClicked -> openClub()
-            is PlayerDetailAction.TeamClicked -> viewModelScope.launch { eventChannel.send(PlayerDetailEvent.OpenTeam(action.teamId)) }
+            is PlayerDetailAction.TeamClicked -> openTeam(action.teamId)
         }
     }
 
     private fun openClub() {
         val content = uiState.value as? PlayerDetailUiState.Content ?: return
-        viewModelScope.launch { eventChannel.send(PlayerDetailEvent.OpenClub(content.detail.player.clubId)) }
+        val clubId = content.detail.player.clubId
+        analytics.detailOpened(AnalyticsKind.CLUB, clubId, from = AnalyticsScreen.PLAYER_DETAIL)
+        viewModelScope.launch { eventChannel.send(PlayerDetailEvent.OpenClub(clubId)) }
+    }
+
+    private fun openTeam(teamId: String) {
+        analytics.detailOpened(AnalyticsKind.TEAM, teamId, from = AnalyticsScreen.PLAYER_DETAIL)
+        viewModelScope.launch { eventChannel.send(PlayerDetailEvent.OpenTeam(teamId)) }
     }
 
     private fun toggleFavorite() {
@@ -63,6 +82,7 @@ class PlayerDetailViewModel(
             } else {
                 addFavorite(favorite)
             }
+            analytics.favoriteToggled(AnalyticsKind.PLAYER, playerId, enabled = !content.isFavorite)
         }
     }
 

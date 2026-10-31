@@ -21,6 +21,8 @@ final class ClubViewModel {
     @ObservationIgnored private let addFavorite: (Favorite) async throws -> Void
     @ObservationIgnored private let removeFavorite: (Favorite) async throws -> Void
     @ObservationIgnored private let rememberPlayer: (Player) async throws -> Void
+    @ObservationIgnored private let analytics: any AnalyticsTracker
+    @ObservationIgnored private let screenViews: ScreenViewReporter
     @ObservationIgnored private let eventStream = AsyncStream<ClubEvent>.makeStream()
 
     var events: AsyncStream<ClubEvent> { eventStream.stream }
@@ -32,7 +34,8 @@ final class ClubViewModel {
         observeFavorites: any AsyncSequence<Set<AnyHashable>, Never> = KoinHelper.shared.getObserveFavoritesUseCase().invoke(),
         addFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getAddFavoriteUseCase().invoke(favorite: $0) },
         removeFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getRemoveFavoriteUseCase().invoke(favorite: $0) },
-        rememberPlayer: @escaping (Player) async throws -> Void = { try await KoinHelper.shared.getRememberPlayerUseCase().invoke(player: $0) }
+        rememberPlayer: @escaping (Player) async throws -> Void = { try await KoinHelper.shared.getRememberPlayerUseCase().invoke(player: $0) },
+        analytics: any AnalyticsTracker = AppAnalytics.tracker
     ) {
         self.source = source
         self.observeUserContext = observeUserContext
@@ -41,6 +44,13 @@ final class ClubViewModel {
         self.addFavorite = addFavorite
         self.removeFavorite = removeFavorite
         self.rememberPlayer = rememberPlayer
+        self.analytics = analytics
+        self.screenViews = ScreenViewReporter(tracker: analytics, screen: AnalyticsScreen.club)
+    }
+
+    /// Reports the screen view, once per screen.
+    func screenShown() {
+        screenViews.report()
     }
 
     /// Runs until the calling task is cancelled.
@@ -81,6 +91,7 @@ final class ClubViewModel {
         case .chooseClicked:
             eventStream.continuation.yield(.openSettings)
         case .teamClicked(let teamId):
+            analytics.detailOpened(kind: AnalyticsKind.team, id: teamId, from: AnalyticsScreen.club)
             eventStream.continuation.yield(.openTeam(teamId: teamId))
         case .playerClicked(let playerId, let name):
             openPlayer(playerId: playerId, name: name)
@@ -94,6 +105,7 @@ final class ClubViewModel {
 
     private func openPlayer(playerId: String, name: String) {
         guard let clubId else { return }
+        analytics.detailOpened(kind: AnalyticsKind.player, id: playerId, from: AnalyticsScreen.club)
         Task {
             try? await rememberPlayer(Player(id: playerId, name: name, clubId: clubId))
             eventStream.continuation.yield(.openPlayer(playerId: playerId))
@@ -123,10 +135,9 @@ final class ClubViewModel {
         guard case .content(let overview) = uiState, let clubId else { return }
         let favorite = FavoriteClub(id: clubId)
         Task {
-            if overview.isFavorite {
-                try? await removeFavorite(favorite)
-            } else {
-                try? await addFavorite(favorite)
+            let saved = overview.isFavorite ? (try? await removeFavorite(favorite)) != nil : (try? await addFavorite(favorite)) != nil
+            if saved {
+                analytics.favoriteToggled(kind: AnalyticsKind.club, id: clubId, enabled: !overview.isFavorite)
             }
         }
     }

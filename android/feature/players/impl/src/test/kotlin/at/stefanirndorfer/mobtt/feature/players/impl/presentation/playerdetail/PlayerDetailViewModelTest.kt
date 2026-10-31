@@ -1,5 +1,7 @@
 package at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail
 
+import at.stefanirndorfer.mobtt.core.analytics.LoggedEvent
+import at.stefanirndorfer.mobtt.core.analytics.RecordingAnalyticsTracker
 import at.stefanirndorfer.mobtt.domain.club.Association
 import at.stefanirndorfer.mobtt.domain.club.AssociationRepository
 import at.stefanirndorfer.mobtt.domain.club.Club
@@ -96,6 +98,7 @@ private class FakePlayerData :
 @OptIn(ExperimentalCoroutinesApi::class)
 class PlayerDetailViewModelTest {
     private val data = FakePlayerData()
+    private val analytics = RecordingAnalyticsTracker()
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -110,6 +113,7 @@ class PlayerDetailViewModelTest {
             observeFavorites = ObserveFavoritesUseCase(data),
             addFavorite = AddFavoriteUseCase(data, data),
             removeFavorite = RemoveFavoriteUseCase(data),
+            analytics = analytics,
         )
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel
@@ -178,5 +182,54 @@ class PlayerDetailViewModelTest {
 
         viewModel.onAction(PlayerDetailAction.TeamClicked("t1"))
         assertEquals(PlayerDetailEvent.OpenTeam("t1"), viewModel.events.first())
+    }
+
+    @Test
+    fun opensTheScreenAndReportsTheScreenView() = runTest {
+        viewModel()
+
+        assertEquals(listOf(LoggedEvent("screen_view", mapOf("screen" to "player_detail"))), analytics.events)
+    }
+
+    @Test
+    fun togglingTheStarReportsTheFavoriteWithoutAName() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onAction(PlayerDetailAction.FavoriteClicked)
+        viewModel.onAction(PlayerDetailAction.FavoriteClicked)
+
+        assertEquals(
+            listOf(
+                LoggedEvent("favorite_toggled", mapOf("kind" to "player", "id" to "p1", "enabled" to "true")),
+                LoggedEvent("favorite_toggled", mapOf("kind" to "player", "id" to "p1", "enabled" to "false")),
+            ),
+            analytics.events.drop(1),
+        )
+    }
+
+    @Test
+    fun openingTheClubOrATeamReportsWhereFromAndNothingElse() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onAction(PlayerDetailAction.ClubClicked)
+        viewModel.onAction(PlayerDetailAction.TeamClicked("t1"))
+
+        assertEquals(
+            listOf(
+                LoggedEvent("detail_opened", mapOf("kind" to "club", "id" to "c1", "from" to "player_detail")),
+                LoggedEvent("detail_opened", mapOf("kind" to "team", "id" to "t1", "from" to "player_detail")),
+            ),
+            analytics.events.drop(1),
+        )
+    }
+
+    @Test
+    fun aFavoriteTapWithoutContentReportsNothing() = runTest {
+        data.unavailable = true
+        val viewModel = viewModel()
+
+        viewModel.onAction(PlayerDetailAction.FavoriteClicked)
+
+        assertEquals(1, analytics.events.size)
     }
 }

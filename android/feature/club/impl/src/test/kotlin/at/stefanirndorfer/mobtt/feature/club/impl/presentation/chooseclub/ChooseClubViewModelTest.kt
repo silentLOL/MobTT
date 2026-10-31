@@ -1,5 +1,7 @@
 package at.stefanirndorfer.mobtt.feature.club.impl.presentation.chooseclub
 
+import at.stefanirndorfer.mobtt.core.analytics.LoggedEvent
+import at.stefanirndorfer.mobtt.core.analytics.RecordingAnalyticsTracker
 import at.stefanirndorfer.mobtt.domain.club.ListAssociationClubsUseCase
 import at.stefanirndorfer.mobtt.domain.club.ListAssociationsUseCase
 import at.stefanirndorfer.mobtt.domain.user.SetMyClubUseCase
@@ -20,6 +22,7 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalCoroutinesApi::class)
 class ChooseClubViewModelTest {
     private val data = FakeClubData()
+    private val analytics = RecordingAnalyticsTracker()
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -27,7 +30,7 @@ class ChooseClubViewModelTest {
     @After
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun viewModel() = ChooseClubViewModel(ListAssociationsUseCase(data), ListAssociationClubsUseCase(data), SetMyClubUseCase(data))
+    private fun viewModel() = ChooseClubViewModel(ListAssociationsUseCase(data), ListAssociationClubsUseCase(data), SetMyClubUseCase(data), analytics)
 
     @Test
     fun choosingAnAssociationThenAClubSavesMyClubAndFinishes() = runTest {
@@ -49,5 +52,23 @@ class ChooseClubViewModelTest {
         viewModel.onAction(ChooseClubAction.ClubRowClicked)
 
         assertEquals(null, viewModel.uiState.value.sheet)
+    }
+
+    @Test
+    fun reportsTheScreenViewAndTheClubChosenFromHome() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onAction(ChooseClubAction.AssociationRowClicked)
+        viewModel.onAction(ChooseClubAction.PickerEntryClicked("a1"))
+        viewModel.onAction(ChooseClubAction.ClubRowClicked)
+        viewModel.onAction(ChooseClubAction.PickerEntryClicked("c1"))
+
+        assertEquals(
+            listOf(
+                LoggedEvent("screen_view", mapOf("screen" to "choose_club")),
+                LoggedEvent("my_club_selected", mapOf("source" to "home")),
+            ),
+            analytics.events,
+        )
     }
 }

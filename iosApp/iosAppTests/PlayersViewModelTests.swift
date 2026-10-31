@@ -215,6 +215,36 @@ struct PlayersViewModelTests {
         return players.map(\.id)
     }
 
+    @Test func browsingReportsTheScreenAndThePlayerOpened() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = await chooseClub(await chooseAssociation(makeViewModel(analytics: analytics)))
+        await waitUntil { viewModel.uiState.list != .loading }
+
+        viewModel.screenShown()
+        viewModel.onAction(.playerClicked(playerId: "p1", name: "Anna Gruber"))
+        await waitUntil { analytics.events.count == 2 }
+
+        #expect(analytics.events == [
+            LoggedEvent("screen_view", ["screen": "players"]),
+            LoggedEvent("detail_opened", ["kind": "player", "id": "p1", "from": "players"]),
+        ])
+    }
+
+    @Test func choosingMyPlayerReportsTheChoiceFromHome() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = await chooseClub(await chooseAssociation(makeViewModel(mode: .myPlayer, analytics: analytics)))
+        await waitUntil { viewModel.uiState.list != .loading }
+
+        viewModel.screenShown()
+        viewModel.onAction(.playerClicked(playerId: "p2", name: "Zoe Zeller"))
+        await waitUntil { analytics.events.count == 2 }
+
+        #expect(analytics.events == [
+            LoggedEvent("screen_view", ["screen": "choose_player"]),
+            LoggedEvent("my_player_selected", ["source": "home"]),
+        ])
+    }
+
     private func makeViewModel(
         mode: PlayersMode = .browse,
         loadAssociations: (() async throws -> DataResult)? = nil,
@@ -222,7 +252,8 @@ struct PlayersViewModelTests {
         loadPlayers: ((String) async throws -> DataResult)? = nil,
         rememberPlayer: @escaping (Player) async throws -> Void = { _ in },
         setMyPlayer: @escaping (String) async throws -> Void = { _ in },
-        setMyClub: @escaping (String) async throws -> Void = { _ in }
+        setMyClub: @escaping (String) async throws -> Void = { _ in },
+        analytics: any AnalyticsTracker = NoOpAnalyticsTracker()
     ) -> PlayersViewModel {
         PlayersViewModel(
             mode: mode,
@@ -231,7 +262,8 @@ struct PlayersViewModelTests {
             loadPlayers: loadPlayers ?? { _ in self.success(self.lineup) },
             rememberPlayer: rememberPlayer,
             setMyPlayer: setMyPlayer,
-            setMyClub: setMyClub
+            setMyClub: setMyClub,
+            analytics: analytics
         )
     }
 

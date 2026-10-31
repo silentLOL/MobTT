@@ -11,6 +11,7 @@ struct HomeRoute: View {
 
     var body: some View {
         HomeScreen(state: viewModel.uiState, onAction: viewModel.onAction)
+            .onAppear { viewModel.screenShown() }
             .task { await viewModel.observe() }
             .task {
                 for await event in viewModel.events {

@@ -22,6 +22,9 @@ final class HomeViewModel {
     @ObservationIgnored private let addFavorite: (Favorite) async throws -> Void
     @ObservationIgnored private let removeFavorite: (Favorite) async throws -> Void
     @ObservationIgnored private let searchClubs: (String) async -> [Club]
+    @ObservationIgnored private let analytics: any AnalyticsTracker
+    @ObservationIgnored private let screenViews: ScreenViewReporter
+    @ObservationIgnored private let searchEvents: SearchEvents
     @ObservationIgnored private let eventStream = AsyncStream<HomeEvent>.makeStream()
 
     init(
@@ -31,7 +34,9 @@ final class HomeViewModel {
         addFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getAddFavoriteUseCase().invoke(favorite: $0) },
         removeFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getRemoveFavoriteUseCase().invoke(favorite: $0) },
         playerLoaders: PlayerDrillDownLoaders = .live,
-        searchClubs: @escaping (String) async -> [Club] = { (try? await KoinHelper.shared.getSearchClubsUseCase().invoke(query: $0)) ?? [] }
+        searchClubs: @escaping (String) async -> [Club] = { (try? await KoinHelper.shared.getSearchClubsUseCase().invoke(query: $0)) ?? [] },
+        analytics: any AnalyticsTracker = AppAnalytics.tracker,
+        searchSettle: Duration = .seconds(1)
     ) {
         self.observeUserContext = observeUserContext
         self.observeHomeFavorites = observeHomeFavorites
@@ -40,6 +45,14 @@ final class HomeViewModel {
         self.removeFavorite = removeFavorite
         self.playerDrillDown = PlayerDrillDown(loaders: playerLoaders)
         self.searchClubs = searchClubs
+        self.analytics = analytics
+        self.screenViews = ScreenViewReporter(tracker: analytics, screen: AnalyticsScreen.home)
+        self.searchEvents = SearchEvents(tracker: analytics, screen: AnalyticsScreen.home, settle: searchSettle)
+    }
+
+    /// Reports the screen view, once per screen.
+    func screenShown() {
+        screenViews.report()
     }
 
     var events: AsyncStream<HomeEvent> { eventStream.stream }
@@ -69,16 +82,15 @@ final class HomeViewModel {
             eventStream.continuation.yield(.chooseMyClub)
         case .chooseDismissed:
             isChoosingHero = false
-        case .heroPlayerClicked(let id):
+        case .heroPlayerClicked(let id), .favoritePlayerClicked(let id):
+            analytics.detailOpened(kind: AnalyticsKind.player, id: id, from: AnalyticsScreen.home)
             eventStream.continuation.yield(.openPlayer(playerId: id))
-        case .heroClubClicked(let id):
-            eventStream.continuation.yield(.openClub(clubId: id))
-        case .favoriteClubClicked(let id):
+        case .heroClubClicked(let id), .favoriteClubClicked(let id):
+            analytics.detailOpened(kind: AnalyticsKind.club, id: id, from: AnalyticsScreen.home)
             eventStream.continuation.yield(.openClub(clubId: id))
         case .favoriteTeamClicked(let id):
+            analytics.detailOpened(kind: AnalyticsKind.team, id: id, from: AnalyticsScreen.home)
             eventStream.continuation.yield(.openTeam(teamId: id))
-        case .favoritePlayerClicked(let id):
-            eventStream.continuation.yield(.openPlayer(playerId: id))
         case .addFavoriteClicked:
             browsingPlayers = false
             pickerClubs = []
@@ -96,6 +108,7 @@ final class HomeViewModel {
                 browsingPlayers = false
             }
         case .pickerQueryChanged(let query):
+            searchEvents.queryChanged(query)
             if browsingPlayers {
                 playerDrillDown.setQuery(query)
             } else {
@@ -141,10 +154,9 @@ final class HomeViewModel {
         let isFavorite = favoriteKeys.contains(kind.key(for: entityId))
         let favorite = kind.toDomain(entityId)
         Task {
-            if isFavorite {
-                try? await removeFavorite(favorite)
-            } else {
-                try? await addFavorite(favorite)
+            let saved = isFavorite ? (try? await removeFavorite(favorite)) != nil : (try? await addFavorite(favorite)) != nil
+            if saved {
+                analytics.favoriteToggled(kind: kind.analyticsKind, id: entityId, enabled: !isFavorite)
             }
         }
     }
@@ -177,6 +189,14 @@ final class HomeViewModel {
 }
 
 private extension FavoriteKind {
+    var analyticsKind: String {
+        switch self {
+        case .player: AnalyticsKind.player
+        case .club: AnalyticsKind.club
+        case .team: AnalyticsKind.team
+        }
+    }
+
     func toDomain(_ entityId: String) -> Favorite {
         switch self {
         case .player: FavoritePlayer(id: entityId)

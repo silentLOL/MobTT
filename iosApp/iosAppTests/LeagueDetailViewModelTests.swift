@@ -107,8 +107,25 @@ struct LeagueDetailViewModelTests {
         )
     }
 
-    private func makeViewModel(highlightTeamId: String? = nil, loadDetail: @escaping (String) async throws -> DataResult) -> LeagueDetailViewModel {
-        LeagueDetailViewModel(leagueId: "l1", highlightTeamId: highlightTeamId, loadDetail: loadDetail)
+    @Test func reportsTheScreenViewAndTheTeamOpened() {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(analytics: analytics) { _ in DataResultUnavailable(error: DataUnavailable(message: "down", cause: nil)) }
+
+        viewModel.screenShown()
+        viewModel.onAction(.teamClicked(teamId: "t1"))
+
+        #expect(analytics.events == [
+            LoggedEvent("screen_view", ["screen": "league_detail"]),
+            LoggedEvent("detail_opened", ["kind": "team", "id": "t1", "from": "league_detail"]),
+        ])
+    }
+
+    private func makeViewModel(
+        highlightTeamId: String? = nil,
+        analytics: any AnalyticsTracker = NoOpAnalyticsTracker(),
+        loadDetail: @escaping (String) async throws -> DataResult
+    ) -> LeagueDetailViewModel {
+        LeagueDetailViewModel(leagueId: "l1", highlightTeamId: highlightTeamId, loadDetail: loadDetail, analytics: analytics)
     }
 
     private func settle(_ viewModel: LeagueDetailViewModel) async {

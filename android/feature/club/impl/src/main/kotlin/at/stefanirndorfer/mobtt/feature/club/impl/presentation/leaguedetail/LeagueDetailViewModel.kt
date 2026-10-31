@@ -2,6 +2,12 @@ package at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsKind
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsScreen
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsTracker
+import at.stefanirndorfer.mobtt.core.analytics.NoOpAnalyticsTracker
+import at.stefanirndorfer.mobtt.core.analytics.detailOpened
+import at.stefanirndorfer.mobtt.core.analytics.screenView
 import at.stefanirndorfer.mobtt.core.ui.RetryTrigger
 import at.stefanirndorfer.mobtt.domain.club.GetLeagueDetailUseCase
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailAction
@@ -23,7 +29,12 @@ class LeagueDetailViewModel(
     private val leagueId: String,
     private val highlightTeamId: String?,
     private val getLeagueDetail: GetLeagueDetailUseCase,
+    private val analytics: AnalyticsTracker = NoOpAnalyticsTracker,
 ) : ViewModel() {
+    init {
+        analytics.screenView(AnalyticsScreen.LEAGUE_DETAIL)
+    }
+
     private val retry = RetryTrigger()
 
     private val onlyTeamFixtures = MutableStateFlow(false)
@@ -52,8 +63,13 @@ class LeagueDetailViewModel(
         when (action) {
             LeagueDetailAction.RetryClicked -> retry.retry()
             is LeagueDetailAction.OnlyTeamFixturesToggled -> onlyTeamFixtures.value = action.enabled
-            is LeagueDetailAction.TeamClicked -> viewModelScope.launch { eventChannel.send(LeagueDetailEvent.OpenTeam(action.teamId)) }
+            is LeagueDetailAction.TeamClicked -> openTeam(action.teamId)
         }
+    }
+
+    private fun openTeam(teamId: String) {
+        analytics.detailOpened(AnalyticsKind.TEAM, teamId, from = AnalyticsScreen.LEAGUE_DETAIL)
+        viewModelScope.launch { eventChannel.send(LeagueDetailEvent.OpenTeam(teamId)) }
     }
 
     private suspend fun load(): LeagueDetailUiState = try {

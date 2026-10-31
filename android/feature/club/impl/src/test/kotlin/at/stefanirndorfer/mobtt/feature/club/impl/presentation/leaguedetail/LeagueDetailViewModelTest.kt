@@ -1,5 +1,7 @@
 package at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail
 
+import at.stefanirndorfer.mobtt.core.analytics.LoggedEvent
+import at.stefanirndorfer.mobtt.core.analytics.RecordingAnalyticsTracker
 import at.stefanirndorfer.mobtt.domain.club.Fixture
 import at.stefanirndorfer.mobtt.domain.club.FixtureStatus
 import at.stefanirndorfer.mobtt.domain.club.GetLeagueDetailUseCase
@@ -26,6 +28,7 @@ import kotlin.time.Instant
 @OptIn(ExperimentalCoroutinesApi::class)
 class LeagueDetailViewModelTest {
     private val data = FakeClubData()
+    private val analytics = RecordingAnalyticsTracker()
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -34,7 +37,7 @@ class LeagueDetailViewModelTest {
     fun tearDown() = Dispatchers.resetMain()
 
     private fun TestScope.viewModel(highlightTeamId: String? = "t1"): LeagueDetailViewModel {
-        val viewModel = LeagueDetailViewModel("l1", highlightTeamId, GetLeagueDetailUseCase(data, data))
+        val viewModel = LeagueDetailViewModel("l1", highlightTeamId, GetLeagueDetailUseCase(data, data), analytics)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel
     }
@@ -93,5 +96,20 @@ class LeagueDetailViewModelTest {
         viewModel.onAction(LeagueDetailAction.TeamClicked("t2"))
 
         assertEquals(listOf<LeagueDetailEvent>(LeagueDetailEvent.OpenTeam("t2")), events)
+    }
+
+    @Test
+    fun reportsTheScreenViewAndTheTeamOpened() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onAction(LeagueDetailAction.TeamClicked("t1"))
+
+        assertEquals(
+            listOf(
+                LoggedEvent("screen_view", mapOf("screen" to "league_detail")),
+                LoggedEvent("detail_opened", mapOf("kind" to "team", "id" to "t1", "from" to "league_detail")),
+            ),
+            analytics.events,
+        )
     }
 }

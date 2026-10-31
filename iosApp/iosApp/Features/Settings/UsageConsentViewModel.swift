@@ -9,13 +9,16 @@ final class UsageConsentViewModel {
 
     @ObservationIgnored private let observePrompt: any AsyncSequence<KotlinBoolean, Never>
     @ObservationIgnored private let setUsageConsent: (Bool) async throws -> Void
+    @ObservationIgnored private let analytics: any AnalyticsTracker
 
     init(
         observePrompt: any AsyncSequence<KotlinBoolean, Never> = KoinHelper.shared.getObserveUsageConsentPromptUseCase().invoke(),
-        setUsageConsent: @escaping (Bool) async throws -> Void = { try await KoinHelper.shared.getSetUsageConsentUseCase().invoke(allowed: $0) }
+        setUsageConsent: @escaping (Bool) async throws -> Void = { try await KoinHelper.shared.getSetUsageConsentUseCase().invoke(allowed: $0) },
+        analytics: any AnalyticsTracker = AppAnalytics.tracker
     ) {
         self.observePrompt = observePrompt
         self.setUsageConsent = setUsageConsent
+        self.analytics = analytics
     }
 
     /// Runs until the calling task is cancelled.
@@ -28,6 +31,10 @@ final class UsageConsentViewModel {
     func onAction(_ action: UsageConsentAction) {
         // The sheet's dismissal also arrives here once an answer has hidden it; only a visible prompt is answered.
         guard isPromptVisible else { return }
-        Task { try? await setUsageConsent(action == .allowClicked) }
+        let allowed = action == .allowClicked
+        Task {
+            guard (try? await setUsageConsent(allowed)) != nil else { return }
+            analytics.consentChanged(enabled: allowed, source: AnalyticsSource.prompt)
+        }
     }
 }

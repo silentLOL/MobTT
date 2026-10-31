@@ -2,6 +2,14 @@ package at.stefanirndorfer.mobtt.feature.club.impl.presentation.club
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsKind
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsScreen
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsTracker
+import at.stefanirndorfer.mobtt.core.analytics.NoOpAnalyticsTracker
+import at.stefanirndorfer.mobtt.core.analytics.SearchEvents
+import at.stefanirndorfer.mobtt.core.analytics.detailOpened
+import at.stefanirndorfer.mobtt.core.analytics.favoriteToggled
+import at.stefanirndorfer.mobtt.core.analytics.screenView
 import at.stefanirndorfer.mobtt.core.ui.RetryTrigger
 import at.stefanirndorfer.mobtt.core.ui.catchUnavailable
 import at.stefanirndorfer.mobtt.core.ui.directory.AssociationClubPicker
@@ -45,7 +53,12 @@ class ClubViewModel(
     private val rememberPlayer: RememberPlayerUseCase,
     listAssociations: ListAssociationsUseCase,
     listAssociationClubs: ListAssociationClubsUseCase,
+    private val analytics: AnalyticsTracker = NoOpAnalyticsTracker,
 ) : ViewModel() {
+    init {
+        analytics.screenView(AnalyticsScreen.CLUB)
+    }
+
     private val retry = RetryTrigger()
 
     /** The Club found through the picker while the user has no My Club; it is shown but never saved as My Club. */
@@ -56,6 +69,8 @@ class ClubViewModel(
         listAssociationClubs = listAssociationClubs,
         onClubChosen = { pickedClubId.value = it.id },
     )
+
+    private val searchEvents = SearchEvents(viewModelScope, analytics, AnalyticsScreen.CLUB)
 
     private val clubId: Flow<String?> = when (source) {
         ClubSource.Mine -> combine(observeUserContext().map { it.club?.id }, pickedClubId) { mine, picked -> mine ?: picked }
@@ -93,18 +108,27 @@ class ClubViewModel(
         when (action) {
             ClubAction.AssociationRowClicked -> picker.onAssociationRowClicked()
             ClubAction.ClubRowClicked -> picker.onClubRowClicked()
-            is ClubAction.PickerQueryChanged -> picker.onQueryChanged(action.query)
+            is ClubAction.PickerQueryChanged -> {
+                picker.onQueryChanged(action.query)
+                searchEvents.onQueryChanged(action.query)
+            }
             is ClubAction.PickerEntryClicked -> picker.onEntryClicked(action.id)
             ClubAction.PickerDismissed -> picker.onDismissed()
-            is ClubAction.TeamClicked -> viewModelScope.launch { eventChannel.send(ClubEvent.OpenTeam(action.teamId)) }
+            is ClubAction.TeamClicked -> openTeam(action.teamId)
             is ClubAction.PlayerClicked -> openPlayer(action.player)
             ClubAction.RetryClicked -> retry.retry()
             ClubAction.FavoriteClicked -> toggleFavorite()
         }
     }
 
+    private fun openTeam(teamId: String) {
+        analytics.detailOpened(AnalyticsKind.TEAM, teamId, from = AnalyticsScreen.CLUB)
+        viewModelScope.launch { eventChannel.send(ClubEvent.OpenTeam(teamId)) }
+    }
+
     private fun openPlayer(player: LineupPlayer) {
         val content = uiState.value as? ClubUiState.Content ?: return
+        analytics.detailOpened(AnalyticsKind.PLAYER, player.playerId, from = AnalyticsScreen.CLUB)
         viewModelScope.launch {
             rememberPlayer(Player(player.playerId, player.name, content.overview.club.id))
             eventChannel.send(ClubEvent.OpenPlayer(player.playerId))
@@ -120,6 +144,7 @@ class ClubViewModel(
             } else {
                 addFavorite(favorite)
             }
+            analytics.favoriteToggled(AnalyticsKind.CLUB, favorite.id, enabled = !content.isFavorite)
         }
     }
 

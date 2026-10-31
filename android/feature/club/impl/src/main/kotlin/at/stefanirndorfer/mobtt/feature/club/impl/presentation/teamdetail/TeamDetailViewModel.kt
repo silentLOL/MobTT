@@ -2,6 +2,13 @@ package at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsKind
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsScreen
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsTracker
+import at.stefanirndorfer.mobtt.core.analytics.NoOpAnalyticsTracker
+import at.stefanirndorfer.mobtt.core.analytics.detailOpened
+import at.stefanirndorfer.mobtt.core.analytics.favoriteToggled
+import at.stefanirndorfer.mobtt.core.analytics.screenView
 import at.stefanirndorfer.mobtt.core.ui.RetryTrigger
 import at.stefanirndorfer.mobtt.domain.club.GetTeamDetailUseCase
 import at.stefanirndorfer.mobtt.domain.club.LineupPlayer
@@ -31,7 +38,12 @@ class TeamDetailViewModel(
     private val addFavorite: AddFavoriteUseCase,
     private val removeFavorite: RemoveFavoriteUseCase,
     private val rememberPlayer: RememberPlayerUseCase,
+    private val analytics: AnalyticsTracker = NoOpAnalyticsTracker,
 ) : ViewModel() {
+    init {
+        analytics.screenView(AnalyticsScreen.TEAM_DETAIL)
+    }
+
     private val retry = RetryTrigger()
 
     val uiState: StateFlow<TeamDetailUiState> = retry
@@ -57,13 +69,19 @@ class TeamDetailViewModel(
         when (action) {
             TeamDetailAction.RetryClicked -> retry.retry()
             TeamDetailAction.FavoriteClicked -> toggleFavorite()
-            is TeamDetailAction.LeagueClicked -> viewModelScope.launch { eventChannel.send(TeamDetailEvent.OpenLeague(action.leagueId, teamId)) }
+            is TeamDetailAction.LeagueClicked -> openLeague(action.leagueId)
             is TeamDetailAction.PlayerClicked -> openPlayer(action.player)
         }
     }
 
+    private fun openLeague(leagueId: String) {
+        analytics.detailOpened(AnalyticsKind.LEAGUE, leagueId, from = AnalyticsScreen.TEAM_DETAIL)
+        viewModelScope.launch { eventChannel.send(TeamDetailEvent.OpenLeague(leagueId, teamId)) }
+    }
+
     private fun openPlayer(player: LineupPlayer) {
         val content = uiState.value as? TeamDetailUiState.Content ?: return
+        analytics.detailOpened(AnalyticsKind.PLAYER, player.playerId, from = AnalyticsScreen.TEAM_DETAIL)
         viewModelScope.launch {
             rememberPlayer(Player(player.playerId, player.name, content.detail.team.clubId))
             eventChannel.send(TeamDetailEvent.OpenPlayer(player.playerId))
@@ -79,6 +97,7 @@ class TeamDetailViewModel(
             } else {
                 addFavorite(favorite)
             }
+            analytics.favoriteToggled(AnalyticsKind.TEAM, teamId, enabled = !content.isFavorite)
         }
     }
 

@@ -246,6 +246,45 @@ struct SettingsViewModelTests {
         return viewModel
     }
 
+    @Test func reportsTheScreenViewAppearanceAndConsentChanges() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(emitting: [], analytics: analytics)
+
+        viewModel.screenShown()
+        viewModel.onAction(.appearanceSelected(.dark))
+        viewModel.onAction(.usageConsentToggled(true))
+        await waitUntil { analytics.events.count == 3 }
+
+        #expect(analytics.events == [
+            LoggedEvent("screen_view", ["screen": "settings"]),
+            LoggedEvent("setting_changed", ["setting": "appearance", "value": "dark"]),
+            LoggedEvent("consent_changed", ["enabled": "true", "source": "settings"]),
+        ])
+    }
+
+    @Test func savingMyClubReportsTheChoiceFromSettings() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(emitting: [], clubs: [club], analytics: analytics)
+        viewModel.onAction(.chooseClubClicked)
+
+        viewModel.onAction(.pickerEntryClicked(id: "c1"))
+        await waitUntil { !analytics.events.isEmpty }
+
+        #expect(analytics.events == [LoggedEvent("my_club_selected", ["source": "settings"])])
+    }
+
+    @Test func searchReportsOnlyTheQueryLengthOncePausedAndNeverTheText() async throws {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(emitting: [], analytics: analytics, searchSettle: .milliseconds(20))
+        viewModel.onAction(.chooseClubClicked)
+
+        viewModel.onAction(.pickerQueryChanged("n"))
+        viewModel.onAction(.pickerQueryChanged("nussdorf"))
+        try await Task.sleep(for: .milliseconds(200))
+
+        #expect(analytics.events == [LoggedEvent("search_performed", ["screen": "settings", "query_length": "8"])])
+    }
+
     private func makeViewModel(
         emitting results: [DataResult],
         clubs: [Club] = [],
@@ -253,7 +292,9 @@ struct SettingsViewModelTests {
         consents: [UsageConsent] = [],
         setUsageConsent: @escaping (Bool) async throws -> Void = { _ in },
         setMyPlayer: @escaping (String) async throws -> Void = { _ in },
-        setMyClub: @escaping (String) async throws -> Void = { _ in }
+        setMyClub: @escaping (String) async throws -> Void = { _ in },
+        analytics: any AnalyticsTracker = NoOpAnalyticsTracker(),
+        searchSettle: Duration = .seconds(1)
     ) -> SettingsViewModel {
         let stream = AsyncStream<DataResult> { continuation in
             results.forEach { continuation.yield($0) }
@@ -270,7 +311,9 @@ struct SettingsViewModelTests {
             setMyPlayer: setMyPlayer,
             setMyClub: setMyClub,
             playerLoaders: playerLoaders,
-            searchClubs: { _ in clubs }
+            searchClubs: { _ in clubs },
+            analytics: analytics,
+            searchSettle: searchSettle
         )
     }
 }

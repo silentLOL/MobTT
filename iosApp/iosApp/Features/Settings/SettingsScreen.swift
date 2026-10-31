@@ -8,6 +8,7 @@ struct SettingsRoute: View {
 
     var body: some View {
         SettingsScreen(state: viewModel.uiState, appearance: $appearance, onAction: viewModel.onAction)
+            .onAppear { viewModel.screenShown() }
             .task { await viewModel.observe() }
             .task {
                 for await event in viewModel.events {
@@ -69,6 +70,7 @@ struct SettingsScreen: View {
             ForEach(AppearanceChoice.allCases, id: \.self) { choice in
                 BatSelectableRowView(label: String(localized: choice.label), isSelected: choice == appearance) {
                     appearance = choice
+                    onAction(.appearanceSelected(choice))
                 }
             }
         }
