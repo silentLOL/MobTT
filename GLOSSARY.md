@@ -54,6 +54,10 @@ _Avoid_: Home club, Stammverein
 A Player, Team or Club the user has bookmarked for quick access. Independent of My Player and My Club.
 _Avoid_: Bookmark, pin, Quick Link
 
+**Usage Consent**:
+The user's answer to whether anonymous usage statistics and crash reports may be collected. It is unanswered until the user chooses, then allowed or declined; nothing is collected unless it is allowed. Independent of My Player and My Club.
+_Avoid_: Tracking permission, analytics opt-in, privacy setting
+
 ## XTTV terms
 
 XTTV, the source of our data, names some things differently. Our terms above stay canonical; XTTV's words appear only where we read its data.
