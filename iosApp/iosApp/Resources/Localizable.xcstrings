@@ -834,6 +834,23 @@
         }
       }
     },
+    "league_detail_fixture_no_score": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "- : -"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "- : -"
+          }
+        }
+      }
+    },
     "league_detail_fixture_result_row_cd %@ %@ %@ %lld %lld": {
       "extractionState": "manual",
       "localizations": {
@@ -953,6 +970,23 @@
         }
       }
     },
+    "league_detail_only_team_fixtures_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur Begegnungen dieser Mannschaft"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only this Team's Fixtures"
+          }
+        }
+      }
+    },
     "league_detail_standing_empty_body": {
       "extractionState": "manual",
       "localizations": {
@@ -983,6 +1017,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "League table"
+          }
+        }
+      }
+    },
+    "league_detail_this_team_fixture_cd %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Begegnung dieser Mannschaft. %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This Team's Fixture. %@"
           }
         }
       }

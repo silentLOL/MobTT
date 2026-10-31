@@ -33,13 +33,13 @@ import at.stefanirndorfer.batmate.designsystem.ui.components.BatHeroCard
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatHeroPillRow
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatPrimaryButton
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatSectionHeader
-import at.stefanirndorfer.batmate.domain.club.LeagueDetail
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.models.LeagueDetailAction
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.models.LeagueDetailUiState
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.preview.leagueDetailEmptyPreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.preview.leagueDetailLongNamesPreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.preview.leagueDetailPreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.views.FixtureRowView
+import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.views.TeamFixturesToggleView
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.views.StandingRowView
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -47,10 +47,11 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun LeagueDetailRoute(
     leagueId: String,
+    highlightTeamId: String?,
     modifier: Modifier = Modifier,
     viewModel: LeagueDetailViewModel = koinViewModel(
-        key = leagueId,
-        parameters = { parametersOf(leagueId) },
+        key = "$leagueId/$highlightTeamId",
+        parameters = { parametersOf(leagueId, highlightTeamId) },
     ),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -66,7 +67,7 @@ fun LeagueDetailScreen(
     when (state) {
         LeagueDetailUiState.Loading -> LoadingView(modifier)
         LeagueDetailUiState.Error -> ErrorView(onRetry = { onAction(LeagueDetailAction.RetryClicked) }, modifier = modifier)
-        is LeagueDetailUiState.Content -> ContentView(state.detail, modifier)
+        is LeagueDetailUiState.Content -> ContentView(state, onAction, modifier)
     }
 }
 
@@ -101,7 +102,8 @@ private fun ErrorView(onRetry: () -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ContentView(detail: LeagueDetail, modifier: Modifier = Modifier) {
+private fun ContentView(state: LeagueDetailUiState.Content, onAction: (LeagueDetailAction) -> Unit, modifier: Modifier = Modifier) {
+    val detail = state.detail
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -124,21 +126,28 @@ private fun ContentView(detail: LeagueDetail, modifier: Modifier = Modifier) {
                 SectionMessage(stringResource(R.string.league_detail_standing_empty_body))
             } else {
                 BatCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(BatDesign.spacing.sm)) {
-                    detail.standings.forEach { StandingRowView(it, isThisTeam = false) }
+                    detail.standings.forEach { StandingRowView(it, isThisTeam = state.isThisTeam(it.teamId)) }
                 }
             }
         }
         Column {
             BatSectionHeader(title = stringResource(R.string.league_detail_fixtures_title))
-            if (detail.fixtures.isEmpty()) {
+            if (state.highlightTeamId != null) {
+                TeamFixturesToggleView(
+                    checked = state.onlyTeamFixtures,
+                    onCheckedChange = { onAction(LeagueDetailAction.OnlyTeamFixturesToggled(it)) },
+                )
+            }
+            val fixtures = state.visibleFixtures
+            if (fixtures.isEmpty()) {
                 SectionMessage(stringResource(R.string.league_detail_fixtures_empty_body))
             } else {
                 BatCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(BatDesign.spacing.sm)) {
-                    detail.fixtures.forEachIndexed { index, fixture ->
+                    fixtures.forEachIndexed { index, fixture ->
                         if (index > 0) {
                             HorizontalDivider(color = BatDesign.colors.border)
                         }
-                        FixtureRowView(fixture)
+                        FixtureRowView(fixture, isThisTeam = state.isTeamFixture(fixture))
                     }
                 }
             }
@@ -172,6 +181,25 @@ private fun LeagueDetailScreenErrorPreview() {
 private fun LeagueDetailScreenLoadedPreview() {
     BatPreviewSurface {
         LeagueDetailScreen(state = LeagueDetailUiState.Content(leagueDetailPreview), onAction = {})
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun LeagueDetailScreenHighlightedPreview() {
+    BatPreviewSurface {
+        LeagueDetailScreen(state = LeagueDetailUiState.Content(leagueDetailPreview, highlightTeamId = "olympic-1"), onAction = {})
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun LeagueDetailScreenOnlyTeamFixturesPreview() {
+    BatPreviewSurface {
+        LeagueDetailScreen(
+            state = LeagueDetailUiState.Content(leagueDetailPreview, highlightTeamId = "olympic-1", onlyTeamFixtures = true),
+            onAction = {},
+        )
     }
 }
 

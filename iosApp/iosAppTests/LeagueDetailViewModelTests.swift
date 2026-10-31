@@ -44,8 +44,56 @@ struct LeagueDetailViewModelTests {
         #expect(viewModel.uiState == .content(LeagueDetailUi(leagueName: "Liga", standings: [], fixtures: [])))
     }
 
-    private func makeViewModel(loadDetail: @escaping (String) async throws -> DataResult) -> LeagueDetailViewModel {
-        LeagueDetailViewModel(leagueId: "l1", loadDetail: loadDetail)
+    @Test func theTeamFilterNarrowsTheFixturesToTheHighlightedTeam() async {
+        let viewModel = makeViewModel(highlightTeamId: "t1") { _ in
+            DataResultSuccess(value: LeagueDetail(
+                league: League(id: "l1", name: "Liga"),
+                standings: [],
+                fixtures: [fixture("mine", home: "t1", away: "t2"), fixture("other", home: "t2", away: "t3")]
+            ))
+        }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+
+        viewModel.onAction(.onlyTeamFixturesToggled(true))
+
+        guard case .content(let detail) = viewModel.uiState else {
+            Issue.record("Expected content")
+            return
+        }
+        #expect(detail.canFilterToTeam)
+        #expect(detail.visibleFixtures.map(\.id) == ["mine"])
+    }
+
+    @Test func withoutAHighlightedTeamTheFilterIsNotOffered() async {
+        let viewModel = makeViewModel { _ in
+            DataResultSuccess(value: LeagueDetail(league: League(id: "l1", name: "Liga"), standings: [], fixtures: []))
+        }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+
+        guard case .content(let detail) = viewModel.uiState else {
+            Issue.record("Expected content")
+            return
+        }
+        #expect(!detail.canFilterToTeam)
+    }
+
+    private func fixture(_ id: String, home: String, away: String) -> Fixture {
+        Fixture(
+            id: id,
+            homeTeamId: home,
+            homeTeamName: home,
+            awayTeamId: away,
+            awayTeamName: away,
+            startsAt: KotlinInstant.companion.fromEpochMilliseconds(epochMilliseconds: 1_800_000_000_000),
+            venue: nil,
+            status: FixtureStatusScheduled.shared
+        )
+    }
+
+    private func makeViewModel(highlightTeamId: String? = nil, loadDetail: @escaping (String) async throws -> DataResult) -> LeagueDetailViewModel {
+        LeagueDetailViewModel(leagueId: "l1", highlightTeamId: highlightTeamId, loadDetail: loadDetail)
     }
 
     private func settle(_ viewModel: LeagueDetailViewModel) async {

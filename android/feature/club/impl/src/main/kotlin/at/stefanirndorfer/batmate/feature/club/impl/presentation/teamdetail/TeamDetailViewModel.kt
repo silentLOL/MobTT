@@ -53,7 +53,7 @@ class TeamDetailViewModel(
         when (action) {
             TeamDetailAction.RetryClicked -> retry.retry()
             TeamDetailAction.FavoriteClicked -> toggleFavorite()
-            is TeamDetailAction.LeagueClicked -> viewModelScope.launch { eventChannel.send(TeamDetailEvent.OpenLeague(action.leagueId)) }
+            is TeamDetailAction.LeagueClicked -> viewModelScope.launch { eventChannel.send(TeamDetailEvent.OpenLeague(action.leagueId, teamId)) }
         }
     }
 

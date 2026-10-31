@@ -3,9 +3,9 @@ import SwiftUI
 struct TeamDetailRoute: View {
     @State private var viewModel: TeamDetailViewModel
 
-    let onOpenLeague: (String) -> Void
+    let onOpenLeague: (_ leagueId: String, _ teamId: String) -> Void
 
-    init(teamId: String, onOpenLeague: @escaping (String) -> Void) {
+    init(teamId: String, onOpenLeague: @escaping (_ leagueId: String, _ teamId: String) -> Void) {
         self.onOpenLeague = onOpenLeague
         _viewModel = State(initialValue: TeamDetailViewModel(teamId: teamId))
     }
@@ -17,7 +17,7 @@ struct TeamDetailRoute: View {
             .task {
                 for await event in viewModel.events {
                     switch event {
-                    case .openLeague(let leagueId): onOpenLeague(leagueId)
+                    case .openLeague(let leagueId, let teamId): onOpenLeague(leagueId, teamId)
                     }
                 }
             }

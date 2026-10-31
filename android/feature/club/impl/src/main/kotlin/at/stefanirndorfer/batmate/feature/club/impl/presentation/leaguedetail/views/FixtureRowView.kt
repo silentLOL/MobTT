@@ -1,5 +1,6 @@
 package at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.views
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,7 @@ import at.stefanirndorfer.batmate.core.ui.fixture.formatKickoff
 import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
+import at.stefanirndorfer.batmate.designsystem.ui.components.BatBadge
 import at.stefanirndorfer.batmate.domain.club.Fixture
 import at.stefanirndorfer.batmate.domain.club.FixtureStatus
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.preview.leagueDetailLongNamesPreview
@@ -25,9 +27,9 @@ import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.pr
 
 /** One Fixture of a League: the pairing, when and where it is played, and the score once finished. */
 @Composable
-fun FixtureRowView(fixture: Fixture, modifier: Modifier = Modifier) {
+fun FixtureRowView(fixture: Fixture, isThisTeam: Boolean, modifier: Modifier = Modifier) {
     val kickoff = formatKickoff(fixture.startsAt)
-    val description = when (val status = fixture.status) {
+    val pairing = when (val status = fixture.status) {
         FixtureStatus.Scheduled -> stringResource(R.string.league_detail_fixture_row_cd, fixture.homeTeamName, fixture.awayTeamName, kickoff)
         is FixtureStatus.Finished -> stringResource(
             R.string.league_detail_fixture_result_row_cd,
@@ -38,8 +40,18 @@ fun FixtureRowView(fixture: Fixture, modifier: Modifier = Modifier) {
             status.score.awayMatchesWon,
         )
     }
+    val description = if (isThisTeam) {
+        stringResource(R.string.league_detail_this_team_fixture_cd, pairing)
+    } else {
+        pairing
+    }
+    val rowModifier = if (isThisTeam) {
+        modifier.background(BatDesign.colors.brandContainer, BatDesign.shapes.large)
+    } else {
+        modifier
+    }
     Row(
-        modifier = modifier
+        modifier = rowModifier
             .fillMaxWidth()
             .semantics(mergeDescendants = true) { contentDescription = description }
             .padding(horizontal = BatDesign.spacing.md, vertical = BatDesign.spacing.sm),
@@ -57,15 +69,23 @@ fun FixtureRowView(fixture: Fixture, modifier: Modifier = Modifier) {
                 color = BatDesign.colors.textSecondary,
                 style = BatDesign.typography.caption,
             )
+            if (isThisTeam) {
+                BatBadge(text = stringResource(R.string.team_detail_this_team_badge))
+            }
         }
-        (fixture.status as? FixtureStatus.Finished)?.let { finished ->
-            Text(
-                text = stringResource(R.string.league_detail_fixture_score, finished.score.homeMatchesWon, finished.score.awayMatchesWon),
-                color = BatDesign.colors.textPrimary,
-                style = BatDesign.typography.title,
-                modifier = Modifier.clearAndSetSemantics {},
-            )
-        }
+        Text(
+            text = when (val status = fixture.status) {
+                FixtureStatus.Scheduled -> stringResource(R.string.league_detail_fixture_no_score)
+                is FixtureStatus.Finished -> stringResource(
+                    R.string.league_detail_fixture_score,
+                    status.score.homeMatchesWon,
+                    status.score.awayMatchesWon,
+                )
+            },
+            color = BatDesign.colors.textPrimary,
+            style = BatDesign.typography.title,
+            modifier = Modifier.clearAndSetSemantics {},
+        )
     }
 }
 
@@ -74,7 +94,9 @@ fun FixtureRowView(fixture: Fixture, modifier: Modifier = Modifier) {
 private fun FixtureRowViewPreview() {
     BatPreviewSurface {
         Column {
-            (leagueDetailPreview.fixtures + leagueDetailLongNamesPreview.fixtures).forEach { FixtureRowView(it) }
+            leagueDetailPreview.fixtures.forEach { FixtureRowView(it, isThisTeam = false) }
+            FixtureRowView(leagueDetailPreview.fixtures[1], isThisTeam = true)
+            leagueDetailLongNamesPreview.fixtures.forEach { FixtureRowView(it, isThisTeam = true) }
         }
     }
 }

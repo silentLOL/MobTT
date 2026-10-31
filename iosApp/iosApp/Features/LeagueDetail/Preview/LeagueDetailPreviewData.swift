@@ -28,6 +28,35 @@ enum LeagueDetailPreviewData {
         ]
     )
 
+    /// Opened from TTC Olympic 1: its table row and Fixtures are marked and the filter is offered.
+    static var highlighted: LeagueDetailUi {
+        LeagueDetailUi(
+            leagueName: loaded.leagueName,
+            standings: loaded.standings.map {
+                StandingRowUi(id: $0.id, position: $0.position, teamName: $0.teamName, played: $0.played, points: $0.points, isThisTeam: $0.id == "olympic-1")
+            },
+            fixtures: loaded.fixtures.map {
+                FixtureRowUi(
+                    id: $0.id,
+                    homeTeamName: $0.homeTeamName,
+                    awayTeamName: $0.awayTeamName,
+                    startsAt: $0.startsAt,
+                    venue: $0.venue,
+                    score: $0.score,
+                    isThisTeam: $0.homeTeamName == "TTC Olympic 1" || $0.awayTeamName == "TTC Olympic 1"
+                )
+            }
+            + [FixtureRowUi(id: "f4", homeTeamName: "Nussdorf TTC 1", awayTeamName: "SK VÖEST Wien 1", startsAt: Date(timeIntervalSince1970: 1_800_500_000), venue: nil, score: nil)],
+            canFilterToTeam: true
+        )
+    }
+
+    static var onlyTeamFixtures: LeagueDetailUi {
+        var detail = highlighted
+        detail.onlyTeamFixtures = true
+        return detail
+    }
+
     static let empty = LeagueDetailUi(leagueName: loaded.leagueName, standings: [], fixtures: [])
 
     static let longNames = LeagueDetailUi(

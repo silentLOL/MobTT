@@ -1,5 +1,6 @@
 package at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.models
 
+import at.stefanirndorfer.batmate.domain.club.Fixture
 import at.stefanirndorfer.batmate.domain.club.LeagueDetail
 
 sealed interface LeagueDetailUiState {
@@ -7,5 +8,24 @@ sealed interface LeagueDetailUiState {
 
     data object Error : LeagueDetailUiState
 
-    data class Content(val detail: LeagueDetail) : LeagueDetailUiState
+    /**
+     * [highlightTeamId] is the Team the user came from, if any. Only then can the Fixtures be narrowed to that
+     * Team with [onlyTeamFixtures].
+     */
+    data class Content(
+        val detail: LeagueDetail,
+        val highlightTeamId: String? = null,
+        val onlyTeamFixtures: Boolean = false,
+    ) : LeagueDetailUiState {
+        fun isThisTeam(teamId: String): Boolean = teamId == highlightTeamId
+
+        fun isTeamFixture(fixture: Fixture): Boolean = isThisTeam(fixture.homeTeamId) || isThisTeam(fixture.awayTeamId)
+
+        val visibleFixtures: List<Fixture>
+            get() = if (onlyTeamFixtures) {
+                detail.fixtures.filter(::isTeamFixture)
+            } else {
+                detail.fixtures
+            }
+    }
 }

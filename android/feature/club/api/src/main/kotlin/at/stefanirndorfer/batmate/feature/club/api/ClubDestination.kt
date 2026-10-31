@@ -15,8 +15,9 @@ data class ClubDetailDestination(val clubId: String) : GlobalAppDestination
 @Serializable
 data class TeamDetailDestination(val teamId: String) : GlobalAppDestination
 
+/** [highlightTeamId] marks that Team in the table and the Fixtures, e.g. when opened from its Team screen. */
 @Serializable
-data class LeagueDetailDestination(val leagueId: String) : GlobalAppDestination
+data class LeagueDetailDestination(val leagueId: String, val highlightTeamId: String? = null) : GlobalAppDestination
 
 fun GlobalNavigator.navigateToClub() = navigateTopLevel(ClubDestination)
 
@@ -24,4 +25,4 @@ fun GlobalNavigator.navigateToClubDetail(clubId: String) = navigate(ClubDetailDe
 
 fun GlobalNavigator.navigateToTeamDetail(teamId: String) = navigate(TeamDetailDestination(teamId))
 
-fun GlobalNavigator.navigateToLeagueDetail(leagueId: String) = navigate(LeagueDetailDestination(leagueId))
+fun GlobalNavigator.navigateToLeagueDetail(leagueId: String, highlightTeamId: String? = null) = navigate(LeagueDetailDestination(leagueId, highlightTeamId))

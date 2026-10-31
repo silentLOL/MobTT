@@ -87,6 +87,7 @@ object XttvSamples {
             ${game("9001", "501", "TTC Olympic 1", "600", "SK VÖEST 1", "01.12.2026", "18:00", location = "Sporthalle Olympic")}
             ${game("9002", "600", "SK VÖEST 1", "501", "TTC Olympic 1", "01.07.2026", "18:00", home = "4", away = "6")}
             ${game("9003", "600", "SK VÖEST 1", "700", "Nussdorf 1", "02.12.2026", "18:00")}
+            ${game("9007", "600", "SK VÖEST 1", "700", "Nussdorf 1", "03.12.2026", "18:00", home = "0", away = "0")}
             ${game("9004", "501", "TTC Olympic 1", "700", "Nussdorf 1", "soon", "")}
             ${game("9005", "501", "TTC Olympic 1", "700", "Nussdorf 1", "25.10.2026", "01:30", location = " ")}
             ${game("9006", "501", "TTC Olympic 1", "700", "Nussdorf 1", "25.10.2026", "03:30")}

@@ -34,7 +34,12 @@ class XttvFixtureRepositoryTest {
 
     @Test
     fun aLeagueListsEveryGameOfEveryTeamInDateOrder() = runTest {
-        assertEquals(listOf("9002", "9005", "9006", "9001", "9003"), repository.getLeagueFixtures("70").map { it.id })
+        assertEquals(listOf("9002", "9005", "9006", "9001", "9003", "9007"), repository.getLeagueFixtures("70").map { it.id })
+    }
+
+    @Test
+    fun aZeroToZeroGameIsNotYetPlayed() = runTest {
+        assertIs<FixtureStatus.Scheduled>(repository.getLeagueFixtures("70").first { it.id == "9007" }.status)
     }
 
     @Test

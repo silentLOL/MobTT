@@ -52,7 +52,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun TeamDetailRoute(
     teamId: String,
-    onOpenLeague: (String) -> Unit,
+    onOpenLeague: (leagueId: String, teamId: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TeamDetailViewModel = koinViewModel(
         key = teamId,
@@ -61,7 +61,7 @@ fun TeamDetailRoute(
 ) {
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
-            is TeamDetailEvent.OpenLeague -> onOpenLeague(event.leagueId)
+            is TeamDetailEvent.OpenLeague -> onOpenLeague(event.leagueId, event.teamId)
         }
     }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

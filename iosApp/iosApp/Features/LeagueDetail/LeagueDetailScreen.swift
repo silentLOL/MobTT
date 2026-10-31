@@ -3,8 +3,8 @@ import SwiftUI
 struct LeagueDetailRoute: View {
     @State private var viewModel: LeagueDetailViewModel
 
-    init(leagueId: String) {
-        _viewModel = State(initialValue: LeagueDetailViewModel(leagueId: leagueId))
+    init(leagueId: String, highlightTeamId: String?) {
+        _viewModel = State(initialValue: LeagueDetailViewModel(leagueId: leagueId, highlightTeamId: highlightTeamId))
     }
 
     var body: some View {
@@ -40,13 +40,14 @@ struct LeagueDetailScreen: View {
             }
             .onAppear { AccessibilityNotification.Announcement(String(localized: "league_detail_error_body")).post() }
         case .content(let detail):
-            ContentView(detail: detail)
+            ContentView(detail: detail, onAction: onAction)
         }
     }
 }
 
 private struct ContentView: View {
     let detail: LeagueDetailUi
+    let onAction: (LeagueDetailAction) -> Void
 
     var body: some View {
         ScrollView {
@@ -75,12 +76,25 @@ private struct ContentView: View {
                 }
                 VStack(alignment: .leading, spacing: 0) {
                     BatSectionHeaderView(title: String(localized: "league_detail_fixtures_title"))
-                    if detail.fixtures.isEmpty {
+                    if detail.canFilterToTeam {
+                        Toggle(
+                            "league_detail_only_team_fixtures_label",
+                            isOn: Binding(
+                                get: { detail.onlyTeamFixtures },
+                                set: { onAction(.onlyTeamFixturesToggled($0)) }
+                            )
+                        )
+                        .batTextStyle(BatTypography.body)
+                        .foregroundStyle(BatColor.textPrimary)
+                        .tint(BatColor.brand)
+                        .padding(.vertical, BatSpacing.sm)
+                    }
+                    if detail.visibleFixtures.isEmpty {
                         SectionMessage(key: "league_detail_fixtures_empty_body")
                     } else {
                         BatCardView(padding: BatSpacing.sm) {
                             VStack(spacing: 0) {
-                                ForEach(Array(detail.fixtures.enumerated()), id: \.element.id) { index, fixture in
+                                ForEach(Array(detail.visibleFixtures.enumerated()), id: \.element.id) { index, fixture in
                                     if index > 0 {
                                         Divider().overlay(BatColor.border)
                                     }
@@ -121,6 +135,18 @@ private struct SectionMessage: View {
 #Preview("Loaded") {
     BatPreviewMatrix {
         LeagueDetailScreen(state: .content(LeagueDetailPreviewData.loaded), onAction: { _ in })
+    }
+}
+
+#Preview("Highlighted Team") {
+    BatPreviewMatrix {
+        LeagueDetailScreen(state: .content(LeagueDetailPreviewData.highlighted), onAction: { _ in })
+    }
+}
+
+#Preview("Only Team Fixtures") {
+    BatPreviewMatrix {
+        LeagueDetailScreen(state: .content(LeagueDetailPreviewData.onlyTeamFixtures), onAction: { _ in })
     }
 }
 

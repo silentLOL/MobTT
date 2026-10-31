@@ -13,12 +13,21 @@ struct FixtureRowUi: Identifiable, Equatable {
     let venue: String?
     /// Nil until the Fixture is finished.
     let score: FixtureScoreUi?
+    /// True when the Team the user came from plays in this Fixture.
+    var isThisTeam = false
 }
 
 struct LeagueDetailUi: Equatable {
     let leagueName: String
     let standings: [StandingRowUi]
     let fixtures: [FixtureRowUi]
+    /// The Fixtures can only be narrowed to a Team when the user came from one.
+    var canFilterToTeam = false
+    var onlyTeamFixtures = false
+
+    var visibleFixtures: [FixtureRowUi] {
+        onlyTeamFixtures ? fixtures.filter(\.isThisTeam) : fixtures
+    }
 }
 
 enum LeagueDetailUiState: Equatable {

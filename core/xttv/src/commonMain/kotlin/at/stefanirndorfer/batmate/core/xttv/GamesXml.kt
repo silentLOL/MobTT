@@ -17,7 +17,8 @@ private val log = Logger.withTag("GamesXml")
 
 /**
  * XTTV's "Game" is our Fixture; the term stays inside this file. `date` is `dd.MM.yyyy` and `time` `HH:mm`, both
- * local Austrian time, and a Game is finished once both Matches-won counts are present.
+ * local Austrian time, and a Game is finished once both Matches-won counts are present and not 0:0, which is what XTTV sends for a Game
+ * not yet played.
  */
 @Serializable
 @XmlSerialName("games_list")
@@ -54,7 +55,7 @@ internal data class GameXml(
             awayTeamName = awayTeamName,
             startsAt = startsAt,
             venue = location?.trim()?.ifEmpty { null },
-            status = if (homeMatchesWon != null && awayMatchesWon != null) {
+            status = if (homeMatchesWon != null && awayMatchesWon != null && homeMatchesWon + awayMatchesWon > 0) {
                 FixtureStatus.Finished(FixtureScore(homeMatchesWon, awayMatchesWon))
             } else {
                 FixtureStatus.Scheduled

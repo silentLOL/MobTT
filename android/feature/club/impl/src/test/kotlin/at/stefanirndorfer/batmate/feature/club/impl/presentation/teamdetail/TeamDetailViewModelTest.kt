@@ -118,6 +118,6 @@ class TeamDetailViewModelTest {
 
         viewModel.onAction(TeamDetailAction.LeagueClicked("l1"))
 
-        assertEquals(listOf<TeamDetailEvent>(TeamDetailEvent.OpenLeague("l1")), events)
+        assertEquals(listOf<TeamDetailEvent>(TeamDetailEvent.OpenLeague("l1", "t1")), events)
     }
 }

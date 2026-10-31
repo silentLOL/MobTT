@@ -5,5 +5,5 @@ enum TeamDetailAction {
 }
 
 enum TeamDetailEvent {
-    case openLeague(leagueId: String)
+    case openLeague(leagueId: String, teamId: String)
 }

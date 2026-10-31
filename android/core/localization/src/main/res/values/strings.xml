@@ -102,6 +102,9 @@
     <string name="league_detail_fixture_row_cd">%1$s against %2$s, %3$s</string>
     <string name="league_detail_fixture_result_row_cd">%1$s against %2$s, %3$s, result %4$d to %5$d</string>
     <string name="league_detail_fixture_score">%1$d : %2$d</string>
+    <string name="league_detail_fixture_no_score">- : -</string>
+    <string name="league_detail_this_team_fixture_cd">This Team\'s Fixture. %1$s</string>
+    <string name="league_detail_only_team_fixtures_label">Only this Team\'s Fixtures</string>
     <string name="league_detail_loading_cd">Loading League</string>
     <string name="league_detail_error_title">Couldn\'t load this League</string>
     <string name="league_detail_error_body">Check your connection and try again.</string>

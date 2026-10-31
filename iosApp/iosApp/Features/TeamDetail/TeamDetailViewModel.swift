@@ -55,7 +55,7 @@ final class TeamDetailViewModel {
         case .favoriteClicked:
             toggleFavorite()
         case .leagueClicked(let leagueId):
-            eventStream.continuation.yield(.openLeague(leagueId: leagueId))
+            eventStream.continuation.yield(.openLeague(leagueId: leagueId, teamId: teamId))
         }
     }
 

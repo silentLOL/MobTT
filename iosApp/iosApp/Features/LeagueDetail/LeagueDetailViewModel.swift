@@ -8,15 +8,19 @@ final class LeagueDetailViewModel {
     private(set) var uiState: LeagueDetailUiState = .loading
 
     private let leagueId: String
+    private let highlightTeamId: String?
+    private var onlyTeamFixtures = false
     private var loadTask: Task<Void, Never>?
 
     private let loadDetail: (String) async throws -> DataResult
 
     init(
         leagueId: String,
+        highlightTeamId: String? = nil,
         loadDetail: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadLeagueDetail(leagueId: $0) }
     ) {
         self.leagueId = leagueId
+        self.highlightTeamId = highlightTeamId
         self.loadDetail = loadDetail
     }
 
@@ -31,6 +35,11 @@ final class LeagueDetailViewModel {
         case .retryClicked:
             loadTask?.cancel()
             loadTask = Task { await load() }
+        case .onlyTeamFixturesToggled(let enabled):
+            onlyTeamFixtures = enabled
+            guard case .content(var detail) = uiState else { return }
+            detail.onlyTeamFixtures = enabled
+            uiState = .content(detail)
         }
     }
 
@@ -40,7 +49,7 @@ final class LeagueDetailViewModel {
             let result = try await loadDetail(leagueId)
             guard !Task.isCancelled else { return }
             switch onEnum(of: result) {
-            case .success(let success): uiState = (success.value as? LeagueDetail).map { .content($0.toUi()) } ?? .error
+            case .success(let success): uiState = (success.value as? LeagueDetail).map { .content($0.toUi(highlightTeamId: highlightTeamId, onlyTeamFixtures: onlyTeamFixtures)) } ?? .error
             case .unavailable: uiState = .error
             }
         } catch {
@@ -50,7 +59,7 @@ final class LeagueDetailViewModel {
 }
 
 private extension LeagueDetail {
-    func toUi() -> LeagueDetailUi {
+    func toUi(highlightTeamId: String?, onlyTeamFixtures: Bool) -> LeagueDetailUi {
         LeagueDetailUi(
             leagueName: league.name,
             standings: standings.map {
@@ -60,16 +69,18 @@ private extension LeagueDetail {
                     teamName: $0.teamName,
                     played: Int($0.played),
                     points: Int($0.points),
-                    isThisTeam: false
+                    isThisTeam: $0.teamId == highlightTeamId
                 )
             },
-            fixtures: fixtures.map { $0.toUi() }
+            fixtures: fixtures.map { $0.toUi(highlightTeamId: highlightTeamId) },
+            canFilterToTeam: highlightTeamId != nil,
+            onlyTeamFixtures: onlyTeamFixtures && highlightTeamId != nil
         )
     }
 }
 
 private extension Fixture {
-    func toUi() -> FixtureRowUi {
+    func toUi(highlightTeamId: String?) -> FixtureRowUi {
         let score = (status as? FixtureStatusFinished)?.score
         return FixtureRowUi(
             id: id,
@@ -77,7 +88,8 @@ private extension Fixture {
             awayTeamName: awayTeamName,
             startsAt: Date(timeIntervalSince1970: TimeInterval(startsAt.toEpochMilliseconds()) / 1000),
             venue: venue,
-            score: score.map { FixtureScoreUi(home: Int($0.homeMatchesWon), away: Int($0.awayMatchesWon)) }
+            score: score.map { FixtureScoreUi(home: Int($0.homeMatchesWon), away: Int($0.awayMatchesWon)) },
+            isThisTeam: highlightTeamId != nil && (homeTeamId == highlightTeamId || awayTeamId == highlightTeamId)
         )
     }
 }

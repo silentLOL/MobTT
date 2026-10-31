@@ -103,11 +103,12 @@ struct TeamDetailViewModelTests {
 
         viewModel.onAction(.leagueClicked(leagueId: "l1"))
 
-        guard case .openLeague(let leagueId) = await iterator.next() else {
+        guard case .openLeague(let leagueId, let teamId) = await iterator.next() else {
             Issue.record("Expected an openLeague event")
             return
         }
         #expect(leagueId == "l1")
+        #expect(teamId == "7")
     }
 
     private func makeViewModel(

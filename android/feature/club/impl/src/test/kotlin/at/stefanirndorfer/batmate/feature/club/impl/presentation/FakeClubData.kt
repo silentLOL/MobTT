@@ -35,6 +35,7 @@ class FakeClubData :
     UserSelectionRepository,
     FavoritesRepository {
     var unavailable = false
+    var leagueFixtures = emptyList<Fixture>()
     val favorites = MutableStateFlow<Set<Favorite>>(emptySet())
     var teams = listOf(Team("t1", "Olympic 1", "c1", "l1"))
 
@@ -69,7 +70,7 @@ class FakeClubData :
 
     override suspend fun getFixtures(teamId: String): List<Fixture> = read(emptyList())
 
-    override suspend fun getLeagueFixtures(leagueId: String): List<Fixture> = read(emptyList())
+    override suspend fun getLeagueFixtures(leagueId: String): List<Fixture> = read(leagueFixtures)
 
     override suspend fun getPlayer(id: String): Player? = null
 
