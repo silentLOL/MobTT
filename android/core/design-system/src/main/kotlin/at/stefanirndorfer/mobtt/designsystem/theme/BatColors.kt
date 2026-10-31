@@ -78,11 +78,11 @@ internal fun lightBatColors() = BatColors(
     accent = BatPalette.Rose600,
 
     heroStart = BatPalette.Brand600,
-    heroEnd = BatPalette.Indigo700,
+    heroEnd = BatPalette.Brand700,
     onHero = BatPalette.White,
     onHeroMuted = BatPalette.Brand50,
-    logoStart = BatPalette.Red500,
-    logoEnd = BatPalette.Red700,
+    logoStart = BatPalette.Brand600,
+    logoEnd = BatPalette.Brand700,
 
     liveContainer = BatPalette.Rose100,
     onLiveContainer = BatPalette.Rose700,
@@ -127,11 +127,11 @@ internal fun darkBatColors() = BatColors(
     accent = BatPalette.Rose500,
 
     heroStart = BatPalette.Brand600,
-    heroEnd = BatPalette.Indigo700,
+    heroEnd = BatPalette.Brand700,
     onHero = BatPalette.White,
     onHeroMuted = BatPalette.Brand50,
-    logoStart = BatPalette.Red500,
-    logoEnd = BatPalette.Red700,
+    logoStart = BatPalette.Brand600,
+    logoEnd = BatPalette.Brand700,
 
     liveContainer = BatPalette.Rose950,
     onLiveContainer = BatPalette.Rose300,
