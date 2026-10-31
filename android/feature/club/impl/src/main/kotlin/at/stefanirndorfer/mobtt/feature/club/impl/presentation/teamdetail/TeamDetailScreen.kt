@@ -1,0 +1,253 @@
+package at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import at.stefanirndorfer.mobtt.core.localization.R
+import at.stefanirndorfer.mobtt.core.ui.ObserveAsEvents
+import at.stefanirndorfer.mobtt.designsystem.icon.BatIcon
+import at.stefanirndorfer.mobtt.designsystem.preview.BatPreviewSurface
+import at.stefanirndorfer.mobtt.designsystem.preview.BatScreenPreview
+import at.stefanirndorfer.mobtt.designsystem.theme.BatDesign
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatEmptyState
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatFavoriteButton
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatHeroCard
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatHeroPillRow
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatList
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatListRow
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatPrimaryButton
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSectionHeader
+import at.stefanirndorfer.mobtt.domain.club.TeamDetail
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail.models.TeamDetailAction
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail.models.TeamDetailEvent
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail.models.TeamDetailUiState
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail.preview.teamDetailEmptyLineupPreview
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail.preview.teamDetailFreeWeekPreview
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail.preview.teamDetailLongNamesPreview
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail.preview.teamDetailNoLeaguePreview
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail.preview.teamDetailPreview
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail.views.TeamLeagueCardView
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
+
+@Composable
+fun TeamDetailRoute(
+    teamId: String,
+    onOpenLeague: (leagueId: String, teamId: String) -> Unit,
+    onOpenPlayer: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: TeamDetailViewModel = koinViewModel(
+        key = teamId,
+        parameters = { parametersOf(teamId) },
+    ),
+) {
+    ObserveAsEvents(viewModel.events) { event ->
+        when (event) {
+            is TeamDetailEvent.OpenLeague -> onOpenLeague(event.leagueId, event.teamId)
+            is TeamDetailEvent.OpenPlayer -> onOpenPlayer(event.playerId)
+        }
+    }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    TeamDetailScreen(state = uiState, onAction = viewModel::onAction, modifier = modifier)
+}
+
+@Composable
+fun TeamDetailScreen(
+    state: TeamDetailUiState,
+    onAction: (TeamDetailAction) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    when (state) {
+        TeamDetailUiState.Loading -> LoadingView(modifier)
+        TeamDetailUiState.Error -> ErrorView(onRetry = { onAction(TeamDetailAction.RetryClicked) }, modifier = modifier)
+        is TeamDetailUiState.Content -> ContentView(state.detail, state.isFavorite, onAction, modifier)
+    }
+}
+
+@Composable
+private fun LoadingView(modifier: Modifier = Modifier) {
+    val loadingLabel = stringResource(R.string.team_detail_loading_cd)
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator(
+            modifier = Modifier.semantics { contentDescription = loadingLabel },
+            color = BatDesign.colors.brand,
+        )
+    }
+}
+
+@Composable
+private fun ErrorView(onRetry: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(BatDesign.spacing.lg),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        BatEmptyState(
+            icon = BatIcon.Club,
+            title = stringResource(R.string.team_detail_error_title),
+            body = stringResource(R.string.team_detail_error_body),
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+        )
+        BatPrimaryButton(text = stringResource(R.string.team_detail_error_retry_button), onClick = onRetry)
+    }
+}
+
+@Composable
+private fun ContentView(
+    detail: TeamDetail,
+    isFavorite: Boolean,
+    onAction: (TeamDetailAction) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(BatDesign.spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.lg),
+    ) {
+        BatHeroCard(modifier = Modifier.fillMaxWidth()) {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {},
+                    verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm),
+                ) {
+                    BatHeroPillRow(text = stringResource(R.string.team_detail_hero_overline))
+                    Text(text = detail.team.name, color = BatDesign.colors.onHero, style = BatDesign.typography.display)
+                    Text(text = detail.clubName, color = BatDesign.colors.onHero, style = BatDesign.typography.body)
+                }
+                BatFavoriteButton(
+                    isFavorite = isFavorite,
+                    contentDescription = stringResource(
+                        if (isFavorite) R.string.team_detail_favorite_remove_cd else R.string.team_detail_favorite_add_cd,
+                        detail.team.name,
+                    ),
+                    stateDescription = stringResource(
+                        if (isFavorite) R.string.core_favorite_on_state else R.string.core_favorite_off_state,
+                    ),
+                    modifier = Modifier.align(Alignment.TopEnd),
+                    onClick = { onAction(TeamDetailAction.FavoriteClicked) },
+                )
+            }
+        }
+        Column {
+            BatSectionHeader(title = stringResource(R.string.team_detail_league_title))
+            val league = detail.league
+            if (league == null) {
+                SectionMessage(stringResource(R.string.team_detail_league_empty_body))
+            } else {
+                TeamLeagueCardView(
+                    league = league,
+                    standing = detail.standing,
+                    nextFixture = detail.nextFixture,
+                    onClick = { onAction(TeamDetailAction.LeagueClicked(league.id)) },
+                )
+            }
+        }
+        Column {
+            BatSectionHeader(title = stringResource(R.string.team_detail_lineup_title))
+            if (detail.lineup.isEmpty()) {
+                SectionMessage(stringResource(R.string.team_detail_lineup_empty_body))
+            } else {
+                BatList {
+                    detail.lineup.forEachIndexed { index, player ->
+                        BatListRow(
+                            title = player.name,
+                            trailingText = player.rcPoints?.let { stringResource(R.string.team_detail_lineup_rc_label, it) },
+                            striped = index % 2 == 1,
+                            onClick = { onAction(TeamDetailAction.PlayerClicked(player)) },
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SectionMessage(text: String) {
+    Text(text = text, color = BatDesign.colors.textSecondary, style = BatDesign.typography.body)
+}
+
+@BatScreenPreview
+@Composable
+private fun TeamDetailScreenLoadingPreview() {
+    BatPreviewSurface {
+        TeamDetailScreen(state = TeamDetailUiState.Loading, onAction = {})
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun TeamDetailScreenErrorPreview() {
+    BatPreviewSurface {
+        TeamDetailScreen(state = TeamDetailUiState.Error, onAction = {})
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun TeamDetailScreenLoadedPreview() {
+    BatPreviewSurface {
+        TeamDetailScreen(state = TeamDetailUiState.Content(teamDetailPreview), onAction = {})
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun TeamDetailScreenFavoritePreview() {
+    BatPreviewSurface {
+        TeamDetailScreen(state = TeamDetailUiState.Content(teamDetailPreview, isFavorite = true), onAction = {})
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun TeamDetailScreenEmptyLineupPreview() {
+    BatPreviewSurface {
+        TeamDetailScreen(state = TeamDetailUiState.Content(teamDetailEmptyLineupPreview), onAction = {})
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun TeamDetailScreenFreeWeekPreview() {
+    BatPreviewSurface {
+        TeamDetailScreen(state = TeamDetailUiState.Content(teamDetailFreeWeekPreview), onAction = {})
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun TeamDetailScreenNoLeaguePreview() {
+    BatPreviewSurface {
+        TeamDetailScreen(state = TeamDetailUiState.Content(teamDetailNoLeaguePreview), onAction = {})
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun TeamDetailScreenLongNamesPreview() {
+    BatPreviewSurface {
+        TeamDetailScreen(state = TeamDetailUiState.Content(teamDetailLongNamesPreview), onAction = {})
+    }
+}

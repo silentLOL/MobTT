@@ -3,5 +3,5 @@ plugins {
 }
 
 android {
-    namespace = "at.stefanirndorfer.batmate.core.localization"
+    namespace = "at.stefanirndorfer.mobtt.core.localization"
 }

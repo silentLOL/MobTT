@@ -618,7 +618,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "at.stefanirndorfer.batmate.iosAppTests$(TEAM_ID)";
+				PRODUCT_BUNDLE_IDENTIFIER = "at.stefanirndorfer.mobtt.iosAppTests$(TEAM_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -640,7 +640,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "at.stefanirndorfer.batmate.iosAppTests$(TEAM_ID)";
+				PRODUCT_BUNDLE_IDENTIFIER = "at.stefanirndorfer.mobtt.iosAppTests$(TEAM_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -662,7 +662,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "at.stefanirndorfer.batmate.iosAppTests$(TEAM_ID)";
+				PRODUCT_BUNDLE_IDENTIFIER = "at.stefanirndorfer.mobtt.iosAppTests$(TEAM_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -684,7 +684,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "at.stefanirndorfer.batmate.iosAppTests$(TEAM_ID)";
+				PRODUCT_BUNDLE_IDENTIFIER = "at.stefanirndorfer.mobtt.iosAppTests$(TEAM_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;

@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "at.stefanirndorfer.batmate.feature.club.api"
+    namespace = "at.stefanirndorfer.mobtt.feature.club.api"
 }
 
 dependencies {

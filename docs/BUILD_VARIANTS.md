@@ -4,12 +4,12 @@ Both platforms build in four environments. Each installs with its own name and i
 
 | Environment | App name | Android `applicationId` | iOS bundle id |
 |---|---|---|---|
-| `deb` | `[Debug] MobTT` | `at.stefanirndorfer.batmate.deb` | `…batmate.MobTT.deb` |
-| `dev` | `[Dev] MobTT` | `at.stefanirndorfer.batmate.dev` | `…batmate.MobTT.dev` |
-| `beta` | `[Beta] MobTT` | `at.stefanirndorfer.batmate.beta` | `…batmate.MobTT.beta` |
-| `prod` | `MobTT` | `at.stefanirndorfer.batmate` | `…batmate.MobTT` |
+| `deb` | `[Debug] MobTT` | `at.stefanirndorfer.mobtt.deb` | `…mobtt.deb` |
+| `dev` | `[Dev] MobTT` | `at.stefanirndorfer.mobtt.dev` | `…mobtt.dev` |
+| `beta` | `[Beta] MobTT` | `at.stefanirndorfer.mobtt.beta` | `…mobtt.beta` |
+| `prod` | `MobTT` | `at.stefanirndorfer.mobtt` | `…mobtt` |
 
-The app is named `MobTT`; the package, application ID and bundle ID keep the original `at.stefanirndorfer.batmate` prefix.
+The app is named `MobTT`. The Kotlin package, Android application ID and iOS bundle ID share the `at.stefanirndorfer.mobtt` prefix.
 
 ## Android
 

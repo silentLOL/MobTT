@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "at.stefanirndorfer.batmate.feature.settings.api"
+    namespace = "at.stefanirndorfer.mobtt.feature.settings.api"
 }
 
 dependencies {

@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "at.stefanirndorfer.batmate.feature.players.impl"
+    namespace = "at.stefanirndorfer.mobtt.feature.players.impl"
 
     testOptions {
         unitTests.isIncludeAndroidResources = true
@@ -14,7 +14,7 @@ android {
 roborazzi {
     generateComposePreviewRobolectricTests {
         enable = true
-        packages = listOf("at.stefanirndorfer.batmate.feature.players.impl")
+        packages = listOf("at.stefanirndorfer.mobtt.feature.players.impl")
         includePrivatePreviews = true
     }
 }
