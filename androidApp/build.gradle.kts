@@ -13,6 +13,14 @@ val xttvApiKey: String = Properties()
     ?: System.getenv("XTTV_API_KEY")
     ?: ""
 
+// Firebase config is untracked, one `google-services.json` per flavor in `src/<flavor>/` (copy the `.example`).
+// Without any of them the plugins stay off and the SDK is never initialised; the app builds and runs without it.
+val firebaseConfigured = listOf("deb", "dev", "beta", "prod").associateWith { file("src/$it/google-services.json").exists() }
+if (firebaseConfigured.containsValue(true)) {
+    apply(plugin = libs.plugins.googleServices.get().pluginId)
+    apply(plugin = libs.plugins.firebaseCrashlytics.get().pluginId)
+}
+
 kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_11
@@ -21,6 +29,8 @@ kotlin {
 dependencies {
     implementation(project(":core:di"))
     implementation(project(":core:network"))
+    implementation(project(":domain:user"))
+    implementation(project(":android:core:analytics"))
     implementation(project(":android:core:design-system"))
     implementation(project(":android:core:localization"))
     implementation(project(":android:feature:navigation"))
@@ -99,6 +109,16 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+}
+
+// The Google Services task fails for a flavor without its config file; skip it there so the other flavors still
+// build, and the SDK stays uninitialised (the analytics module then binds no-ops).
+tasks.configureEach {
+    firebaseConfigured.filterValues { !it }.keys.forEach { flavor ->
+        if (name.matches(Regex("process${flavor.replaceFirstChar(Char::uppercase)}(Debug|Release)GoogleServices"))) {
+            enabled = false
+        }
     }
 }
 

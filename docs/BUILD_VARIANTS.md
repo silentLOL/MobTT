@@ -47,3 +47,14 @@ The key is a secret and never enters git. It reaches shared code as `AppConfig.x
 
 - Android: `xttv.apiKey=…` in the untracked `local.properties`, or the `XTTV_API_KEY` environment variable (CI). `androidApp/build.gradle.kts` turns it into `BuildConfig.XTTV_API_KEY`.
 - iOS: `XTTV_API_KEY=…` in `iosApp/Configuration/Secrets.xcconfig` (untracked; copy `Secrets.xcconfig.example`), included by `Config.xcconfig` and exposed as the `BatXttvApiKey` Info.plist key. CI must write that file.
+
+## Firebase (Android)
+
+Crashlytics and Analytics follow [ADR-0009](adr/0009-native-firebase-behind-interfaces-opt-in-consent.md). One Firebase project holds one Android app per environment, using the application IDs above.
+
+- **Config:** `google-services.json` per flavor in `androidApp/src/<flavor>/` (`deb`, `dev`, `beta`, `prod`). The files are git-ignored; copy the `google-services.json.example` beside each and fill it from the Firebase console.
+- **Without config:** the Google Services and Crashlytics Gradle plugins apply only when at least one flavor has its file, and the Google Services task is skipped for a flavor without one. The SDK is then never initialised and `analyticsModule` binds the no-ops, so the build and the app still work.
+- **Nothing before consent:** the manifest turns off Analytics and Crashlytics auto-collection. `UsageConsentCollection` (`:android:core:analytics`) switches both on only while Usage Consent is `ALLOWED`, at launch and on every change.
+- **No ads:** `AD_ID` and `ACCESS_ADSERVICES_AD_ID` are removed from the merged manifest, and ad personalization is off. Automatic screen reporting is off, so screen views are logged by hand.
+- **`deb`:** `src/deb/AndroidManifest.xml` deactivates Analytics in the SDK and `analyticsModule(analyticsEnabled = false)` binds the no-op tracker. Crashlytics stays on (after consent) and reports to the `deb` Firebase app.
+- **Interfaces:** features depend on `AnalyticsTracker` and `CrashReporter`, never on the Firebase SDK.
