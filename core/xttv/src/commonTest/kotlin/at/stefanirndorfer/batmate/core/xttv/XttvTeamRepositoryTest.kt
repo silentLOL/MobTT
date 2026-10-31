@@ -23,8 +23,7 @@ class XttvTeamRepositoryTest {
     )
     private val timeSource = TestTimeSource()
     private val api = XttvApi(xttv.client, timeSource)
-    private var lineups: LineupSource? = null
-    private val repository get() = XttvTeamRepository(api, XttvSamples.HOST, lineups)
+    private val repository get() = XttvTeamRepository(api, XttvSamples.HOST)
 
     @Test
     fun aClubsTeamsMapToTheirClubAndLeague() = runTest {
@@ -73,12 +72,8 @@ class XttvTeamRepositoryTest {
     }
 
     @Test
-    fun theLineupComesFromTheLineupSourceOrElseFromTheTeamDetails() = runTest {
+    fun theLineupIsThePlayersTheTeamDetailsList() = runTest {
         assertEquals(listOf(LineupPlayer("60473", "Phatsaraphon Wonglakhon")), repository.getLineup("501"))
-
-        lineups = LineupSource { listOf(LineupPlayer("huber", "Michael Huber")) }
-
-        assertEquals(listOf(LineupPlayer("huber", "Michael Huber")), repository.getLineup("501"))
     }
 
     @Test

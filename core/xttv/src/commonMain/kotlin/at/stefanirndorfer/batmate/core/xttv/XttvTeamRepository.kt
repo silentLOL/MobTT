@@ -7,11 +7,9 @@ import kotlin.time.Duration.Companion.hours
 
 private val TEAM_TTL = 1.hours
 
-/** [getLineup] comes from [lineups] when one is bound (the fake directory), otherwise from the players `getTeamDetails` lists. */
 class XttvTeamRepository(
     private val api: XttvApi,
     private val host: String,
-    private val lineups: LineupSource? = null,
 ) : TeamRepository {
     override suspend fun getTeam(id: String): Team? {
         if (!XttvEndpoints.isXttvId(id)) {
@@ -29,9 +27,6 @@ class XttvTeamRepository(
     }
 
     override suspend fun getLineup(teamId: String): List<LineupPlayer> {
-        if (lineups != null) {
-            return lineups.lineup(teamId)
-        }
         if (!XttvEndpoints.isXttvId(teamId)) {
             return emptyList()
         }

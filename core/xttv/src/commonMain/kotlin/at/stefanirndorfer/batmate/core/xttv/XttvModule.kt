@@ -25,7 +25,7 @@ val xttvModule = module {
     }
     single<AssociationRepository> { XttvAssociationRepository(get(), get<AppConfig>().xttvHost) }
     single<ClubRepository> { XttvClubRepository(get(), get<AppConfig>().xttvHost) }
-    single<TeamRepository> { XttvTeamRepository(get(), get<AppConfig>().xttvHost, getOrNull<LineupSource>()) }
+    single<TeamRepository> { XttvTeamRepository(get(), get<AppConfig>().xttvHost) }
     single<FixtureRepository> { XttvFixtureRepository(get(), get<AppConfig>().xttvHost, get()) }
     single<PlayerRepository> { XttvPlayerRepository(get(), get<AppConfig>().xttvHost, get()) }
     single<LeagueRepository> { XttvLeagueRepository(get(), get<AppConfig>().xttvHost) }
