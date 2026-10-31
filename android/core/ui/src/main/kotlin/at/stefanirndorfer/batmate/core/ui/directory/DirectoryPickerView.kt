@@ -27,13 +27,14 @@ fun DirectoryPickerView(
     onEntryClick: (sectionIndex: Int, entry: DirectoryEntryUi) -> Unit,
     modifier: Modifier = Modifier,
     entryRole: Role = Role.RadioButton,
+    searchPlaceholder: String = stringResource(R.string.core_search_placeholder),
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.md)) {
         BatTextField(
             value = query,
             onValueChange = onQueryChange,
             label = stringResource(R.string.core_search_label),
-            placeholder = stringResource(R.string.core_search_placeholder),
+            placeholder = searchPlaceholder,
             leadingIcon = BatIcon.Search,
         )
         if (sections.all { it.entries.isEmpty() }) {

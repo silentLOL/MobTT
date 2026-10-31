@@ -7,12 +7,13 @@ import at.stefanirndorfer.batmate.feature.club.api.navigateToTeamDetail
 import at.stefanirndorfer.batmate.feature.navigation.GlobalNavigator
 import at.stefanirndorfer.batmate.feature.players.api.PlayerDetailDestination
 import at.stefanirndorfer.batmate.feature.players.api.PlayersDestination
+import at.stefanirndorfer.batmate.feature.players.api.navigateToPlayerDetail
 import at.stefanirndorfer.batmate.feature.players.impl.presentation.playerdetail.PlayerDetailRoute
-import at.stefanirndorfer.batmate.feature.players.impl.presentation.players.PlayersScreen
+import at.stefanirndorfer.batmate.feature.players.impl.presentation.players.PlayersRoute
 
 fun EntryProviderScope<NavKey>.playersGraph(navigator: GlobalNavigator) {
     entry<PlayersDestination> {
-        PlayersScreen()
+        PlayersRoute(onOpenPlayer = navigator::navigateToPlayerDetail)
     }
     entry<PlayerDetailDestination> { destination ->
         PlayerDetailRoute(

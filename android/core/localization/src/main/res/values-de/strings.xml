@@ -11,8 +11,16 @@
     <string name="home_empty_body">Deine Ergebnisse, Form und nächste Begegnung erscheinen hier.</string>
     <string name="club_empty_title">Noch kein Verein</string>
     <string name="club_empty_body">Dein Verein, seine Mannschaften und die Ligatabellen erscheinen hier.</string>
-    <string name="players_empty_title">Spieler finden</string>
-    <string name="players_empty_body">Suche Spieler nach Name oder Verein, um ihre Ergebnisse zu verfolgen.</string>
+    <string name="players_association_label">Verband</string>
+    <string name="players_association_placeholder">Verband wählen</string>
+    <string name="players_club_label">Verein</string>
+    <string name="players_club_placeholder">Verein wählen</string>
+    <string name="players_club_disabled_hint">Zuerst einen Verband wählen</string>
+    <string name="players_search_placeholder">Spielername</string>
+    <string name="players_pick_club_body">Wähle einen Verein, um seine Spieler zu suchen</string>
+    <string name="players_unavailable_title">Spieler nicht verfügbar</string>
+    <string name="players_unavailable_body">XTTV ist nicht erreichbar. Prüfe deine Verbindung und versuche es erneut.</string>
+    <string name="players_retry_button">Erneut versuchen</string>
 
     <string name="settings_title">Einstellungen</string>
     <string name="settings_appearance_title">Darstellung</string>

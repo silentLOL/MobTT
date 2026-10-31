@@ -24,6 +24,13 @@ class XttvClubRepository(
     override suspend fun searchClubs(query: String): List<Club> = allClubs()
         .filter { query.isBlank() || it.name.contains(query, ignoreCase = true) }
 
+    override suspend fun getAssociationClubs(associationId: String): List<Club> {
+        if (!XttvEndpoints.isXttvId(associationId)) {
+            return emptyList()
+        }
+        return api.get(XttvEndpoints.clubs(host, associationId), CLUB_TTL, ClubsXml.serializer()).toDomain()
+    }
+
     private suspend fun allClubs(): List<Club> = api.get(XttvEndpoints.federations(host), FEDERATION_TTL, FederationsXml.serializer())
         .federation
         .flatMap { api.get(XttvEndpoints.clubs(host, it.id), CLUB_TTL, ClubsXml.serializer()).toDomain() }

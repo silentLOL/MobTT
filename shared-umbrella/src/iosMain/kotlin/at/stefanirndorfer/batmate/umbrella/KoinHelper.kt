@@ -5,12 +5,17 @@ import at.stefanirndorfer.batmate.core.fakedirectory.fakeDirectoryModule
 import at.stefanirndorfer.batmate.core.network.AppConfig
 import at.stefanirndorfer.batmate.core.network.Environment
 import at.stefanirndorfer.batmate.domain.app.GetPlatformNameUseCase
+import at.stefanirndorfer.batmate.domain.club.Association
+import at.stefanirndorfer.batmate.domain.club.Club
 import at.stefanirndorfer.batmate.domain.club.ClubOverview
 import at.stefanirndorfer.batmate.domain.club.GetClubOverviewUseCase
 import at.stefanirndorfer.batmate.domain.club.GetLeagueDetailUseCase
 import at.stefanirndorfer.batmate.domain.club.GetTeamDetailUseCase
 import at.stefanirndorfer.batmate.domain.club.LeagueDetail
+import at.stefanirndorfer.batmate.domain.club.LineupPlayer
+import at.stefanirndorfer.batmate.domain.club.ListAssociationClubsUseCase
 import at.stefanirndorfer.batmate.domain.club.ListAssociationsUseCase
+import at.stefanirndorfer.batmate.domain.club.ListClubPlayersUseCase
 import at.stefanirndorfer.batmate.domain.club.ListLeaguesUseCase
 import at.stefanirndorfer.batmate.domain.club.SearchClubsUseCase
 import at.stefanirndorfer.batmate.domain.club.TeamDetail
@@ -68,6 +73,12 @@ object KoinHelper : KoinComponent {
 
     suspend fun loadPlayerDetail(playerId: String): DataResult<PlayerDetail?> = dataResult { getGetPlayerDetailUseCase().invoke(playerId) }
 
+    suspend fun listAssociations(): DataResult<List<Association>> = dataResult { getListAssociationsUseCase().invoke() }
+
+    suspend fun listAssociationClubs(associationId: String): DataResult<List<Club>> = dataResult { getListAssociationClubsUseCase().invoke(associationId) }
+
+    suspend fun listClubPlayers(clubId: String): DataResult<List<LineupPlayer>> = dataResult { getListClubPlayersUseCase().invoke(clubId) }
+
     fun getObserveResolvedFavoritesUseCase(): ObserveResolvedFavoritesUseCase {
         val useCase: ObserveResolvedFavoritesUseCase by inject()
         return useCase
@@ -120,6 +131,16 @@ object KoinHelper : KoinComponent {
 
     fun getListLeaguesUseCase(): ListLeaguesUseCase {
         val useCase: ListLeaguesUseCase by inject()
+        return useCase
+    }
+
+    fun getListAssociationClubsUseCase(): ListAssociationClubsUseCase {
+        val useCase: ListAssociationClubsUseCase by inject()
+        return useCase
+    }
+
+    fun getListClubPlayersUseCase(): ListClubPlayersUseCase {
+        val useCase: ListClubPlayersUseCase by inject()
         return useCase
     }
 

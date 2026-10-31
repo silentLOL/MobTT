@@ -11,8 +11,16 @@
     <string name="home_empty_body">Your results, form and next Fixture will show up here.</string>
     <string name="club_empty_title">No Club yet</string>
     <string name="club_empty_body">Your Club, its Teams and the League tables will show up here.</string>
-    <string name="players_empty_title">Find a Player</string>
-    <string name="players_empty_body">Search Players by name or Club to follow their results.</string>
+    <string name="players_association_label">Association</string>
+    <string name="players_association_placeholder">Choose an Association</string>
+    <string name="players_club_label">Club</string>
+    <string name="players_club_placeholder">Choose a Club</string>
+    <string name="players_club_disabled_hint">Choose an Association first</string>
+    <string name="players_search_placeholder">Player name</string>
+    <string name="players_pick_club_body">Choose a Club to search its Players</string>
+    <string name="players_unavailable_title">Players unavailable</string>
+    <string name="players_unavailable_body">XTTV could not be reached. Check your connection and try again.</string>
+    <string name="players_retry_button">Try again</string>
 
     <string name="settings_title">Settings</string>
     <string name="settings_appearance_title">Appearance</string>

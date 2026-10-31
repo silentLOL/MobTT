@@ -24,6 +24,7 @@ struct ShellScreen: View {
     @State private var isSettingsPresented = false
     @State private var homePath = NavigationPath()
     @State private var clubPath = NavigationPath()
+    @State private var playersPath = NavigationPath()
 
     var body: some View {
         BatScreenScaffoldView {
@@ -43,6 +44,7 @@ struct ShellScreen: View {
                         selectedTab = tab
                         homePath = NavigationPath()
                         clubPath = NavigationPath()
+                        playersPath = NavigationPath()
                     }
                 }
             }
@@ -109,7 +111,31 @@ struct ShellScreen: View {
                     }
                 }
                 .tag(ShellTab.club)
-                PlayersScreen().tag(ShellTab.players)
+                NavigationStack(path: $playersPath) {
+                    PlayersRoute(onOpenPlayer: { playersPath.append(PlayerDestination(playerId: $0)) })
+                        .toolbar(.hidden, for: .navigationBar)
+                        .navigationDestination(for: PlayerDestination.self) { route in
+                            playerDetail(route, path: $playersPath)
+                        }
+                        .navigationDestination(for: ClubDetailRoute.self) { route in
+                            ClubRoute(
+                                source: .specific(clubId: route.clubId),
+                                onOpenSettings: { isSettingsPresented = true },
+                                onOpenTeam: { playersPath.append(TeamDestination(teamId: $0)) },
+                                onOpenPlayer: { playersPath.append(PlayerDestination(playerId: $0)) }
+                            )
+                            .navigationTitle(String(localized: "club_hero_overline"))
+                            .navigationBarTitleDisplayMode(.inline)
+                            .batBackground()
+                        }
+                        .navigationDestination(for: TeamDestination.self) { route in
+                            teamDetail(route, path: $playersPath)
+                        }
+                        .navigationDestination(for: LeagueDestination.self) { route in
+                            leagueDetail(route)
+                        }
+                }
+                .tag(ShellTab.players)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .scrollDisabled(true)

@@ -44,6 +44,13 @@ class XttvClubRepositoryTest {
     }
 
     @Test
+    fun anAssociationsClubsAreReadFromItsOwnListOnly() = runTest {
+        assertEquals(listOf("77"), repository.getAssociationClubs("190").map { it.id })
+        assertEquals(listOf(XttvSamples.CLUBS_190_URL), xttv.requests)
+        assertEquals(emptyList(), repository.getAssociationClubs("wttv"))
+    }
+
+    @Test
     fun aClubIsReadDirectlyAndNamesItsAssociation() = runTest {
         assertEquals(Club("140", "LINZ AG-FROSCHBERG", "191"), repository.getClub("140"))
         assertEquals(listOf(XttvSamples.CLUB_140_URL), xttv.requests)
