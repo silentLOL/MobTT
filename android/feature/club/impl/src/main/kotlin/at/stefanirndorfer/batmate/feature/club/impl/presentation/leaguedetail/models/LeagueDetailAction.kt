@@ -4,4 +4,6 @@ sealed interface LeagueDetailAction {
     data object RetryClicked : LeagueDetailAction
 
     data class OnlyTeamFixturesToggled(val enabled: Boolean) : LeagueDetailAction
+
+    data class TeamClicked(val teamId: String) : LeagueDetailAction
 }

@@ -4,9 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.stefanirndorfer.batmate.core.ui.RetryTrigger
 import at.stefanirndorfer.batmate.domain.club.GetTeamDetailUseCase
+import at.stefanirndorfer.batmate.domain.club.LineupPlayer
+import at.stefanirndorfer.batmate.domain.player.Player
 import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.Favorite
 import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
+import at.stefanirndorfer.batmate.domain.user.RememberPlayerUseCase
 import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.models.TeamDetailAction
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.models.TeamDetailEvent
@@ -27,6 +30,7 @@ class TeamDetailViewModel(
     private val observeFavorites: ObserveFavoritesUseCase,
     private val addFavorite: AddFavoriteUseCase,
     private val removeFavorite: RemoveFavoriteUseCase,
+    private val rememberPlayer: RememberPlayerUseCase,
 ) : ViewModel() {
     private val retry = RetryTrigger()
 
@@ -54,6 +58,15 @@ class TeamDetailViewModel(
             TeamDetailAction.RetryClicked -> retry.retry()
             TeamDetailAction.FavoriteClicked -> toggleFavorite()
             is TeamDetailAction.LeagueClicked -> viewModelScope.launch { eventChannel.send(TeamDetailEvent.OpenLeague(action.leagueId, teamId)) }
+            is TeamDetailAction.PlayerClicked -> openPlayer(action.player)
+        }
+    }
+
+    private fun openPlayer(player: LineupPlayer) {
+        val content = uiState.value as? TeamDetailUiState.Content ?: return
+        viewModelScope.launch {
+            rememberPlayer(Player(player.playerId, player.name, content.detail.team.clubId))
+            eventChannel.send(TeamDetailEvent.OpenPlayer(player.playerId))
         }
     }
 

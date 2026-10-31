@@ -16,6 +16,8 @@ class BatSizing(
     val formResult: Dp = 32.dp,
     val liveIndicator: Dp = 8.dp,
     val borderThin: Dp = 1.dp,
+    val listLeadingColumn: Dp = 24.dp,
+    val listTrailingColumn: Dp = 64.dp,
     val borderFocused: Dp = 2.dp,
     val maxContentWidth: Dp = 672.dp,
 )

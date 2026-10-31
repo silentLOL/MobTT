@@ -128,9 +128,14 @@ private struct ContentView: View {
                 if !overview.players.isEmpty {
                     VStack(alignment: .leading, spacing: 0) {
                         BatSectionHeaderView(title: String(localized: "club_players_title"))
-                        VStack(spacing: BatSpacing.sm) {
-                            ForEach(overview.players) { player in
-                                PlayerCardView(player: player, onTap: { onAction(.playerClicked(playerId: player.id, name: player.name)) })
+                        BatListView {
+                            ForEach(Array(overview.players.enumerated()), id: \.element.id) { index, player in
+                                BatListRowView(
+                                    title: player.name,
+                                    trailingText: player.rcPoints.map { String(localized: "team_detail_lineup_rc_label \($0)") },
+                                    isStriped: !index.isMultiple(of: 2),
+                                    action: { onAction(.playerClicked(playerId: player.id, name: player.name)) }
+                                )
                             }
                         }
                     }

@@ -7,7 +7,9 @@ struct FixtureScoreUi: Equatable {
 
 struct FixtureRowUi: Identifiable, Equatable {
     let id: String
+    let homeTeamId: String
     let homeTeamName: String
+    let awayTeamId: String
     let awayTeamName: String
     let startsAt: Date
     let venue: String?
@@ -23,6 +25,8 @@ struct LeagueDetailUi: Equatable {
     let fixtures: [FixtureRowUi]
     /// The Fixtures can only be narrowed to a Team when the user came from one.
     var canFilterToTeam = false
+    /// The Team the user came from, if any; its name does not open itself.
+    var highlightTeamId: String?
     var onlyTeamFixtures = false
 
     var visibleFixtures: [FixtureRowUi] {

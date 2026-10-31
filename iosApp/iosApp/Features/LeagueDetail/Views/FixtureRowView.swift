@@ -1,18 +1,17 @@
 import SwiftUI
 
-/// One Fixture of a League: the pairing, when and where it is played, and the score once finished.
+/// One Fixture of a League: the pairing, when and where it is played, and the score once finished. Each Team opens its Team, except `highlightTeamId`, the Team the user came from.
 struct FixtureRowView: View {
     let row: FixtureRowUi
+    var highlightTeamId: String?
+    var isStriped = false
+    let onTeamTap: (_ teamId: String) -> Void
 
     var body: some View {
-        HStack(spacing: BatSpacing.md) {
+        BatListItemView(isStriped: isStriped, isHighlighted: row.isThisTeam) {
             VStack(alignment: .leading, spacing: BatSpacing.xs) {
-                Text(row.homeTeamName)
-                    .batTextStyle(BatTypography.bodyStrong)
-                    .foregroundStyle(BatColor.textPrimary)
-                Text(row.awayTeamName)
-                    .batTextStyle(BatTypography.bodyStrong)
-                    .foregroundStyle(BatColor.textPrimary)
+                teamLine(id: row.homeTeamId, name: row.homeTeamName)
+                teamLine(id: row.awayTeamId, name: row.awayTeamName)
                 Text(detailText)
                     .batTextStyle(BatTypography.caption)
                     .foregroundStyle(BatColor.textSecondary)
@@ -24,12 +23,29 @@ struct FixtureRowView: View {
             Text(scoreText)
                 .batTextStyle(BatTypography.title)
                 .foregroundStyle(BatColor.textPrimary)
+                .accessibilityLabel(scoreAccessibilityText)
         }
-        .padding(.horizontal, BatSpacing.md)
-        .padding(.vertical, BatSpacing.sm)
-        .background(row.isThisTeam ? BatColor.brandContainer : Color.clear, in: BatShapes.large)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(accessibilityText)
+    }
+
+    /// Underlined when it opens the Team, so a link is never told apart by colour alone.
+    @ViewBuilder
+    private func teamLine(id: String, name: String) -> some View {
+        if id == highlightTeamId {
+            Text(name)
+                .batTextStyle(BatTypography.bodyStrong)
+                .foregroundStyle(BatColor.textPrimary)
+                .frame(maxWidth: .infinity, minHeight: BatSizing.minTouchTarget, alignment: .leading)
+        } else {
+            Button { onTeamTap(id) } label: {
+                Text(name)
+                    .batTextStyle(BatTypography.bodyStrong)
+                    .underline()
+                    .foregroundStyle(BatColor.textPrimary)
+                    .frame(maxWidth: .infinity, minHeight: BatSizing.minTouchTarget, alignment: .leading)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        }
     }
 
     private var kickoff: String { row.startsAt.formatted(date: .abbreviated, time: .shortened) }
@@ -47,21 +63,24 @@ struct FixtureRowView: View {
         }
     }
 
-    private var accessibilityText: String {
-        let pairing = if let score = row.score {
-            String(localized: "league_detail_fixture_result_row_cd \(row.homeTeamName) \(row.awayTeamName) \(kickoff) \(score.home) \(score.away)")
+    private var scoreAccessibilityText: String {
+        if let score = row.score {
+            "\(score.home) : \(score.away)"
         } else {
-            String(localized: "league_detail_fixture_row_cd \(row.homeTeamName) \(row.awayTeamName) \(kickoff)")
+            String(localized: "league_detail_fixture_no_score")
         }
-        return row.isThisTeam ? String(localized: "league_detail_this_team_fixture_cd \(pairing)") : pairing
     }
 }
 
 #Preview {
     BatPreviewMatrix {
-        VStack(spacing: 0) {
-            ForEach(LeagueDetailPreviewData.highlighted.fixtures) { FixtureRowView(row: $0) }
-            ForEach(LeagueDetailPreviewData.longNames.fixtures) { FixtureRowView(row: $0) }
+        BatListView {
+            ForEach(Array(LeagueDetailPreviewData.highlighted.fixtures.enumerated()), id: \.element.id) { index, row in
+                FixtureRowView(row: row, isStriped: !index.isMultiple(of: 2), onTeamTap: { _ in })
+            }
+            ForEach(Array(LeagueDetailPreviewData.longNames.fixtures.enumerated()), id: \.element.id) { index, row in
+                FixtureRowView(row: row, isStriped: !index.isMultiple(of: 2), onTeamTap: { _ in })
+            }
         }
     }
 }

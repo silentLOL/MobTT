@@ -4,9 +4,15 @@ struct TeamDetailRoute: View {
     @State private var viewModel: TeamDetailViewModel
 
     let onOpenLeague: (_ leagueId: String, _ teamId: String) -> Void
+    let onOpenPlayer: (_ playerId: String) -> Void
 
-    init(teamId: String, onOpenLeague: @escaping (_ leagueId: String, _ teamId: String) -> Void) {
+    init(
+        teamId: String,
+        onOpenLeague: @escaping (_ leagueId: String, _ teamId: String) -> Void,
+        onOpenPlayer: @escaping (_ playerId: String) -> Void
+    ) {
         self.onOpenLeague = onOpenLeague
+        self.onOpenPlayer = onOpenPlayer
         _viewModel = State(initialValue: TeamDetailViewModel(teamId: teamId))
     }
 
@@ -18,6 +24,7 @@ struct TeamDetailRoute: View {
                 for await event in viewModel.events {
                     switch event {
                     case .openLeague(let leagueId, let teamId): onOpenLeague(leagueId, teamId)
+                    case .openPlayer(let playerId): onOpenPlayer(playerId)
                     }
                 }
             }
@@ -101,14 +108,14 @@ private struct ContentView: View {
                     if detail.lineup.isEmpty {
                         SectionMessage(key: "team_detail_lineup_empty_body")
                     } else {
-                        BatCardView(padding: BatSpacing.sm) {
-                            VStack(spacing: 0) {
-                                ForEach(Array(detail.lineup.enumerated()), id: \.element.id) { index, player in
-                                    if index > 0 {
-                                        Divider().overlay(BatColor.border)
-                                    }
-                                    LineupRowView(player: player)
-                                }
+                        BatListView {
+                            ForEach(Array(detail.lineup.enumerated()), id: \.element.id) { index, player in
+                                BatListRowView(
+                                    title: player.name,
+                                    trailingText: player.rcPoints.map { String(localized: "team_detail_lineup_rc_label \($0)") },
+                                    isStriped: !index.isMultiple(of: 2),
+                                    action: { onAction(.playerClicked(playerId: player.id, name: player.name)) }
+                                )
                             }
                         }
                     }

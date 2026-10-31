@@ -33,9 +33,17 @@ fun EntryProviderScope<NavKey>.clubGraph(navigator: GlobalNavigator) {
         )
     }
     entry<TeamDetailDestination> { destination ->
-        TeamDetailRoute(teamId = destination.teamId, onOpenLeague = navigator::navigateToLeagueDetail)
+        TeamDetailRoute(
+            teamId = destination.teamId,
+            onOpenLeague = navigator::navigateToLeagueDetail,
+            onOpenPlayer = navigator::navigateToPlayerDetail,
+        )
     }
     entry<LeagueDetailDestination> { destination ->
-        LeagueDetailRoute(leagueId = destination.leagueId, highlightTeamId = destination.highlightTeamId)
+        LeagueDetailRoute(
+            leagueId = destination.leagueId,
+            highlightTeamId = destination.highlightTeamId,
+            onOpenTeam = navigator::navigateToTeamDetail,
+        )
     }
 }

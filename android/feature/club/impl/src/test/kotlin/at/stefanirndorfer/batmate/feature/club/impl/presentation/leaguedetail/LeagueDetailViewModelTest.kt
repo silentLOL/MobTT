@@ -5,6 +5,7 @@ import at.stefanirndorfer.batmate.domain.club.FixtureStatus
 import at.stefanirndorfer.batmate.domain.club.GetLeagueDetailUseCase
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.FakeClubData
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.models.LeagueDetailAction
+import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.models.LeagueDetailEvent
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.models.LeagueDetailUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -82,4 +83,15 @@ class LeagueDetailViewModelTest {
         venue = null,
         status = FixtureStatus.Scheduled,
     )
+
+    @Test
+    fun tappingATeamSendsAnOpenTeamEvent() = runTest {
+        val viewModel = viewModel()
+        val events = mutableListOf<LeagueDetailEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect(events::add) }
+
+        viewModel.onAction(LeagueDetailAction.TeamClicked("t2"))
+
+        assertEquals(listOf<LeagueDetailEvent>(LeagueDetailEvent.OpenTeam("t2")), events)
+    }
 }

@@ -18,19 +18,23 @@ final class TeamDetailViewModel {
     @ObservationIgnored private let observeFavorites: any AsyncSequence<Set<AnyHashable>, Never>
     @ObservationIgnored private let addFavorite: (Favorite) async throws -> Void
     @ObservationIgnored private let removeFavorite: (Favorite) async throws -> Void
+    @ObservationIgnored private let rememberPlayer: (Player) async throws -> Void
+    @ObservationIgnored private var clubId: String?
 
     init(
         teamId: String,
         loadDetail: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadTeamDetail(teamId: $0) },
         observeFavorites: any AsyncSequence<Set<AnyHashable>, Never> = KoinHelper.shared.getObserveFavoritesUseCase().invoke(),
         addFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getAddFavoriteUseCase().invoke(favorite: $0) },
-        removeFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getRemoveFavoriteUseCase().invoke(favorite: $0) }
+        removeFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getRemoveFavoriteUseCase().invoke(favorite: $0) },
+        rememberPlayer: @escaping (Player) async throws -> Void = { try await KoinHelper.shared.getRememberPlayerUseCase().invoke(player: $0) }
     ) {
         self.teamId = teamId
         self.loadDetail = loadDetail
         self.observeFavorites = observeFavorites
         self.addFavorite = addFavorite
         self.removeFavorite = removeFavorite
+        self.rememberPlayer = rememberPlayer
     }
 
     /// Follows the Favorites until the calling task is cancelled. The load itself runs from `loadIfNeeded()`.
@@ -56,6 +60,16 @@ final class TeamDetailViewModel {
             toggleFavorite()
         case .leagueClicked(let leagueId):
             eventStream.continuation.yield(.openLeague(leagueId: leagueId, teamId: teamId))
+        case .playerClicked(let playerId, let name):
+            openPlayer(playerId: playerId, name: name)
+        }
+    }
+
+    private func openPlayer(playerId: String, name: String) {
+        guard let clubId else { return }
+        Task {
+            try? await rememberPlayer(Player(id: playerId, name: name, clubId: clubId))
+            eventStream.continuation.yield(.openPlayer(playerId: playerId))
         }
     }
 
@@ -89,7 +103,10 @@ final class TeamDetailViewModel {
             let result = try await loadDetail(teamId)
             guard !Task.isCancelled else { return }
             switch onEnum(of: result) {
-            case .success(let success): uiState = (success.value as? TeamDetail).map { .content($0.toUi(isFavorite: isFavoriteTeam)) } ?? .error
+            case .success(let success):
+                let detail = success.value as? TeamDetail
+                clubId = detail?.team.clubId
+                uiState = detail.map { .content($0.toUi(isFavorite: isFavoriteTeam)) } ?? .error
             case .unavailable: uiState = .error
             }
         } catch {

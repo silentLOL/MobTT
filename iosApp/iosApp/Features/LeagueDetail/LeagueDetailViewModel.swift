@@ -11,6 +11,9 @@ final class LeagueDetailViewModel {
     private let highlightTeamId: String?
     private var onlyTeamFixtures = false
     private var loadTask: Task<Void, Never>?
+    @ObservationIgnored private let eventStream = AsyncStream<LeagueDetailEvent>.makeStream()
+
+    var events: AsyncStream<LeagueDetailEvent> { eventStream.stream }
 
     private let loadDetail: (String) async throws -> DataResult
 
@@ -35,6 +38,8 @@ final class LeagueDetailViewModel {
         case .retryClicked:
             loadTask?.cancel()
             loadTask = Task { await load() }
+        case .teamClicked(let teamId):
+            eventStream.continuation.yield(.openTeam(teamId: teamId))
         case .onlyTeamFixturesToggled(let enabled):
             onlyTeamFixtures = enabled
             guard case .content(var detail) = uiState else { return }
@@ -74,6 +79,7 @@ private extension LeagueDetail {
             },
             fixtures: fixtures.map { $0.toUi(highlightTeamId: highlightTeamId) },
             canFilterToTeam: highlightTeamId != nil,
+            highlightTeamId: highlightTeamId,
             onlyTeamFixtures: onlyTeamFixtures && highlightTeamId != nil
         )
     }
@@ -84,7 +90,9 @@ private extension Fixture {
         let score = (status as? FixtureStatusFinished)?.score
         return FixtureRowUi(
             id: id,
+            homeTeamId: homeTeamId,
             homeTeamName: homeTeamName,
+            awayTeamId: awayTeamId,
             awayTeamName: awayTeamName,
             startsAt: Date(timeIntervalSince1970: TimeInterval(startsAt.toEpochMilliseconds()) / 1000),
             venue: venue,

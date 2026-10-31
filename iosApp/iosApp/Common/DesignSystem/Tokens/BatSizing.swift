@@ -11,6 +11,8 @@ enum BatSizing {
     static let formResult: CGFloat = 32
     static let liveIndicator: CGFloat = 8
     static let borderThin: CGFloat = 1
+    static let listLeadingColumn: CGFloat = 24
+    static let listTrailingColumn: CGFloat = 64
     static let borderFocused: CGFloat = 2
     static let maxContentWidth: CGFloat = 672
 }

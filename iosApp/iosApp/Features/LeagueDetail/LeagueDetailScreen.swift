@@ -3,13 +3,23 @@ import SwiftUI
 struct LeagueDetailRoute: View {
     @State private var viewModel: LeagueDetailViewModel
 
-    init(leagueId: String, highlightTeamId: String?) {
+    let onOpenTeam: (_ teamId: String) -> Void
+
+    init(leagueId: String, highlightTeamId: String?, onOpenTeam: @escaping (_ teamId: String) -> Void) {
+        self.onOpenTeam = onOpenTeam
         _viewModel = State(initialValue: LeagueDetailViewModel(leagueId: leagueId, highlightTeamId: highlightTeamId))
     }
 
     var body: some View {
         LeagueDetailScreen(state: viewModel.uiState, onAction: viewModel.onAction)
             .onAppear { viewModel.loadIfNeeded() }
+            .task {
+                for await event in viewModel.events {
+                    switch event {
+                    case .openTeam(let teamId): onOpenTeam(teamId)
+                    }
+                }
+            }
     }
 }
 
@@ -67,9 +77,19 @@ private struct ContentView: View {
                     if detail.standings.isEmpty {
                         SectionMessage(key: "league_detail_standing_empty_body")
                     } else {
-                        BatCardView(padding: BatSpacing.sm) {
-                            VStack(spacing: 0) {
-                                ForEach(detail.standings) { StandingRowView(row: $0) }
+                        BatListView {
+                            ForEach(Array(detail.standings.enumerated()), id: \.element.id) { index, row in
+                                BatListRowView(
+                                    title: row.teamName,
+                                    leadingText: "\(row.position)",
+                                    supportingText: String(localized: "team_detail_standing_stats_label \(row.played) \(row.points)"),
+                                    badge: row.isThisTeam ? String(localized: "team_detail_this_team_badge") : nil,
+                                    isStriped: !index.isMultiple(of: 2),
+                                    isHighlighted: row.isThisTeam,
+                                    accessibilityText: row.isThisTeam
+                                        ? String(localized: "team_detail_standing_row_this_team_cd \(row.position) \(row.teamName) \(row.played) \(row.points)")
+                                        : String(localized: "team_detail_standing_row_cd \(row.position) \(row.teamName) \(row.played) \(row.points)")
+                                )
                             }
                         }
                     }
@@ -92,14 +112,14 @@ private struct ContentView: View {
                     if detail.visibleFixtures.isEmpty {
                         SectionMessage(key: "league_detail_fixtures_empty_body")
                     } else {
-                        BatCardView(padding: BatSpacing.sm) {
-                            VStack(spacing: 0) {
-                                ForEach(Array(detail.visibleFixtures.enumerated()), id: \.element.id) { index, fixture in
-                                    if index > 0 {
-                                        Divider().overlay(BatColor.border)
-                                    }
-                                    FixtureRowView(row: fixture)
-                                }
+                        BatListView {
+                            ForEach(Array(detail.visibleFixtures.enumerated()), id: \.element.id) { index, fixture in
+                                FixtureRowView(
+                                    row: fixture,
+                                    highlightTeamId: detail.highlightTeamId,
+                                    isStriped: !index.isMultiple(of: 2),
+                                    onTeamTap: { onAction(.teamClicked(teamId: $0)) }
+                                )
                             }
                         }
                     }

@@ -3,14 +3,12 @@ package at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,11 +26,12 @@ import at.stefanirndorfer.batmate.designsystem.icon.BatIcon
 import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
-import at.stefanirndorfer.batmate.designsystem.ui.components.BatCard
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatEmptyState
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatFavoriteButton
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatHeroCard
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatHeroPillRow
+import at.stefanirndorfer.batmate.designsystem.ui.components.BatList
+import at.stefanirndorfer.batmate.designsystem.ui.components.BatListRow
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatPrimaryButton
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.batmate.domain.club.TeamDetail
@@ -44,7 +43,6 @@ import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.prev
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.preview.teamDetailLongNamesPreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.preview.teamDetailNoLeaguePreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.preview.teamDetailPreview
-import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.views.LineupRowView
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.views.TeamLeagueCardView
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -53,6 +51,7 @@ import org.koin.core.parameter.parametersOf
 fun TeamDetailRoute(
     teamId: String,
     onOpenLeague: (leagueId: String, teamId: String) -> Unit,
+    onOpenPlayer: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TeamDetailViewModel = koinViewModel(
         key = teamId,
@@ -62,6 +61,7 @@ fun TeamDetailRoute(
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
             is TeamDetailEvent.OpenLeague -> onOpenLeague(event.leagueId, event.teamId)
+            is TeamDetailEvent.OpenPlayer -> onOpenPlayer(event.playerId)
         }
     }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -168,12 +168,14 @@ private fun ContentView(
             if (detail.lineup.isEmpty()) {
                 SectionMessage(stringResource(R.string.team_detail_lineup_empty_body))
             } else {
-                BatCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(BatDesign.spacing.sm)) {
+                BatList {
                     detail.lineup.forEachIndexed { index, player ->
-                        if (index > 0) {
-                            HorizontalDivider(color = BatDesign.colors.border)
-                        }
-                        LineupRowView(player)
+                        BatListRow(
+                            title = player.name,
+                            trailingText = player.rcPoints?.let { stringResource(R.string.team_detail_lineup_rc_label, it) },
+                            striped = index % 2 == 1,
+                            onClick = { onAction(TeamDetailAction.PlayerClicked(player)) },
+                        )
                     }
                 }
             }

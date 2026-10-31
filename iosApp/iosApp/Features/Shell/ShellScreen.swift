@@ -74,7 +74,7 @@ struct ShellScreen: View {
                         teamDetail(route, path: $homePath)
                     }
                     .navigationDestination(for: LeagueDestination.self) { route in
-                        leagueDetail(route)
+                        leagueDetail(route, path: $homePath)
                     }
                     .navigationDestination(for: PlayerDestination.self) { route in
                         playerDetail(route, path: $homePath)
@@ -107,7 +107,7 @@ struct ShellScreen: View {
                         teamDetail(route, path: $clubPath)
                     }
                     .navigationDestination(for: LeagueDestination.self) { route in
-                        leagueDetail(route)
+                        leagueDetail(route, path: $clubPath)
                     }
                 }
                 .tag(ShellTab.club)
@@ -132,7 +132,7 @@ struct ShellScreen: View {
                             teamDetail(route, path: $playersPath)
                         }
                         .navigationDestination(for: LeagueDestination.self) { route in
-                            leagueDetail(route)
+                            leagueDetail(route, path: $playersPath)
                         }
                 }
                 .tag(ShellTab.players)
@@ -151,7 +151,11 @@ struct ShellScreen: View {
 
 extension ShellScreen {
     fileprivate func teamDetail(_ route: TeamDestination, path: Binding<NavigationPath>) -> some View {
-        TeamDetailRoute(teamId: route.teamId, onOpenLeague: { path.wrappedValue.append(LeagueDestination(leagueId: $0, highlightTeamId: $1)) })
+        TeamDetailRoute(
+            teamId: route.teamId,
+            onOpenLeague: { path.wrappedValue.append(LeagueDestination(leagueId: $0, highlightTeamId: $1)) },
+            onOpenPlayer: { path.wrappedValue.append(PlayerDestination(playerId: $0)) }
+        )
             .navigationTitle(String(localized: "team_detail_hero_overline"))
             .navigationBarTitleDisplayMode(.inline)
             .batBackground()
@@ -168,8 +172,8 @@ extension ShellScreen {
         .batBackground()
     }
 
-    fileprivate func leagueDetail(_ route: LeagueDestination) -> some View {
-        LeagueDetailRoute(leagueId: route.leagueId, highlightTeamId: route.highlightTeamId)
+    fileprivate func leagueDetail(_ route: LeagueDestination, path: Binding<NavigationPath>) -> some View {
+        LeagueDetailRoute(leagueId: route.leagueId, highlightTeamId: route.highlightTeamId, onOpenTeam: { path.wrappedValue.append(TeamDestination(teamId: $0)) })
             .navigationTitle(String(localized: "league_detail_hero_overline"))
             .navigationBarTitleDisplayMode(.inline)
             .batBackground()

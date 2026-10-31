@@ -3,14 +3,12 @@ package at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,24 +21,26 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.stefanirndorfer.batmate.core.localization.R
+import at.stefanirndorfer.batmate.core.ui.ObserveAsEvents
 import at.stefanirndorfer.batmate.designsystem.icon.BatIcon
 import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
-import at.stefanirndorfer.batmate.designsystem.ui.components.BatCard
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatEmptyState
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatHeroCard
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatHeroPillRow
+import at.stefanirndorfer.batmate.designsystem.ui.components.BatList
+import at.stefanirndorfer.batmate.designsystem.ui.components.BatListRow
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatPrimaryButton
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.models.LeagueDetailAction
+import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.models.LeagueDetailEvent
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.models.LeagueDetailUiState
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.preview.leagueDetailEmptyPreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.preview.leagueDetailLongNamesPreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.preview.leagueDetailPreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.views.FixtureRowView
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.views.TeamFixturesToggleView
-import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.views.StandingRowView
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -48,6 +48,7 @@ import org.koin.core.parameter.parametersOf
 fun LeagueDetailRoute(
     leagueId: String,
     highlightTeamId: String?,
+    onOpenTeam: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LeagueDetailViewModel = koinViewModel(
         key = "$leagueId/$highlightTeamId",
@@ -55,6 +56,11 @@ fun LeagueDetailRoute(
     ),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    ObserveAsEvents(viewModel.events) { event ->
+        when (event) {
+            is LeagueDetailEvent.OpenTeam -> onOpenTeam(event.teamId)
+        }
+    }
     LeagueDetailScreen(state = uiState, onAction = viewModel::onAction, modifier = modifier)
 }
 
@@ -125,8 +131,25 @@ private fun ContentView(state: LeagueDetailUiState.Content, onAction: (LeagueDet
             if (detail.standings.isEmpty()) {
                 SectionMessage(stringResource(R.string.league_detail_standing_empty_body))
             } else {
-                BatCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(BatDesign.spacing.sm)) {
-                    detail.standings.forEach { StandingRowView(it, isThisTeam = state.isThisTeam(it.teamId)) }
+                BatList {
+                    detail.standings.forEachIndexed { index, standing ->
+                        val isThisTeam = state.isThisTeam(standing.teamId)
+                        BatListRow(
+                            title = standing.teamName,
+                            leadingText = standing.position.toString(),
+                            supportingText = stringResource(R.string.team_detail_standing_stats_label, standing.played, standing.points),
+                            badge = if (isThisTeam) stringResource(R.string.team_detail_this_team_badge) else null,
+                            striped = index % 2 == 1,
+                            highlighted = isThisTeam,
+                            contentDescription = stringResource(
+                                if (isThisTeam) R.string.team_detail_standing_row_this_team_cd else R.string.team_detail_standing_row_cd,
+                                standing.position,
+                                standing.teamName,
+                                standing.played,
+                                standing.points,
+                            ),
+                        )
+                    }
                 }
             }
         }
@@ -142,12 +165,15 @@ private fun ContentView(state: LeagueDetailUiState.Content, onAction: (LeagueDet
             if (fixtures.isEmpty()) {
                 SectionMessage(stringResource(R.string.league_detail_fixtures_empty_body))
             } else {
-                BatCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(BatDesign.spacing.sm)) {
+                BatList {
                     fixtures.forEachIndexed { index, fixture ->
-                        if (index > 0) {
-                            HorizontalDivider(color = BatDesign.colors.border)
-                        }
-                        FixtureRowView(fixture, isThisTeam = state.isTeamFixture(fixture))
+                        FixtureRowView(
+                            fixture = fixture,
+                            isThisTeam = state.isTeamFixture(fixture),
+                            highlightTeamId = state.highlightTeamId,
+                            striped = index % 2 == 1,
+                            onTeamClick = { onAction(LeagueDetailAction.TeamClicked(it)) },
+                        )
                     }
                 }
             }

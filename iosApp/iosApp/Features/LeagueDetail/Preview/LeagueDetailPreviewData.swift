@@ -11,16 +11,16 @@ enum LeagueDetailPreviewData {
         fixtures: [
             FixtureRowUi(
                 id: "f3",
-                homeTeamName: "Nussdorf TTC 1",
-                awayTeamName: "TTC Olympic 1",
+                homeTeamId: "nussdorf-ttc-1", homeTeamName: "Nussdorf TTC 1",
+                awayTeamId: "ttc-olympic-1", awayTeamName: "TTC Olympic 1",
                 startsAt: Date(timeIntervalSince1970: 1_799_000_000),
                 venue: nil,
                 score: FixtureScoreUi(home: 4, away: 6)
             ),
             FixtureRowUi(
                 id: "f1",
-                homeTeamName: "TTC Olympic 1",
-                awayTeamName: "SK VÖEST Wien 1",
+                homeTeamId: "ttc-olympic-1", homeTeamName: "TTC Olympic 1",
+                awayTeamId: "sk-voest-wien-1", awayTeamName: "SK VÖEST Wien 1",
                 startsAt: Date(timeIntervalSince1970: 1_800_000_000),
                 venue: "Sporthalle Olympic",
                 score: nil
@@ -38,7 +38,9 @@ enum LeagueDetailPreviewData {
             fixtures: loaded.fixtures.map {
                 FixtureRowUi(
                     id: $0.id,
+                    homeTeamId: $0.homeTeamId,
                     homeTeamName: $0.homeTeamName,
+                    awayTeamId: $0.awayTeamId,
                     awayTeamName: $0.awayTeamName,
                     startsAt: $0.startsAt,
                     venue: $0.venue,
@@ -46,7 +48,7 @@ enum LeagueDetailPreviewData {
                     isThisTeam: $0.homeTeamName == "TTC Olympic 1" || $0.awayTeamName == "TTC Olympic 1"
                 )
             }
-            + [FixtureRowUi(id: "f4", homeTeamName: "Nussdorf TTC 1", awayTeamName: "SK VÖEST Wien 1", startsAt: Date(timeIntervalSince1970: 1_800_500_000), venue: nil, score: nil)],
+            + [FixtureRowUi(id: "f4", homeTeamId: "nussdorf-ttc-1", homeTeamName: "Nussdorf TTC 1", awayTeamId: "sk-voest-wien-1", awayTeamName: "SK VÖEST Wien 1", startsAt: Date(timeIntervalSince1970: 1_800_500_000), venue: nil, score: nil)],
             canFilterToTeam: true
         )
     }
@@ -68,8 +70,8 @@ enum LeagueDetailPreviewData {
         fixtures: [
             FixtureRowUi(
                 id: "f1",
-                homeTeamName: "Union Tischtennisclub St. Pölten Nord-West 1",
-                awayTeamName: "Sportunion Hollabrunn Tischtennis 1",
+                homeTeamId: "union-tischtennisclub-st.-polten-nord-west-1", homeTeamName: "Union Tischtennisclub St. Pölten Nord-West 1",
+                awayTeamId: "sportunion-hollabrunn-tischtennis-1", awayTeamName: "Sportunion Hollabrunn Tischtennis 1",
                 startsAt: Date(timeIntervalSince1970: 1_800_000_000),
                 venue: "Mehrzweckhalle der Marktgemeinde St. Pölten Nord-West",
                 score: nil

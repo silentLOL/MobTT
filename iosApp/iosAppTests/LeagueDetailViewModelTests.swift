@@ -79,6 +79,21 @@ struct LeagueDetailViewModelTests {
         #expect(!detail.canFilterToTeam)
     }
 
+    @Test func tappingATeamSendsAnOpenTeamEvent() async {
+        let viewModel = makeViewModel { _ in
+            DataResultSuccess(value: LeagueDetail(league: League(id: "l1", name: "Liga"), standings: [], fixtures: []))
+        }
+        var iterator = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.teamClicked(teamId: "t2"))
+
+        guard case .openTeam(let teamId) = await iterator.next() else {
+            Issue.record("Expected an openTeam event")
+            return
+        }
+        #expect(teamId == "t2")
+    }
+
     private func fixture(_ id: String, home: String, away: String) -> Fixture {
         Fixture(
             id: id,

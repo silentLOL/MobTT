@@ -111,10 +111,29 @@ struct TeamDetailViewModelTests {
         #expect(teamId == "7")
     }
 
+    @Test func tappingALineupPlayerRemembersItWithTheClubAndSendsAnOpenPlayerEvent() async {
+        var remembered: [Player] = []
+        let viewModel = makeViewModel(rememberPlayer: { remembered.append($0) }) { _ in success }
+        viewModel.loadIfNeeded()
+        await viewModel.observe()
+        await settle(viewModel)
+        var iterator = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.playerClicked(playerId: "p1", name: "Anna Gruber"))
+
+        guard case .openPlayer(let playerId) = await iterator.next() else {
+            Issue.record("Expected an openPlayer event")
+            return
+        }
+        #expect(playerId == "p1")
+        #expect(remembered == [Player(id: "p1", name: "Anna Gruber", clubId: "1")])
+    }
+
     private func makeViewModel(
         favorites: [Set<AnyHashable>] = [],
         addFavorite: @escaping (Favorite) async throws -> Void = { _ in },
         removeFavorite: @escaping (Favorite) async throws -> Void = { _ in },
+        rememberPlayer: @escaping (Player) async throws -> Void = { _ in },
         loadDetail: @escaping (String) async throws -> DataResult
     ) -> TeamDetailViewModel {
         TeamDetailViewModel(
@@ -125,7 +144,8 @@ struct TeamDetailViewModelTests {
                 continuation.finish()
             },
             addFavorite: addFavorite,
-            removeFavorite: removeFavorite
+            removeFavorite: removeFavorite,
+            rememberPlayer: rememberPlayer
         )
     }
 

@@ -1,9 +1,11 @@
 package at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail
 
 import at.stefanirndorfer.batmate.domain.club.GetTeamDetailUseCase
+import at.stefanirndorfer.batmate.domain.club.LineupPlayer
 import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.Favorite
 import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
+import at.stefanirndorfer.batmate.domain.user.RememberPlayerUseCase
 import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.FakeClubData
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.models.TeamDetailAction
@@ -43,6 +45,7 @@ class TeamDetailViewModelTest {
             observeFavorites = ObserveFavoritesUseCase(data),
             addFavorite = AddFavoriteUseCase(data, data),
             removeFavorite = RemoveFavoriteUseCase(data),
+            rememberPlayer = RememberPlayerUseCase(data),
         )
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel
@@ -119,5 +122,17 @@ class TeamDetailViewModelTest {
         viewModel.onAction(TeamDetailAction.LeagueClicked("l1"))
 
         assertEquals(listOf<TeamDetailEvent>(TeamDetailEvent.OpenLeague("l1", "t1")), events)
+    }
+
+    @Test
+    fun tappingALineupPlayerSendsAnOpenPlayerEvent() = runTest {
+        val viewModel = viewModel()
+        val events = mutableListOf<TeamDetailEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect(events::add) }
+        val player = LineupPlayer(playerId = "p1", name = "Anna Huber")
+
+        viewModel.onAction(TeamDetailAction.PlayerClicked(player))
+
+        assertEquals(listOf<TeamDetailEvent>(TeamDetailEvent.OpenPlayer(player.playerId)), events)
     }
 }
