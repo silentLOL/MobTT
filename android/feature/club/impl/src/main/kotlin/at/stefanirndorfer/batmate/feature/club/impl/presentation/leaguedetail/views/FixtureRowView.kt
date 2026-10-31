@@ -3,14 +3,18 @@ package at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.v
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import at.stefanirndorfer.batmate.core.localization.R
 import at.stefanirndorfer.batmate.core.ui.fixture.formatKickoff
@@ -40,43 +44,55 @@ fun FixtureRowView(
 ) {
     val kickoff = formatKickoff(fixture.startsAt)
     BatListItem(modifier = modifier, striped = striped, highlighted = isThisTeam) {
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.xs)) {
-            TeamLine(fixture.homeTeamName, onClick = fixture.homeTeamId.takeIf { it != highlightTeamId }?.let { { onTeamClick(it) } })
-            TeamLine(fixture.awayTeamName, onClick = fixture.awayTeamId.takeIf { it != highlightTeamId }?.let { { onTeamClick(it) } })
+        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
+                TeamLink(
+                    name = fixture.homeTeamName,
+                    onClick = fixture.homeTeamId.takeIf { it != highlightTeamId }?.let { { onTeamClick(it) } },
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    text = stringResource(R.string.league_detail_fixture_versus),
+                    modifier = Modifier.clearAndSetSemantics {},
+                    color = BatDesign.colors.textSecondary,
+                    style = BatDesign.typography.caption,
+                )
+                TeamLink(
+                    name = fixture.awayTeamName,
+                    onClick = fixture.awayTeamId.takeIf { it != highlightTeamId }?.let { { onTeamClick(it) } },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            (fixture.status as? FixtureStatus.Finished)?.let { finished ->
+                Text(
+                    text = stringResource(R.string.league_detail_fixture_score, finished.score.homeMatchesWon, finished.score.awayMatchesWon),
+                    color = BatDesign.colors.textPrimary,
+                    style = BatDesign.typography.bodyStrong.copy(fontFeatureSettings = "tnum"),
+                )
+            }
             Text(
                 text = listOfNotNull(kickoff, fixture.venue).joinToString(" · "),
                 color = BatDesign.colors.textSecondary,
                 style = BatDesign.typography.caption,
+                textAlign = TextAlign.Center,
             )
             if (isThisTeam) {
                 BatBadge(text = stringResource(R.string.team_detail_this_team_badge))
             }
         }
-        Text(
-            text = when (val status = fixture.status) {
-                FixtureStatus.Scheduled -> stringResource(R.string.league_detail_fixture_no_score)
-                is FixtureStatus.Finished -> stringResource(
-                    R.string.league_detail_fixture_score,
-                    status.score.homeMatchesWon,
-                    status.score.awayMatchesWon,
-                )
-            },
-            color = BatDesign.colors.textPrimary,
-            style = BatDesign.typography.title,
-            modifier = Modifier.clearAndSetSemantics {},
-        )
     }
 }
 
 /** Underlined when it opens the Team, so a link is never told apart by colour alone. */
 @Composable
-private fun TeamLine(name: String, onClick: (() -> Unit)?) {
-    val base = Modifier.fillMaxWidth().heightIn(min = BatDesign.sizing.minTouchTarget)
+private fun TeamLink(name: String, onClick: (() -> Unit)?, modifier: Modifier = Modifier) {
+    val base = modifier.heightIn(min = BatDesign.sizing.minTouchTarget).wrapContentHeight(Alignment.CenterVertically)
     Text(
         text = name,
         modifier = if (onClick != null) base.clickable(role = Role.Button, onClick = onClick) else base,
         color = BatDesign.colors.textPrimary,
         style = BatDesign.typography.bodyStrong.copy(textDecoration = if (onClick != null) TextDecoration.Underline else null),
+        textAlign = TextAlign.Center,
     )
 }
 

@@ -5,25 +5,36 @@ struct FixtureRowView: View {
     let row: FixtureRowUi
     var highlightTeamId: String?
     var isStriped = false
+    /// Off when only the Team's own Fixtures are listed: marking every row would mark none.
+    var showsThisTeam = true
     let onTeamTap: (_ teamId: String) -> Void
 
     var body: some View {
-        BatListItemView(isStriped: isStriped, isHighlighted: row.isThisTeam) {
-            VStack(alignment: .leading, spacing: BatSpacing.xs) {
-                teamLine(id: row.homeTeamId, name: row.homeTeamName)
-                teamLine(id: row.awayTeamId, name: row.awayTeamName)
+        BatListItemView(isStriped: isStriped, isHighlighted: showsThisTeam && row.isThisTeam) {
+            VStack(spacing: BatSpacing.xs) {
+                HStack(spacing: BatSpacing.sm) {
+                    teamLine(id: row.homeTeamId, name: row.homeTeamName)
+                    Text("league_detail_fixture_versus")
+                        .batTextStyle(BatTypography.caption)
+                        .foregroundStyle(BatColor.textSecondary)
+                        .accessibilityHidden(true)
+                    teamLine(id: row.awayTeamId, name: row.awayTeamName)
+                }
+                if let score = row.score {
+                    Text("league_detail_fixture_score \(score.home) \(score.away)")
+                        .batTextStyle(BatTypography.bodyStrong)
+                        .monospacedDigit()
+                        .foregroundStyle(BatColor.textPrimary)
+                }
                 Text(detailText)
                     .batTextStyle(BatTypography.caption)
                     .foregroundStyle(BatColor.textSecondary)
-                if row.isThisTeam {
+                    .multilineTextAlignment(.center)
+                if showsThisTeam && row.isThisTeam {
                     BatBadgeView(text: String(localized: "team_detail_this_team_badge"))
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            Text(scoreText)
-                .batTextStyle(BatTypography.title)
-                .foregroundStyle(BatColor.textPrimary)
-                .accessibilityLabel(scoreAccessibilityText)
+            .frame(maxWidth: .infinity)
         }
     }
 
@@ -34,14 +45,16 @@ struct FixtureRowView: View {
             Text(name)
                 .batTextStyle(BatTypography.bodyStrong)
                 .foregroundStyle(BatColor.textPrimary)
-                .frame(maxWidth: .infinity, minHeight: BatSizing.minTouchTarget, alignment: .leading)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, minHeight: BatSizing.minTouchTarget)
         } else {
             Button { onTeamTap(id) } label: {
                 Text(name)
                     .batTextStyle(BatTypography.bodyStrong)
                     .underline()
                     .foregroundStyle(BatColor.textPrimary)
-                    .frame(maxWidth: .infinity, minHeight: BatSizing.minTouchTarget, alignment: .leading)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, minHeight: BatSizing.minTouchTarget)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -52,23 +65,6 @@ struct FixtureRowView: View {
 
     private var detailText: String {
         [kickoff, row.venue].compactMap { $0 }.joined(separator: " · ")
-    }
-
-    /// A Fixture not yet played has no result to show.
-    private var scoreText: String {
-        if let score = row.score {
-            String(localized: "league_detail_fixture_score \(score.home) \(score.away)")
-        } else {
-            String(localized: "league_detail_fixture_no_score")
-        }
-    }
-
-    private var scoreAccessibilityText: String {
-        if let score = row.score {
-            "\(score.home) : \(score.away)"
-        } else {
-            String(localized: "league_detail_fixture_no_score")
-        }
     }
 }
 

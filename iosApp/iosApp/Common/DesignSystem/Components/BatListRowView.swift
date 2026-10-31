@@ -13,23 +13,28 @@ struct BatListView<Content: View>: View {
     }
 }
 
-/// The frame of one `BatListView` row with free content. Pass `isStriped` on every other row for the darker band; `isHighlighted` tints the row and wins over the band. The content brings its own targets and accessibility.
+/// The frame of one `BatListView` row with free content. Pass `isStriped` on every other row for the darker band. `isHighlighted` sets the row in a brand-coloured frame inside its band, so it stands out from both bands. The content brings its own targets and accessibility.
 struct BatListItemView<Content: View>: View {
     var isStriped = false
     var isHighlighted = false
     @ViewBuilder let content: () -> Content
 
     var body: some View {
-        HStack(spacing: BatSpacing.md) { content() }
+        content()
             .padding(.horizontal, BatSpacing.md)
             .padding(.vertical, BatSpacing.sm)
             .frame(maxWidth: .infinity, minHeight: BatSizing.minTouchTarget, alignment: .leading)
-            .background(background)
+            .background(isHighlighted ? BatColor.brandContainer : band, in: BatShapes.medium)
+            .overlay {
+                if isHighlighted {
+                    BatShapes.medium.stroke(BatColor.brand, lineWidth: BatSizing.borderFocused)
+                }
+            }
+            .padding(isHighlighted ? BatSpacing.xs : 0)
+            .background(band)
     }
 
-    private var background: Color {
-        if isHighlighted { BatColor.brandContainer } else if isStriped { BatColor.surfaceMuted } else { BatColor.surface }
-    }
+    private var band: Color { isStriped ? BatColor.surfaceMuted : BatColor.surface }
 }
 
 /// A row of a `BatListView` with a title, an optional leading text (e.g. a rank), supporting text and badge below the title, and a trailing text that lines up in a column across rows. Pass `action` to make the whole row the target; `accessibilityText` replaces what the content reads out.
@@ -55,33 +60,35 @@ struct BatListRowView: View {
 
     private var row: some View {
         BatListItemView(isStriped: isStriped, isHighlighted: isHighlighted) {
-            if let leadingText {
-                Text(leadingText)
-                    .batTextStyle(BatTypography.bodyStrong)
-                    .monospacedDigit()
-                    .foregroundStyle(BatColor.textSecondary)
-                    .frame(minWidth: BatSizing.listLeadingColumn)
-            }
-            VStack(alignment: .leading, spacing: BatSpacing.xs) {
-                Text(title)
-                    .batTextStyle(BatTypography.bodyStrong)
-                    .foregroundStyle(BatColor.textPrimary)
-                if let supportingText {
-                    Text(supportingText)
-                        .batTextStyle(BatTypography.caption)
+            HStack(spacing: BatSpacing.md) {
+                if let leadingText {
+                    Text(leadingText)
+                        .batTextStyle(BatTypography.bodyStrong)
+                        .monospacedDigit()
                         .foregroundStyle(BatColor.textSecondary)
+                        .frame(minWidth: BatSizing.listLeadingColumn)
                 }
-                if let badge {
-                    BatBadgeView(text: badge)
+                VStack(alignment: .leading, spacing: BatSpacing.xs) {
+                    Text(title)
+                        .batTextStyle(BatTypography.bodyStrong)
+                        .foregroundStyle(BatColor.textPrimary)
+                    if let supportingText {
+                        Text(supportingText)
+                            .batTextStyle(BatTypography.caption)
+                            .foregroundStyle(BatColor.textSecondary)
+                    }
+                    if let badge {
+                        BatBadgeView(text: badge)
+                    }
                 }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            if let trailingText {
-                Text(trailingText)
-                    .batTextStyle(BatTypography.caption)
-                    .monospacedDigit()
-                    .foregroundStyle(BatColor.textSecondary)
-                    .frame(minWidth: BatSizing.listTrailingColumn, alignment: .trailing)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                if let trailingText {
+                    Text(trailingText)
+                        .batTextStyle(BatTypography.caption)
+                        .monospacedDigit()
+                        .foregroundStyle(BatColor.textSecondary)
+                        .frame(minWidth: BatSizing.listTrailingColumn, alignment: .trailing)
+                }
             }
         }
         .contentShape(Rectangle())

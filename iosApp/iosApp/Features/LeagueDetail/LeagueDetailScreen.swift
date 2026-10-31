@@ -118,6 +118,7 @@ private struct ContentView: View {
                                     row: fixture,
                                     highlightTeamId: detail.highlightTeamId,
                                     isStriped: !index.isMultiple(of: 2),
+                                    showsThisTeam: !detail.onlyTeamFixtures,
                                     onTeamTap: { onAction(.teamClicked(teamId: $0)) }
                                 )
                             }

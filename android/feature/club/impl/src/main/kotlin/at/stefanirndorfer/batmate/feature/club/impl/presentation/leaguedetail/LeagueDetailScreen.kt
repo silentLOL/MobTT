@@ -169,7 +169,7 @@ private fun ContentView(state: LeagueDetailUiState.Content, onAction: (LeagueDet
                     fixtures.forEachIndexed { index, fixture ->
                         FixtureRowView(
                             fixture = fixture,
-                            isThisTeam = state.isTeamFixture(fixture),
+                            isThisTeam = state.isTeamFixture(fixture) && !state.onlyTeamFixtures,
                             highlightTeamId = state.highlightTeamId,
                             striped = index % 2 == 1,
                             onTeamClick = { onAction(LeagueDetailAction.TeamClicked(it)) },

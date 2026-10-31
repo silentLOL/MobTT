@@ -1,11 +1,12 @@
 package at.stefanirndorfer.batmate.designsystem.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -39,8 +41,9 @@ fun BatList(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -
 
 /**
  * The frame of one [BatList] row with free [content]. Pass `striped = true` on every other row for the darker
- * band; [highlighted] tints the row and wins over the band. Pass [onClick] to make the whole row the target, or
- * leave it out when the content holds its own targets. [contentDescription] replaces what the content reads out.
+ * band. [highlighted] sets the row in a brand-coloured frame inside its band, so it stands out from both bands.
+ * Pass [onClick] to make the whole row the target, or leave it out when the content holds its own targets.
+ * [contentDescription] replaces what the content reads out.
  */
 @Composable
 fun BatListItem(
@@ -49,13 +52,13 @@ fun BatListItem(
     highlighted: Boolean = false,
     onClick: (() -> Unit)? = null,
     contentDescription: String? = null,
-    content: @Composable RowScope.() -> Unit,
+    content: @Composable () -> Unit,
 ) {
     val colors = BatDesign.colors
-    val color = when {
-        highlighted -> colors.brandContainer
-        striped -> colors.surfaceMuted
-        else -> colors.surface
+    val band = if (striped) {
+        colors.surfaceMuted
+    } else {
+        colors.surface
     }
     val inner: @Composable () -> Unit = {
         val semanticsModifier = if (contentDescription != null) {
@@ -65,20 +68,40 @@ fun BatListItem(
         } else {
             Modifier
         }
-        Row(
+        Box(
             modifier = semanticsModifier
                 .fillMaxWidth()
                 .heightIn(min = BatDesign.sizing.minTouchTarget)
                 .padding(horizontal = BatDesign.spacing.md, vertical = BatDesign.spacing.sm),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.md),
-            content = content,
-        )
+            contentAlignment = Alignment.CenterStart,
+        ) { content() }
     }
-    if (onClick != null) {
-        Surface(onClick = onClick, modifier = modifier.fillMaxWidth(), color = color, content = inner)
+    val frameModifier = if (highlighted) {
+        Modifier.padding(BatDesign.spacing.xs)
     } else {
-        Surface(modifier = modifier.fillMaxWidth(), color = color, content = inner)
+        Modifier
+    }
+    val shape = if (highlighted) {
+        BatDesign.shapes.medium
+    } else {
+        RectangleShape
+    }
+    val color = if (highlighted) {
+        colors.brandContainer
+    } else {
+        band
+    }
+    val border = if (highlighted) {
+        BorderStroke(BatDesign.sizing.borderFocused, colors.brand)
+    } else {
+        null
+    }
+    Box(modifier = modifier.fillMaxWidth().background(band)) {
+        if (onClick != null) {
+            Surface(onClick = onClick, modifier = frameModifier.fillMaxWidth(), shape = shape, color = color, border = border, content = inner)
+        } else {
+            Surface(modifier = frameModifier.fillMaxWidth(), shape = shape, color = color, border = border, content = inner)
+        }
     }
 }
 
@@ -107,35 +130,37 @@ fun BatListRow(
         onClick = onClick,
         contentDescription = contentDescription,
     ) {
-        leadingText?.let {
-            Text(
-                text = it,
-                modifier = Modifier.widthIn(min = BatDesign.sizing.listLeadingColumn),
-                color = colors.textSecondary,
-                style = BatDesign.typography.bodyStrong.copy(fontFeatureSettings = "tnum"),
-                textAlign = TextAlign.Center,
-            )
-        }
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.xs)) {
-            Text(
-                text = title,
-                color = colors.textPrimary,
-                style = BatDesign.typography.bodyStrong,
-                overflow = TextOverflow.Ellipsis,
-            )
-            supportingText?.let {
-                Text(text = it, color = colors.textSecondary, style = BatDesign.typography.caption)
+        Row(horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.md), verticalAlignment = Alignment.CenterVertically) {
+            leadingText?.let {
+                Text(
+                    text = it,
+                    modifier = Modifier.widthIn(min = BatDesign.sizing.listLeadingColumn),
+                    color = colors.textSecondary,
+                    style = BatDesign.typography.bodyStrong.copy(fontFeatureSettings = "tnum"),
+                    textAlign = TextAlign.Center,
+                )
             }
-            badge?.let { BatBadge(text = it) }
-        }
-        trailingText?.let {
-            Text(
-                text = it,
-                modifier = Modifier.widthIn(min = BatDesign.sizing.listTrailingColumn),
-                color = colors.textSecondary,
-                style = BatDesign.typography.caption.copy(fontFeatureSettings = "tnum"),
-                textAlign = TextAlign.End,
-            )
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.xs)) {
+                Text(
+                    text = title,
+                    color = colors.textPrimary,
+                    style = BatDesign.typography.bodyStrong,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                supportingText?.let {
+                    Text(text = it, color = colors.textSecondary, style = BatDesign.typography.caption)
+                }
+                badge?.let { BatBadge(text = it) }
+            }
+            trailingText?.let {
+                Text(
+                    text = it,
+                    modifier = Modifier.widthIn(min = BatDesign.sizing.listTrailingColumn),
+                    color = colors.textSecondary,
+                    style = BatDesign.typography.caption.copy(fontFeatureSettings = "tnum"),
+                    textAlign = TextAlign.End,
+                )
+            }
         }
     }
 }
