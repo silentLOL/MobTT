@@ -78,6 +78,16 @@ private struct ContentView: View {
                         action: { onAction(.favoriteClicked) }
                     )
                 }
+                if detail.rcPoints != nil || detail.ageGroup != nil {
+                    HStack(spacing: BatSpacing.lg) {
+                        if let rcPoints = detail.rcPoints {
+                            BatStatView(label: String(localized: "player_detail_rc_label"), value: String(rcPoints))
+                        }
+                        if let ageGroup = detail.ageGroup {
+                            BatStatView(label: String(localized: "player_detail_age_group_label"), value: ageGroup)
+                        }
+                    }
+                }
                 if let clubName = detail.clubName {
                     VStack(alignment: .leading, spacing: BatSpacing.sm) {
                         BatSectionHeaderView(title: String(localized: "player_detail_club_title"))

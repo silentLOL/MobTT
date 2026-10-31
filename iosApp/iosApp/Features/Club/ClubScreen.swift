@@ -122,6 +122,12 @@ private struct ContentView: View {
                         }
                     }
                 }
+                if !overview.players.isEmpty {
+                    VStack(alignment: .leading, spacing: 0) {
+                        BatSectionHeaderView(title: String(localized: "club_players_title"))
+                        ForEach(overview.players) { LineupRowView(player: $0) }
+                    }
+                }
             }
             .padding(BatSpacing.lg)
         }

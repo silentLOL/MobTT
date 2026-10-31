@@ -41,6 +41,7 @@ import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.preview.cl
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.preview.clubOverviewNoTeamsPreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.preview.clubOverviewPreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.views.TeamRowView
+import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.views.LineupRowView
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -177,9 +178,15 @@ private fun ContentView(
                 )
             }
             Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.md)) {
-                overview.teams.forEach { team ->
-                    TeamRowView(team, onClick = { onAction(ClubAction.TeamClicked(team.team.id)) })
+                overview.teamGroups.forEach { group ->
+                    TeamRowView(group, onClick = { onAction(ClubAction.TeamClicked(group.primary.team.id)) })
                 }
+            }
+        }
+        if (overview.players.isNotEmpty()) {
+            Column {
+                BatSectionHeader(title = stringResource(R.string.club_players_title))
+                overview.players.forEach { player -> LineupRowView(player) }
             }
         }
     }

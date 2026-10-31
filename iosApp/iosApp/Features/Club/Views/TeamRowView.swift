@@ -46,8 +46,17 @@ struct TeamRowView: View {
             if isExpanded {
                 VStack(alignment: .leading, spacing: BatSpacing.md) {
                     Divider().overlay(BatColor.border)
-                    NextFixtureView(nextFixture: team.nextFixture)
+                    ForEach(Array(team.fixtures.enumerated()), id: \.offset) { _, entry in
+                        VStack(alignment: .leading, spacing: BatSpacing.xs) {
+                            if team.fixtures.count > 1, let leagueName = entry.leagueName {
+                                Text(leagueName)
+                                    .batTextStyle(BatTypography.caption)
+                                    .foregroundStyle(BatColor.textSecondary)
+                            }
+                            NextFixtureView(nextFixture: entry.nextFixture)
+                        }
                         .accessibilityElement(children: .combine)
+                    }
                 }
                 .padding(.horizontal, BatSpacing.lg)
                 .padding(.bottom, BatSpacing.lg)

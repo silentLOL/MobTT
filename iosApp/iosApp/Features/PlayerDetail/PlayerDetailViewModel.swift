@@ -106,6 +106,8 @@ private extension PlayerDetail {
             clubName: clubName,
             associationName: associationName,
             teams: teams.map { PlayerTeamUi(id: $0.id, name: $0.name) },
+            rcPoints: rcPoints?.intValue,
+            ageGroup: ageGroup,
             isFavorite: isFavorite
         )
     }

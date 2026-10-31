@@ -6,6 +6,7 @@ import at.stefanirndorfer.batmate.domain.club.ClubOverview
 import at.stefanirndorfer.batmate.domain.club.Fixture
 import at.stefanirndorfer.batmate.domain.club.FixtureStatus
 import at.stefanirndorfer.batmate.domain.club.League
+import at.stefanirndorfer.batmate.domain.club.LineupPlayer
 import at.stefanirndorfer.batmate.domain.club.NextFixture
 import at.stefanirndorfer.batmate.domain.club.Standing
 import at.stefanirndorfer.batmate.domain.club.Team
@@ -33,6 +34,7 @@ private val club = Club("olympic", "TTC Olympic", "wttv")
 private val association = Association("wttv", "Wiener Tischtennisverband (WTTV)")
 
 private val homeTeam = Team("olympic-1", "TTC Olympic 1", "olympic", "landesliga1")
+private val cupTeam = Team("olympic-1-cup", "TTC Olympic 1", "olympic", "cup")
 private val awayTeam = Team("olympic-2", "TTC Olympic 2", "olympic", "landesliga2")
 private val freeWeekTeam = Team("olympic-3", "TTC Olympic 3", "olympic", "landesliga2")
 
@@ -47,6 +49,12 @@ val clubOverviewPreview = ClubOverview(
             nextFixture = scheduled(homeTeam, "SK VÖEST Wien 1", isHome = true, venue = "Sporthalle Olympic"),
         ),
         TeamOverview(
+            team = cupTeam,
+            league = League("cup", "Herren-Cup"),
+            standing = null,
+            nextFixture = scheduled(cupTeam, "Nussdorf TTC 1", isHome = false, venue = "Sporthalle Nussdorf"),
+        ),
+        TeamOverview(
             team = awayTeam,
             league = League("landesliga2", "2. Landesliga Herren"),
             standing = Standing(2, awayTeam.id, awayTeam.name, played = 5, points = 6),
@@ -58,6 +66,11 @@ val clubOverviewPreview = ClubOverview(
             standing = Standing(3, freeWeekTeam.id, freeWeekTeam.name, played = 5, points = 3),
             nextFixture = NextFixture.FreeWeek,
         ),
+    ),
+    players = listOf(
+        LineupPlayer("huber", "Michael Huber", rcPoints = 2114),
+        LineupPlayer("gruber", "Anna Gruber", rcPoints = 1992),
+        LineupPlayer("eder", "Thomas Eder"),
     ),
 )
 
@@ -74,9 +87,10 @@ val clubOverviewLongNamesPreview = ClubOverview(
             )
         },
     ),
+    players = listOf(LineupPlayer("pichler", "Katharina Habsburg-Lothringen-Esterházy", rcPoints = 1750)),
 )
 
-val clubOverviewNoTeamsPreview = ClubOverview(club, association, teams = emptyList())
+val clubOverviewNoTeamsPreview = ClubOverview(club, association, teams = emptyList(), players = emptyList())
 
 val clubOverviewNoLeaguePreview = ClubOverview(
     club = club,
@@ -84,4 +98,5 @@ val clubOverviewNoLeaguePreview = ClubOverview(
     teams = listOf(
         TeamOverview(team = homeTeam, league = null, standing = null, nextFixture = NextFixture.FreeWeek),
     ),
+    players = emptyList(),
 )

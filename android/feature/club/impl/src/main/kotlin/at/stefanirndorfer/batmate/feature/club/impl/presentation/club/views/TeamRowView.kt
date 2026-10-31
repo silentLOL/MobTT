@@ -30,14 +30,15 @@ import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatCard
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatIconButton
-import at.stefanirndorfer.batmate.domain.club.TeamOverview
+import at.stefanirndorfer.batmate.domain.club.TeamGroup
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.preview.clubOverviewLongNamesPreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.preview.clubOverviewNoLeaguePreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.preview.clubOverviewPreview
 
 /** Tapping the row opens the Team; the chevron reveals the next Fixture without leaving the Club. */
 @Composable
-fun TeamRowView(team: TeamOverview, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun TeamRowView(group: TeamGroup, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val team = group.primary
     var expanded by rememberSaveable(team.team.id) { mutableStateOf(false) }
     val chevronRotation by animateFloatAsState(
         targetValue = if (expanded) {
@@ -76,7 +77,19 @@ fun TeamRowView(team: TeamOverview, onClick: () -> Unit, modifier: Modifier = Mo
                 verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.md),
             ) {
                 HorizontalDivider(color = BatDesign.colors.border)
-                NextFixtureView(team.nextFixture, modifier = Modifier.semantics(mergeDescendants = true) {})
+                group.teams.forEach { entry ->
+                    Column(
+                        modifier = Modifier.semantics(mergeDescendants = true) {},
+                        verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.xs),
+                    ) {
+                        if (group.teams.size > 1) {
+                            entry.league?.let { league ->
+                                Text(text = league.name, color = BatDesign.colors.textSecondary, style = BatDesign.typography.caption)
+                            }
+                        }
+                        NextFixtureView(entry.nextFixture)
+                    }
+                }
             }
         }
     }
@@ -89,9 +102,9 @@ private const val CHEVRON_EXPANDED_DEGREES = 180f
 private fun TeamRowViewPreview() {
     BatPreviewSurface {
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.md)) {
-            clubOverviewPreview.teams.forEach { TeamRowView(it, onClick = {}) }
-            TeamRowView(clubOverviewNoLeaguePreview.teams.single(), onClick = {})
-            TeamRowView(clubOverviewLongNamesPreview.teams.single(), onClick = {})
+            clubOverviewPreview.teamGroups.forEach { TeamRowView(it, onClick = {}) }
+            TeamRowView(clubOverviewNoLeaguePreview.teamGroups.single(), onClick = {})
+            TeamRowView(clubOverviewLongNamesPreview.teamGroups.single(), onClick = {})
         }
     }
 }

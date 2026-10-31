@@ -73,7 +73,7 @@ class XttvTeamRepositoryTest {
 
     @Test
     fun theLineupIsThePlayersTheTeamDetailsList() = runTest {
-        assertEquals(listOf(LineupPlayer("60473", "Phatsaraphon Wonglakhon", rcPoints = 1992)), repository.getLineup("501"))
+        assertEquals(listOf(LineupPlayer("60473", "Phatsaraphon Wonglakhon", rcPoints = 1992, ageGroup = "U171")), repository.getLineup("501"))
     }
 
     @Test

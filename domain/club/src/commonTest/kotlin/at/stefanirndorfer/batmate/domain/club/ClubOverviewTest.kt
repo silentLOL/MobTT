@@ -140,6 +140,36 @@ class ClubOverviewTest {
         assertNull(unknown.fixture.venue)
     }
 
+    @Test
+    fun teamsOfTheSameNameMergeIntoOneGroupKeepingEachNextFixture() = runTest {
+        givenOlympic()
+        val cup = Team("c1", "TTC Olympic 1", "olympic", "cup")
+        directory.teams += cup
+        directory.teams += Team("o2", "TTC Olympic 2", "olympic", "l1")
+        directory.fixtures += fixture("league", home = olympic1, away = rival, startsIn = 3.days)
+        directory.fixtures += fixture("cup", home = cup, away = rival, startsIn = 5.days)
+
+        val groups = getClubOverview("olympic")!!.teamGroups
+
+        assertEquals(listOf("o1", "o2"), groups.map { it.primary.team.id })
+        assertEquals(listOf("o1", "c1"), groups.first().teams.map { it.team.id })
+        assertEquals(
+            listOf("league", "cup"),
+            groups.first().teams.map { assertIs<NextFixture.Scheduled>(it.nextFixture).fixture.id },
+        )
+        assertEquals(3, getClubOverview("olympic")!!.teams.size)
+    }
+
+    @Test
+    fun playersOfAllLineupsAreListedOnceByRcPoints() = runTest {
+        givenOlympic()
+        directory.teams += Team("o2", "TTC Olympic 2", "olympic", "l1")
+        directory.lineups["o1"] = listOf(LineupPlayer("a", "Ana", 1800), LineupPlayer("u", "Uli"), LineupPlayer("b", "Bea", 2100))
+        directory.lineups["o2"] = listOf(LineupPlayer("b", "Bea", 2100), LineupPlayer("c", "Cem", 1800), LineupPlayer("t", "Tom"))
+
+        assertEquals(listOf("b", "a", "c", "t", "u"), getClubOverview("olympic")!!.players.map { it.playerId })
+    }
+
     private fun givenOlympic() {
         directory.clubs += Club("olympic", "TTC Olympic", "wttv")
         directory.associations += Association("wttv", "WTTV")

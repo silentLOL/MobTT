@@ -119,7 +119,7 @@ struct PlayerDetailViewModelTests {
 
     private var success: DataResult {
         let player = Player(id: "p1", name: "Anna Gruber", clubId: "1")
-        return DataResultSuccess(value: PlayerDetail(player: player, clubName: "TTC Olympic", associationName: "WTTV", teams: []))
+        return DataResultSuccess(value: PlayerDetail(player: player, clubName: "TTC Olympic", associationName: "WTTV", teams: [], rcPoints: nil, ageGroup: nil))
     }
 
     private var unavailable: DataResult { DataResultUnavailable(error: DataUnavailable(message: "down", cause: nil)) }

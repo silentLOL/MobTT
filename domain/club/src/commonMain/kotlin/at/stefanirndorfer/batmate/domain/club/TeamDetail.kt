@@ -18,6 +18,7 @@ data class TeamDetail(
 
 /**
  * PROVISIONAL, see [TeamDetail]. [playerId] matches `Player.id`, so a Player profile can open from it.
- * [rcPoints] is the Player's RC value, null when XTTV gives none.
+ * [rcPoints] is the Player's RC value and [ageGroup] XTTV's age class code (e.g. `U171`, `S50`); each is null when
+ * XTTV gives none.
  */
-data class LineupPlayer(val playerId: String, val name: String, val rcPoints: Int? = null)
+data class LineupPlayer(val playerId: String, val name: String, val rcPoints: Int? = null, val ageGroup: String? = null)

@@ -12,6 +12,8 @@ val playerDetailPreview = PlayerDetail(
         Team("olympic-1", "TTC Olympic 1", "olympic", "landesliga"),
         Team("olympic-3", "TTC Olympic 3", "olympic", "bezirksliga"),
     ),
+    rcPoints = 1992,
+    ageGroup = "U171",
 )
 
 val playerDetailNoTeamsPreview = PlayerDetail(Player("anna", "Anna Gruber", "olympic"), "TTC Olympic", "WTTV")

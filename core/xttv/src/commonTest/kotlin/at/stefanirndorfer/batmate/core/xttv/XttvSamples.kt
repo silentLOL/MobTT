@@ -54,7 +54,7 @@ object XttvSamples {
             <id>501</id><name>LINZ AG Froschberg 1</name><code>FROB1</code><club_id>140</club_id><club_name>Linz-Froschberg AG</club_name>
             <league_id>70</league_id><league_name>Bundesliga</league_name>
             <team_location><id>165</id><name>Sportpark Lissfeld</name></team_location>
-            <player><id>60473</id><first_name>Phatsaraphon</first_name><last_name>Wonglakhon</last_name><rc_type>rc</rc_type><rc_points>1992</rc_points><rc_deviation>53</rc_deviation></player>
+            <player><id>60473</id><first_name>Phatsaraphon</first_name><last_name>Wonglakhon</last_name><rc_type>rc</rc_type><rc_points>1992</rc_points><rc_deviation>53</rc_deviation><age_group>U171</age_group></player>
         </team_details>
     """
     const val UNKNOWN_TEAM_URL = "$BASE/getTeamDetails.php?teamId=999"

@@ -6,7 +6,9 @@ enum PlayerDetailPreviewData {
         clubId: "olympic",
         clubName: "TTC Olympic",
         associationName: "Wiener Tischtennisverband (WTTV)",
-        teams: [PlayerTeamUi(id: "olympic-1", name: "TTC Olympic 1"), PlayerTeamUi(id: "olympic-3", name: "TTC Olympic 3")]
+        teams: [PlayerTeamUi(id: "olympic-1", name: "TTC Olympic 1"), PlayerTeamUi(id: "olympic-3", name: "TTC Olympic 3")],
+        rcPoints: 1992,
+        ageGroup: "U171"
     )
 
     static var favorite: PlayerDetailUi {

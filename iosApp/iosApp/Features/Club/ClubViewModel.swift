@@ -135,18 +135,18 @@ final class ClubViewModel {
 
 private extension ClubOverview {
     func toUi(isFavorite: Bool) -> ClubOverviewUi {
-        ClubOverviewUi(clubName: club.name, associationName: association.name, teams: teams.map { $0.toUi() }, isFavorite: isFavorite)
+        ClubOverviewUi(clubName: club.name, associationName: association.name, teams: teamGroups.map { $0.toUi() }, players: players.map { LineupPlayerUi(id: $0.playerId, name: $0.name, rcPoints: $0.rcPoints?.intValue) }, isFavorite: isFavorite)
     }
 }
 
-private extension TeamOverview {
+private extension TeamGroup {
     func toUi() -> TeamUi {
         TeamUi(
-            id: team.id,
-            name: team.name,
-            leagueName: league?.name,
-            standing: standing.map { StandingUi(position: Int($0.position), played: Int($0.played), points: Int($0.points)) },
-            nextFixture: nextFixture.toUi()
+            id: primary.team.id,
+            name: primary.team.name,
+            leagueName: primary.league?.name,
+            standing: primary.standing.map { StandingUi(position: Int($0.position), played: Int($0.played), points: Int($0.points)) },
+            fixtures: teams.map { TeamFixtureUi(leagueName: $0.league?.name, nextFixture: $0.nextFixture.toUi()) }
         )
     }
 }

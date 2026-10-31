@@ -21,6 +21,7 @@ internal data class TeamXml(
             playerId = it.id,
             name = listOf(it.firstName, it.lastName).filter { part -> part.isNotBlank() }.joinToString(" "),
             rcPoints = it.rcPoints?.trim()?.toIntOrNull(),
+            ageGroup = it.ageGroup?.trim()?.takeIf { group -> group.isNotEmpty() },
         )
     }
 
@@ -40,4 +41,5 @@ internal data class TeamPlayerXml(
     @XmlSerialName("first_name") @XmlElement(true) val firstName: String = "",
     @XmlSerialName("last_name") @XmlElement(true) val lastName: String = "",
     @XmlSerialName("rc_points") @XmlElement(true) val rcPoints: String? = null,
+    @XmlSerialName("age_group") @XmlElement(true) val ageGroup: String? = null,
 )

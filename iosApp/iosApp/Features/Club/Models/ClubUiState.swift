@@ -12,18 +12,27 @@ struct StandingUi: Equatable {
     let points: Int
 }
 
+/// One competition's next Fixture of a Team; `leagueName` tells them apart when a Team plays in several.
+struct TeamFixtureUi: Equatable {
+    let leagueName: String?
+    let nextFixture: NextFixtureUi
+}
+
 struct TeamUi: Identifiable, Equatable {
+    /// The id of the League Team, which is the one that opens.
     let id: String
     let name: String
     let leagueName: String?
     let standing: StandingUi?
-    let nextFixture: NextFixtureUi
+    let fixtures: [TeamFixtureUi]
 }
 
 struct ClubOverviewUi: Equatable {
     let clubName: String
     let associationName: String
     let teams: [TeamUi]
+    /// Every Player of the Club, highest RC first.
+    var players: [LineupPlayerUi] = []
     var isFavorite = false
 }
 

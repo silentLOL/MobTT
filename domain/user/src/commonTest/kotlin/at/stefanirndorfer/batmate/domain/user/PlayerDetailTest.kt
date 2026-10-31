@@ -99,6 +99,20 @@ class PlayerDetailTest {
     }
 
     @Test
+    fun playerTakesRcPointsAndAgeGroupFromTheirLineupEntry() = runTest {
+        val detail = getPlayerDetail(
+            teams = listOf(first, second),
+            lineups = mapOf(
+                "t1" to listOf(LineupPlayer("p1", "Anna", rcPoints = 1992, ageGroup = "U171")),
+                "t2" to listOf(LineupPlayer("p1", "Anna", rcPoints = 1992, ageGroup = "U171")),
+            ),
+        )("p1")
+
+        assertEquals(1992, detail?.rcPoints)
+        assertEquals("U171", detail?.ageGroup)
+    }
+
+    @Test
     fun teamWhoseLineupFailsIsLeftOutWithoutFailingThePlayer() = runTest {
         val detail = getPlayerDetail(
             teams = listOf(first, second),

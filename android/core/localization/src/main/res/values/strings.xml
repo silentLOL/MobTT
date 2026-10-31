@@ -64,6 +64,7 @@
     <string name="club_empty_button">Open Settings</string>
     <string name="club_hero_overline">Club</string>
     <string name="club_teams_title">Teams</string>
+    <string name="club_players_title">Players</string>
     <string name="club_teams_empty_body">This Club has no Teams yet.</string>
     <string name="club_team_standing_label">Rank %1$d · %2$d played · %3$d points</string>
     <string name="club_team_expand_cd">Show next fixture of %1$s</string>
@@ -112,6 +113,8 @@
     <string name="league_detail_error_title">Couldn\'t load this League</string>
     <string name="league_detail_error_body">Check your connection and try again.</string>
     <string name="league_detail_error_retry_button">Try again</string>
+    <string name="player_detail_rc_label">RC</string>
+    <string name="player_detail_age_group_label">Age group</string>
     <string name="player_detail_club_title">Club</string>
     <string name="player_detail_teams_title">Teams</string>
     <string name="player_detail_loading_cd">Loading Player</string>

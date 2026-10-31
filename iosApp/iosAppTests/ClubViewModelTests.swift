@@ -17,7 +17,7 @@ struct ClubViewModelTests {
     }
 
     @Test func clubWithoutTeamsIsContentNotAnError() async {
-        let overview = ClubOverview(club: club, association: association, teams: [])
+        let overview = ClubOverview(club: club, association: association, teams: [], players: [])
         let viewModel = makeSpecificViewModel { _ in DataResultSuccess(value: overview) }
 
         await viewModel.observe()
@@ -35,7 +35,7 @@ struct ClubViewModelTests {
 
     @Test func retryRestartsObservationAndSuccessClearsTheError() async {
         var failures = 1
-        let overview = ClubOverview(club: club, association: association, teams: [])
+        let overview = ClubOverview(club: club, association: association, teams: [], players: [])
         let viewModel = makeSpecificViewModel { _ in
             if failures > 0 {
                 failures -= 1
@@ -59,7 +59,7 @@ struct ClubViewModelTests {
         var requested: [String] = []
         let viewModel = makeMineViewModel(contexts: [DataResultSuccess(value: context)]) { id in
             requested.append(id)
-            return DataResultSuccess(value: ClubOverview(club: club, association: association, teams: []))
+            return DataResultSuccess(value: ClubOverview(club: club, association: association, teams: [], players: []))
         }
 
         await viewModel.observe()
@@ -203,7 +203,7 @@ struct ClubViewModelTests {
     }
 
     private var success: DataResult {
-        DataResultSuccess(value: ClubOverview(club: club, association: association, teams: []))
+        DataResultSuccess(value: ClubOverview(club: club, association: association, teams: [], players: []))
     }
 
     private var unavailable: DataResult { DataResultUnavailable(error: DataUnavailable(message: "down", cause: nil)) }

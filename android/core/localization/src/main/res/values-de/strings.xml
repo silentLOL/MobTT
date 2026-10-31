@@ -64,6 +64,7 @@
     <string name="club_empty_button">Einstellungen öffnen</string>
     <string name="club_hero_overline">Verein</string>
     <string name="club_teams_title">Mannschaften</string>
+    <string name="club_players_title">Spieler</string>
     <string name="club_teams_empty_body">Dieser Verein hat noch keine Mannschaften.</string>
     <string name="club_team_standing_label">Platz %1$d · %2$d Spiele · %3$d Punkte</string>
     <string name="club_team_expand_cd">Nächste Begegnung von %1$s anzeigen</string>
@@ -112,6 +113,8 @@
     <string name="league_detail_error_title">Liga konnte nicht geladen werden</string>
     <string name="league_detail_error_body">Prüfe deine Verbindung und versuche es erneut.</string>
     <string name="league_detail_error_retry_button">Erneut versuchen</string>
+    <string name="player_detail_rc_label">RC</string>
+    <string name="player_detail_age_group_label">Altersklasse</string>
     <string name="player_detail_club_title">Verein</string>
     <string name="player_detail_teams_title">Mannschaften</string>
     <string name="player_detail_loading_cd">Spieler wird geladen</string>

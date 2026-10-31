@@ -34,6 +34,7 @@ import at.stefanirndorfer.batmate.designsystem.ui.components.BatCard
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatEmptyState
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatFavoriteButton
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatSectionHeader
+import at.stefanirndorfer.batmate.designsystem.ui.components.BatStatView
 import at.stefanirndorfer.batmate.domain.user.PlayerDetail
 import at.stefanirndorfer.batmate.feature.players.impl.presentation.playerdetail.models.PlayerDetailAction
 import at.stefanirndorfer.batmate.feature.players.impl.presentation.playerdetail.models.PlayerDetailEvent
@@ -142,6 +143,16 @@ private fun ContentView(
                 ),
                 onClick = { onAction(PlayerDetailAction.FavoriteClicked) },
             )
+        }
+        if (detail.rcPoints != null || detail.ageGroup != null) {
+            Row(horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.lg)) {
+                detail.rcPoints?.let { rc ->
+                    BatStatView(label = stringResource(R.string.player_detail_rc_label), value = rc.toString(), modifier = Modifier.weight(1f))
+                }
+                detail.ageGroup?.let { group ->
+                    BatStatView(label = stringResource(R.string.player_detail_age_group_label), value = group, modifier = Modifier.weight(1f))
+                }
+            }
         }
         detail.clubName?.let { clubName ->
             Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
