@@ -1,5 +1,5 @@
 ---
-status: ready-for-agent
+status: ready-for-human
 blocked_by: [5, 9, 10]
 ---
 
@@ -18,3 +18,4 @@ blocked_by: [5, 9, 10]
 ## Comments
 - 2026-10-30: Not inspected: iOS previews need Xcode and VoiceOver/Dynamic Type need a device or simulator. Left unchecked.
 - 2026-10-30: Hero star layout fixed on iOS in c59e3f6 (Club): star overlaid top-end, name at full width. Build and tests pass, but not yet seen in Xcode previews. Still unchecked: VoiceOver and Dynamic Type on a device or simulator.
+- 2026-10-31: Ticket text predates the XTTV API: Club, Team, Fixture and standing data now come from live XTTV (xttv-api), the fake directory is bound only in `deb` previews, and the Player profile exists (player-detail-teams). All build work is done; the only open box is the device pass (VoiceOver and Dynamic Type on iOS). Status set to ready-for-human.

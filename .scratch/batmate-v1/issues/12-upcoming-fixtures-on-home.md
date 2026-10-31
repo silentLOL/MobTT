@@ -1,5 +1,5 @@
 ---
-status: ready-for-agent
+status: ready-for-human
 blocked_by: [10, 11]
 ---
 
@@ -24,3 +24,4 @@ Note: ready-for-agent (the venue field is `needs-info` until the XTTV docs or sa
 ## Comments
 - 2026-10-30: Android 200% font-scale previews inspected (Home with Fixtures): no clipping, Fixture cards wrap cleanly. iOS half not inspected, so left unchecked.
 - 2026-10-30: Hero star change (d545382, c59e3f6) does not touch the Home Fixtures views. Android 200% inspected earlier; iOS 200% and VoiceOver still unchecked.
+- 2026-10-31: Ticket text predates the XTTV API: Club, Team, Fixture and standing data now come from live XTTV (xttv-api), the fake directory is bound only in `deb` previews, and the Player profile exists (player-detail-teams). All build work is done; the only open box is the device pass (iOS 200% and VoiceOver, TalkBack). Status set to ready-for-human.
