@@ -273,6 +273,74 @@
         }
       }
     },
+    "consent_allow_button": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zulassen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow"
+          }
+        }
+      }
+    },
+    "consent_body": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anonyme Nutzungsstatistiken und Absturzberichte zulassen? Sie enthalten nie deinen Namen, deinen Spieler oder Verein oder etwas, das du eingibst. Du kannst das jederzeit in den Einstellungen ändern."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow anonymous usage statistics and crash reports? They never include your name, your Player or Club, or anything you type. You can change this any time in Settings."
+          }
+        }
+      }
+    },
+    "consent_not_now_button": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht jetzt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not now"
+          }
+        }
+      }
+    },
+    "consent_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hilf mit, MobTT zu verbessern"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Help improve MobTT"
+          }
+        }
+      }
+    },
     "core_app_title": {
       "extractionState": "manual",
       "localizations": {
@@ -1833,6 +1901,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Settings"
+          }
+        }
+      }
+    },
+    "settings_usage_consent_supporting": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anonym. Enthält nie Namen oder Eingaben."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anonymous. Never includes names or what you type."
+          }
+        }
+      }
+    },
+    "settings_usage_consent_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutzungsstatistiken und Absturzberichte"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usage statistics and crash reports"
           }
         }
       }

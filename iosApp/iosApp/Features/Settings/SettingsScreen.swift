@@ -72,6 +72,14 @@ struct SettingsScreen: View {
                 }
             }
         }
+        BatToggleRowView(
+            label: String(localized: "settings_usage_consent_title"),
+            supportingText: String(localized: "settings_usage_consent_supporting"),
+            isOn: Binding(
+                get: { state.usageConsentAllowed },
+                set: { onAction(.usageConsentToggled($0)) }
+            )
+        )
         BatPrimaryButtonView(title: String(localized: "settings_done_button")) { onAction(.doneClicked) }
     }
 

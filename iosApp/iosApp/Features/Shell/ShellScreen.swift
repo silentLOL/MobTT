@@ -27,6 +27,7 @@ struct ShellScreen: View {
     @Binding var appearance: AppearanceChoice
     @State private var selectedTab = ShellTab.home
     @State private var isSettingsPresented = false
+    @State private var consentViewModel = UsageConsentViewModel()
     @State private var homePath = NavigationPath()
     @State private var clubPath = NavigationPath()
     @State private var playersPath = NavigationPath()
@@ -154,6 +155,16 @@ struct ShellScreen: View {
             SettingsRoute(appearance: $appearance) { isSettingsPresented = false }
                 .presentationDetents([.fraction(0.75), .large])
                 .presentationDragIndicator(.visible)
+                .presentationBackground(BatColor.background)
+        }
+        .task { await consentViewModel.observe() }
+        // Never over the Settings sheet: the prompt waits until it closes.
+        .sheet(isPresented: Binding(
+            get: { consentViewModel.isPromptVisible && !isSettingsPresented },
+            set: { if !$0 { consentViewModel.onAction(.notNowClicked) } }
+        )) {
+            UsageConsentSheetView(onAction: consentViewModel.onAction)
+                .presentationDetents([.medium, .large])
                 .presentationBackground(BatColor.background)
         }
     }

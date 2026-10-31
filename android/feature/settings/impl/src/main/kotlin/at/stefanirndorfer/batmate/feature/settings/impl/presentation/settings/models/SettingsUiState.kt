@@ -27,6 +27,7 @@ data class SettingsPickerUi(
 /** [myPlayerName] and [myClubName] are the user's choice; the Club and Association are derived and never edited. */
 data class SettingsUiState(
     val appearance: Appearance = Appearance.SYSTEM,
+    val usageConsentAllowed: Boolean = false,
     val myPlayerName: String? = null,
     val myClubName: String? = null,
     val derivedFrom: DerivedFrom = DerivedFrom.NONE,

@@ -4,6 +4,7 @@ import at.stefanirndorfer.batmate.domain.player.PickedPlayerStore
 import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.DataStoreFavoritesRepository
 import at.stefanirndorfer.batmate.domain.user.DataStorePickedPlayerStore
+import at.stefanirndorfer.batmate.domain.user.DataStoreUsageConsentRepository
 import at.stefanirndorfer.batmate.domain.user.DataStoreUserSelectionRepository
 import at.stefanirndorfer.batmate.domain.user.FavoritesRepository
 import at.stefanirndorfer.batmate.domain.user.GetPlayerDetailUseCase
@@ -12,11 +13,15 @@ import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveHomeFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveResolvedFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUpcomingFixturesUseCase
+import at.stefanirndorfer.batmate.domain.user.ObserveUsageConsentPromptUseCase
+import at.stefanirndorfer.batmate.domain.user.ObserveUsageConsentUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.batmate.domain.user.RememberPlayerUseCase
 import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.SetMyClubUseCase
 import at.stefanirndorfer.batmate.domain.user.SetMyPlayerUseCase
+import at.stefanirndorfer.batmate.domain.user.SetUsageConsentUseCase
+import at.stefanirndorfer.batmate.domain.user.UsageConsentRepository
 import at.stefanirndorfer.batmate.domain.user.UserSelectionRepository
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -25,6 +30,7 @@ import org.koin.dsl.module
 
 val userDomainModule = module {
     singleOf(::DataStoreUserSelectionRepository) bind UserSelectionRepository::class
+    singleOf(::DataStoreUsageConsentRepository) bind UsageConsentRepository::class
     singleOf(::DataStorePickedPlayerStore) bind PickedPlayerStore::class
     singleOf(::DataStoreFavoritesRepository) bind FavoritesRepository::class
     factoryOf(::SetMyPlayerUseCase)
@@ -39,4 +45,7 @@ val userDomainModule = module {
     factoryOf(::ObserveUpcomingFixturesUseCase)
     factoryOf(::ListLeaguePlayersUseCase)
     factoryOf(::GetPlayerDetailUseCase)
+    factoryOf(::ObserveUsageConsentUseCase)
+    factoryOf(::ObserveUsageConsentPromptUseCase)
+    factoryOf(::SetUsageConsentUseCase)
 }

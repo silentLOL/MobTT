@@ -35,6 +35,7 @@ import at.stefanirndorfer.batmate.designsystem.ui.components.BatPrimaryButton
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatSecondaryButton
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatSelectableRow
+import at.stefanirndorfer.batmate.designsystem.ui.components.BatSwitchRow
 import at.stefanirndorfer.batmate.feature.settings.api.Appearance
 import at.stefanirndorfer.batmate.feature.settings.impl.presentation.settings.models.DerivedFrom
 import at.stefanirndorfer.batmate.feature.settings.impl.presentation.settings.models.PickerKind
@@ -119,6 +120,12 @@ private fun MainContent(state: SettingsUiState, onAction: (SettingsAction) -> Un
             )
         }
     }
+    BatSwitchRow(
+        label = stringResource(R.string.settings_usage_consent_title),
+        supportingText = stringResource(R.string.settings_usage_consent_supporting),
+        checked = state.usageConsentAllowed,
+        onCheckedChange = { onAction(SettingsAction.UsageConsentToggled(it)) },
+    )
     BatPrimaryButton(
         text = stringResource(R.string.settings_done_button),
         onClick = { onAction(SettingsAction.DoneClicked) },

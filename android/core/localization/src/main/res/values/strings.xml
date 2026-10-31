@@ -136,4 +136,10 @@
     <string name="home_favorite_kind_player">Player</string>
     <string name="home_favorite_kind_club">Club</string>
     <string name="home_favorite_kind_team">Team</string>
+    <string name="consent_title">Help improve MobTT</string>
+    <string name="consent_body">Allow anonymous usage statistics and crash reports? They never include your name, your Player or Club, or anything you type. You can change this any time in Settings.</string>
+    <string name="consent_allow_button">Allow</string>
+    <string name="consent_not_now_button">Not now</string>
+    <string name="settings_usage_consent_title">Usage statistics and crash reports</string>
+    <string name="settings_usage_consent_supporting">Anonymous. Never includes names or what you type.</string>
 </resources>

@@ -25,6 +25,7 @@ import at.stefanirndorfer.batmate.feature.home.api.HomeDestination
 import at.stefanirndorfer.batmate.feature.home.impl.navigation.homeGraph
 import at.stefanirndorfer.batmate.feature.navigation.BackStackGlobalNavigator
 import at.stefanirndorfer.batmate.feature.players.impl.navigation.playersGraph
+import at.stefanirndorfer.batmate.feature.settings.impl.presentation.consent.UsageConsentSheet
 import at.stefanirndorfer.batmate.feature.settings.impl.presentation.settings.SettingsSheet
 
 @Composable
@@ -80,6 +81,7 @@ fun MobTTApp(modifier: Modifier = Modifier) {
     if (navigator.isSettingsOpen) {
         SettingsSheet(onDismiss = navigator::closeSettings)
     }
+    UsageConsentSheet()
 }
 
 @BatScreenPreview

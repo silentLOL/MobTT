@@ -8,6 +8,32 @@ struct SettingsViewModelTests {
     private let association = Association(id: "w", name: "WTTV", code: "WTTV")
     private let club = Club(id: "c1", name: "Nussdorf TTC", associationId: "w")
 
+    @Test func usageConsentToggleShowsTheStoredAnswer() async {
+        let viewModel = makeViewModel(emitting: [], consents: [.unanswered, .allowed])
+
+        await viewModel.observe()
+
+        #expect(viewModel.uiState.usageConsentAllowed)
+    }
+
+    @Test func declinedAndUnansweredBothShowTheToggleOff() async {
+        let viewModel = makeViewModel(emitting: [], consents: [.allowed, .declined])
+
+        await viewModel.observe()
+
+        #expect(!viewModel.uiState.usageConsentAllowed)
+    }
+
+    @Test func togglingSavesTheAnswer() async {
+        var saved: [Bool] = []
+        let viewModel = makeViewModel(emitting: [], setUsageConsent: { saved.append($0) })
+
+        viewModel.onAction(.usageConsentToggled(true))
+        await waitUntil { !saved.isEmpty }
+
+        #expect(saved == [true])
+    }
+
     @Test func chosenPlayerShowsItsClubAndAssociation() async {
         let player = Player(id: "p1", name: "Anna Gruber", clubId: "c1")
         let context = UserContextMyPlayer(player: player, club: club, association: association)
@@ -224,6 +250,8 @@ struct SettingsViewModelTests {
         emitting results: [DataResult],
         clubs: [Club] = [],
         playerLoaders: PlayerDrillDownLoaders = PlayerDrillDownFixtures().loaders,
+        consents: [UsageConsent] = [],
+        setUsageConsent: @escaping (Bool) async throws -> Void = { _ in },
         setMyPlayer: @escaping (String) async throws -> Void = { _ in },
         setMyClub: @escaping (String) async throws -> Void = { _ in }
     ) -> SettingsViewModel {
@@ -231,8 +259,14 @@ struct SettingsViewModelTests {
             results.forEach { continuation.yield($0) }
             continuation.finish()
         }
+        let consentStream = AsyncStream<UsageConsent> { continuation in
+            consents.forEach { continuation.yield($0) }
+            continuation.finish()
+        }
         return SettingsViewModel(
             observeUserContext: stream,
+            observeUsageConsent: consentStream,
+            setUsageConsent: setUsageConsent,
             setMyPlayer: setMyPlayer,
             setMyClub: setMyClub,
             playerLoaders: playerLoaders,

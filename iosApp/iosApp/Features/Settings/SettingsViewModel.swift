@@ -10,10 +10,13 @@ final class SettingsViewModel {
     private var pickerEntries: [DirectoryEntryUi] = []
     private var currentPlayerId: String?
     private var currentClubId: String?
+    private var usageConsentAllowed = false
     private var searchTask: Task<Void, Never>?
     private let playerDrillDown: PlayerDrillDown
 
     @ObservationIgnored private let observeUserContext: any AsyncSequence<DataResult, Never>
+    @ObservationIgnored private let observeUsageConsent: any AsyncSequence<UsageConsent, Never>
+    @ObservationIgnored private let setUsageConsent: (Bool) async throws -> Void
     @ObservationIgnored private let setMyPlayer: (String) async throws -> Void
     @ObservationIgnored private let setMyClub: (String) async throws -> Void
     @ObservationIgnored private let searchClubs: (String) async -> [Club]
@@ -23,12 +26,16 @@ final class SettingsViewModel {
 
     init(
         observeUserContext: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeUserContext(),
+        observeUsageConsent: any AsyncSequence<UsageConsent, Never> = KoinHelper.shared.getObserveUsageConsentUseCase().invoke(),
+        setUsageConsent: @escaping (Bool) async throws -> Void = { try await KoinHelper.shared.getSetUsageConsentUseCase().invoke(allowed: $0) },
         setMyPlayer: @escaping (String) async throws -> Void = { try await KoinHelper.shared.getSetMyPlayerUseCase().invoke(playerId: $0) },
         setMyClub: @escaping (String) async throws -> Void = { try await KoinHelper.shared.getSetMyClubUseCase().invoke(clubId: $0) },
         playerLoaders: PlayerDrillDownLoaders = .live,
         searchClubs: @escaping (String) async -> [Club] = { (try? await KoinHelper.shared.getSearchClubsUseCase().invoke(query: $0)) ?? [] }
     ) {
         self.observeUserContext = observeUserContext
+        self.observeUsageConsent = observeUsageConsent
+        self.setUsageConsent = setUsageConsent
         self.setMyPlayer = setMyPlayer
         self.setMyClub = setMyClub
         self.playerDrillDown = PlayerDrillDown(loaders: playerLoaders)
@@ -37,6 +44,7 @@ final class SettingsViewModel {
 
     var uiState: SettingsUiState {
         var result = state
+        result.usageConsentAllowed = usageConsentAllowed
         result.picker = pickerKind.map { kind in
             if kind == .player {
                 let drillDown = playerDrillDown.ui { $0 == currentPlayerId }
@@ -53,12 +61,25 @@ final class SettingsViewModel {
 
     /// Runs until the calling task is cancelled.
     func observe() async {
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask { @MainActor in await self.observeContext() }
+            group.addTask { @MainActor in await self.observeConsent() }
+        }
+    }
+
+    private func observeContext() async {
         for await result in observeUserContext {
             switch onEnum(of: result) {
             case .success(let success): apply((success.value as? UserContext) ?? UserContextNone.shared)
             // Home shows the failure; Settings falls back to nothing chosen until a later emission.
             case .unavailable: apply(UserContextNone.shared)
             }
+        }
+    }
+
+    private func observeConsent() async {
+        for await consent in observeUsageConsent {
+            usageConsentAllowed = consent == .allowed
         }
     }
 
@@ -86,6 +107,8 @@ final class SettingsViewModel {
         case .pickerBackClicked:
             if pickerKind == .player, playerDrillDown.back() { return }
             closePicker()
+        case .usageConsentToggled(let allowed):
+            Task { try? await setUsageConsent(allowed) }
         case .doneClicked:
             eventStream.continuation.yield(.dismiss)
         }

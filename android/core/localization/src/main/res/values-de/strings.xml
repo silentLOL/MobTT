@@ -136,4 +136,10 @@
     <string name="home_favorite_kind_player">Spieler</string>
     <string name="home_favorite_kind_club">Verein</string>
     <string name="home_favorite_kind_team">Mannschaft</string>
+    <string name="consent_title">Hilf mit, MobTT zu verbessern</string>
+    <string name="consent_body">Anonyme Nutzungsstatistiken und Absturzberichte zulassen? Sie enthalten nie deinen Namen, deinen Spieler oder Verein oder etwas, das du eingibst. Du kannst das jederzeit in den Einstellungen ändern.</string>
+    <string name="consent_allow_button">Zulassen</string>
+    <string name="consent_not_now_button">Nicht jetzt</string>
+    <string name="settings_usage_consent_title">Nutzungsstatistiken und Absturzberichte</string>
+    <string name="settings_usage_consent_supporting">Anonym. Enthält nie Namen oder Eingaben.</string>
 </resources>

@@ -15,9 +15,13 @@ import at.stefanirndorfer.batmate.domain.club.Standing
 import at.stefanirndorfer.batmate.domain.player.Player
 import at.stefanirndorfer.batmate.domain.player.PlayerRepository
 import at.stefanirndorfer.batmate.domain.user.ListLeaguePlayersUseCase
+import at.stefanirndorfer.batmate.domain.user.ObserveUsageConsentUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.batmate.domain.user.SetMyClubUseCase
 import at.stefanirndorfer.batmate.domain.user.SetMyPlayerUseCase
+import at.stefanirndorfer.batmate.domain.user.SetUsageConsentUseCase
+import at.stefanirndorfer.batmate.domain.user.UsageConsent
+import at.stefanirndorfer.batmate.domain.user.UsageConsentRepository
 import at.stefanirndorfer.batmate.domain.user.UserSelection
 import at.stefanirndorfer.batmate.domain.user.UserSelectionRepository
 import at.stefanirndorfer.batmate.feature.settings.api.Appearance
@@ -51,6 +55,7 @@ private class FakeData :
     LeagueRepository,
     PlayerRepository,
     UserSelectionRepository,
+    UsageConsentRepository,
     AppearanceRepository {
     private val clubs = listOf(Club("c1", "TTC Olympic", "a1"), Club("c2", "Nussdorf TTC", "a2"))
     private val associations = listOf(Association("a1", "WTTV", "WTTV"), Association("a2", "ÖTTV", "ÖTTV"))
@@ -109,6 +114,14 @@ private class FakeData :
         this.selection.value = selection
     }
 
+    private val consent = MutableStateFlow(UsageConsent.UNANSWERED)
+
+    override fun observeConsent(): Flow<UsageConsent> = consent
+
+    override suspend fun saveConsent(consent: UsageConsent) {
+        this.consent.value = consent
+    }
+
     private val appearance = MutableStateFlow(Appearance.SYSTEM)
 
     override fun observeAppearance(): Flow<Appearance> = appearance
@@ -134,6 +147,8 @@ class SettingsViewModelTest {
             observeUserContext = ObserveUserContextUseCase(data, data, data, data),
             setMyPlayer = SetMyPlayerUseCase(data, data),
             setMyClub = SetMyClubUseCase(data),
+            observeUsageConsent = ObserveUsageConsentUseCase(data),
+            setUsageConsent = SetUsageConsentUseCase(data),
             searchClubs = SearchClubsUseCase(data),
             listAssociations = ListAssociationsUseCase(data),
             listLeagues = ListLeaguesUseCase(data),
@@ -164,6 +179,19 @@ class SettingsViewModelTest {
         assertEquals("TTC Olympic", state.derivedClubName)
         assertEquals("WTTV", state.derivedAssociationName)
         assertNull(state.picker)
+    }
+
+    @Test
+    fun usageConsentStartsOffAndFollowsTheToggle() = runTest {
+        val viewModel = viewModel()
+        assertEquals(false, viewModel.uiState.value.usageConsentAllowed)
+
+        viewModel.onAction(SettingsAction.UsageConsentToggled(allowed = true))
+        assertEquals(true, viewModel.uiState.value.usageConsentAllowed)
+
+        viewModel.onAction(SettingsAction.UsageConsentToggled(allowed = false))
+        assertEquals(false, viewModel.uiState.value.usageConsentAllowed)
+        assertEquals(UsageConsent.DECLINED, data.observeConsent().first())
     }
 
     @Test

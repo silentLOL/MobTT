@@ -12,9 +12,12 @@ import at.stefanirndorfer.batmate.domain.club.ListAssociationsUseCase
 import at.stefanirndorfer.batmate.domain.club.ListLeaguesUseCase
 import at.stefanirndorfer.batmate.domain.club.SearchClubsUseCase
 import at.stefanirndorfer.batmate.domain.user.ListLeaguePlayersUseCase
+import at.stefanirndorfer.batmate.domain.user.ObserveUsageConsentUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.batmate.domain.user.SetMyClubUseCase
 import at.stefanirndorfer.batmate.domain.user.SetMyPlayerUseCase
+import at.stefanirndorfer.batmate.domain.user.SetUsageConsentUseCase
+import at.stefanirndorfer.batmate.domain.user.UsageConsent
 import at.stefanirndorfer.batmate.domain.user.UserContext
 import at.stefanirndorfer.batmate.feature.settings.api.Appearance
 import at.stefanirndorfer.batmate.feature.settings.api.AppearanceRepository
@@ -54,6 +57,8 @@ class SettingsViewModel(
     observeUserContext: ObserveUserContextUseCase,
     private val setMyPlayer: SetMyPlayerUseCase,
     private val setMyClub: SetMyClubUseCase,
+    observeUsageConsent: ObserveUsageConsentUseCase,
+    private val setUsageConsent: SetUsageConsentUseCase,
     private val searchClubs: SearchClubsUseCase,
     listAssociations: ListAssociationsUseCase,
     listLeagues: ListLeaguesUseCase,
@@ -72,10 +77,14 @@ class SettingsViewModel(
     val uiState: StateFlow<SettingsUiState> = combine(
         appearanceRepository.observeAppearance(),
         observeUserContext(),
+        observeUsageConsent(),
         pickerInput,
         pickerResult,
-    ) { appearance, userContext, input, result ->
-        userContext.toUiState(appearance).copy(picker = input?.toPicker(result, userContext))
+    ) { appearance, userContext, consent, input, result ->
+        userContext.toUiState(appearance).copy(
+            usageConsentAllowed = consent == UsageConsent.ALLOWED,
+            picker = input?.toPicker(result, userContext),
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), SettingsUiState())
 
     private val eventChannel = Channel<SettingsEvent>()
@@ -85,6 +94,9 @@ class SettingsViewModel(
         when (action) {
             is SettingsAction.AppearanceSelected -> viewModelScope.launch {
                 appearanceRepository.saveAppearance(action.appearance)
+            }
+            is SettingsAction.UsageConsentToggled -> viewModelScope.launch {
+                setUsageConsent(action.allowed)
             }
             SettingsAction.ChoosePlayerClicked -> pickerInput.value = PickerInput(PickerKind.PLAYER)
             SettingsAction.ChooseClubClicked -> pickerInput.value = PickerInput(PickerKind.CLUB)

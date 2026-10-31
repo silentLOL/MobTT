@@ -4,6 +4,7 @@ enum SettingsAction {
     case pickerQueryChanged(String)
     case pickerEntryClicked(id: String)
     case pickerBackClicked
+    case usageConsentToggled(Bool)
     case doneClicked
 }
 

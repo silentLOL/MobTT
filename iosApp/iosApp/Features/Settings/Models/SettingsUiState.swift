@@ -19,6 +19,7 @@ struct SettingsPickerUi: Equatable {
 
 /// `myPlayerName` and `myClubName` are the user's choice; the Club and Association are derived and never edited.
 struct SettingsUiState: Equatable {
+    var usageConsentAllowed = false
     var myPlayerName: String?
     var myClubName: String?
     var derivedFrom: DerivedFrom = .none

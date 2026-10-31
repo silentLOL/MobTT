@@ -26,6 +26,8 @@ import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveHomeFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveResolvedFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUpcomingFixturesUseCase
+import at.stefanirndorfer.batmate.domain.user.ObserveUsageConsentPromptUseCase
+import at.stefanirndorfer.batmate.domain.user.ObserveUsageConsentUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.batmate.domain.user.PlayerDetail
 import at.stefanirndorfer.batmate.domain.user.RememberPlayerUseCase
@@ -33,6 +35,7 @@ import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.ResolvedFavorite
 import at.stefanirndorfer.batmate.domain.user.SetMyClubUseCase
 import at.stefanirndorfer.batmate.domain.user.SetMyPlayerUseCase
+import at.stefanirndorfer.batmate.domain.user.SetUsageConsentUseCase
 import at.stefanirndorfer.batmate.domain.user.UserContext
 import kotlinx.coroutines.flow.Flow
 import org.koin.core.component.KoinComponent
@@ -171,6 +174,21 @@ object KoinHelper : KoinComponent {
 
     fun getObserveUpcomingFixturesUseCase(): ObserveUpcomingFixturesUseCase {
         val useCase: ObserveUpcomingFixturesUseCase by inject()
+        return useCase
+    }
+
+    fun getObserveUsageConsentUseCase(): ObserveUsageConsentUseCase {
+        val useCase: ObserveUsageConsentUseCase by inject()
+        return useCase
+    }
+
+    fun getObserveUsageConsentPromptUseCase(): ObserveUsageConsentPromptUseCase {
+        val useCase: ObserveUsageConsentPromptUseCase by inject()
+        return useCase
+    }
+
+    fun getSetUsageConsentUseCase(): SetUsageConsentUseCase {
+        val useCase: SetUsageConsentUseCase by inject()
         return useCase
     }
 }
