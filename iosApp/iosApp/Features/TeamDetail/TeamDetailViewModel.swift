@@ -111,7 +111,7 @@ private extension TeamDetail {
                     nextFixture: nextFixture.toUi()
                 )
             },
-            lineup: lineup.map { LineupPlayerUi(id: $0.playerId, name: $0.name) },
+            lineup: lineup.map { LineupPlayerUi(id: $0.playerId, name: $0.name, rcPoints: $0.rcPoints?.intValue) },
             isFavorite: isFavorite
         )
     }

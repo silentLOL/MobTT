@@ -118,7 +118,7 @@ private struct ContentView: View {
                     }
                     VStack(spacing: BatSpacing.md) {
                         ForEach(overview.teams) { team in
-                            TeamCardView(team: team, onTap: { onAction(.teamClicked(teamId: team.id)) })
+                            TeamRowView(team: team, onTap: { onAction(.teamClicked(teamId: team.id)) })
                         }
                     }
                 }

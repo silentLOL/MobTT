@@ -5,12 +5,20 @@ struct LineupRowView: View {
     let player: LineupPlayerUi
 
     var body: some View {
-        Text(player.name)
-            .batTextStyle(BatTypography.body)
-            .foregroundStyle(BatColor.textPrimary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, BatSpacing.md)
-            .padding(.vertical, BatSpacing.sm)
+        HStack(spacing: BatSpacing.md) {
+            Text(player.name)
+                .batTextStyle(BatTypography.body)
+                .foregroundStyle(BatColor.textPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            if let rcPoints = player.rcPoints {
+                Text("team_detail_lineup_rc_label \(rcPoints)")
+                    .batTextStyle(BatTypography.caption)
+                    .foregroundStyle(BatColor.textSecondary)
+            }
+        }
+        .padding(.horizontal, BatSpacing.md)
+        .padding(.vertical, BatSpacing.sm)
+        .accessibilityElement(children: .combine)
     }
 }
 

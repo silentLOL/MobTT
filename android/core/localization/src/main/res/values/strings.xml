@@ -66,6 +66,8 @@
     <string name="club_teams_title">Teams</string>
     <string name="club_teams_empty_body">This Club has no Teams yet.</string>
     <string name="club_team_standing_label">Rank %1$d · %2$d played · %3$d points</string>
+    <string name="club_team_expand_cd">Show next fixture of %1$s</string>
+    <string name="club_team_collapse_cd">Hide next fixture of %1$s</string>
     <string name="club_next_fixture_overline">Next Fixture</string>
     <string name="club_fixture_home_label">Home vs. %1$s</string>
     <string name="club_fixture_away_label">Away at %1$s</string>
@@ -83,6 +85,7 @@
     <string name="team_detail_league_empty_body">This Team isn\'t in a League yet.</string>
     <string name="team_detail_league_no_rank_label">Not ranked yet</string>
     <string name="team_detail_lineup_title">Lineup</string>
+    <string name="team_detail_lineup_rc_label">RC %1$d</string>
     <string name="team_detail_lineup_empty_body">No Players listed for this Team yet.</string>
     <string name="team_detail_this_team_badge">This Team</string>
     <string name="team_detail_standing_row_cd">Rank %1$d, %2$s, %3$d played, %4$d points</string>

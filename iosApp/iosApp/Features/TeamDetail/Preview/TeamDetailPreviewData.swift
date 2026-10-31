@@ -22,8 +22,8 @@ enum TeamDetailPreviewData {
             )
         ),
         lineup: [
-            LineupPlayerUi(id: "huber", name: "Michael Huber"),
-            LineupPlayerUi(id: "gruber", name: "Anna Gruber"),
+            LineupPlayerUi(id: "huber", name: "Michael Huber", rcPoints: 2114),
+            LineupPlayerUi(id: "gruber", name: "Anna Gruber", rcPoints: 1992),
             LineupPlayerUi(id: "eder", name: "Thomas Eder"),
         ]
     )

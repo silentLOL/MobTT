@@ -26,7 +26,7 @@ class XttvTeamRepositoryTest {
     private val repository get() = XttvTeamRepository(api, XttvSamples.HOST)
 
     @Test
-    fun aClubsTeamsMapToTheirClubAndLeague() = runTest {
+    fun aClubsTeamsMapToTheirClubAndLeagueAndEachTeamListsOnce() = runTest {
         assertEquals(
             listOf(Team("501", "LINZ AG Froschberg 1", "140", "70"), Team("502", "Linz-Froschberg AG 2", "140", "71")),
             repository.getTeams("140"),
@@ -73,7 +73,7 @@ class XttvTeamRepositoryTest {
 
     @Test
     fun theLineupIsThePlayersTheTeamDetailsList() = runTest {
-        assertEquals(listOf(LineupPlayer("60473", "Phatsaraphon Wonglakhon")), repository.getLineup("501"))
+        assertEquals(listOf(LineupPlayer("60473", "Phatsaraphon Wonglakhon", rcPoints = 1992)), repository.getLineup("501"))
     }
 
     @Test

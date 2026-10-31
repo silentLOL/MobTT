@@ -16,5 +16,8 @@ data class TeamDetail(
     val lineup: List<LineupPlayer>,
 )
 
-/** PROVISIONAL, see [TeamDetail]. [playerId] matches `Player.id`, so a Player profile can open from it. */
-data class LineupPlayer(val playerId: String, val name: String)
+/**
+ * PROVISIONAL, see [TeamDetail]. [playerId] matches `Player.id`, so a Player profile can open from it.
+ * [rcPoints] is the Player's RC value, null when XTTV gives none.
+ */
+data class LineupPlayer(val playerId: String, val name: String, val rcPoints: Int? = null)

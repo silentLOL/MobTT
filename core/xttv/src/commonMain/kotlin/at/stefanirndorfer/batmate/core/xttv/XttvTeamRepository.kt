@@ -23,6 +23,7 @@ class XttvTeamRepository(
             return emptyList()
         }
         return api.get(XttvEndpoints.club(host, clubId), TEAM_TTL, ClubXml.serializer()).teamList.team
+            .distinctBy { it.id }
             .map { Team(id = it.id, name = it.name, clubId = clubId, leagueId = it.leagueId) }
     }
 

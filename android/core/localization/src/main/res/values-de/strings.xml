@@ -66,6 +66,8 @@
     <string name="club_teams_title">Mannschaften</string>
     <string name="club_teams_empty_body">Dieser Verein hat noch keine Mannschaften.</string>
     <string name="club_team_standing_label">Platz %1$d · %2$d Spiele · %3$d Punkte</string>
+    <string name="club_team_expand_cd">Nächste Begegnung von %1$s anzeigen</string>
+    <string name="club_team_collapse_cd">Nächste Begegnung von %1$s ausblenden</string>
     <string name="club_next_fixture_overline">Nächste Begegnung</string>
     <string name="club_fixture_home_label">Heim gegen %1$s</string>
     <string name="club_fixture_away_label">Auswärts bei %1$s</string>
@@ -83,6 +85,7 @@
     <string name="team_detail_league_empty_body">Diese Mannschaft ist noch keiner Liga zugeordnet.</string>
     <string name="team_detail_league_no_rank_label">Noch nicht platziert</string>
     <string name="team_detail_lineup_title">Aufstellung</string>
+    <string name="team_detail_lineup_rc_label">RC %1$d</string>
     <string name="team_detail_lineup_empty_body">Für diese Mannschaft sind noch keine Spieler eingetragen.</string>
     <string name="team_detail_this_team_badge">Diese Mannschaft</string>
     <string name="team_detail_standing_row_cd">Platz %1$d, %2$s, %3$d Spiele, %4$d Punkte</string>

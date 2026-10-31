@@ -40,7 +40,7 @@ import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.models.Clu
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.preview.clubOverviewLongNamesPreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.preview.clubOverviewNoTeamsPreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.preview.clubOverviewPreview
-import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.views.TeamCardView
+import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.views.TeamRowView
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -178,7 +178,7 @@ private fun ContentView(
             }
             Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.md)) {
                 overview.teams.forEach { team ->
-                    TeamCardView(team, onClick = { onAction(ClubAction.TeamClicked(team.team.id)) })
+                    TeamRowView(team, onClick = { onAction(ClubAction.TeamClicked(team.team.id)) })
                 }
             }
         }

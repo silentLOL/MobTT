@@ -1972,6 +1972,57 @@
           }
         }
       }
+    },
+    "club_team_expand_cd %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nächste Begegnung von %@ anzeigen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show next fixture of %@"
+          }
+        }
+      }
+    },
+    "club_team_collapse_cd %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nächste Begegnung von %@ ausblenden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide next fixture of %@"
+          }
+        }
+      }
+    },
+    "team_detail_lineup_rc_label %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RC %lld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RC %lld"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

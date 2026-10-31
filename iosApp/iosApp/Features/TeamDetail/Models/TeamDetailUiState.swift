@@ -12,6 +12,8 @@ struct StandingRowUi: Identifiable, Equatable {
 struct LineupPlayerUi: Identifiable, Equatable {
     let id: String
     let name: String
+    /// The Player's RC value; nil when XTTV gives none.
+    var rcPoints: Int?
 }
 
 /// The League at a glance; opens the League with its full table and Fixtures.

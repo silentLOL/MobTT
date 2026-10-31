@@ -34,8 +34,8 @@ val teamDetailPreview = TeamDetail(
     standing = Standing(2, team.id, team.name, played = 6, points = 9),
     nextFixture = nextFixture("SK VÖEST Wien 1", "Sporthalle Olympic"),
     lineup = listOf(
-        LineupPlayer("huber", "Michael Huber"),
-        LineupPlayer("gruber", "Anna Gruber"),
+        LineupPlayer("huber", "Michael Huber", rcPoints = 2114),
+        LineupPlayer("gruber", "Anna Gruber", rcPoints = 1992),
         LineupPlayer("eder", "Thomas Eder"),
     ),
 )
