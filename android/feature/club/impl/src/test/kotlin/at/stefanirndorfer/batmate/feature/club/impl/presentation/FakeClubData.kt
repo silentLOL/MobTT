@@ -69,6 +69,8 @@ class FakeClubData :
 
     override suspend fun getFixtures(teamId: String): List<Fixture> = read(emptyList())
 
+    override suspend fun getLeagueFixtures(leagueId: String): List<Fixture> = read(emptyList())
+
     override suspend fun getPlayer(id: String): Player? = null
 
     override suspend fun getLeaguePlayers(leagueId: String): List<Player> = emptyList()

@@ -14,12 +14,20 @@ struct LineupPlayerUi: Identifiable, Equatable {
     let name: String
 }
 
+/// The League at a glance; opens the League with its full table and Fixtures.
+struct TeamLeagueUi: Equatable {
+    let id: String
+    let name: String
+    /// Nil when XTTV has no table row for the Team.
+    let standing: StandingUi?
+    let nextFixture: NextFixtureUi
+}
+
 struct TeamDetailUi: Equatable {
     let teamName: String
     let clubName: String
     /// Nil when the Team has no League.
-    let leagueName: String?
-    let standings: [StandingRowUi]
+    let league: TeamLeagueUi?
     let lineup: [LineupPlayerUi]
     var isFavorite = false
 }

@@ -40,7 +40,7 @@ struct TeamDetailViewModelTests {
         await viewModel.observe()
         await settle(viewModel)
 
-        #expect(viewModel.uiState == .content(TeamDetailUi(teamName: "Olympic 1", clubName: "TTC Olympic", leagueName: nil, standings: [], lineup: [])))
+        #expect(viewModel.uiState == .content(TeamDetailUi(teamName: "Olympic 1", clubName: "TTC Olympic", league: nil, lineup: [])))
     }
 
     @Test func aFavoriteTeamShowsAsFavorite() async {
@@ -50,7 +50,7 @@ struct TeamDetailViewModelTests {
         await viewModel.observe()
         await settle(viewModel)
 
-        #expect(viewModel.uiState == .content(TeamDetailUi(teamName: "Olympic 1", clubName: "TTC Olympic", leagueName: nil, standings: [], lineup: [], isFavorite: true)))
+        #expect(viewModel.uiState == .content(TeamDetailUi(teamName: "Olympic 1", clubName: "TTC Olympic", league: nil, lineup: [], isFavorite: true)))
     }
 
     @Test func tappingTheStarOfATeamThatIsNotFavoriteAddsIt() async {
@@ -97,6 +97,19 @@ struct TeamDetailViewModelTests {
         #expect(changes == 0)
     }
 
+    @Test func tappingTheLeagueCardSendsAnOpenLeagueEvent() async {
+        let viewModel = makeViewModel { _ in success }
+        var iterator = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.leagueClicked(leagueId: "l1"))
+
+        guard case .openLeague(let leagueId) = await iterator.next() else {
+            Issue.record("Expected an openLeague event")
+            return
+        }
+        #expect(leagueId == "l1")
+    }
+
     private func makeViewModel(
         favorites: [Set<AnyHashable>] = [],
         addFavorite: @escaping (Favorite) async throws -> Void = { _ in },
@@ -117,7 +130,7 @@ struct TeamDetailViewModelTests {
 
     private var success: DataResult {
         let team = Team(id: "7", name: "Olympic 1", clubId: "1", leagueId: "l1")
-        return DataResultSuccess(value: TeamDetail(team: team, clubName: "TTC Olympic", league: nil, standings: [], lineup: []))
+        return DataResultSuccess(value: TeamDetail(team: team, clubName: "TTC Olympic", league: nil, standing: nil, nextFixture: NextFixtureFreeWeek.shared, lineup: []))
     }
 
     private var unavailable: DataResult { DataResultUnavailable(error: DataUnavailable(message: "down", cause: nil)) }

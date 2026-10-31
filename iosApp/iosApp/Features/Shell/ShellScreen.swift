@@ -12,6 +12,10 @@ private struct TeamDestination: Hashable {
     let teamId: String
 }
 
+private struct LeagueDestination: Hashable {
+    let leagueId: String
+}
+
 struct ShellScreen: View {
     @Binding var appearance: AppearanceChoice
     @State private var selectedTab = ShellTab.home
@@ -62,7 +66,10 @@ struct ShellScreen: View {
                         .batBackground()
                     }
                     .navigationDestination(for: TeamDestination.self) { route in
-                        teamDetail(route)
+                        teamDetail(route, path: $homePath)
+                    }
+                    .navigationDestination(for: LeagueDestination.self) { route in
+                        leagueDetail(route)
                     }
                     .navigationDestination(for: PlayerDestination.self) { route in
                         PlayerDetailRoute(
@@ -84,7 +91,10 @@ struct ShellScreen: View {
                     )
                     .toolbar(.hidden, for: .navigationBar)
                     .navigationDestination(for: TeamDestination.self) { route in
-                        teamDetail(route)
+                        teamDetail(route, path: $clubPath)
+                    }
+                    .navigationDestination(for: LeagueDestination.self) { route in
+                        leagueDetail(route)
                     }
                 }
                 .tag(ShellTab.club)
@@ -104,9 +114,16 @@ struct ShellScreen: View {
 }
 
 extension ShellScreen {
-    fileprivate func teamDetail(_ route: TeamDestination) -> some View {
-        TeamDetailRoute(teamId: route.teamId)
+    fileprivate func teamDetail(_ route: TeamDestination, path: Binding<NavigationPath>) -> some View {
+        TeamDetailRoute(teamId: route.teamId, onOpenLeague: { path.wrappedValue.append(LeagueDestination(leagueId: $0)) })
             .navigationTitle(String(localized: "team_detail_hero_overline"))
+            .navigationBarTitleDisplayMode(.inline)
+            .batBackground()
+    }
+
+    fileprivate func leagueDetail(_ route: LeagueDestination) -> some View {
+        LeagueDetailRoute(leagueId: route.leagueId)
+            .navigationTitle(String(localized: "league_detail_hero_overline"))
             .navigationBarTitleDisplayMode(.inline)
             .batBackground()
     }

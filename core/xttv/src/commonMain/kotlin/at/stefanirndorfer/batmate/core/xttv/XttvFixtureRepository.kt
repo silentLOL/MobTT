@@ -18,11 +18,14 @@ class XttvFixtureRepository(
 ) : FixtureRepository {
     override suspend fun getFixtures(teamId: String): List<Fixture> {
         val team = teams.getTeam(teamId) ?: return emptyList()
-        if (!XttvEndpoints.isXttvId(team.leagueId)) {
+        return getLeagueFixtures(team.leagueId).filter { it.homeTeamId == teamId || it.awayTeamId == teamId }
+    }
+
+    override suspend fun getLeagueFixtures(leagueId: String): List<Fixture> {
+        if (!XttvEndpoints.isXttvId(leagueId)) {
             return emptyList()
         }
-        return api.get(XttvEndpoints.leagueGames(host, team.leagueId), FIXTURE_TTL, GamesXml.serializer()).game
-            .filter { it.homeTeamId == teamId || it.awayTeamId == teamId }
+        return api.get(XttvEndpoints.leagueGames(host, leagueId), FIXTURE_TTL, GamesXml.serializer()).game
             .mapNotNull { it.toDomain() }
             .sortedBy { it.startsAt }
     }

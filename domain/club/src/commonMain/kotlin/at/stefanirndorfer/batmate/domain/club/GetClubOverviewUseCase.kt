@@ -25,17 +25,5 @@ class GetClubOverviewUseCase(
         nextFixture = nextFixture(team),
     )
 
-    private suspend fun nextFixture(team: Team): NextFixture {
-        val now = clock.now()
-        val next = fixtureRepository.getFixtures(team.id)
-            .filter { it.status == FixtureStatus.Scheduled && it.startsAt >= now }
-            .minByOrNull { it.startsAt }
-            ?: return NextFixture.FreeWeek
-        val isHome = next.homeTeamId == team.id
-        return NextFixture.Scheduled(
-            fixture = next,
-            opponentName = if (isHome) next.awayTeamName else next.homeTeamName,
-            isHome = isHome,
-        )
-    }
+    private suspend fun nextFixture(team: Team): NextFixture = nextFixtureOf(team, fixtureRepository.getFixtures(team.id), clock.now())
 }

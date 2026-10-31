@@ -71,6 +71,8 @@ private class FakeData :
 
     override suspend fun getStandings(leagueId: String) = emptyList<Standing>()
 
+    override suspend fun getLeagueFixtures(leagueId: String): List<Fixture> = emptyList()
+
     override suspend fun getFixtures(teamId: String): List<Fixture> {
         check(!failing) { "XTTV unreachable" }
         return fixtures.filter { it.homeTeamId == teamId || it.awayTeamId == teamId }

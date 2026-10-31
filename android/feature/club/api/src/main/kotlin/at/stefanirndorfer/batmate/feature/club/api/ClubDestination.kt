@@ -15,8 +15,13 @@ data class ClubDetailDestination(val clubId: String) : GlobalAppDestination
 @Serializable
 data class TeamDetailDestination(val teamId: String) : GlobalAppDestination
 
+@Serializable
+data class LeagueDetailDestination(val leagueId: String) : GlobalAppDestination
+
 fun GlobalNavigator.navigateToClub() = navigateTopLevel(ClubDestination)
 
 fun GlobalNavigator.navigateToClubDetail(clubId: String) = navigate(ClubDetailDestination(clubId))
 
 fun GlobalNavigator.navigateToTeamDetail(teamId: String) = navigate(TeamDetailDestination(teamId))
+
+fun GlobalNavigator.navigateToLeagueDetail(leagueId: String) = navigate(LeagueDetailDestination(leagueId))

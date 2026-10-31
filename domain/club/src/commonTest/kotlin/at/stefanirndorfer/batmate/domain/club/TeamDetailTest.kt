@@ -3,11 +3,33 @@ package at.stefanirndorfer.batmate.domain.club
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Instant
 
 class TeamDetailTest {
     private val directory = FakeClubData()
-    private val getTeamDetail = GetTeamDetailUseCase(directory, directory, directory)
+
+    private val now = Instant.fromEpochSeconds(1_800_000_000)
+    private val clock = object : Clock {
+        override fun now(): Instant = this@TeamDetailTest.now
+    }
+
+    private val getTeamDetail = GetTeamDetailUseCase(directory, directory, directory, directory, clock)
+
+    private fun fixture(id: String, startsAt: Instant) = Fixture(
+        id = id,
+        homeTeamId = "o1",
+        homeTeamName = "TTC Olympic 1",
+        awayTeamId = "r1",
+        awayTeamName = "Rival 1",
+        startsAt = startsAt,
+        venue = null,
+        status = FixtureStatus.Scheduled,
+    )
 
     private val olympic1 = Team("o1", "TTC Olympic 1", "olympic", "l1")
 
@@ -30,7 +52,7 @@ class TeamDetailTest {
     }
 
     @Test
-    fun standingsAreOrderedByPositionWhateverTheRepositoryReturns() = runTest {
+    fun standingIsTheTeamsOwnRowInTheLeagueTable() = runTest {
         givenOlympic()
         directory.standings["l1"] = listOf(
             Standing(3, "r2", "Rival 2", played = 5, points = 4),
@@ -40,9 +62,32 @@ class TeamDetailTest {
 
         val detail = getTeamDetail("o1")!!
 
-        assertEquals(listOf(1, 2, 3), detail.standings.map { it.position })
+        assertEquals(2, detail.standing?.position)
         assertEquals("1. Landesliga Herren", detail.league?.name)
         assertEquals("TTC Olympic", detail.clubName)
+    }
+
+    @Test
+    fun nextFixtureIsTheEarliestUpcomingOneTheTeamPlays() = runTest {
+        givenOlympic()
+        directory.fixtures += listOf(
+            fixture("later", startsAt = now + 10.days),
+            fixture("sooner", startsAt = now + 3.days),
+            fixture("past", startsAt = now - 3.days),
+        )
+
+        val next = assertIs<NextFixture.Scheduled>(getTeamDetail("o1")!!.nextFixture)
+
+        assertEquals("sooner", next.fixture.id)
+        assertEquals("Rival 1", next.opponentName)
+        assertTrue(next.isHome)
+    }
+
+    @Test
+    fun noUpcomingFixtureIsAFreeWeek() = runTest {
+        givenOlympic()
+
+        assertEquals(NextFixture.FreeWeek, getTeamDetail("o1")!!.nextFixture)
     }
 
     @Test
@@ -61,13 +106,13 @@ class TeamDetailTest {
     }
 
     @Test
-    fun teamWithoutLeagueHasNoStandings() = runTest {
+    fun teamWithoutLeagueHasNoStanding() = runTest {
         directory.clubs += Club("olympic", "TTC Olympic", "wttv")
         directory.teams += olympic1
 
         val detail = getTeamDetail("o1")!!
 
         assertNull(detail.league)
-        assertEquals(emptyList(), detail.standings)
+        assertNull(detail.standing)
     }
 }

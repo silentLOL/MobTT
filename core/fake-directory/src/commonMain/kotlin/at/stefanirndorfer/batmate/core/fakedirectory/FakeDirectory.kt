@@ -142,6 +142,11 @@ class FakeDirectory(private val clock: Clock = Clock.System) :
         it.homeTeamId == teamId || it.awayTeamId == teamId
     }
 
+    override suspend fun getLeagueFixtures(leagueId: String): List<Fixture> {
+        val teamIds = teams.filter { it.leagueId == leagueId }.map { it.id }.toSet()
+        return fixtures().filter { it.homeTeamId in teamIds }.sortedBy { it.startsAt }
+    }
+
     // Dates are relative to now so the demo never runs out of upcoming Fixtures. TTC Olympic 3 only has a finished one: a free week.
     private fun fixtures(): List<Fixture> = listOf(
         fixture("f1", "olympic-1", "voest-1", inDays = 3, venue = "Sporthalle Olympic"),

@@ -3,7 +3,10 @@ import SwiftUI
 struct TeamDetailRoute: View {
     @State private var viewModel: TeamDetailViewModel
 
-    init(teamId: String) {
+    let onOpenLeague: (String) -> Void
+
+    init(teamId: String, onOpenLeague: @escaping (String) -> Void) {
+        self.onOpenLeague = onOpenLeague
         _viewModel = State(initialValue: TeamDetailViewModel(teamId: teamId))
     }
 
@@ -11,6 +14,13 @@ struct TeamDetailRoute: View {
         TeamDetailScreen(state: viewModel.uiState, onAction: viewModel.onAction)
             .onAppear { viewModel.loadIfNeeded() }
             .task { await viewModel.observe() }
+            .task {
+                for await event in viewModel.events {
+                    switch event {
+                    case .openLeague(let leagueId): onOpenLeague(leagueId)
+                    }
+                }
+            }
     }
 }
 
@@ -79,15 +89,11 @@ private struct ContentView: View {
                     }
                 }
                 VStack(alignment: .leading, spacing: 0) {
-                    BatSectionHeaderView(title: detail.leagueName ?? String(localized: "team_detail_standing_title"))
-                    if detail.standings.isEmpty {
-                        SectionMessage(key: "team_detail_standing_empty_body")
+                    BatSectionHeaderView(title: String(localized: "team_detail_league_title"))
+                    if let league = detail.league {
+                        TeamLeagueCardView(league: league, onTap: { onAction(.leagueClicked(leagueId: league.id)) })
                     } else {
-                        BatCardView(padding: BatSpacing.sm) {
-                            VStack(spacing: 0) {
-                                ForEach(detail.standings) { StandingRowView(row: $0) }
-                            }
-                        }
+                        SectionMessage(key: "team_detail_league_empty_body")
                     }
                 }
                 VStack(alignment: .leading, spacing: 0) {
@@ -150,6 +156,12 @@ private struct SectionMessage: View {
 #Preview("Empty lineup") {
     BatPreviewMatrix {
         TeamDetailScreen(state: .content(TeamDetailPreviewData.emptyLineup), onAction: { _ in })
+    }
+}
+
+#Preview("Free week") {
+    BatPreviewMatrix {
+        TeamDetailScreen(state: .content(TeamDetailPreviewData.freeWeek), onAction: { _ in })
     }
 }
 

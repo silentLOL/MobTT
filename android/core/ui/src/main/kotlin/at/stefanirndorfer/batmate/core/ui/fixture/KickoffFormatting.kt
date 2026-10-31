@@ -6,5 +6,5 @@ import java.util.Locale
 import kotlin.time.Instant
 
 // java.text rather than java.time: minSdk 24 has no java.time without desugaring.
-internal fun formatKickoff(startsAt: Instant, locale: Locale = Locale.getDefault()): String = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale)
+fun formatKickoff(startsAt: Instant, locale: Locale = Locale.getDefault()): String = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale)
     .format(Date(startsAt.toEpochMilliseconds()))

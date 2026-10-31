@@ -7,6 +7,7 @@ import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.FakeClubData
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.models.TeamDetailAction
+import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.models.TeamDetailEvent
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.models.TeamDetailUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,6 +23,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -37,7 +39,7 @@ class TeamDetailViewModelTest {
     private fun TestScope.viewModel(): TeamDetailViewModel {
         val viewModel = TeamDetailViewModel(
             teamId = "t1",
-            getTeamDetail = GetTeamDetailUseCase(data, data, data),
+            getTeamDetail = GetTeamDetailUseCase(data, data, data, data),
             observeFavorites = ObserveFavoritesUseCase(data),
             addFavorite = AddFavoriteUseCase(data, data),
             removeFavorite = RemoveFavoriteUseCase(data),
@@ -59,11 +61,11 @@ class TeamDetailViewModelTest {
     }
 
     @Test
-    fun emptyStandingsAndLineupAreContentNotAnError() = runTest {
+    fun missingStandingAndLineupAreContentNotAnError() = runTest {
         val viewModel = viewModel()
 
         val state = assertIs<TeamDetailUiState.Content>(viewModel.uiState.value)
-        assertTrue(state.detail.standings.isEmpty())
+        assertNull(state.detail.standing)
         assertTrue(state.detail.lineup.isEmpty())
     }
 
@@ -106,5 +108,16 @@ class TeamDetailViewModelTest {
         viewModel.onAction(TeamDetailAction.FavoriteClicked)
 
         assertEquals(emptySet(), data.favorites.value)
+    }
+
+    @Test
+    fun tappingTheLeagueCardSendsAnOpenLeagueEvent() = runTest {
+        val viewModel = viewModel()
+        val events = mutableListOf<TeamDetailEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect(events::add) }
+
+        viewModel.onAction(TeamDetailAction.LeagueClicked("l1"))
+
+        assertEquals(listOf<TeamDetailEvent>(TeamDetailEvent.OpenLeague("l1")), events)
     }
 }

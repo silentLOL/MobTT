@@ -20,7 +20,7 @@ import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatBadge
 import at.stefanirndorfer.batmate.domain.club.Standing
-import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.preview.teamDetailPreview
+import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.preview.leagueDetailPreview
 
 /** The Team is marked by a badge and a tinted row, never by colour alone. */
 @Composable
@@ -81,8 +81,8 @@ fun StandingRowView(standing: Standing, isThisTeam: Boolean, modifier: Modifier 
 private fun StandingRowViewPreview() {
     BatPreviewSurface {
         Column {
-            teamDetailPreview.standings.forEach {
-                StandingRowView(it, isThisTeam = it.teamId == teamDetailPreview.team.id)
+            leagueDetailPreview.standings.forEach {
+                StandingRowView(it, isThisTeam = it.teamId == "olympic-1")
             }
         }
     }

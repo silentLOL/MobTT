@@ -1,9 +1,13 @@
 package at.stefanirndorfer.batmate.domain.club
 
+import kotlin.time.Clock
+
 class GetTeamDetailUseCase(
     private val clubRepository: ClubRepository,
     private val teamRepository: TeamRepository,
     private val leagueRepository: LeagueRepository,
+    private val fixtureRepository: FixtureRepository,
+    private val clock: Clock = Clock.System,
 ) {
     /** Null when the Team or its Club cannot be resolved. */
     suspend operator fun invoke(teamId: String): TeamDetail? {
@@ -13,7 +17,8 @@ class GetTeamDetailUseCase(
             team = team,
             clubName = club.name,
             league = leagueRepository.getLeague(team.leagueId),
-            standings = leagueRepository.getStandings(team.leagueId).sortedBy { it.position },
+            standing = leagueRepository.getStandings(team.leagueId).firstOrNull { it.teamId == teamId },
+            nextFixture = nextFixtureOf(team, fixtureRepository.getFixtures(teamId), clock.now()),
             lineup = teamRepository.getLineup(teamId),
         )
     }

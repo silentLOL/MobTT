@@ -7,6 +7,9 @@ import Shared
 final class TeamDetailViewModel {
     private(set) var uiState: TeamDetailUiState = .loading
 
+    @ObservationIgnored private let eventStream = AsyncStream<TeamDetailEvent>.makeStream()
+    var events: AsyncStream<TeamDetailEvent> { eventStream.stream }
+
     private let teamId: String
     private var loadTask: Task<Void, Never>?
     @ObservationIgnored private var favorites: Set<AnyHashable> = []
@@ -51,6 +54,8 @@ final class TeamDetailViewModel {
             loadTask = Task { await load() }
         case .favoriteClicked:
             toggleFavorite()
+        case .leagueClicked(let leagueId):
+            eventStream.continuation.yield(.openLeague(leagueId: leagueId))
         }
     }
 
@@ -98,15 +103,12 @@ private extension TeamDetail {
         TeamDetailUi(
             teamName: team.name,
             clubName: clubName,
-            leagueName: league?.name,
-            standings: standings.map {
-                StandingRowUi(
-                    id: $0.teamId,
-                    position: Int($0.position),
-                    teamName: $0.teamName,
-                    played: Int($0.played),
-                    points: Int($0.points),
-                    isThisTeam: isThisTeam(standing: $0)
+            league: league.map {
+                TeamLeagueUi(
+                    id: $0.id,
+                    name: $0.name,
+                    standing: standing.map { StandingUi(position: Int($0.position), played: Int($0.played), points: Int($0.points)) },
+                    nextFixture: nextFixture.toUi()
                 )
             },
             lineup: lineup.map { LineupPlayerUi(id: $0.playerId, name: $0.name) },

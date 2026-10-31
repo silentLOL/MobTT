@@ -1,6 +1,7 @@
 package at.stefanirndorfer.batmate.domain.club.di
 
 import at.stefanirndorfer.batmate.domain.club.GetClubOverviewUseCase
+import at.stefanirndorfer.batmate.domain.club.GetLeagueDetailUseCase
 import at.stefanirndorfer.batmate.domain.club.GetTeamDetailUseCase
 import at.stefanirndorfer.batmate.domain.club.ListAssociationsUseCase
 import at.stefanirndorfer.batmate.domain.club.ListLeaguesUseCase
@@ -13,5 +14,6 @@ val clubDomainModule = module {
     factoryOf(::ListAssociationsUseCase)
     factoryOf(::ListLeaguesUseCase)
     factory { GetClubOverviewUseCase(get(), get(), get(), get(), get()) }
-    factoryOf(::GetTeamDetailUseCase)
+    factory { GetTeamDetailUseCase(get(), get(), get(), get()) }
+    factoryOf(::GetLeagueDetailUseCase)
 }

@@ -33,6 +33,11 @@ class XttvFixtureRepositoryTest {
     }
 
     @Test
+    fun aLeagueListsEveryGameOfEveryTeamInDateOrder() = runTest {
+        assertEquals(listOf("9002", "9005", "9006", "9001", "9003"), repository.getLeagueFixtures("70").map { it.id })
+    }
+
+    @Test
     fun aFinishedFixtureCarriesItsMatchesWonScore() = runTest {
         val finished = fixture("9002")
 

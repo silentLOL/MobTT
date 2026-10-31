@@ -23,6 +23,7 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.stefanirndorfer.batmate.core.localization.R
+import at.stefanirndorfer.batmate.core.ui.ObserveAsEvents
 import at.stefanirndorfer.batmate.designsystem.icon.BatIcon
 import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
@@ -36,25 +37,33 @@ import at.stefanirndorfer.batmate.designsystem.ui.components.BatPrimaryButton
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.batmate.domain.club.TeamDetail
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.models.TeamDetailAction
+import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.models.TeamDetailEvent
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.models.TeamDetailUiState
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.preview.teamDetailEmptyLineupPreview
+import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.preview.teamDetailFreeWeekPreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.preview.teamDetailLongNamesPreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.preview.teamDetailNoLeaguePreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.preview.teamDetailPreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.views.LineupRowView
-import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.views.StandingRowView
+import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.views.TeamLeagueCardView
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
 fun TeamDetailRoute(
     teamId: String,
+    onOpenLeague: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TeamDetailViewModel = koinViewModel(
         key = teamId,
         parameters = { parametersOf(teamId) },
     ),
 ) {
+    ObserveAsEvents(viewModel.events) { event ->
+        when (event) {
+            is TeamDetailEvent.OpenLeague -> onOpenLeague(event.leagueId)
+        }
+    }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     TeamDetailScreen(state = uiState, onAction = viewModel::onAction, modifier = modifier)
 }
@@ -141,13 +150,17 @@ private fun ContentView(
             }
         }
         Column {
-            BatSectionHeader(title = detail.league?.name ?: stringResource(R.string.team_detail_standing_title))
-            if (detail.standings.isEmpty()) {
-                SectionMessage(stringResource(R.string.team_detail_standing_empty_body))
+            BatSectionHeader(title = stringResource(R.string.team_detail_league_title))
+            val league = detail.league
+            if (league == null) {
+                SectionMessage(stringResource(R.string.team_detail_league_empty_body))
             } else {
-                BatCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(BatDesign.spacing.sm)) {
-                    detail.standings.forEach { StandingRowView(it, isThisTeam = detail.isThisTeam(it)) }
-                }
+                TeamLeagueCardView(
+                    league = league,
+                    standing = detail.standing,
+                    nextFixture = detail.nextFixture,
+                    onClick = { onAction(TeamDetailAction.LeagueClicked(league.id)) },
+                )
             }
         }
         Column {
@@ -210,6 +223,14 @@ private fun TeamDetailScreenFavoritePreview() {
 private fun TeamDetailScreenEmptyLineupPreview() {
     BatPreviewSurface {
         TeamDetailScreen(state = TeamDetailUiState.Content(teamDetailEmptyLineupPreview), onAction = {})
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun TeamDetailScreenFreeWeekPreview() {
+    BatPreviewSurface {
+        TeamDetailScreen(state = TeamDetailUiState.Content(teamDetailFreeWeekPreview), onAction = {})
     }
 }
 

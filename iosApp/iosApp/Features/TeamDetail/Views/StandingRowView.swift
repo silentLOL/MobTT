@@ -41,8 +41,8 @@ struct StandingRowView: View {
 #Preview {
     BatPreviewMatrix {
         VStack(spacing: 0) {
-            ForEach(TeamDetailPreviewData.loaded.standings) { StandingRowView(row: $0) }
-            ForEach(TeamDetailPreviewData.longNames.standings) { StandingRowView(row: $0) }
+            ForEach(LeagueDetailPreviewData.loaded.standings) { StandingRowView(row: $0) }
+            ForEach(LeagueDetailPreviewData.longNames.standings) { StandingRowView(row: $0) }
         }
     }
 }

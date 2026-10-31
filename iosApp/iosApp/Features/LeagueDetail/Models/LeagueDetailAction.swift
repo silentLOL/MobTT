@@ -1,0 +1,3 @@
+enum LeagueDetailAction {
+    case retryClicked
+}

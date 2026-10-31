@@ -7,7 +7,9 @@ import at.stefanirndorfer.batmate.core.network.Environment
 import at.stefanirndorfer.batmate.domain.app.GetPlatformNameUseCase
 import at.stefanirndorfer.batmate.domain.club.ClubOverview
 import at.stefanirndorfer.batmate.domain.club.GetClubOverviewUseCase
+import at.stefanirndorfer.batmate.domain.club.GetLeagueDetailUseCase
 import at.stefanirndorfer.batmate.domain.club.GetTeamDetailUseCase
+import at.stefanirndorfer.batmate.domain.club.LeagueDetail
 import at.stefanirndorfer.batmate.domain.club.ListAssociationsUseCase
 import at.stefanirndorfer.batmate.domain.club.ListLeaguesUseCase
 import at.stefanirndorfer.batmate.domain.club.SearchClubsUseCase
@@ -60,6 +62,8 @@ object KoinHelper : KoinComponent {
     suspend fun loadClubOverview(clubId: String): DataResult<ClubOverview?> = dataResult { getGetClubOverviewUseCase().invoke(clubId) }
 
     suspend fun loadTeamDetail(teamId: String): DataResult<TeamDetail?> = dataResult { getGetTeamDetailUseCase().invoke(teamId) }
+
+    suspend fun loadLeagueDetail(leagueId: String): DataResult<LeagueDetail?> = dataResult { getGetLeagueDetailUseCase().invoke(leagueId) }
 
     suspend fun loadPlayerDetail(playerId: String): DataResult<PlayerDetail?> = dataResult { getGetPlayerDetailUseCase().invoke(playerId) }
 
@@ -125,6 +129,11 @@ object KoinHelper : KoinComponent {
 
     fun getGetTeamDetailUseCase(): GetTeamDetailUseCase {
         val useCase: GetTeamDetailUseCase by inject()
+        return useCase
+    }
+
+    fun getGetLeagueDetailUseCase(): GetLeagueDetailUseCase {
+        val useCase: GetLeagueDetailUseCase by inject()
         return useCase
     }
 
