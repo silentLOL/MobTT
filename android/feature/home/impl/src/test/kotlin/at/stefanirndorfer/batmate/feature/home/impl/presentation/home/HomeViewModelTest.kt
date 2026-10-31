@@ -78,9 +78,9 @@ private class FakeData :
 
     override suspend fun searchClubs(query: String): List<Club> = read(listOf(club))
 
-    override suspend fun getAssociation(id: String): Association? = read(Association("a1", "WTTV"))
+    override suspend fun getAssociation(id: String): Association? = read(Association("a1", "WTTV", "WTTV"))
 
-    override suspend fun getAssociations(): List<Association> = read(listOf(Association("a1", "WTTV")))
+    override suspend fun getAssociations(): List<Association> = read(listOf(Association("a1", "WTTV", "WTTV")))
 
     override suspend fun getTeam(id: String): Team? = read(teams.firstOrNull { it.id == id })
 

@@ -158,7 +158,7 @@ final class SettingsViewModel {
                 myPlayerName: myPlayer.player.name,
                 derivedFrom: .player,
                 derivedClubName: myPlayer.club.name,
-                derivedAssociationName: myPlayer.association.name
+                derivedAssociationName: myPlayer.association.code
             )
         case .myClub(let myClub):
             currentClubId = myClub.club.id
@@ -166,7 +166,7 @@ final class SettingsViewModel {
                 myClubName: myClub.club.name,
                 derivedFrom: .club,
                 derivedClubName: myClub.club.name,
-                derivedAssociationName: myClub.association.name
+                derivedAssociationName: myClub.association.code
             )
         }
     }

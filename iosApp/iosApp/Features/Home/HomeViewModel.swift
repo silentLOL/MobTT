@@ -204,9 +204,9 @@ private extension UserContext {
         switch onEnum(of: self) {
         case .none: .none
         case .myPlayer(let context):
-            .player(name: context.player.name, clubName: context.club.name, associationName: context.association.name, playerId: context.player.id)
+            .player(name: context.player.name, clubName: context.club.name, associationName: context.association.code, playerId: context.player.id)
         case .myClub(let context):
-            .club(name: context.club.name, associationName: context.association.name, clubId: context.club.id)
+            .club(name: context.club.name, associationName: context.association.code, clubId: context.club.id)
         }
     }
 }

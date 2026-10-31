@@ -9,7 +9,7 @@ object XttvSamples {
     const val FEDERATIONS = """
         <federation_list>
             <season_id>26</season_id>
-            <federation><id>188</id><name>Niederösterreichischer Tischtennisverband</name><short_name>NÖ</short_name><code>NÖTTV</code><www>x</www></federation>
+            <federation><id>188</id><name>Niederösterreichischer Tischtennisverband</name><short_name>Niederösterreich</short_name><code>NÖTTV</code><www>x</www></federation>
             <federation><id>190</id><name>Kärntner Tischtennisverband</name><short_name>Kärnten</short_name><code>KTTV</code><www></www></federation>
         </federation_list>
     """

@@ -173,8 +173,8 @@ class HomeViewModel(
 
     private fun UserContext.toSelectionUi(): HomeSelectionUi = when (this) {
         UserContext.None -> HomeSelectionUi.None
-        is UserContext.MyPlayer -> HomeSelectionUi.Player(player.name, club.name, association.name, player.id)
-        is UserContext.MyClub -> HomeSelectionUi.Club(club.name, association.name, club.id)
+        is UserContext.MyPlayer -> HomeSelectionUi.Player(player.name, club.name, association.code, player.id)
+        is UserContext.MyClub -> HomeSelectionUi.Club(club.name, association.code, club.id)
     }
 
     private companion object {

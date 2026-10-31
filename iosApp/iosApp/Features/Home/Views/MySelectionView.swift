@@ -101,7 +101,7 @@ private struct ChoosePromptView: View {
                 selection: .player(
                     name: "Katharina Habsburg-Lothringen-Esterházy",
                     clubName: "Union Tischtennisclub St. Pölten Nord-West",
-                    associationName: "Niederösterreichischer Tischtennisverband (NÖTTV)",
+                    associationName: "NÖTTV",
                     playerId: "p2"
                 ),
                 onChooseClick: {},

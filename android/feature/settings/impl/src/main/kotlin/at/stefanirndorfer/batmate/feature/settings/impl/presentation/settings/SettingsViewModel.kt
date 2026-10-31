@@ -166,14 +166,14 @@ class SettingsViewModel(
             myPlayerName = player.name,
             derivedFrom = DerivedFrom.PLAYER,
             derivedClubName = club.name,
-            derivedAssociationName = association.name,
+            derivedAssociationName = association.code,
         )
         is UserContext.MyClub -> SettingsUiState(
             appearance = appearance,
             myClubName = club.name,
             derivedFrom = DerivedFrom.CLUB,
             derivedClubName = club.name,
-            derivedAssociationName = association.name,
+            derivedAssociationName = association.code,
         )
     }
 

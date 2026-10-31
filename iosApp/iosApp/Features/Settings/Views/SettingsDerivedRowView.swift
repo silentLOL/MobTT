@@ -40,7 +40,7 @@ struct SettingsDerivedRowView: View {
         VStack(spacing: BatSpacing.lg) {
             SettingsDerivedRowView(title: "Club", value: nil, derivedFrom: .none)
             SettingsDerivedRowView(title: "Club", value: "TTC Olympic", derivedFrom: .player)
-            SettingsDerivedRowView(title: "Association", value: "Wiener Tischtennisverband (WTTV)", derivedFrom: .club)
+            SettingsDerivedRowView(title: "Association", value: "WTTV", derivedFrom: .club)
         }
     }
 }

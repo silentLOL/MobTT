@@ -138,10 +138,10 @@ private fun LoadingView(modifier: Modifier = Modifier) {
 }
 
 private val loadedState = HomeUiState(
-    selection = HomeSelectionUi.Player("Michael Huber", "TTC Olympic", "Wiener Tischtennisverband (WTTV)", "p1"),
+    selection = HomeSelectionUi.Player("Michael Huber", "TTC Olympic", "WTTV", "p1"),
     favorites = listOf(
         ResolvedFavorite(Favorite.Player("gruber"), "Anna Gruber", "TTC Olympic"),
-        ResolvedFavorite(Favorite.Club("nussdorf"), "Nussdorf TTC", "Wiener Tischtennisverband (WTTV)"),
+        ResolvedFavorite(Favorite.Club("nussdorf"), "Nussdorf TTC", "WTTV"),
     ),
 )
 
@@ -199,7 +199,7 @@ private fun HomeScreenLongNamePreview() {
 private fun HomeScreenMyClubPreview() {
     BatPreviewSurface {
         HomeScreen(
-            state = loadedState.copy(selection = HomeSelectionUi.Club("Nussdorf TTC", "Wiener Tischtennisverband (WTTV)", "c1")),
+            state = loadedState.copy(selection = HomeSelectionUi.Club("Nussdorf TTC", "WTTV", "c1")),
             onAction = {},
         )
     }

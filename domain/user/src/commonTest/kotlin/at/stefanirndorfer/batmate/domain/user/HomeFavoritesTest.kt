@@ -16,7 +16,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-private val wttv = Association("a1", "WTTV")
+private val wttv = Association("a1", "WTTV", "WTTV")
 private val clubs = listOf(Club("c1", "TTC Olympic", "a1"), Club("c2", "Nussdorf TTC", "a1"))
 private val players = listOf(Player("p1", "Anna", "c1"), Player("p2", "Jakob", "c1"))
 private val team = Team("t1", "Olympic 1", "c1", "l1")

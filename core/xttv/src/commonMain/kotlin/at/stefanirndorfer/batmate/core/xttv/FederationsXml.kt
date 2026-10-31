@@ -11,4 +11,4 @@ internal data class FederationsXml(val federation: List<FederationXml> = emptyLi
 
 @Serializable
 @XmlSerialName("federation")
-internal data class FederationXml(@XmlElement(true) val id: String, @XmlElement(true) val name: String)
+internal data class FederationXml(@XmlElement(true) val id: String, @XmlElement(true) val name: String, @XmlElement(true) val code: String = "")

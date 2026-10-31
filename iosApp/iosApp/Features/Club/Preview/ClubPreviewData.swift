@@ -11,7 +11,7 @@ enum ClubPreviewData {
 
     static let overview = ClubOverviewUi(
         clubName: "TTC Olympic",
-        associationName: "Wiener Tischtennisverband (WTTV)",
+        associationName: "WTTV",
         teams: [
             TeamUi(
                 id: "olympic-1",
@@ -47,7 +47,7 @@ enum ClubPreviewData {
 
     static let longNames = ClubOverviewUi(
         clubName: "Union Tischtennisclub St. Pölten Nord-West",
-        associationName: "Niederösterreichischer Tischtennisverband (NÖTTV)",
+        associationName: "NÖTTV",
         teams: [
             TeamUi(
                 id: "s1",
@@ -64,11 +64,11 @@ enum ClubPreviewData {
         ]
     )
 
-    static let noTeams = ClubOverviewUi(clubName: "TTC Olympic", associationName: "Wiener Tischtennisverband (WTTV)", teams: [])
+    static let noTeams = ClubOverviewUi(clubName: "TTC Olympic", associationName: "WTTV", teams: [])
 
     static let noLeague = ClubOverviewUi(
         clubName: "TTC Olympic",
-        associationName: "Wiener Tischtennisverband (WTTV)",
+        associationName: "WTTV",
         teams: [TeamUi(id: "olympic-1", name: "TTC Olympic 1", leagueName: nil, standing: nil, fixtures: [TeamFixtureUi(leagueName: nil, nextFixture: .freeWeek)])]
     )
 }

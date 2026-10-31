@@ -31,7 +31,7 @@ private fun scheduled(team: Team, opponent: String, isHome: Boolean, venue: Stri
 )
 
 private val club = Club("olympic", "TTC Olympic", "wttv")
-private val association = Association("wttv", "Wiener Tischtennisverband (WTTV)")
+private val association = Association("wttv", "Wiener Tischtennisverband", "WTTV")
 
 private val homeTeam = Team("olympic-1", "TTC Olympic 1", "olympic", "landesliga1")
 private val cupTeam = Team("olympic-1-cup", "TTC Olympic 1", "olympic", "cup")
@@ -76,7 +76,7 @@ val clubOverviewPreview = ClubOverview(
 
 val clubOverviewLongNamesPreview = ClubOverview(
     club = Club("stpoelten", "Union Tischtennisclub St. Pölten Nord-West", "noettv"),
-    association = Association("noettv", "Niederösterreichischer Tischtennisverband (NÖTTV)"),
+    association = Association("noettv", "Niederösterreichischer Tischtennisverband", "NÖTTV"),
     teams = listOf(
         Team("s1", "Union Tischtennisclub St. Pölten Nord-West 1", "stpoelten", "g").let { team ->
             TeamOverview(

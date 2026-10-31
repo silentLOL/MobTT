@@ -148,7 +148,7 @@ final class ClubViewModel {
 
 private extension ClubOverview {
     func toUi(isFavorite: Bool) -> ClubOverviewUi {
-        ClubOverviewUi(clubName: club.name, associationName: association.name, teams: teamGroups.map { $0.toUi() }, players: players.map { LineupPlayerUi(id: $0.playerId, name: $0.name, rcPoints: $0.rcPoints?.intValue) }, isFavorite: isFavorite)
+        ClubOverviewUi(clubName: club.name, associationName: association.code, teams: teamGroups.map { $0.toUi() }, players: players.map { LineupPlayerUi(id: $0.playerId, name: $0.name, rcPoints: $0.rcPoints?.intValue) }, isFavorite: isFavorite)
     }
 }
 

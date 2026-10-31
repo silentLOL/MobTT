@@ -117,7 +117,7 @@ private let chosenPlayerState = SettingsUiState(
     myPlayerName: "Michael Huber",
     derivedFrom: .player,
     derivedClubName: "TTC Olympic",
-    derivedAssociationName: "Wiener Tischtennisverband (WTTV)"
+    derivedAssociationName: "WTTV"
 )
 
 #Preview("Empty") {
@@ -138,7 +138,7 @@ private let chosenPlayerState = SettingsUiState(
             myClubName: "Nussdorf TTC",
             derivedFrom: .club,
             derivedClubName: "Nussdorf TTC",
-            derivedAssociationName: "Wiener Tischtennisverband (WTTV)"
+            derivedAssociationName: "WTTV"
         ),
         appearance: $appearance,
         onAction: { _ in }
@@ -152,7 +152,7 @@ private let chosenPlayerState = SettingsUiState(
             myPlayerName: "Katharina Habsburg-Lothringen-Esterházy",
             derivedFrom: .player,
             derivedClubName: "Union Tischtennisclub St. Pölten Nord-West",
-            derivedAssociationName: "Niederösterreichischer Tischtennisverband (NÖTTV)"
+            derivedAssociationName: "NÖTTV"
         ),
         appearance: $appearance,
         onAction: { _ in }
@@ -188,8 +188,8 @@ private let chosenPlayerState = SettingsUiState(
                     contextName: nil,
                     query: "",
                     entries: [
-                        DirectoryEntryUi(id: "wttv", title: "Wiener Tischtennisverband (WTTV)", subtitle: nil, selected: false),
-                        DirectoryEntryUi(id: "noettv", title: "Niederösterreichischer Tischtennisverband (NÖTTV)", subtitle: nil, selected: false),
+                        DirectoryEntryUi(id: "wttv", title: "WTTV", subtitle: nil, selected: false),
+                        DirectoryEntryUi(id: "noettv", title: "NÖTTV", subtitle: nil, selected: false),
                     ]
                 )
             )

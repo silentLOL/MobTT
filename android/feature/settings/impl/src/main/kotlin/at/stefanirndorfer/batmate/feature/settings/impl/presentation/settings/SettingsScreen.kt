@@ -236,7 +236,7 @@ private val chosenPlayerState = SettingsUiState(
     myPlayerName = "Michael Huber",
     derivedFrom = DerivedFrom.PLAYER,
     derivedClubName = "TTC Olympic",
-    derivedAssociationName = "Wiener Tischtennisverband (WTTV)",
+    derivedAssociationName = "WTTV",
 )
 
 @BatScreenPreview

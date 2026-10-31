@@ -34,7 +34,7 @@ class ClubOverviewTest {
     @Test
     fun clubWithoutTeamsHasNone() = runTest {
         directory.clubs += Club("olympic", "TTC Olympic", "wttv")
-        directory.associations += Association("wttv", "WTTV")
+        directory.associations += Association("wttv", "WTTV", "WTTV")
 
         assertEquals(emptyList(), getClubOverview("olympic")?.teams)
     }
@@ -172,7 +172,7 @@ class ClubOverviewTest {
 
     private fun givenOlympic() {
         directory.clubs += Club("olympic", "TTC Olympic", "wttv")
-        directory.associations += Association("wttv", "WTTV")
+        directory.associations += Association("wttv", "WTTV", "WTTV")
         directory.teams += olympic1
     }
 

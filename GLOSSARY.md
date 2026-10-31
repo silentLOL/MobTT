@@ -7,7 +7,7 @@ MobTT lets Austrian table tennis players and fans follow clubs, teams, players a
 ### Organisation
 
 **Association**:
-A regional or national governing body that runs leagues (German: Verband), e.g. WTTV or the ÖTTV Bundesligen. A Club belongs to exactly one Association.
+A regional or national governing body that runs leagues (German: Verband), e.g. WTTV or the ÖTTV Bundesligen. It has a full name and a short code (OÖTTV), which XTTV supplies; compact labels use the code. A Club belongs to exactly one Association.
 _Avoid_: Federation, region, Landesverband
 
 **Club**:

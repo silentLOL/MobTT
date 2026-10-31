@@ -104,7 +104,7 @@ private extension PlayerDetail {
             playerName: player.name,
             clubId: player.clubId,
             clubName: clubName,
-            associationName: associationName,
+            associationName: associationCode,
             teams: teams.map { PlayerTeamUi(id: $0.id, name: $0.name) },
             rcPoints: rcPoints?.intValue,
             ageGroup: ageGroup,

@@ -5,7 +5,7 @@ import Testing
 
 @MainActor
 struct SettingsViewModelTests {
-    private let association = Association(id: "w", name: "WTTV")
+    private let association = Association(id: "w", name: "WTTV", code: "WTTV")
     private let club = Club(id: "c1", name: "Nussdorf TTC", associationId: "w")
 
     @Test func chosenPlayerShowsItsClubAndAssociation() async {

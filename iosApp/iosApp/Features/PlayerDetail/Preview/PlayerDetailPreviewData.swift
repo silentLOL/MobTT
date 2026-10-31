@@ -5,7 +5,7 @@ enum PlayerDetailPreviewData {
         playerName: "Anna Gruber",
         clubId: "olympic",
         clubName: "TTC Olympic",
-        associationName: "Wiener Tischtennisverband (WTTV)",
+        associationName: "WTTV",
         teams: [PlayerTeamUi(id: "olympic-1", name: "TTC Olympic 1"), PlayerTeamUi(id: "olympic-3", name: "TTC Olympic 3")],
         rcPoints: 1992,
         ageGroup: "U171"
@@ -29,7 +29,7 @@ enum PlayerDetailPreviewData {
         playerName: "Katharina Habsburg-Lothringen-Esterházy",
         clubId: "stpoelten",
         clubName: "Union Tischtennisclub St. Pölten Nord-West",
-        associationName: "Niederösterreichischer Tischtennisverband (NÖTTV)",
+        associationName: "NÖTTV",
         teams: [PlayerTeamUi(id: "stpoelten-1", name: "Union Tischtennisclub St. Pölten Nord-West 1")]
     )
 }

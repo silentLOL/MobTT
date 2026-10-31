@@ -6,7 +6,7 @@ import Testing
 @MainActor
 struct ClubViewModelTests {
     private let club = Club(id: "1", name: "Nussdorf TTC", associationId: "w")
-    private let association = Association(id: "w", name: "WTTV")
+    private let association = Association(id: "w", name: "WTTV", code: "WTTV")
 
     @Test func dataUnavailableShowsTheErrorState() async {
         let viewModel = makeSpecificViewModel { _ in unavailable }

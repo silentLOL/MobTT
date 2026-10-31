@@ -12,7 +12,7 @@ final class PlayerDrillDownFixtures {
         loaders = PlayerDrillDownLoaders(
             associations: {
                 log.associationReads += 1
-                return [Association(id: "w", name: "Wiener Tischtennisverband"), Association(id: "n", name: "Niederösterreichischer Tischtennisverband")]
+                return [Association(id: "w", name: "Wiener Tischtennisverband", code: "WTTV"), Association(id: "n", name: "Niederösterreichischer Tischtennisverband", code: "NÖTTV")]
             },
             leagues: {
                 log.leagueReads.append($0)

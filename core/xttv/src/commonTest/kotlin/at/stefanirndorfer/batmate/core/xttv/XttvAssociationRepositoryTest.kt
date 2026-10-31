@@ -15,8 +15,9 @@ class XttvAssociationRepositoryTest {
 
     @Test
     fun federationsBecomeAssociations() = runTest {
-        assertEquals(Association("188", "Niederösterreichischer Tischtennisverband"), repository.getAssociation("188"))
+        assertEquals(Association("188", "Niederösterreichischer Tischtennisverband", "NÖTTV"), repository.getAssociation("188"))
         assertEquals("Kärntner Tischtennisverband", repository.getAssociation("190")?.name)
+        assertEquals("KTTV", repository.getAssociation("190")?.code)
     }
 
     @Test
@@ -56,6 +57,13 @@ class XttvAssociationRepositoryTest {
         xml = "<federation_list><federation><id>1</id><name>Invalid API key Verband</name></federation></federation_list>"
 
         assertEquals("Invalid API key Verband", repository.getAssociation("1")?.name)
+    }
+
+    @Test
+    fun aFederationWithoutACodeFallsBackToItsName() = runTest {
+        xml = "<federation_list><federation><id>1</id><name>Superleague</name><code></code></federation></federation_list>"
+
+        assertEquals("Superleague", repository.getAssociation("1")?.code)
     }
 
     @Test

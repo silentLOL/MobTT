@@ -159,7 +159,7 @@ private fun ContentView(
                 BatSectionHeader(title = stringResource(R.string.player_detail_club_title))
                 LinkRowView(
                     title = clubName,
-                    detail = detail.associationName,
+                    detail = detail.associationCode,
                     onClick = { onAction(PlayerDetailAction.ClubClicked) },
                 )
             }

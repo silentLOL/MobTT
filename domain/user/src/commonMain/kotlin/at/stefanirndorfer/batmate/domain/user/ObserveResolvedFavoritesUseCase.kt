@@ -24,7 +24,7 @@ class ObserveResolvedFavoritesUseCase(
             ResolvedFavorite(favorite, player.name, clubRepository.getClub(player.clubId)?.name)
         }
         is Favorite.Club -> clubRepository.getClub(favorite.id)?.let { club ->
-            ResolvedFavorite(favorite, club.name, associationRepository.getAssociation(club.associationId)?.name)
+            ResolvedFavorite(favorite, club.name, associationRepository.getAssociation(club.associationId)?.code)
         }
         is Favorite.Team -> teamRepository.getTeam(favorite.id)?.let { team ->
             ResolvedFavorite(favorite, team.name, clubRepository.getClub(team.clubId)?.name)

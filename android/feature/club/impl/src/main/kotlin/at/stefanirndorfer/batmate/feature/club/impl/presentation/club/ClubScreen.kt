@@ -154,7 +154,7 @@ private fun ContentView(
                 ) {
                     BatHeroPillRow(text = stringResource(R.string.club_hero_overline))
                     Text(text = overview.club.name, color = BatDesign.colors.onHero, style = BatDesign.typography.display)
-                    Text(text = overview.association.name, color = BatDesign.colors.onHero, style = BatDesign.typography.body)
+                    Text(text = overview.association.code, color = BatDesign.colors.onHero, style = BatDesign.typography.body)
                 }
                 BatFavoriteButton(
                     isFavorite = isFavorite,

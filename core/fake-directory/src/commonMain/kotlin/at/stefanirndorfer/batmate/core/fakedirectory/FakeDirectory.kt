@@ -29,9 +29,9 @@ class FakeDirectory(private val clock: Clock = Clock.System) :
     LeagueRepository,
     FixtureRepository {
     private val associations = listOf(
-        Association("wttv", "Wiener Tischtennisverband (WTTV)"),
-        Association("noettv", "Niederösterreichischer Tischtennisverband (NÖTTV)"),
-        Association("stttv", "Steirischer Tischtennisverband (STTTV)"),
+        Association("wttv", "Wiener Tischtennisverband", "WTTV"),
+        Association("noettv", "Niederösterreichischer Tischtennisverband", "NÖTTV"),
+        Association("stttv", "Steirischer Tischtennisverband", "STTTV"),
     )
 
     private val clubs = listOf(

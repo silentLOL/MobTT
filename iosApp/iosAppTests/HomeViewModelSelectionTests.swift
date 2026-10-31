@@ -6,7 +6,7 @@ import Testing
 @MainActor
 struct HomeViewModelSelectionTests {
     private let club = Club(id: "c1", name: "Nussdorf TTC", associationId: "w")
-    private let association = Association(id: "w", name: "WTTV")
+    private let association = Association(id: "w", name: "WTTV", code: "WTTV")
 
     @Test func chosenPlayerShowsTheirClubAndAssociation() async {
         let context = UserContextMyPlayer(player: Player(id: "p1", name: "Anna Gruber", clubId: "c1"), club: club, association: association)

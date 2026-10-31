@@ -53,7 +53,7 @@ private class PlayerDirectory(
 class PlayerDetailTest {
     private val anna = Player("p1", "Anna", clubId = "c1")
     private val olympic = Club("c1", "TTC Olympic", associationId = "a1")
-    private val wttv = Association("a1", "WTTV")
+    private val wttv = Association("a1", "WTTV", "WTTV")
     private val first = Team("t1", "TTC Olympic 1", clubId = "c1", leagueId = "l1")
     private val second = Team("t2", "TTC Olympic 2", clubId = "c1", leagueId = "l2")
     private val third = Team("t3", "TTC Olympic 3", clubId = "c1", leagueId = "l2")

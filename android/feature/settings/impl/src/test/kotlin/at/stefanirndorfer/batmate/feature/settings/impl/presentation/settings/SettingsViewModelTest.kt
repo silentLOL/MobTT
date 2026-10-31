@@ -53,7 +53,7 @@ private class FakeData :
     UserSelectionRepository,
     AppearanceRepository {
     private val clubs = listOf(Club("c1", "TTC Olympic", "a1"), Club("c2", "Nussdorf TTC", "a2"))
-    private val associations = listOf(Association("a1", "WTTV"), Association("a2", "ÖTTV"))
+    private val associations = listOf(Association("a1", "WTTV", "WTTV"), Association("a2", "ÖTTV", "ÖTTV"))
     private val players = listOf(Player("p1", "Anna Gruber", "c1"), Player("p2", "Jakob Irndorfer", "c1"))
 
     var unavailable = false

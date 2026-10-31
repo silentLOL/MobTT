@@ -23,7 +23,7 @@ class GetPlayerDetailUseCase(
         return PlayerDetail(
             player = player,
             clubName = club?.name,
-            associationName = club?.let { associationRepository.getAssociation(it.associationId)?.name },
+            associationCode = club?.let { associationRepository.getAssociation(it.associationId)?.code },
             teams = lineup.map { it.first },
             rcPoints = lineup.firstNotNullOfOrNull { it.second.rcPoints },
             ageGroup = lineup.firstNotNullOfOrNull { it.second.ageGroup },
