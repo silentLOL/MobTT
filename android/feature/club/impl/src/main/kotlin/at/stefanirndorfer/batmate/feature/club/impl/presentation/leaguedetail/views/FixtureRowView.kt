@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import at.stefanirndorfer.batmate.core.localization.R
 import at.stefanirndorfer.batmate.core.ui.fixture.formatKickoff
@@ -44,12 +43,12 @@ fun FixtureRowView(
 ) {
     val kickoff = formatKickoff(fixture.startsAt)
     BatListItem(modifier = modifier, striped = striped, highlighted = isThisTeam) {
-        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
                 TeamLink(
                     name = fixture.homeTeamName,
                     onClick = fixture.homeTeamId.takeIf { it != highlightTeamId }?.let { { onTeamClick(it) } },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f, fill = false),
                 )
                 Text(
                     text = stringResource(R.string.league_detail_fixture_versus),
@@ -60,7 +59,7 @@ fun FixtureRowView(
                 TeamLink(
                     name = fixture.awayTeamName,
                     onClick = fixture.awayTeamId.takeIf { it != highlightTeamId }?.let { { onTeamClick(it) } },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f, fill = false),
                 )
             }
             (fixture.status as? FixtureStatus.Finished)?.let { finished ->
@@ -74,7 +73,6 @@ fun FixtureRowView(
                 text = listOfNotNull(kickoff, fixture.venue).joinToString(" · "),
                 color = BatDesign.colors.textSecondary,
                 style = BatDesign.typography.caption,
-                textAlign = TextAlign.Center,
             )
             if (isThisTeam) {
                 BatBadge(text = stringResource(R.string.team_detail_this_team_badge))
@@ -92,7 +90,6 @@ private fun TeamLink(name: String, onClick: (() -> Unit)?, modifier: Modifier = 
         modifier = if (onClick != null) base.clickable(role = Role.Button, onClick = onClick) else base,
         color = BatDesign.colors.textPrimary,
         style = BatDesign.typography.bodyStrong.copy(textDecoration = if (onClick != null) TextDecoration.Underline else null),
-        textAlign = TextAlign.Center,
     )
 }
 

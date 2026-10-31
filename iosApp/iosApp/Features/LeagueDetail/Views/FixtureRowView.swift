@@ -11,7 +11,7 @@ struct FixtureRowView: View {
 
     var body: some View {
         BatListItemView(isStriped: isStriped, isHighlighted: showsThisTeam && row.isThisTeam) {
-            VStack(spacing: BatSpacing.xs) {
+            VStack(alignment: .leading, spacing: BatSpacing.xs) {
                 HStack(spacing: BatSpacing.sm) {
                     teamLine(id: row.homeTeamId, name: row.homeTeamName)
                     Text("league_detail_fixture_versus")
@@ -19,6 +19,7 @@ struct FixtureRowView: View {
                         .foregroundStyle(BatColor.textSecondary)
                         .accessibilityHidden(true)
                     teamLine(id: row.awayTeamId, name: row.awayTeamName)
+                    Spacer(minLength: 0)
                 }
                 if let score = row.score {
                     Text("league_detail_fixture_score \(score.home) \(score.away)")
@@ -29,12 +30,11 @@ struct FixtureRowView: View {
                 Text(detailText)
                     .batTextStyle(BatTypography.caption)
                     .foregroundStyle(BatColor.textSecondary)
-                    .multilineTextAlignment(.center)
                 if showsThisTeam && row.isThisTeam {
                     BatBadgeView(text: String(localized: "team_detail_this_team_badge"))
                 }
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -45,16 +45,14 @@ struct FixtureRowView: View {
             Text(name)
                 .batTextStyle(BatTypography.bodyStrong)
                 .foregroundStyle(BatColor.textPrimary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, minHeight: BatSizing.minTouchTarget)
+                .frame(minHeight: BatSizing.minTouchTarget)
         } else {
             Button { onTeamTap(id) } label: {
                 Text(name)
                     .batTextStyle(BatTypography.bodyStrong)
                     .underline()
                     .foregroundStyle(BatColor.textPrimary)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity, minHeight: BatSizing.minTouchTarget)
+                    .frame(minHeight: BatSizing.minTouchTarget, alignment: .leading)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
