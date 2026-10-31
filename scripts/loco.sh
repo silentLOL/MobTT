@@ -11,9 +11,10 @@ ANDROID_RES="$ROOT/android/core/localization/src/main/res"
 IOS_CATALOG="$ROOT/iosApp/iosApp/Resources/Localizable.xcstrings"
 
 # Loco locale code | Android values folder | iOS language code.
-# Add a row (e.g. "de-AT|values-de-rAT|de-AT") when a translation joins.
+# Austrian German is the only German: Loco "de-AT" feeds the plain "de" resources.
 LOCALES=(
   "en|values|en"
+  "de-AT|values-de|de"
 )
 
 prop() {
@@ -75,10 +76,10 @@ pull() {
     # Merge into the local catalog so other languages (the existing "de") stay untouched.
     echo "Pulling iOS $locale"
     loco "$key" -o "$tmp/ios.xcstrings" "$API/export/locale/$locale.xcstrings?filter=ios"
-    jq --arg lang "$lang" --slurpfile remote "$tmp/ios.xcstrings" '
+    jq --arg lang "$lang" --arg src "$locale" --slurpfile remote "$tmp/ios.xcstrings" '
       reduce ($remote[0].strings | to_entries[]) as $e (.;
         .strings[$e.key].extractionState = "manual"
-        | .strings[$e.key].localizations[$lang] = $e.value.localizations[$lang])' \
+        | .strings[$e.key].localizations[$lang] = $e.value.localizations[$src])' \
       "$IOS_CATALOG" >"$tmp/merged.xcstrings"
     mv "$tmp/merged.xcstrings" "$IOS_CATALOG"
   done

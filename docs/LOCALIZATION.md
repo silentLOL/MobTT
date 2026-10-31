@@ -25,8 +25,17 @@ loco.readKey=...         # pull
 ./scripts/loco.sh pull   # Loco -> repo
 ```
 
-`push` overwrites the Loco text of existing ids with the repo text; it never deletes assets. `pull` replaces the Android file and merges into the iOS catalog, so languages not listed in the script (the existing iOS `de`) stay untouched. The Android export has a Loco header comment and no blank lines between groups.
+`push` overwrites the Loco text of existing ids with the repo text; it never deletes assets. `pull` replaces the Android files and merges into the iOS catalog. The Android export has a Loco header comment and no blank lines between groups.
+
+## Languages
+
+| Loco | Android | iOS |
+|---|---|---|
+| `en` | `values` | `en` |
+| `de-AT` (Austrian German) | `values-de` | `de` |
+
+Austrian German serves every German-language device, so it uses the plain `de` resources and needs no extra Xcode region. Edit translations in Loco, then `pull`.
 
 ## Adding a language
 
-Add a row to `LOCALES` in `scripts/loco.sh`: Loco code, Android folder, iOS language code. For Austrian German: `"de-AT|values-de-rAT|de-AT"`. Translate in Loco, then `pull`.
+Add a row to `LOCALES` in `scripts/loco.sh`: Loco code, Android folder, iOS language code. Add the language to `knownRegions` in the Xcode project if it is new on iOS.
