@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -179,7 +180,12 @@ private fun ContentView(
                     verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm),
                 ) {
                     BatHeroPillRow(text = stringResource(R.string.club_hero_overline))
-                    Text(text = overview.club.name, color = BatDesign.colors.onHero, style = BatDesign.typography.display)
+                    Text(
+                        text = overview.club.name,
+                        color = BatDesign.colors.onHero,
+                        style = BatDesign.typography.display,
+                        modifier = Modifier.semantics { heading() },
+                    )
                     Text(text = overview.association.code, color = BatDesign.colors.onHero, style = BatDesign.typography.body)
                 }
                 BatFavoriteButton(
