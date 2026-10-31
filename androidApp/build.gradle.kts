@@ -24,7 +24,7 @@ dependencies {
     implementation(project(":android:core:design-system"))
     implementation(project(":android:core:localization"))
     implementation(project(":android:feature:navigation"))
-    for (feature in listOf("home", "club", "players", "live", "settings")) {
+    for (feature in listOf("home", "club", "players", "settings")) {
         implementation(project(":android:feature:$feature:api"))
         implementation(project(":android:feature:$feature:impl"))
     }

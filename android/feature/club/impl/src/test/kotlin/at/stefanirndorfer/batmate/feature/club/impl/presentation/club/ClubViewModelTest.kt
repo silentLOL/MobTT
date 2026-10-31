@@ -5,6 +5,7 @@ import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.Favorite
 import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
+import at.stefanirndorfer.batmate.domain.user.RememberPlayerUseCase
 import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.FakeClubData
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.models.ClubAction
@@ -44,6 +45,7 @@ class ClubViewModelTest {
             observeFavorites = ObserveFavoritesUseCase(data),
             addFavorite = AddFavoriteUseCase(data, data),
             removeFavorite = RemoveFavoriteUseCase(data),
+            rememberPlayer = RememberPlayerUseCase(data),
         )
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel

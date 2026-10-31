@@ -8,4 +8,7 @@ interface PlayerRepository {
 
     /** Called once the user picked the Player with [id] from a League's list, so [getPlayer] can resolve them later. */
     suspend fun keepPicked(id: String) = Unit
+
+    /** Called when the user opens [player], e.g. from a Club's lineups, so [getPlayer] can resolve them for their screen. */
+    suspend fun remember(player: Player) = Unit
 }

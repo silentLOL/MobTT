@@ -23,6 +23,7 @@ import at.stefanirndorfer.batmate.domain.user.ObserveResolvedFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUpcomingFixturesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.batmate.domain.user.PlayerDetail
+import at.stefanirndorfer.batmate.domain.user.RememberPlayerUseCase
 import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.ResolvedFavorite
 import at.stefanirndorfer.batmate.domain.user.SetMyClubUseCase
@@ -89,6 +90,11 @@ object KoinHelper : KoinComponent {
 
     fun getRemoveFavoriteUseCase(): RemoveFavoriteUseCase {
         val useCase: RemoveFavoriteUseCase by inject()
+        return useCase
+    }
+
+    fun getRememberPlayerUseCase(): RememberPlayerUseCase {
+        val useCase: RememberPlayerUseCase by inject()
         return useCase
     }
 

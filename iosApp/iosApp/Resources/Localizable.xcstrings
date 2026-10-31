@@ -460,23 +460,6 @@
         }
       }
     },
-    "core_tab_live_label": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Live"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Live"
-          }
-        }
-      }
-    },
     "core_tab_players_label": {
       "extractionState": "manual",
       "localizations": {
@@ -1034,40 +1017,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "This Team's Fixture. %@"
-          }
-        }
-      }
-    },
-    "live_empty_body": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Laufende Begegnungen erscheinen hier, sobald sie gespielt werden."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fixtures in progress will show up here as they are played."
-          }
-        }
-      }
-    },
-    "live_empty_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gerade nichts live"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nothing live right now"
           }
         }
       }

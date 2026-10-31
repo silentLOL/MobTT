@@ -13,6 +13,7 @@ import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.models.Clu
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.leaguedetail.LeagueDetailRoute
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.TeamDetailRoute
 import at.stefanirndorfer.batmate.feature.navigation.GlobalNavigator
+import at.stefanirndorfer.batmate.feature.players.api.navigateToPlayerDetail
 
 fun EntryProviderScope<NavKey>.clubGraph(navigator: GlobalNavigator) {
     entry<ClubDestination> {
@@ -20,6 +21,7 @@ fun EntryProviderScope<NavKey>.clubGraph(navigator: GlobalNavigator) {
             source = ClubSource.Mine,
             onOpenSettings = navigator::openSettings,
             onOpenTeam = navigator::navigateToTeamDetail,
+            onOpenPlayer = navigator::navigateToPlayerDetail,
         )
     }
     entry<ClubDetailDestination> { destination ->
@@ -27,6 +29,7 @@ fun EntryProviderScope<NavKey>.clubGraph(navigator: GlobalNavigator) {
             source = ClubSource.Specific(destination.clubId),
             onOpenSettings = navigator::openSettings,
             onOpenTeam = navigator::navigateToTeamDetail,
+            onOpenPlayer = navigator::navigateToPlayerDetail,
         )
     }
     entry<TeamDetailDestination> { destination ->

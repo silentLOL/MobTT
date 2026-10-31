@@ -4,7 +4,6 @@
     <string name="core_tab_home_label">Start</string>
     <string name="core_tab_club_label">Verein</string>
     <string name="core_tab_players_label">Spieler</string>
-    <string name="core_tab_live_label">Live</string>
     <string name="core_settings_button_cd">Einstellungen</string>
     <string name="core_close_button_cd">Schließen</string>
 
@@ -14,8 +13,6 @@
     <string name="club_empty_body">Dein Verein, seine Mannschaften und die Ligatabellen erscheinen hier.</string>
     <string name="players_empty_title">Spieler finden</string>
     <string name="players_empty_body">Suche Spieler nach Name oder Verein, um ihre Ergebnisse zu verfolgen.</string>
-    <string name="live_empty_title">Gerade nichts live</string>
-    <string name="live_empty_body">Laufende Begegnungen erscheinen hier, sobald sie gespielt werden.</string>
 
     <string name="settings_title">Einstellungen</string>
     <string name="settings_appearance_title">Darstellung</string>

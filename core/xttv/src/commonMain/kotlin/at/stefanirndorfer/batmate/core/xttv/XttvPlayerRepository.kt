@@ -10,7 +10,7 @@ import kotlin.time.Duration
  * XTTV has no Player search, and `getPlayerDetails` is closed to API access. Players are therefore read per League
  * from its single standings, straight from XTTV: neither those Players nor any Team is cached or indexed (a zero
  * TTL is never stored). Only the Players the user picks are kept (in [pickedPlayers]), so they resolve again
- * without asking XTTV.
+ * without asking XTTV, and the Players the user opens from a lineup ([remember]).
  */
 class XttvPlayerRepository(
     private val api: XttvApi,
@@ -34,6 +34,8 @@ class XttvPlayerRepository(
             .sortedBy { it.name.lowercase() }
             .also { latestResults = it }
     }
+
+    override suspend fun remember(player: Player) = pickedPlayers.save(player)
 
     override suspend fun keepPicked(id: String) {
         latestResults.firstOrNull { it.id == id }?.let { pickedPlayers.save(it) }

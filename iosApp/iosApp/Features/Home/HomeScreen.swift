@@ -92,7 +92,7 @@ struct HomeScreen: View {
                     onClubClick: { onAction(.pickerClubClicked(id: $0)) },
                     onDismiss: { onAction(.pickerDismissed) }
                 )
-                .presentationDetents([.medium, .large])
+                .presentationDetents([.fraction(0.75), .large])
                 .presentationDragIndicator(.visible)
                 .presentationBackground(BatColor.background)
             }

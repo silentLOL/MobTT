@@ -20,6 +20,7 @@ final class ClubViewModel {
     @ObservationIgnored private let observeFavorites: any AsyncSequence<Set<AnyHashable>, Never>
     @ObservationIgnored private let addFavorite: (Favorite) async throws -> Void
     @ObservationIgnored private let removeFavorite: (Favorite) async throws -> Void
+    @ObservationIgnored private let rememberPlayer: (Player) async throws -> Void
     @ObservationIgnored private let eventStream = AsyncStream<ClubEvent>.makeStream()
 
     var events: AsyncStream<ClubEvent> { eventStream.stream }
@@ -30,7 +31,8 @@ final class ClubViewModel {
         loadOverview: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadClubOverview(clubId: $0) },
         observeFavorites: any AsyncSequence<Set<AnyHashable>, Never> = KoinHelper.shared.getObserveFavoritesUseCase().invoke(),
         addFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getAddFavoriteUseCase().invoke(favorite: $0) },
-        removeFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getRemoveFavoriteUseCase().invoke(favorite: $0) }
+        removeFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getRemoveFavoriteUseCase().invoke(favorite: $0) },
+        rememberPlayer: @escaping (Player) async throws -> Void = { try await KoinHelper.shared.getRememberPlayerUseCase().invoke(player: $0) }
     ) {
         self.source = source
         self.observeUserContext = observeUserContext
@@ -38,6 +40,7 @@ final class ClubViewModel {
         self.observeFavorites = observeFavorites
         self.addFavorite = addFavorite
         self.removeFavorite = removeFavorite
+        self.rememberPlayer = rememberPlayer
     }
 
     /// Runs until the calling task is cancelled.
@@ -79,11 +82,21 @@ final class ClubViewModel {
             eventStream.continuation.yield(.openSettings)
         case .teamClicked(let teamId):
             eventStream.continuation.yield(.openTeam(teamId: teamId))
+        case .playerClicked(let playerId, let name):
+            openPlayer(playerId: playerId, name: name)
         case .retryClicked:
             loadTask?.cancel()
             retryCount += 1
         case .favoriteClicked:
             toggleFavorite()
+        }
+    }
+
+    private func openPlayer(playerId: String, name: String) {
+        guard let clubId else { return }
+        Task {
+            try? await rememberPlayer(Player(id: playerId, name: name, clubId: clubId))
+            eventStream.continuation.yield(.openPlayer(playerId: playerId))
         }
     }
 

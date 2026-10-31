@@ -5,10 +5,13 @@ import androidx.lifecycle.viewModelScope
 import at.stefanirndorfer.batmate.core.ui.RetryTrigger
 import at.stefanirndorfer.batmate.core.ui.catchUnavailable
 import at.stefanirndorfer.batmate.domain.club.GetClubOverviewUseCase
+import at.stefanirndorfer.batmate.domain.club.LineupPlayer
+import at.stefanirndorfer.batmate.domain.player.Player
 import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.Favorite
 import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
+import at.stefanirndorfer.batmate.domain.user.RememberPlayerUseCase
 import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.models.ClubAction
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.models.ClubEvent
@@ -34,6 +37,7 @@ class ClubViewModel(
     private val observeFavorites: ObserveFavoritesUseCase,
     private val addFavorite: AddFavoriteUseCase,
     private val removeFavorite: RemoveFavoriteUseCase,
+    private val rememberPlayer: RememberPlayerUseCase,
 ) : ViewModel() {
     private val retry = RetryTrigger()
 
@@ -73,8 +77,17 @@ class ClubViewModel(
         when (action) {
             ClubAction.ChooseClicked -> viewModelScope.launch { eventChannel.send(ClubEvent.OpenSettings) }
             is ClubAction.TeamClicked -> viewModelScope.launch { eventChannel.send(ClubEvent.OpenTeam(action.teamId)) }
+            is ClubAction.PlayerClicked -> openPlayer(action.player)
             ClubAction.RetryClicked -> retry.retry()
             ClubAction.FavoriteClicked -> toggleFavorite()
+        }
+    }
+
+    private fun openPlayer(player: LineupPlayer) {
+        val content = uiState.value as? ClubUiState.Content ?: return
+        viewModelScope.launch {
+            rememberPlayer(Player(player.playerId, player.name, content.overview.club.id))
+            eventChannel.send(ClubEvent.OpenPlayer(player.playerId))
         }
     }
 

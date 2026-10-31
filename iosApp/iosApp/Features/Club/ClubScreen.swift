@@ -4,13 +4,15 @@ struct ClubRoute: View {
     let source: ClubSource
     let onOpenSettings: () -> Void
     let onOpenTeam: (String) -> Void
+    let onOpenPlayer: (String) -> Void
 
     @State private var viewModel: ClubViewModel
 
-    init(source: ClubSource, onOpenSettings: @escaping () -> Void, onOpenTeam: @escaping (String) -> Void) {
+    init(source: ClubSource, onOpenSettings: @escaping () -> Void, onOpenTeam: @escaping (String) -> Void, onOpenPlayer: @escaping (String) -> Void) {
         self.source = source
         self.onOpenSettings = onOpenSettings
         self.onOpenTeam = onOpenTeam
+        self.onOpenPlayer = onOpenPlayer
         _viewModel = State(initialValue: ClubViewModel(source: source))
     }
 
@@ -22,6 +24,7 @@ struct ClubRoute: View {
                     switch event {
                     case .openSettings: onOpenSettings()
                     case .openTeam(let teamId): onOpenTeam(teamId)
+                    case .openPlayer(let playerId): onOpenPlayer(playerId)
                     }
                 }
             }
@@ -125,7 +128,11 @@ private struct ContentView: View {
                 if !overview.players.isEmpty {
                     VStack(alignment: .leading, spacing: 0) {
                         BatSectionHeaderView(title: String(localized: "club_players_title"))
-                        ForEach(overview.players) { LineupRowView(player: $0) }
+                        VStack(spacing: BatSpacing.sm) {
+                            ForEach(overview.players) { player in
+                                PlayerCardView(player: player, onTap: { onAction(.playerClicked(playerId: player.id, name: player.name)) })
+                            }
+                        }
                     }
                 }
             }

@@ -40,8 +40,8 @@ import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.models.Clu
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.preview.clubOverviewLongNamesPreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.preview.clubOverviewNoTeamsPreview
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.preview.clubOverviewPreview
+import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.views.PlayerCardView
 import at.stefanirndorfer.batmate.feature.club.impl.presentation.club.views.TeamRowView
-import at.stefanirndorfer.batmate.feature.club.impl.presentation.teamdetail.views.LineupRowView
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -50,6 +50,7 @@ fun ClubRoute(
     source: ClubSource,
     onOpenSettings: () -> Unit,
     onOpenTeam: (String) -> Unit,
+    onOpenPlayer: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ClubViewModel = koinViewModel(
         key = source.toString(),
@@ -61,6 +62,7 @@ fun ClubRoute(
         when (event) {
             ClubEvent.OpenSettings -> onOpenSettings()
             is ClubEvent.OpenTeam -> onOpenTeam(event.teamId)
+            is ClubEvent.OpenPlayer -> onOpenPlayer(event.playerId)
         }
     }
     ClubScreen(state = uiState, onAction = viewModel::onAction, modifier = modifier)
@@ -186,7 +188,11 @@ private fun ContentView(
         if (overview.players.isNotEmpty()) {
             Column {
                 BatSectionHeader(title = stringResource(R.string.club_players_title))
-                overview.players.forEach { player -> LineupRowView(player) }
+                Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
+                    overview.players.forEach { player ->
+                        PlayerCardView(player, onClick = { onAction(ClubAction.PlayerClicked(player)) })
+                    }
+                }
             }
         }
     }

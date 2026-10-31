@@ -43,7 +43,7 @@ include(":shared-umbrella")
 include(":android:core:design-system")
 include(":android:core:localization")
 include(":android:feature:navigation")
-for (feature in listOf("home", "club", "players", "live", "settings")) {
+for (feature in listOf("home", "club", "players", "settings")) {
     include(":android:feature:$feature:api")
     include(":android:feature:$feature:impl")
 }

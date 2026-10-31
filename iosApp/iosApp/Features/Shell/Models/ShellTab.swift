@@ -4,14 +4,12 @@ enum ShellTab: Hashable, CaseIterable {
     case home
     case club
     case players
-    case live
 
     var icon: BatIcon {
         switch self {
         case .home: .home
         case .club: .club
         case .players: .search
-        case .live: .live
         }
     }
 
@@ -20,7 +18,6 @@ enum ShellTab: Hashable, CaseIterable {
         case .home: "core_tab_home_label"
         case .club: "core_tab_club_label"
         case .players: "core_tab_players_label"
-        case .live: "core_tab_live_label"
         }
     }
 }

@@ -23,7 +23,6 @@ import at.stefanirndorfer.batmate.designsystem.ui.components.BatTopBarBack
 import at.stefanirndorfer.batmate.feature.club.impl.navigation.clubGraph
 import at.stefanirndorfer.batmate.feature.home.api.HomeDestination
 import at.stefanirndorfer.batmate.feature.home.impl.navigation.homeGraph
-import at.stefanirndorfer.batmate.feature.live.impl.navigation.liveGraph
 import at.stefanirndorfer.batmate.feature.navigation.BackStackGlobalNavigator
 import at.stefanirndorfer.batmate.feature.players.impl.navigation.playersGraph
 import at.stefanirndorfer.batmate.feature.settings.impl.presentation.settings.SettingsSheet
@@ -75,7 +74,6 @@ fun MobTTApp(modifier: Modifier = Modifier) {
                 homeGraph(navigator)
                 clubGraph(navigator)
                 playersGraph(navigator)
-                liveGraph(navigator)
             },
         )
     }

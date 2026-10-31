@@ -21,6 +21,7 @@ import at.stefanirndorfer.batmate.core.ui.directory.DirectoryPickerView
 import at.stefanirndorfer.batmate.core.ui.directory.models.DirectoryEntryUi
 import at.stefanirndorfer.batmate.core.ui.directory.models.DirectorySectionUi
 import at.stefanirndorfer.batmate.core.ui.directory.models.PlayerStep
+import at.stefanirndorfer.batmate.core.ui.sheetMinHeight
 import at.stefanirndorfer.batmate.designsystem.icon.BatIcon
 import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
@@ -51,6 +52,7 @@ fun FavoritePickerSheet(
             onClubClick = onClubClick,
             onBackClick = onBackClick,
             onDismiss = onDismiss,
+            modifier = Modifier.sheetMinHeight(),
         )
     }
 }

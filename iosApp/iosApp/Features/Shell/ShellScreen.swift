@@ -61,7 +61,8 @@ struct ShellScreen: View {
                         ClubRoute(
                             source: .specific(clubId: route.clubId),
                             onOpenSettings: { isSettingsPresented = true },
-                            onOpenTeam: { homePath.append(TeamDestination(teamId: $0)) }
+                            onOpenTeam: { homePath.append(TeamDestination(teamId: $0)) },
+                            onOpenPlayer: { homePath.append(PlayerDestination(playerId: $0)) }
                         )
                         .navigationTitle(String(localized: "club_hero_overline"))
                         .navigationBarTitleDisplayMode(.inline)
@@ -74,14 +75,7 @@ struct ShellScreen: View {
                         leagueDetail(route)
                     }
                     .navigationDestination(for: PlayerDestination.self) { route in
-                        PlayerDetailRoute(
-                            playerId: route.playerId,
-                            onOpenClub: { homePath.append(ClubDetailRoute(clubId: $0)) },
-                            onOpenTeam: { homePath.append(TeamDestination(teamId: $0)) }
-                        )
-                            .navigationTitle(String(localized: "player_detail_hero_overline"))
-                            .navigationBarTitleDisplayMode(.inline)
-                            .batBackground()
+                        playerDetail(route, path: $homePath)
                     }
                 }
                 .tag(ShellTab.home)
@@ -89,9 +83,24 @@ struct ShellScreen: View {
                     ClubRoute(
                         source: .mine,
                         onOpenSettings: { isSettingsPresented = true },
-                        onOpenTeam: { clubPath.append(TeamDestination(teamId: $0)) }
+                        onOpenTeam: { clubPath.append(TeamDestination(teamId: $0)) },
+                        onOpenPlayer: { clubPath.append(PlayerDestination(playerId: $0)) }
                     )
                     .toolbar(.hidden, for: .navigationBar)
+                    .navigationDestination(for: PlayerDestination.self) { route in
+                        playerDetail(route, path: $clubPath)
+                    }
+                    .navigationDestination(for: ClubDetailRoute.self) { route in
+                        ClubRoute(
+                            source: .specific(clubId: route.clubId),
+                            onOpenSettings: { isSettingsPresented = true },
+                            onOpenTeam: { clubPath.append(TeamDestination(teamId: $0)) },
+                            onOpenPlayer: { clubPath.append(PlayerDestination(playerId: $0)) }
+                        )
+                        .navigationTitle(String(localized: "club_hero_overline"))
+                        .navigationBarTitleDisplayMode(.inline)
+                        .batBackground()
+                    }
                     .navigationDestination(for: TeamDestination.self) { route in
                         teamDetail(route, path: $clubPath)
                     }
@@ -101,14 +110,13 @@ struct ShellScreen: View {
                 }
                 .tag(ShellTab.club)
                 PlayersScreen().tag(ShellTab.players)
-                LiveScreen().tag(ShellTab.live)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .scrollDisabled(true)
         }
         .sheet(isPresented: $isSettingsPresented) {
             SettingsRoute(appearance: $appearance) { isSettingsPresented = false }
-                .presentationDetents([.medium, .large])
+                .presentationDetents([.fraction(0.75), .large])
                 .presentationDragIndicator(.visible)
                 .presentationBackground(BatColor.background)
         }
@@ -121,6 +129,17 @@ extension ShellScreen {
             .navigationTitle(String(localized: "team_detail_hero_overline"))
             .navigationBarTitleDisplayMode(.inline)
             .batBackground()
+    }
+
+    fileprivate func playerDetail(_ route: PlayerDestination, path: Binding<NavigationPath>) -> some View {
+        PlayerDetailRoute(
+            playerId: route.playerId,
+            onOpenClub: { path.wrappedValue.append(ClubDetailRoute(clubId: $0)) },
+            onOpenTeam: { path.wrappedValue.append(TeamDestination(teamId: $0)) }
+        )
+        .navigationTitle(String(localized: "player_detail_hero_overline"))
+        .navigationBarTitleDisplayMode(.inline)
+        .batBackground()
     }
 
     fileprivate func leagueDetail(_ route: LeagueDestination) -> some View {
