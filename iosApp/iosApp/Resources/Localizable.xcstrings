@@ -732,53 +732,19 @@
         }
       }
     },
-    "home_fixtures_error_body": {
+    "home_loading_cd": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deine Begegnungen konnten gerade nicht geladen werden."
+            "value": "Startseite wird geladen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn't load your Fixtures right now."
-          }
-        }
-      }
-    },
-    "home_fixtures_error_retry_button": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Erneut versuchen"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Try again"
-          }
-        }
-      }
-    },
-    "home_fixtures_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kommende Begegnungen"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Upcoming Fixtures"
+            "value": "Loading Home"
           }
         }
       }
@@ -813,23 +779,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "My Player"
-          }
-        }
-      }
-    },
-    "home_view_club_button": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verein ansehen"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "View Club"
           }
         }
       }

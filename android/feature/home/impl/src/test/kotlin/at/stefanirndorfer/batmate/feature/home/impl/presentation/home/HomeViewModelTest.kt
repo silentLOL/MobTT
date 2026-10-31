@@ -8,7 +8,6 @@ import at.stefanirndorfer.batmate.domain.club.ClubRepository
 import at.stefanirndorfer.batmate.domain.club.DataUnavailable
 import at.stefanirndorfer.batmate.domain.club.Fixture
 import at.stefanirndorfer.batmate.domain.club.FixtureRepository
-import at.stefanirndorfer.batmate.domain.club.GetClubOverviewUseCase
 import at.stefanirndorfer.batmate.domain.club.League
 import at.stefanirndorfer.batmate.domain.club.LeagueRepository
 import at.stefanirndorfer.batmate.domain.club.LineupPlayer
@@ -27,11 +26,9 @@ import at.stefanirndorfer.batmate.domain.user.ListLeaguePlayersUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveHomeFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveResolvedFavoritesUseCase
-import at.stefanirndorfer.batmate.domain.user.ObserveUpcomingFixturesUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.ResolvedFavorite
-import at.stefanirndorfer.batmate.domain.user.UpcomingFixtures
 import at.stefanirndorfer.batmate.domain.user.UserSelection
 import at.stefanirndorfer.batmate.domain.user.UserSelectionRepository
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models.HomeAction
@@ -52,7 +49,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -145,10 +141,6 @@ class HomeViewModelTest {
         val viewModel = HomeViewModel(
             observeUserContext = userContext,
             observeHomeFavorites = ObserveHomeFavoritesUseCase(ObserveResolvedFavoritesUseCase(data, data, data, data, data), data),
-            observeUpcomingFixtures = ObserveUpcomingFixturesUseCase(
-                userContext,
-                GetClubOverviewUseCase(data, data, data, data, data),
-            ),
             observeFavorites = ObserveFavoritesUseCase(data),
             addFavorite = AddFavoriteUseCase(data, data),
             removeFavorite = RemoveFavoriteUseCase(data),
@@ -162,46 +154,11 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun unavailableDataShowsUnavailableAndRetryRecovers() = runTest {
+    fun unavailableDataDoesNotAskTheUserToChooseAgain() = runTest {
         data.unavailable = true
         val viewModel = viewModel()
-        assertEquals(UpcomingFixtures.Unavailable, viewModel.uiState.value.fixtures)
 
-        data.unavailable = false
-        viewModel.onAction(HomeAction.RetryFixturesClicked)
-
-        assertIs<UpcomingFixtures.Loaded>(viewModel.uiState.value.fixtures)
-    }
-
-    @Test
-    fun unavailableDataDoesNotAskTheUserToChooseAgainAndRetryRecovers() = runTest {
-        data.unavailable = true
-        val viewModel = viewModel()
         assertEquals(HomeSelectionUi.Unavailable, viewModel.uiState.value.selection)
-
-        data.unavailable = false
-        viewModel.onAction(HomeAction.RetryFixturesClicked)
-
-        assertEquals(HomeSelectionUi.Club("TTC Olympic", "WTTV", "c1"), viewModel.uiState.value.selection)
-    }
-
-    @Test
-    fun retryWhileStillUnavailableStaysUnavailable() = runTest {
-        data.unavailable = true
-        val viewModel = viewModel()
-
-        viewModel.onAction(HomeAction.RetryFixturesClicked)
-
-        assertEquals(UpcomingFixtures.Unavailable, viewModel.uiState.value.fixtures)
-    }
-
-    @Test
-    fun aClubWithoutTeamsIsLoadedNotUnavailable() = runTest {
-        data.teams = emptyList()
-        val viewModel = viewModel()
-
-        val fixtures = assertIs<UpcomingFixtures.Loaded>(viewModel.uiState.value.fixtures)
-        assertTrue(fixtures.entries.isEmpty())
     }
 
     @Test

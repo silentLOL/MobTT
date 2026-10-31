@@ -2,7 +2,6 @@ import SwiftUI
 
 struct HomeRoute: View {
     let onOpenSettings: () -> Void
-    let onOpenMyClub: () -> Void
     let onOpenClub: (String) -> Void
     let onOpenTeam: (String) -> Void
     let onOpenPlayer: (String) -> Void
@@ -11,12 +10,11 @@ struct HomeRoute: View {
 
     var body: some View {
         HomeScreen(state: viewModel.uiState, onAction: viewModel.onAction)
-            .task(id: viewModel.retryCount) { await viewModel.observe() }
+            .task { await viewModel.observe() }
             .task {
                 for await event in viewModel.events {
                     switch event {
                     case .openSettings: onOpenSettings()
-                    case .openMyClub: onOpenMyClub()
                     case .openClub(let clubId): onOpenClub(clubId)
                     case .openTeam(let teamId): onOpenTeam(teamId)
                     case .openPlayer(let playerId): onOpenPlayer(playerId)
@@ -39,6 +37,17 @@ struct HomeScreen: View {
     }
 
     var body: some View {
+        if state.isLoading {
+            ProgressView()
+                .tint(BatColor.brand)
+                .accessibilityLabel(Text("home_loading_cd"))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            content
+        }
+    }
+
+    private var content: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: BatSpacing.lg) {
                 MySelectionView(
@@ -47,10 +56,6 @@ struct HomeScreen: View {
                     onPlayerClick: { onAction(.heroPlayerClicked(id: $0)) },
                     onClubClick: { onAction(.heroClubClicked(id: $0)) }
                 )
-                if state.selection.isChosen {
-                    BatSecondaryButtonView(title: String(localized: "home_view_club_button")) { onAction(.viewClubClicked) }
-                }
-                UpcomingFixturesView(fixtures: state.fixtures, onRetry: { onAction(.retryFixturesClicked) })
                 VStack(alignment: .leading, spacing: 0) {
                     BatSectionHeaderView(
                         title: String(localized: "home_favorites_title"),
@@ -104,6 +109,12 @@ private let loadedState = HomeUiState(
     ]
 )
 
+#Preview("Loading") {
+    BatPreviewMatrix {
+        HomeScreen(state: HomeUiState(isLoading: true), onAction: { _ in })
+    }
+}
+
 #Preview("Empty") {
     BatPreviewMatrix {
         HomeScreen(state: HomeUiState(), onAction: { _ in })
@@ -135,24 +146,6 @@ private let loadedState = HomeUiState(
                     ),
                 ]
             ),
-            onAction: { _ in }
-        )
-    }
-}
-
-#Preview("Fixtures") {
-    BatPreviewMatrix {
-        HomeScreen(
-            state: HomeUiState(selection: loadedState.selection, favorites: loadedState.favorites, fixtures: HomePreviewData.fixtures),
-            onAction: { _ in }
-        )
-    }
-}
-
-#Preview("Fixtures unavailable") {
-    BatPreviewMatrix {
-        HomeScreen(
-            state: HomeUiState(selection: loadedState.selection, favorites: loadedState.favorites, fixtures: .unavailable),
             onAction: { _ in }
         )
     }

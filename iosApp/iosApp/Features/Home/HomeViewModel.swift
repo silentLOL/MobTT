@@ -5,20 +5,18 @@ import Shared
 @Observable
 final class HomeViewModel {
     private var selection: HomeSelectionUi = .none
+    private var hasSelection = false
+    private var hasFavorites = false
     private var favorites: [HomeFavoriteUi] = []
     private var favoriteKeys: Set<String> = []
-    private var fixtures: HomeFixturesUi = .hidden
     private var pickerQuery: String?
     private var browsingPlayers = false
     private let playerDrillDown: PlayerDrillDown
     private var pickerClubs: [Club] = []
     private var searchTask: Task<Void, Never>?
-    /// Bumped by a retry; the route restarts `observe()` when it changes.
-    private(set) var retryCount = 0
 
     @ObservationIgnored private let observeUserContext: any AsyncSequence<DataResult, Never>
     @ObservationIgnored private let observeHomeFavorites: any AsyncSequence<DataResult, Never>
-    @ObservationIgnored private let observeUpcomingFixtures: any AsyncSequence<UpcomingFixtures, Never>
     @ObservationIgnored private let observeFavorites: any AsyncSequence<Set<AnyHashable>, Never>
     @ObservationIgnored private let addFavorite: (Favorite) async throws -> Void
     @ObservationIgnored private let removeFavorite: (Favorite) async throws -> Void
@@ -28,7 +26,6 @@ final class HomeViewModel {
     init(
         observeUserContext: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeUserContext(),
         observeHomeFavorites: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeHomeFavorites(),
-        observeUpcomingFixtures: any AsyncSequence<UpcomingFixtures, Never> = KoinHelper.shared.getObserveUpcomingFixturesUseCase().invoke(),
         observeFavorites: any AsyncSequence<Set<AnyHashable>, Never> = KoinHelper.shared.getObserveFavoritesUseCase().invoke(),
         addFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getAddFavoriteUseCase().invoke(favorite: $0) },
         removeFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getRemoveFavoriteUseCase().invoke(favorite: $0) },
@@ -37,7 +34,6 @@ final class HomeViewModel {
     ) {
         self.observeUserContext = observeUserContext
         self.observeHomeFavorites = observeHomeFavorites
-        self.observeUpcomingFixtures = observeUpcomingFixtures
         self.observeFavorites = observeFavorites
         self.addFavorite = addFavorite
         self.removeFavorite = removeFavorite
@@ -48,29 +44,22 @@ final class HomeViewModel {
     var events: AsyncStream<HomeEvent> { eventStream.stream }
 
     var uiState: HomeUiState {
-        HomeUiState(selection: selection, favorites: favorites, picker: pickerQuery.map(pickerUi), fixtures: fixtures)
+        HomeUiState(isLoading: !(hasSelection && hasFavorites), selection: selection, favorites: favorites, picker: pickerQuery.map(pickerUi))
     }
 
     /// Runs until the calling task is cancelled.
     func observe() async {
-        // A retry shows the loading state (no Fixtures section) until the new answer arrives.
-        fixtures = .hidden
         await withTaskGroup(of: Void.self) { group in
             group.addTask { @MainActor in await self.observeSelection() }
             group.addTask { @MainActor in await self.observeResolved() }
             group.addTask { @MainActor in await self.observeKeys() }
-            group.addTask { @MainActor in await self.observeFixtures() }
         }
     }
 
     func onAction(_ action: HomeAction) {
         switch action {
-        case .retryFixturesClicked:
-            retryCount += 1
         case .chooseClicked:
             eventStream.continuation.yield(.openSettings)
-        case .viewClubClicked:
-            eventStream.continuation.yield(.openMyClub)
         case .heroPlayerClicked(let id):
             eventStream.continuation.yield(.openPlayer(playerId: id))
         case .heroClubClicked(let id):
@@ -121,6 +110,7 @@ final class HomeViewModel {
             case .success(let success): selection = (success.value as? UserContext)?.toSelectionUi() ?? .none
             case .unavailable: selection = .unavailable
             }
+            hasSelection = true
         }
     }
 
@@ -130,12 +120,7 @@ final class HomeViewModel {
             case .success(let success): favorites = (success.value as? [ResolvedFavorite])?.map { $0.toUi() } ?? []
             case .unavailable: favorites = []
             }
-        }
-    }
-
-    private func observeFixtures() async {
-        for await upcoming in observeUpcomingFixtures {
-            fixtures = upcoming.toUi()
+            hasFavorites = true
         }
     }
 
@@ -222,19 +207,6 @@ private extension UserContext {
             .player(name: context.player.name, clubName: context.club.name, associationName: context.association.name, playerId: context.player.id)
         case .myClub(let context):
             .club(name: context.club.name, associationName: context.association.name, clubId: context.club.id)
-        }
-    }
-}
-
-private extension UpcomingFixtures {
-    func toUi() -> HomeFixturesUi {
-        switch onEnum(of: self) {
-        case .noSelection: .hidden
-        case .unavailable: .unavailable
-        case .loaded(let loaded):
-            loaded.entries.isEmpty
-                ? .hidden
-                : .loaded(loaded.entries.map { HomeFixtureUi(teamId: $0.team.id, teamName: $0.team.name, nextFixture: $0.next.toUi()) })
         }
     }
 }

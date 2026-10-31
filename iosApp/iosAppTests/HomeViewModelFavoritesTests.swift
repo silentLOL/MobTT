@@ -197,7 +197,6 @@ struct HomeViewModelFavoritesTests {
         HomeViewModel(
             observeUserContext: finite(userContext),
             observeHomeFavorites: finite(resolved),
-            observeUpcomingFixtures: finite([UpcomingFixturesNoSelection.shared as UpcomingFixtures]),
             observeFavorites: finite([favorites]),
             addFavorite: addFavorite,
             removeFavorite: removeFavorite,

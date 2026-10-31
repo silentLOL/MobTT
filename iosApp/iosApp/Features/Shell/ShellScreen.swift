@@ -46,7 +46,6 @@ struct ShellScreen: View {
                 NavigationStack(path: $homePath) {
                     HomeRoute(
                         onOpenSettings: { isSettingsPresented = true },
-                        onOpenMyClub: { selectedTab = .club },
                         onOpenClub: { homePath.append(ClubDetailRoute(clubId: $0)) },
                         onOpenTeam: { homePath.append(TeamDestination(teamId: $0)) },
                         onOpenPlayer: { homePath.append(PlayerDestination(playerId: $0)) }

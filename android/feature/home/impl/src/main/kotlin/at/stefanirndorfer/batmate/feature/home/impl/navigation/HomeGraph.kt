@@ -2,7 +2,6 @@ package at.stefanirndorfer.batmate.feature.home.impl.navigation
 
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
-import at.stefanirndorfer.batmate.feature.club.api.navigateToClub
 import at.stefanirndorfer.batmate.feature.club.api.navigateToClubDetail
 import at.stefanirndorfer.batmate.feature.club.api.navigateToTeamDetail
 import at.stefanirndorfer.batmate.feature.home.api.HomeDestination
@@ -14,7 +13,6 @@ fun EntryProviderScope<NavKey>.homeGraph(navigator: GlobalNavigator) {
     entry<HomeDestination> {
         HomeRoute(
             onOpenSettings = navigator::openSettings,
-            onOpenMyClub = navigator::navigateToClub,
             onOpenClub = navigator::navigateToClubDetail,
             onOpenPlayer = navigator::navigateToPlayerDetail,
             onOpenTeam = navigator::navigateToTeamDetail,

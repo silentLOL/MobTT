@@ -1,42 +1,43 @@
 package at.stefanirndorfer.batmate.feature.home.impl.presentation.home
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.stefanirndorfer.batmate.core.localization.R
 import at.stefanirndorfer.batmate.core.ui.ObserveAsEvents
 import at.stefanirndorfer.batmate.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.batmate.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.batmate.designsystem.theme.BatDesign
-import at.stefanirndorfer.batmate.designsystem.ui.components.BatSecondaryButton
 import at.stefanirndorfer.batmate.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.batmate.domain.user.Favorite
 import at.stefanirndorfer.batmate.domain.user.ResolvedFavorite
-import at.stefanirndorfer.batmate.domain.user.UpcomingFixtures
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models.HomeAction
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models.HomeEvent
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models.HomeSelectionUi
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.models.HomeUiState
-import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.preview.upcomingFixturesPreview
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.views.FavoritePickerSheet
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.views.FavoriteRowView
 import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.views.MySelectionView
-import at.stefanirndorfer.batmate.feature.home.impl.presentation.home.views.UpcomingFixturesView
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeRoute(
     onOpenSettings: () -> Unit,
-    onOpenMyClub: () -> Unit,
     onOpenClub: (String) -> Unit,
     onOpenPlayer: (String) -> Unit,
     onOpenTeam: (String) -> Unit,
@@ -47,7 +48,6 @@ fun HomeRoute(
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
             HomeEvent.OpenSettings -> onOpenSettings()
-            HomeEvent.OpenMyClub -> onOpenMyClub()
             is HomeEvent.OpenClub -> onOpenClub(event.clubId)
             is HomeEvent.OpenPlayer -> onOpenPlayer(event.playerId)
             is HomeEvent.OpenTeam -> onOpenTeam(event.teamId)
@@ -62,57 +62,53 @@ fun HomeScreen(
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .padding(BatDesign.spacing.lg),
-        verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.lg),
-    ) {
-        MySelectionView(
-            selection = state.selection,
-            onChooseClick = { onAction(HomeAction.ChooseClicked) },
-            onPlayerClick = { onAction(HomeAction.HeroPlayerClicked(it)) },
-            onClubClick = { onAction(HomeAction.HeroClubClicked(it)) },
-        )
-        if (state.selection is HomeSelectionUi.Player || state.selection is HomeSelectionUi.Club) {
-            BatSecondaryButton(
-                text = stringResource(R.string.home_view_club_button),
-                onClick = { onAction(HomeAction.ViewClubClicked) },
-                modifier = Modifier.fillMaxWidth(),
+    if (state.isLoading) {
+        LoadingView(modifier)
+    } else {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(BatDesign.spacing.lg),
+            verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.lg),
+        ) {
+            MySelectionView(
+                selection = state.selection,
+                onChooseClick = { onAction(HomeAction.ChooseClicked) },
+                onPlayerClick = { onAction(HomeAction.HeroPlayerClicked(it)) },
+                onClubClick = { onAction(HomeAction.HeroClubClicked(it)) },
             )
-        }
-        UpcomingFixturesView(fixtures = state.fixtures, onRetry = { onAction(HomeAction.RetryFixturesClicked) })
-        Column {
-            BatSectionHeader(
-                title = stringResource(R.string.home_favorites_title),
-                actionLabel = stringResource(R.string.home_favorites_add_button),
-                onAction = { onAction(HomeAction.AddFavoriteClicked) },
-            )
-            if (state.favorites.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.home_favorites_empty_body),
-                    color = BatDesign.colors.textSecondary,
-                    style = BatDesign.typography.body,
+            Column {
+                BatSectionHeader(
+                    title = stringResource(R.string.home_favorites_title),
+                    actionLabel = stringResource(R.string.home_favorites_add_button),
+                    onAction = { onAction(HomeAction.AddFavoriteClicked) },
                 )
-            }
-            Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
-                state.favorites.forEach { favorite ->
-                    FavoriteRowView(
-                        favorite = favorite,
-                        onClick = when (val item = favorite.favorite) {
-                            is Favorite.Club -> {
-                                { onAction(HomeAction.FavoriteClubClicked(item.id)) }
-                            }
-                            is Favorite.Team -> {
-                                { onAction(HomeAction.FavoriteTeamClicked(item.id)) }
-                            }
-                            is Favorite.Player -> {
-                                { onAction(HomeAction.FavoritePlayerClicked(item.id)) }
-                            }
-                        },
-                        onRemoveClick = { onAction(HomeAction.RemoveFavoriteClicked(favorite.favorite)) },
+                if (state.favorites.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.home_favorites_empty_body),
+                        color = BatDesign.colors.textSecondary,
+                        style = BatDesign.typography.body,
                     )
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
+                    state.favorites.forEach { favorite ->
+                        FavoriteRowView(
+                            favorite = favorite,
+                            onClick = when (val item = favorite.favorite) {
+                                is Favorite.Club -> {
+                                    { onAction(HomeAction.FavoriteClubClicked(item.id)) }
+                                }
+                                is Favorite.Team -> {
+                                    { onAction(HomeAction.FavoriteTeamClicked(item.id)) }
+                                }
+                                is Favorite.Player -> {
+                                    { onAction(HomeAction.FavoritePlayerClicked(item.id)) }
+                                }
+                            },
+                            onRemoveClick = { onAction(HomeAction.RemoveFavoriteClicked(favorite.favorite)) },
+                        )
+                    }
                 }
             }
         }
@@ -130,6 +126,17 @@ fun HomeScreen(
     }
 }
 
+@Composable
+private fun LoadingView(modifier: Modifier = Modifier) {
+    val loadingLabel = stringResource(R.string.home_loading_cd)
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator(
+            modifier = Modifier.semantics { contentDescription = loadingLabel },
+            color = BatDesign.colors.brand,
+        )
+    }
+}
+
 private val loadedState = HomeUiState(
     selection = HomeSelectionUi.Player("Michael Huber", "TTC Olympic", "Wiener Tischtennisverband (WTTV)", "p1"),
     favorites = listOf(
@@ -137,6 +144,14 @@ private val loadedState = HomeUiState(
         ResolvedFavorite(Favorite.Club("nussdorf"), "Nussdorf TTC", "Wiener Tischtennisverband (WTTV)"),
     ),
 )
+
+@BatScreenPreview
+@Composable
+private fun HomeScreenLoadingPreview() {
+    BatPreviewSurface {
+        HomeScreen(state = HomeUiState(isLoading = true), onAction = {})
+    }
+}
 
 @BatScreenPreview
 @Composable
@@ -176,22 +191,6 @@ private fun HomeScreenLongNamePreview() {
             ),
             onAction = {},
         )
-    }
-}
-
-@BatScreenPreview
-@Composable
-private fun HomeScreenFixturesPreview() {
-    BatPreviewSurface {
-        HomeScreen(state = loadedState.copy(fixtures = upcomingFixturesPreview), onAction = {})
-    }
-}
-
-@BatScreenPreview
-@Composable
-private fun HomeScreenFixturesUnavailablePreview() {
-    BatPreviewSurface {
-        HomeScreen(state = loadedState.copy(fixtures = UpcomingFixtures.Unavailable), onAction = {})
     }
 }
 

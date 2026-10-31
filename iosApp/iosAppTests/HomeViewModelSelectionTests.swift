@@ -34,36 +34,11 @@ struct HomeViewModelSelectionTests {
         #expect(viewModel.uiState.selection == .none)
     }
 
-    @Test func unavailableFixturesShowTheErrorSection() async {
-        let viewModel = makeViewModel(fixtures: [UpcomingFixturesUnavailable.shared])
-
-        await viewModel.observe()
-
-        #expect(viewModel.uiState.fixtures == .unavailable)
-    }
-
-    @Test func noSelectionHidesTheFixturesSection() async {
-        let viewModel = makeViewModel(fixtures: [UpcomingFixturesNoSelection.shared])
-
-        await viewModel.observe()
-
-        #expect(viewModel.uiState.fixtures == .hidden)
-    }
-
-    @Test func retryingFixturesBumpsTheRetryCount() {
-        let viewModel = makeViewModel()
-
-        viewModel.onAction(.retryFixturesClicked)
-
-        #expect(viewModel.retryCount == 1)
-    }
-
     @Test func actionsEmitTheMatchingEvents() async {
         let viewModel = makeViewModel()
         var events = viewModel.events.makeAsyncIterator()
 
         viewModel.onAction(.chooseClicked)
-        viewModel.onAction(.viewClubClicked)
         viewModel.onAction(.favoriteClubClicked(id: "c1"))
         viewModel.onAction(.favoriteTeamClicked(id: "t1"))
         viewModel.onAction(.favoritePlayerClicked(id: "p1"))
@@ -71,7 +46,6 @@ struct HomeViewModelSelectionTests {
         viewModel.onAction(.heroClubClicked(id: "c1"))
 
         guard case .openSettings? = await events.next() else { Issue.record("expected openSettings"); return }
-        guard case .openMyClub? = await events.next() else { Issue.record("expected openMyClub"); return }
         guard case .openClub(let clubId)? = await events.next() else { Issue.record("expected openClub"); return }
         #expect(clubId == "c1")
         guard case .openTeam(let teamId)? = await events.next() else { Issue.record("expected openTeam"); return }
@@ -85,13 +59,11 @@ struct HomeViewModelSelectionTests {
     }
 
     private func makeViewModel(
-        userContext: [DataResult] = [DataResultSuccess(value: UserContextNone.shared)],
-        fixtures: [UpcomingFixtures] = [UpcomingFixturesNoSelection.shared]
+        userContext: [DataResult] = [DataResultSuccess(value: UserContextNone.shared)]
     ) -> HomeViewModel {
         HomeViewModel(
             observeUserContext: finite(userContext),
             observeHomeFavorites: finite([DataResult]()),
-            observeUpcomingFixtures: finite(fixtures),
             observeFavorites: finite([Set<AnyHashable>()]),
             addFavorite: { _ in },
             removeFavorite: { _ in },

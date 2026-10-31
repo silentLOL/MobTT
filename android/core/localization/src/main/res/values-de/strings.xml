@@ -77,10 +77,7 @@
     <string name="club_error_retry_button">Erneut versuchen</string>
     <string name="club_favorite_add_cd">%1$s zu Favoriten hinzufügen</string>
     <string name="club_favorite_remove_cd">%1$s aus Favoriten entfernen</string>
-    <string name="home_view_club_button">Verein ansehen</string>
-    <string name="home_fixtures_title">Kommende Begegnungen</string>
-    <string name="home_fixtures_error_body">Deine Begegnungen konnten gerade nicht geladen werden.</string>
-    <string name="home_fixtures_error_retry_button">Erneut versuchen</string>
+    <string name="home_loading_cd">Startseite wird geladen</string>
     <string name="team_detail_hero_overline">Mannschaft</string>
     <string name="team_detail_standing_title">Ligatabelle</string>
     <string name="team_detail_standing_empty_body">Diese Mannschaft ist noch keiner Liga zugeordnet.</string>
