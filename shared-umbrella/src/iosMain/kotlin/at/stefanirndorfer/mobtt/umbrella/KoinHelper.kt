@@ -37,14 +37,17 @@ import at.stefanirndorfer.mobtt.domain.user.SetMyClubUseCase
 import at.stefanirndorfer.mobtt.domain.user.SetMyPlayerUseCase
 import at.stefanirndorfer.mobtt.domain.user.SetUsageConsentUseCase
 import at.stefanirndorfer.mobtt.domain.user.UserContext
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.Flow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 object KoinHelper : KoinComponent {
-    fun start(environmentKey: String, appVersion: String, xttvApiKey: String) {
+    fun start(environmentKey: String, appVersion: String, xttvApiKey: String, crashRecorder: IosCrashRecorder) {
         val environment = Environment.fromKey(environmentKey)
+        forwardUnhandledExceptions(crashRecorder, xttvApiKey)
         initKoin(AppConfig(environment, appVersion, xttvApiKey)) {
+            Logger.addLogWriter(iosCrashLogWriter(crashRecorder, xttvApiKey))
             // TODO: shrink as tickets 03-06 and 09 bring XTTV-backed repositories; `initKoin` binds those after this and wins.
             if (environment == Environment.Deb || environment == Environment.Dev) {
                 modules(fakeDirectoryModule)

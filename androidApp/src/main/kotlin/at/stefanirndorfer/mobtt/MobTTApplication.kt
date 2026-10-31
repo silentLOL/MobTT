@@ -1,7 +1,9 @@
 package at.stefanirndorfer.mobtt
 
 import android.app.Application
+import at.stefanirndorfer.mobtt.core.analytics.CrashReporter
 import at.stefanirndorfer.mobtt.core.analytics.UsageConsentCollection
+import at.stefanirndorfer.mobtt.core.analytics.crashLogWriter
 import at.stefanirndorfer.mobtt.core.analytics.di.analyticsModule
 import at.stefanirndorfer.mobtt.core.di.initKoin
 import at.stefanirndorfer.mobtt.core.network.AppConfig
@@ -10,6 +12,7 @@ import at.stefanirndorfer.mobtt.feature.club.impl.di.clubModule
 import at.stefanirndorfer.mobtt.feature.home.impl.di.homeModule
 import at.stefanirndorfer.mobtt.feature.players.impl.di.playersModule
 import at.stefanirndorfer.mobtt.feature.settings.impl.di.settingsModule
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -25,6 +28,7 @@ class MobTTApplication : Application() {
         )
         val koin = initKoin(config) {
             androidContext(this@MobTTApplication)
+            Logger.addLogWriter(crashLogWriter(config.xttvApiKey) { koin.get<CrashReporter>() })
             modules(
                 directoryModules + listOf(
                     analyticsModule(analyticsEnabled = config.environment != Environment.Deb),

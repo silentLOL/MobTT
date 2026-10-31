@@ -21,6 +21,7 @@ kotlin {
         implementation(project(":core:network"))
         implementation(project(":core:fake-directory"))
         implementation(libs.koin.core)
+        implementation(libs.kermit)
         api(project(":domain:app"))
         api(project(":domain:user"))
         api(project(":domain:club"))

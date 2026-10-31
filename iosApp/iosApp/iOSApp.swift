@@ -18,12 +18,14 @@ struct iOSApp: App {
     }
 
     init() {
+        AppAnalytics.configure(environmentKey: Self.environmentKey)
         KoinHelper.shared.start(
             environmentKey: Self.environmentKey,
             appVersion: Self.appVersion,
-            xttvApiKey: Self.xttvApiKey
+            xttvApiKey: Self.xttvApiKey,
+            crashRecorder: AppAnalytics.kotlinCrashRecorder
         )
-        AppAnalytics.start(environmentKey: Self.environmentKey)
+        AppAnalytics.observeConsent()
     }
 
     var body: some Scene {

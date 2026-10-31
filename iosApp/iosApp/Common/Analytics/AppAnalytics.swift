@@ -9,20 +9,28 @@ enum AppAnalytics {
     private(set) static var tracker: any AnalyticsTracker = NoOpAnalyticsTracker()
     private(set) static var crashReporter: any CrashReporter = NoOpCrashReporter()
 
+    /// Call before starting Koin: shared code logs to `crashReporter` from its first line.
     /// `deb` sends no Analytics events; Crashlytics still reports to the `deb` Firebase app.
-    static func start(environmentKey: String) {
+    static func configure(environmentKey: String) {
         guard Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil else { return }
         FirebaseApp.configure()
         if environmentKey != "deb" {
             tracker = FirebaseAnalyticsTracker()
         }
         crashReporter = FirebaseCrashReporter()
+    }
 
+    /// Call after starting Koin: collection follows Usage Consent, at launch and on every change.
+    static func observeConsent() {
         let collection = UsageConsentCollection(
             allowed: KoinHelper.shared.getObserveUsageConsentUseCase().invoke().map { $0 == .allowed },
             tracker: tracker,
             crashReporter: crashReporter
         )
         Task { await collection.run() }
+    }
+
+    static var kotlinCrashRecorder: KotlinCrashRecorder {
+        KotlinCrashRecorder(reporter: crashReporter)
     }
 }

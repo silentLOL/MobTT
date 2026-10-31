@@ -8,6 +8,8 @@ struct NoOpAnalyticsTracker: AnalyticsTracker {
 struct NoOpCrashReporter: CrashReporter {
     func recordNonFatal(_ error: any Error) {}
 
+    func recordKotlinException(name: String, reason: String, frames: [String]) {}
+
     func log(_ message: String) {}
 
     func setCollectionEnabled(_ enabled: Bool) {}

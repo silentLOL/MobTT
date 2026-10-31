@@ -39,6 +39,7 @@ dependencies {
         implementation(project(":android:feature:$feature:impl"))
     }
     debugImplementation(project(":core:fake-directory"))
+    implementation(libs.kermit)
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
     implementation(platform(libs.androidx.compose.bom))
