@@ -1,4 +1,5 @@
 ---
+status: resolved
 ---
 
 # Spec: Real data from the XTTV API
