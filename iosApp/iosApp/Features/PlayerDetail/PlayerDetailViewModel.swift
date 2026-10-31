@@ -11,6 +11,7 @@ final class PlayerDetailViewModel {
     private var loadTask: Task<Void, Never>?
     @ObservationIgnored private var favorites: Set<AnyHashable> = []
 
+    @ObservationIgnored private let eventStream = AsyncStream<PlayerDetailEvent>.makeStream()
     private let loadDetail: (String) async throws -> DataResult
     @ObservationIgnored private let observeFavorites: any AsyncSequence<Set<AnyHashable>, Never>
     @ObservationIgnored private let addFavorite: (Favorite) async throws -> Void
@@ -30,6 +31,8 @@ final class PlayerDetailViewModel {
         self.removeFavorite = removeFavorite
     }
 
+    var events: AsyncStream<PlayerDetailEvent> { eventStream.stream }
+
     /// Follows the Favorites until the calling task is cancelled. The load itself runs from `loadIfNeeded()`.
     func observe() async {
         for await set in observeFavorites {
@@ -48,6 +51,11 @@ final class PlayerDetailViewModel {
         switch action {
         case .favoriteClicked:
             toggleFavorite()
+        case .clubClicked:
+            guard case .content(let detail) = uiState else { return }
+            eventStream.continuation.yield(.openClub(clubId: detail.clubId))
+        case .teamClicked(let id):
+            eventStream.continuation.yield(.openTeam(teamId: id))
         }
     }
 
@@ -92,6 +100,13 @@ final class PlayerDetailViewModel {
 
 private extension PlayerDetail {
     func toUi(isFavorite: Bool) -> PlayerDetailUi {
-        PlayerDetailUi(playerName: player.name, clubName: clubName, associationName: associationName, isFavorite: isFavorite)
+        PlayerDetailUi(
+            playerName: player.name,
+            clubId: player.clubId,
+            clubName: clubName,
+            associationName: associationName,
+            teams: teams.map { PlayerTeamUi(id: $0.id, name: $0.name) },
+            isFavorite: isFavorite
+        )
     }
 }

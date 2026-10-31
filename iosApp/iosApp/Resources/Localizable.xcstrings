@@ -817,6 +817,23 @@
         }
       }
     },
+    "player_detail_club_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verein"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Club"
+          }
+        }
+      }
+    },
     "player_detail_favorite_add_cd %@": {
       "extractionState": "manual",
       "localizations": {
@@ -881,6 +898,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Loading Player"
+          }
+        }
+      }
+    },
+    "player_detail_teams_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mannschaften"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teams"
           }
         }
       }

@@ -2,4 +2,8 @@ package at.stefanirndorfer.batmate.feature.players.impl.presentation.playerdetai
 
 sealed interface PlayerDetailAction {
     data object FavoriteClicked : PlayerDetailAction
+
+    data object ClubClicked : PlayerDetailAction
+
+    data class TeamClicked(val teamId: String) : PlayerDetailAction
 }

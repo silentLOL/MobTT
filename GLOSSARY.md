@@ -23,7 +23,7 @@ A competition in which Teams play Fixtures against each other (German: Liga), e.
 _Avoid_: Liga, division, championship
 
 **Player**:
-A registered person who plays for exactly one Club (German: Spieler).
+A registered person who plays for exactly one Club (German: Spieler). A Player can be listed in several of that Club's Teams.
 _Avoid_: Spieler, athlete, member
 
 ### Competition

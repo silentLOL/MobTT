@@ -8,11 +8,15 @@ import at.stefanirndorfer.batmate.domain.user.GetPlayerDetailUseCase
 import at.stefanirndorfer.batmate.domain.user.ObserveFavoritesUseCase
 import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.batmate.feature.players.impl.presentation.playerdetail.models.PlayerDetailAction
+import at.stefanirndorfer.batmate.feature.players.impl.presentation.playerdetail.models.PlayerDetailEvent
 import at.stefanirndorfer.batmate.feature.players.impl.presentation.playerdetail.models.PlayerDetailUiState
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -34,10 +38,20 @@ class PlayerDetailViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), PlayerDetailUiState.Loading)
 
+    private val eventChannel = Channel<PlayerDetailEvent>()
+    val events: Flow<PlayerDetailEvent> = eventChannel.receiveAsFlow()
+
     fun onAction(action: PlayerDetailAction) {
         when (action) {
             PlayerDetailAction.FavoriteClicked -> toggleFavorite()
+            PlayerDetailAction.ClubClicked -> openClub()
+            is PlayerDetailAction.TeamClicked -> viewModelScope.launch { eventChannel.send(PlayerDetailEvent.OpenTeam(action.teamId)) }
         }
+    }
+
+    private fun openClub() {
+        val content = uiState.value as? PlayerDetailUiState.Content ?: return
+        viewModelScope.launch { eventChannel.send(PlayerDetailEvent.OpenClub(content.detail.player.clubId)) }
     }
 
     private fun toggleFavorite() {

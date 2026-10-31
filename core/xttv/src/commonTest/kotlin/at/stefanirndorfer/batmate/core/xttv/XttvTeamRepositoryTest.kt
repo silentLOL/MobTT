@@ -73,8 +73,8 @@ class XttvTeamRepositoryTest {
     }
 
     @Test
-    fun theLineupComesFromTheLineupSourceAndIsEmptyWithoutOne() = runTest {
-        assertEquals(emptyList(), repository.getLineup("501"))
+    fun theLineupComesFromTheLineupSourceOrElseFromTheTeamDetails() = runTest {
+        assertEquals(listOf(LineupPlayer("60473", "Phatsaraphon Wonglakhon")), repository.getLineup("501"))
 
         lineups = LineupSource { listOf(LineupPlayer("huber", "Michael Huber")) }
 

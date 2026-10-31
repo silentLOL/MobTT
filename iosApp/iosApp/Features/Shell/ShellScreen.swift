@@ -65,7 +65,11 @@ struct ShellScreen: View {
                         teamDetail(route)
                     }
                     .navigationDestination(for: PlayerDestination.self) { route in
-                        PlayerDetailRoute(playerId: route.playerId)
+                        PlayerDetailRoute(
+                            playerId: route.playerId,
+                            onOpenClub: { homePath.append(ClubDetailRoute(clubId: $0)) },
+                            onOpenTeam: { homePath.append(TeamDestination(teamId: $0)) }
+                        )
                             .navigationTitle(String(localized: "player_detail_hero_overline"))
                             .navigationBarTitleDisplayMode(.inline)
                             .batBackground()

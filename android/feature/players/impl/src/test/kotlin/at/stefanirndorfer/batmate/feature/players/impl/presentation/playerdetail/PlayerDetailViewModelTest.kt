@@ -5,6 +5,9 @@ import at.stefanirndorfer.batmate.domain.club.AssociationRepository
 import at.stefanirndorfer.batmate.domain.club.Club
 import at.stefanirndorfer.batmate.domain.club.ClubRepository
 import at.stefanirndorfer.batmate.domain.club.DataUnavailable
+import at.stefanirndorfer.batmate.domain.club.LineupPlayer
+import at.stefanirndorfer.batmate.domain.club.Team
+import at.stefanirndorfer.batmate.domain.club.TeamRepository
 import at.stefanirndorfer.batmate.domain.player.Player
 import at.stefanirndorfer.batmate.domain.player.PlayerRepository
 import at.stefanirndorfer.batmate.domain.user.AddFavoriteUseCase
@@ -17,11 +20,13 @@ import at.stefanirndorfer.batmate.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.batmate.domain.user.UserSelection
 import at.stefanirndorfer.batmate.domain.user.UserSelectionRepository
 import at.stefanirndorfer.batmate.feature.players.impl.presentation.playerdetail.models.PlayerDetailAction
+import at.stefanirndorfer.batmate.feature.players.impl.presentation.playerdetail.models.PlayerDetailEvent
 import at.stefanirndorfer.batmate.feature.players.impl.presentation.playerdetail.models.PlayerDetailUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -43,10 +48,13 @@ private class FakePlayerData :
     PlayerRepository,
     ClubRepository,
     AssociationRepository,
+    TeamRepository,
     FavoritesRepository,
     UserSelectionRepository {
     var unavailable = false
     var players = listOf(Player("p1", "Anna Gruber", "c1"))
+    var teams = listOf(Team("t1", "TTC Olympic 1", "c1", "l1"))
+    var lineup = listOf(LineupPlayer("p1", "Anna Gruber"))
     val favorites = MutableStateFlow<Set<Favorite>>(emptySet())
 
     private fun <T> read(value: T): T {
@@ -67,6 +75,12 @@ private class FakePlayerData :
     override suspend fun getAssociation(id: String): Association? = read(Association("a1", "WTTV"))
 
     override suspend fun getAssociations(): List<Association> = read(emptyList())
+
+    override suspend fun getTeam(id: String): Team? = read(teams.firstOrNull { it.id == id })
+
+    override suspend fun getTeams(clubId: String): List<Team> = read(teams.filter { it.clubId == clubId })
+
+    override suspend fun getLineup(teamId: String): List<LineupPlayer> = read(lineup)
 
     override fun observeFavorites(): Flow<Set<Favorite>> = favorites
 
@@ -92,7 +106,7 @@ class PlayerDetailViewModelTest {
     private fun TestScope.viewModel(playerId: String = "p1"): PlayerDetailViewModel {
         val viewModel = PlayerDetailViewModel(
             playerId = playerId,
-            getPlayerDetail = GetPlayerDetailUseCase(data, data, data),
+            getPlayerDetail = GetPlayerDetailUseCase(data, data, data, data),
             observeFavorites = ObserveFavoritesUseCase(data),
             addFavorite = AddFavoriteUseCase(data, data),
             removeFavorite = RemoveFavoriteUseCase(data),
@@ -105,7 +119,7 @@ class PlayerDetailViewModelTest {
     fun aResolvablePlayerShowsNameClubAndAssociation() = runTest {
         val state = assertIs<PlayerDetailUiState.Content>(viewModel().uiState.value)
 
-        assertEquals(PlayerDetail(Player("p1", "Anna Gruber", "c1"), "TTC Olympic", "WTTV"), state.detail)
+        assertEquals(PlayerDetail(Player("p1", "Anna Gruber", "c1"), "TTC Olympic", "WTTV", data.teams), state.detail)
         assertFalse(state.isFavorite)
     }
 
@@ -153,5 +167,16 @@ class PlayerDetailViewModelTest {
         viewModel.onAction(PlayerDetailAction.FavoriteClicked)
 
         assertEquals(emptySet(), data.favorites.value)
+    }
+
+    @Test
+    fun tappingTheClubOrATeamEmitsTheMatchingEvent() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onAction(PlayerDetailAction.ClubClicked)
+        assertEquals(PlayerDetailEvent.OpenClub("c1"), viewModel.events.first())
+
+        viewModel.onAction(PlayerDetailAction.TeamClicked("t1"))
+        assertEquals(PlayerDetailEvent.OpenTeam("t1"), viewModel.events.first())
     }
 }

@@ -11,7 +11,20 @@ struct PlayerDetailViewModelTests {
         viewModel.loadIfNeeded()
         await settle(viewModel)
 
-        #expect(viewModel.uiState == .content(PlayerDetailUi(playerName: "Anna Gruber", clubName: "TTC Olympic", associationName: "WTTV")))
+        #expect(viewModel.uiState == .content(PlayerDetailUi(playerName: "Anna Gruber", clubId: "1", clubName: "TTC Olympic", associationName: "WTTV")))
+    }
+
+    @Test func tappingTheClubOrATeamEmitsTheMatchingEvent() async {
+        let viewModel = makeViewModel { _ in success }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+        var events = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.clubClicked)
+        viewModel.onAction(.teamClicked(id: "t1"))
+
+        #expect(await events.next() == .openClub(clubId: "1"))
+        #expect(await events.next() == .openTeam(teamId: "t1"))
     }
 
     @Test func aPlayerThatCannotBeResolvedIsUnavailable() async {
@@ -39,7 +52,7 @@ struct PlayerDetailViewModelTests {
         await viewModel.observe()
         await settle(viewModel)
 
-        #expect(viewModel.uiState == .content(PlayerDetailUi(playerName: "Anna Gruber", clubName: "TTC Olympic", associationName: "WTTV", isFavorite: true)))
+        #expect(viewModel.uiState == .content(PlayerDetailUi(playerName: "Anna Gruber", clubId: "1", clubName: "TTC Olympic", associationName: "WTTV", isFavorite: true)))
     }
 
     @Test func tappingTheStarOfAPlayerThatIsNotFavoriteAddsIt() async {
@@ -106,7 +119,7 @@ struct PlayerDetailViewModelTests {
 
     private var success: DataResult {
         let player = Player(id: "p1", name: "Anna Gruber", clubId: "1")
-        return DataResultSuccess(value: PlayerDetail(player: player, clubName: "TTC Olympic", associationName: "WTTV"))
+        return DataResultSuccess(value: PlayerDetail(player: player, clubName: "TTC Olympic", associationName: "WTTV", teams: []))
     }
 
     private var unavailable: DataResult { DataResultUnavailable(error: DataUnavailable(message: "down", cause: nil)) }

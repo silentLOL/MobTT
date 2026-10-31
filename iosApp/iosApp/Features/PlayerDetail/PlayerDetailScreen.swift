@@ -1,9 +1,14 @@
 import SwiftUI
 
 struct PlayerDetailRoute: View {
+    let onOpenClub: (String) -> Void
+    let onOpenTeam: (String) -> Void
+
     @State private var viewModel: PlayerDetailViewModel
 
-    init(playerId: String) {
+    init(playerId: String, onOpenClub: @escaping (String) -> Void, onOpenTeam: @escaping (String) -> Void) {
+        self.onOpenClub = onOpenClub
+        self.onOpenTeam = onOpenTeam
         _viewModel = State(initialValue: PlayerDetailViewModel(playerId: playerId))
     }
 
@@ -11,6 +16,14 @@ struct PlayerDetailRoute: View {
         PlayerDetailScreen(state: viewModel.uiState, onAction: viewModel.onAction)
             .onAppear { viewModel.loadIfNeeded() }
             .task { await viewModel.observe() }
+            .task {
+                for await event in viewModel.events {
+                    switch event {
+                    case .openClub(let clubId): onOpenClub(clubId)
+                    case .openTeam(let teamId): onOpenTeam(teamId)
+                    }
+                }
+            }
     }
 }
 
@@ -47,26 +60,13 @@ private struct ContentView: View {
 
     var body: some View {
         ScrollView {
-            BatHeroCardView {
-                ZStack(alignment: .topTrailing) {
-                    VStack(alignment: .leading, spacing: BatSpacing.sm) {
-                        BatHeroPillRowView(text: String(localized: "player_detail_hero_overline"))
-                        Text(detail.playerName)
-                            .batTextStyle(BatTypography.display)
-                            .foregroundStyle(BatColor.onHero)
-                        if let clubName = detail.clubName {
-                            Text(clubName)
-                                .batTextStyle(BatTypography.body)
-                                .foregroundStyle(BatColor.onHero)
-                        }
-                        if let associationName = detail.associationName {
-                            Text(associationName)
-                                .batTextStyle(BatTypography.caption)
-                                .foregroundStyle(BatColor.onHero)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .accessibilityElement(children: .combine)
+            VStack(alignment: .leading, spacing: BatSpacing.lg) {
+                HStack(alignment: .top, spacing: BatSpacing.sm) {
+                    Text(detail.playerName)
+                        .batTextStyle(BatTypography.display)
+                        .foregroundStyle(BatColor.textPrimary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityAddTraits(.isHeader)
                     BatFavoriteButtonView(
                         isFavorite: detail.isFavorite,
                         accessibilityText: detail.isFavorite
@@ -78,8 +78,44 @@ private struct ContentView: View {
                         action: { onAction(.favoriteClicked) }
                     )
                 }
+                if let clubName = detail.clubName {
+                    VStack(alignment: .leading, spacing: BatSpacing.sm) {
+                        BatSectionHeaderView(title: String(localized: "player_detail_club_title"))
+                        LinkRowView(title: clubName, detail: detail.associationName) { onAction(.clubClicked) }
+                    }
+                }
+                if !detail.teams.isEmpty {
+                    VStack(alignment: .leading, spacing: BatSpacing.sm) {
+                        BatSectionHeaderView(title: String(localized: "player_detail_teams_title"))
+                        ForEach(detail.teams) { team in
+                            LinkRowView(title: team.name, detail: nil) { onAction(.teamClicked(id: team.id)) }
+                        }
+                    }
+                }
             }
             .padding(BatSpacing.lg)
+        }
+    }
+}
+
+private struct LinkRowView: View {
+    let title: String
+    let detail: String?
+    let onTap: () -> Void
+
+    var body: some View {
+        BatCardView(padding: BatSpacing.md, onTap: onTap) {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(title)
+                    .batTextStyle(BatTypography.bodyStrong)
+                    .foregroundStyle(BatColor.textPrimary)
+                if let detail {
+                    Text(detail)
+                        .batTextStyle(BatTypography.caption)
+                        .foregroundStyle(BatColor.textSecondary)
+                }
+            }
+            .frame(maxWidth: .infinity, minHeight: BatSizing.minTouchTarget, alignment: .leading)
         }
     }
 }
@@ -105,6 +141,12 @@ private struct ContentView: View {
 #Preview("Favorite") {
     BatPreviewMatrix {
         PlayerDetailScreen(state: .content(PlayerDetailPreviewData.favorite), onAction: { _ in })
+    }
+}
+
+#Preview("No Teams") {
+    BatPreviewMatrix {
+        PlayerDetailScreen(state: .content(PlayerDetailPreviewData.noTeams), onAction: { _ in })
     }
 }
 

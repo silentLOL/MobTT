@@ -7,7 +7,7 @@ import kotlin.time.Duration.Companion.hours
 
 private val TEAM_TTL = 1.hours
 
-/** PROVISIONAL: [getLineup] still comes from [lineups]; `getTeamDetails` lists players, not yet mapped. */
+/** [getLineup] comes from [lineups] when one is bound (the fake directory), otherwise from the players `getTeamDetails` lists. */
 class XttvTeamRepository(
     private val api: XttvApi,
     private val host: String,
@@ -28,5 +28,13 @@ class XttvTeamRepository(
             .map { Team(id = it.id, name = it.name, clubId = clubId, leagueId = it.leagueId) }
     }
 
-    override suspend fun getLineup(teamId: String): List<LineupPlayer> = lineups?.lineup(teamId).orEmpty()
+    override suspend fun getLineup(teamId: String): List<LineupPlayer> {
+        if (lineups != null) {
+            return lineups.lineup(teamId)
+        }
+        if (!XttvEndpoints.isXttvId(teamId)) {
+            return emptyList()
+        }
+        return api.get(XttvEndpoints.team(host, teamId), TEAM_TTL, TeamXml.serializer()).lineup()
+    }
 }
