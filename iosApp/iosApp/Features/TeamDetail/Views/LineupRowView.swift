@@ -13,7 +13,9 @@ struct LineupRowView: View {
             if let rcPoints = player.rcPoints {
                 Text("team_detail_lineup_rc_label \(rcPoints)")
                     .batTextStyle(BatTypography.caption)
+                    .monospacedDigit()
                     .foregroundStyle(BatColor.textSecondary)
+                    .frame(minWidth: 64, alignment: .trailing)
             }
         }
         .padding(.horizontal, BatSpacing.md)

@@ -91,11 +91,16 @@ class TeamDetailTest {
     }
 
     @Test
-    fun lineupKeepsTheRepositoryOrder() = runTest {
+    fun lineupIsOrderedByRcPointsWithUnratedPlayersLastInRepositoryOrder() = runTest {
         givenOlympic()
-        directory.lineups["o1"] = listOf(LineupPlayer("b", "Bea"), LineupPlayer("a", "Ana"))
+        directory.lineups["o1"] = listOf(
+            LineupPlayer("u1", "Uli"),
+            LineupPlayer("b", "Bea", rcPoints = 1800),
+            LineupPlayer("u2", "Udo"),
+            LineupPlayer("a", "Ana", rcPoints = 2100),
+        )
 
-        assertEquals(listOf("b", "a"), getTeamDetail("o1")!!.lineup.map { it.playerId })
+        assertEquals(listOf("a", "b", "u1", "u2"), getTeamDetail("o1")!!.lineup.map { it.playerId })
     }
 
     @Test

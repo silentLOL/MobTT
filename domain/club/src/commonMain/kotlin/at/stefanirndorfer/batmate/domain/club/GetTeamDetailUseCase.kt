@@ -19,7 +19,7 @@ class GetTeamDetailUseCase(
             league = leagueRepository.getLeague(team.leagueId),
             standing = leagueRepository.getStandings(team.leagueId).firstOrNull { it.teamId == teamId },
             nextFixture = nextFixtureOf(team, fixtureRepository.getFixtures(teamId), clock.now()),
-            lineup = teamRepository.getLineup(teamId),
+            lineup = teamRepository.getLineup(teamId).sortedByDescending { it.rcPoints ?: Int.MIN_VALUE },
         )
     }
 }
