@@ -1,6 +1,7 @@
 package at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
@@ -131,7 +133,26 @@ private fun MainContent(state: SettingsUiState, onAction: (SettingsAction) -> Un
         onClick = { onAction(SettingsAction.DoneClicked) },
         modifier = Modifier.fillMaxWidth(),
     )
+    DataSourceCredit()
 }
+
+@Composable
+private fun DataSourceCredit() {
+    val uriHandler = LocalUriHandler.current
+    Text(
+        text = stringResource(R.string.settings_data_source_credit),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                onClickLabel = stringResource(R.string.settings_data_source_link_label),
+                role = Role.Button,
+            ) { uriHandler.openUri(XTTV_WEBSITE) },
+        color = BatDesign.colors.textSecondary,
+        style = BatDesign.typography.caption,
+    )
+}
+
+private const val XTTV_WEBSITE = "https://oettv.xttv.at"
 
 @Composable
 private fun PickerContent(picker: SettingsPickerUi, onAction: (SettingsAction) -> Unit) {

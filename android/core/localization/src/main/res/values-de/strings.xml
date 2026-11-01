@@ -142,4 +142,6 @@
     <string name="consent_not_now_button">Nicht jetzt</string>
     <string name="settings_usage_consent_title">Nutzungsstatistiken und Absturzberichte</string>
     <string name="settings_usage_consent_supporting">Anonym. Enthält nie Namen oder Eingaben.</string>
+    <string name="settings_data_source_credit">Ergebnisse bereitgestellt vom XTTV Ergebnisdienst</string>
+    <string name="settings_data_source_link_label">Website des XTTV Ergebnisdienstes öffnen</string>
 </resources>

@@ -1922,6 +1922,40 @@
         }
       }
     },
+    "settings_data_source_credit": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ergebnisse bereitgestellt vom XTTV Ergebnisdienst"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Results powered by XTTV Ergebnisdienst"
+          }
+        }
+      }
+    },
+    "settings_data_source_link_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Website des XTTV Ergebnisdienstes öffnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the XTTV Ergebnisdienst website"
+          }
+        }
+      }
+    },
     "settings_usage_consent_title": {
       "extractionState": "manual",
       "localizations": {

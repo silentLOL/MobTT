@@ -83,6 +83,17 @@ struct SettingsScreen: View {
             )
         )
         BatPrimaryButtonView(title: String(localized: "settings_done_button")) { onAction(.doneClicked) }
+        dataSourceCredit
+    }
+
+    private var dataSourceCredit: some View {
+        Link(destination: URL(string: "https://oettv.xttv.at")!) {
+            Text("settings_data_source_credit")
+                .batTextStyle(BatTypography.caption)
+                .foregroundStyle(BatColor.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .accessibilityHint(Text("settings_data_source_link_label"))
     }
 
     @ViewBuilder
