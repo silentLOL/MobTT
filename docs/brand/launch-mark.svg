@@ -7,11 +7,10 @@
     </g>
     <g clip-path="url(#b)">
       <rect x="320" y="230" width="480" height="154" fill="#DA291C"/>
-      <rect x="320" y="383" width="480" height="155" fill="#FFFFFF"/>
+      <rect x="320" y="383" width="480" height="155" fill="#DA291C"/>
       <rect x="320" y="537" width="480" height="154" fill="#DA291C"/>
     </g>
     <path d="M560,234a226,226 0 1,0 0,452a226,226 0 1,0 0,-452z" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="4"/>
-    <path d="M772,326Q812,300 828,250" fill="none" stroke="#FFFFFF" stroke-opacity="0.3" stroke-width="14" stroke-linecap="round"/>
     <path d="M836,196m-46,0a46,46 0 1,0 92,0a46,46 0 1,0 -92,0" fill="#FFFFFF"/>
   </g>
 </svg>

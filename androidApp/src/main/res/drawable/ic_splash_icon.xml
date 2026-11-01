@@ -32,7 +32,7 @@
                 android:fillColor="#DA291C"
                 android:pathData="M320,230L800,230L800,384L320,384Z" />
             <path
-                android:fillColor="#FFFFFF"
+                android:fillColor="#DA291C"
                 android:pathData="M320,383L800,383L800,538L320,538Z" />
             <path
                 android:fillColor="#DA291C"
@@ -43,12 +43,6 @@
             android:strokeAlpha="0.18"
             android:strokeColor="#FFFFFF"
             android:strokeWidth="4" />
-        <path
-            android:pathData="M772,326Q812,300 828,250"
-            android:strokeAlpha="0.3"
-            android:strokeColor="#FFFFFF"
-            android:strokeLineCap="round"
-            android:strokeWidth="14" />
         <path
             android:fillColor="#FFFFFF"
             android:pathData="M836,196m-46,0a46,46 0 1,0 92,0a46,46 0 1,0 -92,0" />
