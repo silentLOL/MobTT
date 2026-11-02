@@ -33,6 +33,7 @@ object AnalyticsScreen {
     const val PLAYER_DETAIL = "player_detail"
     const val TEAM_DETAIL = "team_detail"
     const val LEAGUE_DETAIL = "league_detail"
+    const val FIXTURE_DETAIL = "fixture_detail"
     const val SETTINGS = "settings"
 }
 
@@ -45,6 +46,7 @@ object AnalyticsKind {
     const val CLUB = "club"
     const val TEAM = "team"
     const val LEAGUE = "league"
+    const val FIXTURE = "fixture"
 }
 
 object AnalyticsSource {

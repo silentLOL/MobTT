@@ -1,6 +1,7 @@
 package at.stefanirndorfer.mobtt.core.xttv
 
 import at.stefanirndorfer.mobtt.domain.club.Fixture
+import at.stefanirndorfer.mobtt.domain.club.FixtureDetail
 import at.stefanirndorfer.mobtt.domain.club.FixtureRepository
 import at.stefanirndorfer.mobtt.domain.club.TeamRepository
 import kotlin.time.Duration.Companion.minutes
@@ -28,5 +29,12 @@ class XttvFixtureRepository(
         return api.get(XttvEndpoints.leagueGames(host, leagueId), FIXTURE_TTL, GamesXml.serializer()).game
             .mapNotNull { it.toDomain() }
             .sortedBy { it.startsAt }
+    }
+
+    override suspend fun getFixtureDetail(fixtureId: String): FixtureDetail? {
+        if (!XttvEndpoints.isXttvId(fixtureId)) {
+            return null
+        }
+        return api.get(XttvEndpoints.gameDetails(host, fixtureId), FIXTURE_TTL, GameDetailsXml.serializer()).toDomain()
     }
 }

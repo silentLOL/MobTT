@@ -66,3 +66,4 @@ XTTV, the source of our data, names some things differently. Our terms above sta
 |-----------|----------|
 | Federation (`getFederations`) | Association |
 | Game (`getClubGames`, `getLeagueGames`, `getGameDetails`) | Fixture |
+| Game result (`game_result` in `getGameDetails`) | Match |

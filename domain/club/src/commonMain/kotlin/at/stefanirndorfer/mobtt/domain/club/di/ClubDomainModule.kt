@@ -1,6 +1,7 @@
 package at.stefanirndorfer.mobtt.domain.club.di
 
 import at.stefanirndorfer.mobtt.domain.club.GetClubOverviewUseCase
+import at.stefanirndorfer.mobtt.domain.club.GetFixtureDetailUseCase
 import at.stefanirndorfer.mobtt.domain.club.GetLeagueDetailUseCase
 import at.stefanirndorfer.mobtt.domain.club.GetTeamDetailUseCase
 import at.stefanirndorfer.mobtt.domain.club.ListAssociationClubsUseCase
@@ -20,4 +21,5 @@ val clubDomainModule = module {
     factory { GetClubOverviewUseCase(get(), get(), get(), get(), get()) }
     factory { GetTeamDetailUseCase(get(), get(), get(), get()) }
     factoryOf(::GetLeagueDetailUseCase)
+    factoryOf(::GetFixtureDetailUseCase)
 }

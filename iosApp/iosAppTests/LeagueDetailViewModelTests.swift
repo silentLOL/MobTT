@@ -94,6 +94,23 @@ struct LeagueDetailViewModelTests {
         #expect(teamId == "t2")
     }
 
+    @Test func tappingTheInfoButtonSendsAnOpenFixtureEventAndReportsIt() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(analytics: analytics) { _ in
+            DataResultSuccess(value: LeagueDetail(league: League(id: "l1", name: "Liga"), standings: [], fixtures: []))
+        }
+        var iterator = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.fixtureInfoClicked(fixtureId: "f1"))
+
+        guard case .openFixture(let fixtureId) = await iterator.next() else {
+            Issue.record("Expected an openFixture event")
+            return
+        }
+        #expect(fixtureId == "f1")
+        #expect(analytics.events == [LoggedEvent("detail_opened", ["kind": "fixture", "id": "f1", "from": "league_detail"])])
+    }
+
     private func fixture(_ id: String, home: String, away: String) -> Fixture {
         Fixture(
             id: id,

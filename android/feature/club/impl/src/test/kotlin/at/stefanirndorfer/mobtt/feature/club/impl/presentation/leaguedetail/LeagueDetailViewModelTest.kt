@@ -99,6 +99,21 @@ class LeagueDetailViewModelTest {
     }
 
     @Test
+    fun tappingTheInfoButtonSendsAnOpenFixtureEventAndReportsIt() = runTest {
+        val viewModel = viewModel()
+        val events = mutableListOf<LeagueDetailEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect(events::add) }
+
+        viewModel.onAction(LeagueDetailAction.FixtureInfoClicked("f1"))
+
+        assertEquals(listOf<LeagueDetailEvent>(LeagueDetailEvent.OpenFixture("f1")), events)
+        assertEquals(
+            LoggedEvent("detail_opened", mapOf("kind" to "fixture", "id" to "f1", "from" to "league_detail")),
+            analytics.events.last(),
+        )
+    }
+
+    @Test
     fun reportsTheScreenViewAndTheTeamOpened() = runTest {
         val viewModel = viewModel()
 

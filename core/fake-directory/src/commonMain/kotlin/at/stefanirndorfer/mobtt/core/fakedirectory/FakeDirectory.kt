@@ -5,6 +5,7 @@ import at.stefanirndorfer.mobtt.domain.club.AssociationRepository
 import at.stefanirndorfer.mobtt.domain.club.Club
 import at.stefanirndorfer.mobtt.domain.club.ClubRepository
 import at.stefanirndorfer.mobtt.domain.club.Fixture
+import at.stefanirndorfer.mobtt.domain.club.FixtureDetail
 import at.stefanirndorfer.mobtt.domain.club.FixtureRepository
 import at.stefanirndorfer.mobtt.domain.club.FixtureScore
 import at.stefanirndorfer.mobtt.domain.club.FixtureStatus
@@ -146,6 +147,8 @@ class FakeDirectory(private val clock: Clock = Clock.System) :
         val teamIds = teams.filter { it.leagueId == leagueId }.map { it.id }.toSet()
         return fixtures().filter { it.homeTeamId in teamIds }.sortedBy { it.startsAt }
     }
+
+    override suspend fun getFixtureDetail(fixtureId: String): FixtureDetail? = fixtures().firstOrNull { it.id == fixtureId }?.let { FixtureDetail(it, address = null, matches = emptyList()) }
 
     // Dates are relative to now so the demo never runs out of upcoming Fixtures. TTC Olympic 3 only has a finished one: a free week.
     private fun fixtures(): List<Fixture> = listOf(

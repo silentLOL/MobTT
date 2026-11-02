@@ -51,6 +51,9 @@ final class LeagueDetailViewModel {
         case .teamClicked(let teamId):
             analytics.detailOpened(kind: AnalyticsKind.team, id: teamId, from: AnalyticsScreen.leagueDetail)
             eventStream.continuation.yield(.openTeam(teamId: teamId))
+        case .fixtureInfoClicked(let fixtureId):
+            analytics.detailOpened(kind: AnalyticsKind.fixture, id: fixtureId, from: AnalyticsScreen.leagueDetail)
+            eventStream.continuation.yield(.openFixture(fixtureId: fixtureId))
         case .onlyTeamFixturesToggled(let enabled):
             onlyTeamFixtures = enabled
             guard case .content(var detail) = uiState else { return }

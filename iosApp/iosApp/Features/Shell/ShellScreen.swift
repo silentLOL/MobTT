@@ -17,6 +17,10 @@ private struct TeamDestination: Hashable {
     let teamId: String
 }
 
+private struct FixtureDestination: Hashable {
+    let fixtureId: String
+}
+
 private struct LeagueDestination: Hashable {
     let leagueId: String
     /// The Team to highlight, when opened from its Team screen.
@@ -89,6 +93,9 @@ struct ShellScreen: View {
                     .navigationDestination(for: LeagueDestination.self) { route in
                         leagueDetail(route, path: $homePath)
                     }
+                    .navigationDestination(for: FixtureDestination.self) { route in
+                        fixtureDetail(route, path: $homePath)
+                    }
                     .navigationDestination(for: PlayerDestination.self) { route in
                         playerDetail(route, path: $homePath)
                     }
@@ -120,6 +127,9 @@ struct ShellScreen: View {
                     .navigationDestination(for: LeagueDestination.self) { route in
                         leagueDetail(route, path: $clubPath)
                     }
+                    .navigationDestination(for: FixtureDestination.self) { route in
+                        fixtureDetail(route, path: $clubPath)
+                    }
                 }
                 .tag(ShellTab.club)
                 NavigationStack(path: $playersPath) {
@@ -144,6 +154,9 @@ struct ShellScreen: View {
                         }
                         .navigationDestination(for: LeagueDestination.self) { route in
                             leagueDetail(route, path: $playersPath)
+                        }
+                        .navigationDestination(for: FixtureDestination.self) { route in
+                            fixtureDetail(route, path: $playersPath)
                         }
                 }
                 .tag(ShellTab.players)
@@ -194,8 +207,20 @@ extension ShellScreen {
     }
 
     fileprivate func leagueDetail(_ route: LeagueDestination, path: Binding<NavigationPath>) -> some View {
-        LeagueDetailRoute(leagueId: route.leagueId, highlightTeamId: route.highlightTeamId, onOpenTeam: { path.wrappedValue.append(TeamDestination(teamId: $0)) })
+        LeagueDetailRoute(
+            leagueId: route.leagueId,
+            highlightTeamId: route.highlightTeamId,
+            onOpenTeam: { path.wrappedValue.append(TeamDestination(teamId: $0)) },
+            onOpenFixture: { path.wrappedValue.append(FixtureDestination(fixtureId: $0)) }
+        )
             .navigationTitle(String(localized: "league_detail_hero_overline"))
+            .navigationBarTitleDisplayMode(.inline)
+            .batBackground()
+    }
+
+    fileprivate func fixtureDetail(_ route: FixtureDestination, path: Binding<NavigationPath>) -> some View {
+        FixtureDetailRoute(fixtureId: route.fixtureId, onOpenTeam: { path.wrappedValue.append(TeamDestination(teamId: $0)) })
+            .navigationTitle(String(localized: "fixture_detail_hero_overline"))
             .navigationBarTitleDisplayMode(.inline)
             .batBackground()
     }

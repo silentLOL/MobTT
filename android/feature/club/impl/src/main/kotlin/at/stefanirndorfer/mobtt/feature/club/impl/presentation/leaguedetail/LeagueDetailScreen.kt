@@ -49,6 +49,7 @@ fun LeagueDetailRoute(
     leagueId: String,
     highlightTeamId: String?,
     onOpenTeam: (String) -> Unit,
+    onOpenFixture: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LeagueDetailViewModel = koinViewModel(
         key = "$leagueId/$highlightTeamId",
@@ -59,6 +60,7 @@ fun LeagueDetailRoute(
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
             is LeagueDetailEvent.OpenTeam -> onOpenTeam(event.teamId)
+            is LeagueDetailEvent.OpenFixture -> onOpenFixture(event.fixtureId)
         }
     }
     LeagueDetailScreen(state = uiState, onAction = viewModel::onAction, modifier = modifier)
@@ -173,6 +175,7 @@ private fun ContentView(state: LeagueDetailUiState.Content, onAction: (LeagueDet
                             highlightTeamId = state.highlightTeamId,
                             striped = index % 2 == 1,
                             onTeamClick = { onAction(LeagueDetailAction.TeamClicked(it)) },
+                            onInfoClick = { onAction(LeagueDetailAction.FixtureInfoClicked(fixture.id)) },
                         )
                     }
                 }

@@ -2,4 +2,6 @@ package at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.mod
 
 sealed interface LeagueDetailEvent {
     data class OpenTeam(val teamId: String) : LeagueDetailEvent
+
+    data class OpenFixture(val fixtureId: String) : LeagueDetailEvent
 }

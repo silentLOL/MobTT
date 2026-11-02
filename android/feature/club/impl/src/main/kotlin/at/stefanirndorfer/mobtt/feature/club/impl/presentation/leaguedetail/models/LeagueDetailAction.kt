@@ -6,4 +6,6 @@ sealed interface LeagueDetailAction {
     data class OnlyTeamFixturesToggled(val enabled: Boolean) : LeagueDetailAction
 
     data class TeamClicked(val teamId: String) : LeagueDetailAction
+
+    data class FixtureInfoClicked(val fixtureId: String) : LeagueDetailAction
 }
