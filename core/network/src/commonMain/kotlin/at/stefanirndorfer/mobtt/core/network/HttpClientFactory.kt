@@ -16,34 +16,40 @@ import kotlinx.coroutines.sync.withPermit
 import co.touchlab.kermit.Logger as Kermit
 
 private val API_KEY_PARAMETER = Regex("apikey=[^&\\s]*")
-private const val DEFAULT_MAX_CONCURRENT_REQUESTS = 2
+private const val DEFAULT_MAX_CONCURRENT_REQUESTS = 3
 
 // XTTV can take ~30 s to answer; the OkHttp engine default (10 s read) cut those requests off.
 private const val REQUEST_TIMEOUT_MILLIS = 45_000L
 
-// XTTV answers some reads (getFederations) with an intermittent 500 that a second try clears.
+// XTTV answers some reads (getFederations) with an intermittent 500 that a second try clears. A 500 that took long
+// to arrive is not retried: the retry would only double the wait.
 private const val MAX_RETRIES = 2
+private const val DEFAULT_QUICK_FAILURE_MILLIS = 5_000L
 
 /**
  * The HTTP client XTTV is called with. Every request carries [userAgent], and at most [maxConcurrentRequests]
  * run in parallel so a screen fanning out many reads cannot strain XTTV. A non-blank [apiKey] goes out as the
- * `apikey` query parameter of every request. With [logRequests] each request and response status is logged,
- * with the key redacted. [engine] is for tests; by default
- * the platform's own engine is used.
+ * `apikey` query parameter of every request. A 5xx is retried only when it arrived within [quickFailureMillis].
+ * With [logRequests] each request and response status is logged, with the key redacted. [engine] is for tests; by
+ * default the platform's own engine is used.
  */
 fun createHttpClient(
     userAgent: String,
     apiKey: String = "",
     logRequests: Boolean = false,
     maxConcurrentRequests: Int = DEFAULT_MAX_CONCURRENT_REQUESTS,
+    quickFailureMillis: Long = DEFAULT_QUICK_FAILURE_MILLIS,
     engine: HttpClientEngine? = null,
 ): HttpClient {
     val configure: HttpClientConfig<*>.() -> Unit = {
         install(UserAgent) { agent = userAgent }
         install(HttpRequestRetry) {
             maxRetries = MAX_RETRIES
-            retryOnServerErrors(MAX_RETRIES)
-            retryOnException(MAX_RETRIES, retryOnTimeout = true)
+            retryIf(MAX_RETRIES) { _, response ->
+                response.status.value >= 500 && response.responseTime.timestamp - response.requestTime.timestamp < quickFailureMillis
+            }
+            // A timeout has already waited long enough.
+            retryOnException(MAX_RETRIES, retryOnTimeout = false)
             exponentialDelay()
         }
         install(HttpTimeout) {

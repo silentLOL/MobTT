@@ -1,9 +1,11 @@
 package at.stefanirndorfer.mobtt.core.network
 
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respondError
 import io.ktor.client.engine.mock.respondOk
 import io.ktor.client.request.get
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
@@ -64,6 +66,36 @@ class HttpClientFactoryTest {
 
         List(6) { async { client.get("https://example.test/clubs?page=$it") } }.awaitAll()
 
-        assertEquals(2, peak)
+        assertEquals(3, peak)
+    }
+
+    @Test
+    fun aQuickServerErrorIsRetriedButASlowOneIsNot() = runTest {
+        var quickCalls = 0
+        val quick = createHttpClient(
+            userAgent = "MobTT/1.2",
+            engine = MockEngine {
+                quickCalls++
+                if (quickCalls == 1) {
+                    respondError(HttpStatusCode.InternalServerError)
+                } else {
+                    respondOk()
+                }
+            },
+        )
+        assertEquals(HttpStatusCode.OK, quick.get("https://example.test/a").status)
+        assertEquals(2, quickCalls)
+
+        var slowCalls = 0
+        val slow = createHttpClient(
+            userAgent = "MobTT/1.2",
+            quickFailureMillis = 0,
+            engine = MockEngine {
+                slowCalls++
+                respondError(HttpStatusCode.InternalServerError)
+            },
+        )
+        assertEquals(HttpStatusCode.InternalServerError, slow.get("https://example.test/a").status)
+        assertEquals(1, slowCalls)
     }
 }
