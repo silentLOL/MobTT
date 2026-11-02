@@ -40,6 +40,8 @@ dependencies {
     }
     debugImplementation(project(":core:fake-directory"))
     implementation(libs.kermit)
+    // Ktor logs through SLF4J; we log through Kermit, so bind the no-op to silence the "no providers" warning.
+    runtimeOnly(libs.slf4j.nop)
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
     implementation(platform(libs.androidx.compose.bom))

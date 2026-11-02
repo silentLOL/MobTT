@@ -1,6 +1,7 @@
 package at.stefanirndorfer.mobtt.domain.user
 
 import at.stefanirndorfer.mobtt.domain.club.ClubRepository
+import at.stefanirndorfer.mobtt.domain.club.DataUnavailable
 import at.stefanirndorfer.mobtt.domain.player.Player
 import at.stefanirndorfer.mobtt.domain.player.PlayerRepository
 
@@ -13,7 +14,14 @@ class ListLeaguePlayersUseCase(
 ) {
     suspend operator fun invoke(leagueId: String): List<PlayerSearchResult> {
         val players = playerRepository.getLeaguePlayers(leagueId)
-        val clubNames = players.map { it.clubId }.distinct().associateWith { clubRepository.getClub(it)?.name }
+        val clubNames = players.map { it.clubId }.distinct().associateWith { clubName(it) }
         return players.map { PlayerSearchResult(it, clubNames[it.clubId]) }
+    }
+
+    /** The name is only a subtitle, so a Club XTTV cannot answer for must not hide the League's Players. */
+    private suspend fun clubName(clubId: String): String? = try {
+        clubRepository.getClub(clubId)?.name
+    } catch (e: DataUnavailable) {
+        null
     }
 }

@@ -210,6 +210,17 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun aSavedChoiceThatXttvCannotResolveReadsAsUnsetInsteadOfCrashing() = runTest {
+        val viewModel = viewModel()
+        data.unavailable = true
+
+        data.saveSelection(UserSelection.MyClub("c1"))
+
+        assertNull(viewModel.uiState.value.myClubName)
+        assertEquals(DerivedFrom.NONE, viewModel.uiState.value.derivedFrom)
+    }
+
+    @Test
     fun thePlayerPickerDrillsFromAssociationToLeagueToPlayers() = runTest {
         val viewModel = viewModel()
 

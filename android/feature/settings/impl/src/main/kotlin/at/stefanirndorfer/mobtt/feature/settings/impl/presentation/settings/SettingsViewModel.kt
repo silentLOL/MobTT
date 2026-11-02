@@ -13,6 +13,7 @@ import at.stefanirndorfer.mobtt.core.analytics.myClubSelected
 import at.stefanirndorfer.mobtt.core.analytics.myPlayerSelected
 import at.stefanirndorfer.mobtt.core.analytics.screenView
 import at.stefanirndorfer.mobtt.core.analytics.settingChanged
+import at.stefanirndorfer.mobtt.core.ui.catchUnavailable
 import at.stefanirndorfer.mobtt.core.ui.directory.PlayerDrillDown
 import at.stefanirndorfer.mobtt.core.ui.directory.filteredBy
 import at.stefanirndorfer.mobtt.core.ui.directory.models.DirectoryEntryUi
@@ -93,7 +94,8 @@ class SettingsViewModel(
 
     val uiState: StateFlow<SettingsUiState> = combine(
         appearanceRepository.observeAppearance(),
-        observeUserContext(),
+        // My Player and My Club resolve through XTTV; when it is unreachable they read as unset instead of crashing.
+        observeUserContext().catchUnavailable(UserContext.None),
         observeUsageConsent(),
         pickerInput,
         pickerResult,

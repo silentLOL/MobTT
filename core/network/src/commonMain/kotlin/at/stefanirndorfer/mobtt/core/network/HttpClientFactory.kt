@@ -3,7 +3,9 @@ package at.stefanirndorfer.mobtt.core.network
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpSend
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.UserAgent
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
@@ -15,6 +17,12 @@ import co.touchlab.kermit.Logger as Kermit
 
 private val API_KEY_PARAMETER = Regex("apikey=[^&\\s]*")
 private const val DEFAULT_MAX_CONCURRENT_REQUESTS = 2
+
+// XTTV can take ~30 s to answer; the OkHttp engine default (10 s read) cut those requests off.
+private const val REQUEST_TIMEOUT_MILLIS = 45_000L
+
+// XTTV answers some reads (getFederations) with an intermittent 500 that a second try clears.
+private const val MAX_RETRIES = 2
 
 /**
  * The HTTP client XTTV is called with. Every request carries [userAgent], and at most [maxConcurrentRequests]
@@ -32,6 +40,17 @@ fun createHttpClient(
 ): HttpClient {
     val configure: HttpClientConfig<*>.() -> Unit = {
         install(UserAgent) { agent = userAgent }
+        install(HttpRequestRetry) {
+            maxRetries = MAX_RETRIES
+            retryOnServerErrors(MAX_RETRIES)
+            retryOnException(MAX_RETRIES, retryOnTimeout = true)
+            exponentialDelay()
+        }
+        install(HttpTimeout) {
+            requestTimeoutMillis = REQUEST_TIMEOUT_MILLIS
+            connectTimeoutMillis = REQUEST_TIMEOUT_MILLIS
+            socketTimeoutMillis = REQUEST_TIMEOUT_MILLIS
+        }
         if (logRequests) {
             install(Logging) {
                 level = LogLevel.INFO

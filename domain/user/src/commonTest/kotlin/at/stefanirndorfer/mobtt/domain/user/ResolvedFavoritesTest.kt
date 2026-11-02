@@ -4,6 +4,7 @@ import at.stefanirndorfer.mobtt.domain.club.Association
 import at.stefanirndorfer.mobtt.domain.club.AssociationRepository
 import at.stefanirndorfer.mobtt.domain.club.Club
 import at.stefanirndorfer.mobtt.domain.club.ClubRepository
+import at.stefanirndorfer.mobtt.domain.club.DataUnavailable
 import at.stefanirndorfer.mobtt.domain.club.LineupPlayer
 import at.stefanirndorfer.mobtt.domain.club.Team
 import at.stefanirndorfer.mobtt.domain.club.TeamRepository
@@ -96,6 +97,17 @@ class ResolvedFavoritesTest {
         val results = ListLeaguePlayersUseCase(directory, directory)("l1")
 
         assertEquals(listOf(PlayerSearchResult(anna, "TTC Olympic")), results)
+    }
+
+    @Test
+    fun leaguePlayersStayListedWhenTheirClubNameIsUnavailable() = runTest {
+        val clubsDown = object : ClubRepository by directory {
+            override suspend fun getClub(id: String): Club? = throw DataUnavailable("XTTV unreachable")
+        }
+
+        val results = ListLeaguePlayersUseCase(directory, clubsDown)("l1")
+
+        assertEquals(listOf(PlayerSearchResult(anna, clubName = null)), results)
     }
 
     @Test
