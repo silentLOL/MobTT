@@ -42,8 +42,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -88,7 +90,9 @@ class HomeViewModel(
     private val pickerResult: Flow<PickerResult?> = pickerInput
         .map { it?.source() }
         .distinctUntilChanged()
-        .mapLatest { source -> source?.let { PickerResult(it, load(it)).also { result -> loaded = result } } }
+        .flatMapLatest { source ->
+            source?.let { load(it).map { entries -> PickerResult(it, entries).also { result -> loaded = result } } } ?: flowOf(null)
+        }
 
     private val baseState: Flow<HomeUiState> = combine(
         observeUserContext().map { it.toSelectionUi() }.catchUnavailable(HomeSelectionUi.Unavailable),
@@ -168,11 +172,15 @@ class HomeViewModel(
     }
 
     /** An unreachable XTTV reads as no results rather than ending the picker's stream. */
-    private suspend fun load(source: PickerSource): List<DirectoryEntryUi> = when (source) {
-        PickerSource.Clubs -> try {
-            searchClubs("").map { DirectoryEntryUi(it.id, it.name, subtitle = null, selected = false) }
-        } catch (e: DataUnavailable) {
-            emptyList()
+    private fun load(source: PickerSource): Flow<List<DirectoryEntryUi>> = when (source) {
+        PickerSource.Clubs -> flow {
+            emit(
+                try {
+                    searchClubs("").map { DirectoryEntryUi(it.id, it.name, subtitle = null, selected = false) }
+                } catch (e: DataUnavailable) {
+                    emptyList()
+                },
+            )
         }
         is PickerSource.Players -> drillDown.load(source.path)
     }

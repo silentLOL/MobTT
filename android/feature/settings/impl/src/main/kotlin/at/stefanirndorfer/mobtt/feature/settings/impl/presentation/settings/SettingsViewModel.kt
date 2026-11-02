@@ -48,8 +48,10 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -90,7 +92,9 @@ class SettingsViewModel(
     private val pickerResult: Flow<PickerResult?> = pickerInput
         .map { it?.source() }
         .distinctUntilChanged()
-        .mapLatest { source -> source?.let { PickerResult(it, load(it)).also { result -> loaded = result } } }
+        .flatMapLatest { source ->
+            source?.let { load(it).map { entries -> PickerResult(it, entries).also { result -> loaded = result } } } ?: flowOf(null)
+        }
 
     val uiState: StateFlow<SettingsUiState> = combine(
         appearanceRepository.observeAppearance(),
@@ -175,12 +179,16 @@ class SettingsViewModel(
     }
 
     /** An unreachable XTTV reads as no results rather than ending the picker's stream. */
-    private suspend fun load(source: PickerSource): List<DirectoryEntryUi> = when (source.kind) {
+    private fun load(source: PickerSource): Flow<List<DirectoryEntryUi>> = when (source.kind) {
         PickerKind.PLAYER -> drillDown.load(source.path)
-        PickerKind.CLUB -> try {
-            searchClubs("").map { DirectoryEntryUi(it.id, it.name, subtitle = null, selected = false) }
-        } catch (e: DataUnavailable) {
-            emptyList()
+        PickerKind.CLUB -> flow {
+            emit(
+                try {
+                    searchClubs("").map { DirectoryEntryUi(it.id, it.name, subtitle = null, selected = false) }
+                } catch (e: DataUnavailable) {
+                    emptyList()
+                },
+            )
         }
     }
 

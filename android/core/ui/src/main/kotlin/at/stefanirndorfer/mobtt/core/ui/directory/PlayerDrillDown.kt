@@ -7,6 +7,10 @@ import at.stefanirndorfer.mobtt.domain.club.DataUnavailable
 import at.stefanirndorfer.mobtt.domain.club.ListAssociationsUseCase
 import at.stefanirndorfer.mobtt.domain.club.ListLeaguesUseCase
 import at.stefanirndorfer.mobtt.domain.user.ListLeaguePlayersUseCase
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 
 /**
  * Lists what the user can pick at each [PlayerStep]. XTTV cannot search Players by name, so a Player is found
@@ -18,17 +22,26 @@ class PlayerDrillDown(
     private val listLeagues: ListLeaguesUseCase,
     private val listLeaguePlayers: ListLeaguePlayersUseCase,
 ) {
-    /** An unreachable XTTV reads as an empty step rather than an error. */
-    suspend fun load(path: PlayerPath): List<DirectoryEntryUi> = try {
-        when (path.step) {
-            PlayerStep.ASSOCIATION -> listAssociations().map { DirectoryEntryUi(it.id, it.name, subtitle = null, selected = false) }
-            PlayerStep.LEAGUE -> listLeagues(path.association!!.id).map { DirectoryEntryUi(it.id, it.name, subtitle = null, selected = false) }
-            PlayerStep.PLAYER -> listLeaguePlayers(path.league!!.id).map {
-                DirectoryEntryUi(it.player.id, it.player.name, it.clubName, selected = false)
-            }
+    /**
+     * An unreachable XTTV reads as an empty step rather than an error. The Players step emits again as Club names
+     * resolve, so the list shows before they do.
+     */
+    fun load(path: PlayerPath): Flow<List<DirectoryEntryUi>> = when (path.step) {
+        PlayerStep.ASSOCIATION -> flow {
+            emit(listAssociations().map { DirectoryEntryUi(it.id, it.name, subtitle = null, selected = false) })
         }
-    } catch (e: DataUnavailable) {
-        emptyList()
+        PlayerStep.LEAGUE -> flow {
+            emit(listLeagues(path.association!!.id).map { DirectoryEntryUi(it.id, it.name, subtitle = null, selected = false) })
+        }
+        PlayerStep.PLAYER -> listLeaguePlayers.stream(path.league!!.id).map { results ->
+            results.map { DirectoryEntryUi(it.player.id, it.player.name, it.clubName, selected = false) }
+        }
+    }.catch { e ->
+        if (e is DataUnavailable) {
+            emit(emptyList())
+        } else {
+            throw e
+        }
     }
 }
 

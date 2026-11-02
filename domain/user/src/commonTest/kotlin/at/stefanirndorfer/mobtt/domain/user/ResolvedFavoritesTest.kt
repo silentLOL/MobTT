@@ -13,6 +13,7 @@ import at.stefanirndorfer.mobtt.domain.player.PlayerRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -97,6 +98,14 @@ class ResolvedFavoritesTest {
         val results = ListLeaguePlayersUseCase(directory, directory)("l1")
 
         assertEquals(listOf(PlayerSearchResult(anna, "TTC Olympic")), results)
+    }
+
+    @Test
+    fun leaguePlayersAreEmittedBeforeTheirClubNamesResolve() = runTest {
+        val emissions = ListLeaguePlayersUseCase(directory, directory).stream("l1").toList()
+
+        assertEquals(listOf(PlayerSearchResult(anna, null)), emissions.first())
+        assertEquals(listOf(PlayerSearchResult(anna, "TTC Olympic")), emissions.last())
     }
 
     @Test
