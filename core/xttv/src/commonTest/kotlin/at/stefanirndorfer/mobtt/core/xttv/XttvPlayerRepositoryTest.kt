@@ -54,11 +54,11 @@ class XttvPlayerRepositoryTest {
     }
 
     @Test
-    fun everyReadAsksXttvAgainInsteadOfServingPlayersFromMemory() = runTest {
+    fun aSecondReadWithinTheTtlIsServedFromMemory() = runTest {
         repository.getLeaguePlayers("70")
         repository.getLeaguePlayers("70")
 
-        assertEquals(listOf(STANDINGS_70_URL, STANDINGS_70_URL), xttv.requests)
+        assertEquals(listOf(STANDINGS_70_URL), xttv.requests)
     }
 
     @Test

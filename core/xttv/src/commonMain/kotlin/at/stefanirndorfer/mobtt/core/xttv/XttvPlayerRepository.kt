@@ -4,12 +4,15 @@ import at.stefanirndorfer.mobtt.domain.player.PickedPlayerStore
 import at.stefanirndorfer.mobtt.domain.player.Player
 import at.stefanirndorfer.mobtt.domain.player.PlayerRepository
 import kotlin.concurrent.Volatile
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+
+/** Standings are held in memory only (never on disk), so reopening a League is instant while XTTV is slow. */
+private val STANDINGS_TTL = 5.minutes
 
 /**
  * XTTV has no Player search, and `getPlayerDetails` is closed to API access. Players are therefore read per League
- * from its single standings, straight from XTTV: neither those Players nor any Team is cached or indexed (a zero
- * TTL is never stored). Only the Players the user picks are kept (in [pickedPlayers]), so they resolve again
+ * from its single standings. Those Players are indexed nowhere and only held in memory for [STANDINGS_TTL]; no Team is
+ * cached. Only the Players the user picks are kept on disk (in [pickedPlayers]), so they resolve again
  * without asking XTTV, and the Players the user opens from a lineup ([remember]).
  */
 class XttvPlayerRepository(
@@ -27,7 +30,7 @@ class XttvPlayerRepository(
         if (!XttvEndpoints.isXttvId(leagueId)) {
             return emptyList()
         }
-        return api.get(XttvEndpoints.singleStandings(host, leagueId), Duration.ZERO, SingleStandingsXml.serializer())
+        return api.get(XttvEndpoints.singleStandings(host, leagueId), STANDINGS_TTL, SingleStandingsXml.serializer())
             .rows
             .map { it.toDomain() }
             .distinctBy { it.id }
