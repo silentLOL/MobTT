@@ -64,12 +64,18 @@ class LeagueDetailViewModel(
             LeagueDetailAction.RetryClicked -> retry.retry()
             is LeagueDetailAction.OnlyTeamFixturesToggled -> onlyTeamFixtures.value = action.enabled
             is LeagueDetailAction.TeamClicked -> openTeam(action.teamId)
+            is LeagueDetailAction.FixtureInfoClicked -> openFixture(action.fixtureId)
         }
     }
 
     private fun openTeam(teamId: String) {
         analytics.detailOpened(AnalyticsKind.TEAM, teamId, from = AnalyticsScreen.LEAGUE_DETAIL)
         viewModelScope.launch { eventChannel.send(LeagueDetailEvent.OpenTeam(teamId)) }
+    }
+
+    private fun openFixture(fixtureId: String) {
+        analytics.detailOpened(AnalyticsKind.FIXTURE, fixtureId, from = AnalyticsScreen.LEAGUE_DETAIL)
+        viewModelScope.launch { eventChannel.send(LeagueDetailEvent.OpenFixture(fixtureId)) }
     }
 
     private suspend fun load(): LeagueDetailUiState = try {

@@ -23,6 +23,10 @@ data class TeamDetailDestination(val teamId: String) : GlobalAppDestination
 @Serializable
 data class LeagueDetailDestination(val leagueId: String, val highlightTeamId: String? = null) : GlobalAppDestination
 
+/** A Fixture with its Matches, pushed from a Fixture row. */
+@Serializable
+data class FixtureDetailDestination(val fixtureId: String) : GlobalAppDestination
+
 fun GlobalNavigator.navigateToClub() = navigateTopLevel(ClubDestination)
 
 fun GlobalNavigator.navigateToClubDetail(clubId: String) = navigate(ClubDetailDestination(clubId))
@@ -32,3 +36,5 @@ fun GlobalNavigator.navigateToTeamDetail(teamId: String) = navigate(TeamDetailDe
 fun GlobalNavigator.navigateToLeagueDetail(leagueId: String, highlightTeamId: String? = null) = navigate(LeagueDetailDestination(leagueId, highlightTeamId))
 
 fun GlobalNavigator.navigateToChooseClub() = navigate(ChooseClubDestination)
+
+fun GlobalNavigator.navigateToFixtureDetail(fixtureId: String) = navigate(FixtureDetailDestination(fixtureId))

@@ -6,6 +6,7 @@ import at.stefanirndorfer.mobtt.domain.club.Club
 import at.stefanirndorfer.mobtt.domain.club.ClubRepository
 import at.stefanirndorfer.mobtt.domain.club.DataUnavailable
 import at.stefanirndorfer.mobtt.domain.club.Fixture
+import at.stefanirndorfer.mobtt.domain.club.FixtureDetail
 import at.stefanirndorfer.mobtt.domain.club.FixtureRepository
 import at.stefanirndorfer.mobtt.domain.club.League
 import at.stefanirndorfer.mobtt.domain.club.LeagueRepository
@@ -37,6 +38,7 @@ class FakeClubData :
     var unavailable = false
     val saved = mutableListOf<UserSelection>()
     var leagueFixtures = emptyList<Fixture>()
+    var fixtureDetail: FixtureDetail? = null
     val favorites = MutableStateFlow<Set<Favorite>>(emptySet())
     var teams = listOf(Team("t1", "Olympic 1", "c1", "l1"))
 
@@ -72,6 +74,8 @@ class FakeClubData :
     override suspend fun getFixtures(teamId: String): List<Fixture> = read(emptyList())
 
     override suspend fun getLeagueFixtures(leagueId: String): List<Fixture> = read(leagueFixtures)
+
+    override suspend fun getFixtureDetail(fixtureId: String): FixtureDetail? = read(fixtureDetail)
 
     override suspend fun getPlayer(id: String): Player? = null
 

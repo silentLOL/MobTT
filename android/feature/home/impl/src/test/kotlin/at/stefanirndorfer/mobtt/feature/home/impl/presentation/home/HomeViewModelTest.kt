@@ -10,6 +10,7 @@ import at.stefanirndorfer.mobtt.domain.club.Club
 import at.stefanirndorfer.mobtt.domain.club.ClubRepository
 import at.stefanirndorfer.mobtt.domain.club.DataUnavailable
 import at.stefanirndorfer.mobtt.domain.club.Fixture
+import at.stefanirndorfer.mobtt.domain.club.FixtureDetail
 import at.stefanirndorfer.mobtt.domain.club.FixtureRepository
 import at.stefanirndorfer.mobtt.domain.club.League
 import at.stefanirndorfer.mobtt.domain.club.LeagueRepository
@@ -101,6 +102,8 @@ private class FakeData :
     override suspend fun getFixtures(teamId: String): List<Fixture> = read(emptyList())
 
     override suspend fun getLeagueFixtures(leagueId: String): List<Fixture> = read(emptyList())
+
+    override suspend fun getFixtureDetail(fixtureId: String): FixtureDetail? = read(null)
 
     override suspend fun getPlayer(id: String): Player? = read(Player("p1", "Anna Gruber", "c1").takeIf { it.id == id })
 

@@ -34,6 +34,10 @@ class FakeClubData :
 
     override suspend fun getStandings(leagueId: String): List<Standing> = standings[leagueId].orEmpty()
 
+    val fixtureDetails = mutableMapOf<String, FixtureDetail>()
+
+    override suspend fun getFixtureDetail(fixtureId: String): FixtureDetail? = fixtureDetails[fixtureId]
+
     override suspend fun getLeagueFixtures(leagueId: String): List<Fixture> {
         val teamIds = teams.filter { it.leagueId == leagueId }.map { it.id }.toSet()
         return fixtures.filter { it.homeTeamId in teamIds }

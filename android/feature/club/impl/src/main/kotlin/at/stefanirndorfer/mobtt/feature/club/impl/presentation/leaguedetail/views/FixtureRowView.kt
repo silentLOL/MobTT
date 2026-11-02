@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Text
@@ -17,10 +16,12 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextDecoration
 import at.stefanirndorfer.mobtt.core.localization.R
 import at.stefanirndorfer.mobtt.core.ui.fixture.formatKickoff
+import at.stefanirndorfer.mobtt.designsystem.icon.BatIcon
 import at.stefanirndorfer.mobtt.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.mobtt.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.mobtt.designsystem.theme.BatDesign
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatBadge
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatIconButton
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatList
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatListItem
 import at.stefanirndorfer.mobtt.domain.club.Fixture
@@ -30,7 +31,7 @@ import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.prev
 
 /**
  * One Fixture of a League: the pairing, when and where it is played, and the score once finished. Each Team
- * opens its Team, except [highlightTeamId], the Team the user came from.
+ * opens its Team, except [highlightTeamId], the Team the user came from. The info button opens the Fixture itself.
  */
 @Composable
 fun FixtureRowView(
@@ -39,44 +40,52 @@ fun FixtureRowView(
     highlightTeamId: String?,
     striped: Boolean,
     onTeamClick: (teamId: String) -> Unit,
+    onInfoClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val kickoff = formatKickoff(fixture.startsAt)
     BatListItem(modifier = modifier, striped = striped, highlighted = isThisTeam) {
-        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
-                TeamLink(
-                    name = fixture.homeTeamName,
-                    onClick = fixture.homeTeamId.takeIf { it != highlightTeamId }?.let { { onTeamClick(it) } },
-                    modifier = Modifier.weight(1f, fill = false),
-                )
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
+            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
+                    TeamLink(
+                        name = fixture.homeTeamName,
+                        onClick = fixture.homeTeamId.takeIf { it != highlightTeamId }?.let { { onTeamClick(it) } },
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+                    Text(
+                        text = stringResource(R.string.league_detail_fixture_versus),
+                        modifier = Modifier.clearAndSetSemantics {},
+                        color = BatDesign.colors.textSecondary,
+                        style = BatDesign.typography.caption,
+                    )
+                    TeamLink(
+                        name = fixture.awayTeamName,
+                        onClick = fixture.awayTeamId.takeIf { it != highlightTeamId }?.let { { onTeamClick(it) } },
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+                }
+                (fixture.status as? FixtureStatus.Finished)?.let { finished ->
+                    Text(
+                        text = stringResource(R.string.league_detail_fixture_score, finished.score.homeMatchesWon, finished.score.awayMatchesWon),
+                        color = BatDesign.colors.textPrimary,
+                        style = BatDesign.typography.bodyStrong.copy(fontFeatureSettings = "tnum"),
+                    )
+                }
                 Text(
-                    text = stringResource(R.string.league_detail_fixture_versus),
-                    modifier = Modifier.clearAndSetSemantics {},
+                    text = listOfNotNull(kickoff, fixture.venue).joinToString(" · "),
                     color = BatDesign.colors.textSecondary,
                     style = BatDesign.typography.caption,
                 )
-                TeamLink(
-                    name = fixture.awayTeamName,
-                    onClick = fixture.awayTeamId.takeIf { it != highlightTeamId }?.let { { onTeamClick(it) } },
-                    modifier = Modifier.weight(1f, fill = false),
-                )
+                if (isThisTeam) {
+                    BatBadge(text = stringResource(R.string.team_detail_this_team_badge))
+                }
             }
-            (fixture.status as? FixtureStatus.Finished)?.let { finished ->
-                Text(
-                    text = stringResource(R.string.league_detail_fixture_score, finished.score.homeMatchesWon, finished.score.awayMatchesWon),
-                    color = BatDesign.colors.textPrimary,
-                    style = BatDesign.typography.bodyStrong.copy(fontFeatureSettings = "tnum"),
-                )
-            }
-            Text(
-                text = listOfNotNull(kickoff, fixture.venue).joinToString(" · "),
-                color = BatDesign.colors.textSecondary,
-                style = BatDesign.typography.caption,
+            BatIconButton(
+                icon = BatIcon.Info,
+                contentDescription = stringResource(R.string.league_detail_fixture_info_cd, fixture.homeTeamName, fixture.awayTeamName),
+                onClick = onInfoClick,
             )
-            if (isThisTeam) {
-                BatBadge(text = stringResource(R.string.team_detail_this_team_badge))
-            }
         }
     }
 }
@@ -99,11 +108,11 @@ private fun FixtureRowViewPreview() {
     BatPreviewSurface {
         BatList {
             leagueDetailPreview.fixtures.forEachIndexed { index, fixture ->
-                FixtureRowView(fixture, isThisTeam = false, highlightTeamId = null, striped = index % 2 == 1, onTeamClick = {})
+                FixtureRowView(fixture, isThisTeam = false, highlightTeamId = null, striped = index % 2 == 1, onTeamClick = {}, onInfoClick = {})
             }
-            FixtureRowView(leagueDetailPreview.fixtures[1], isThisTeam = true, highlightTeamId = "olympic-1", striped = false, onTeamClick = {})
+            FixtureRowView(leagueDetailPreview.fixtures[1], isThisTeam = true, highlightTeamId = "olympic-1", striped = false, onTeamClick = {}, onInfoClick = {})
             leagueDetailLongNamesPreview.fixtures.forEach {
-                FixtureRowView(it, isThisTeam = true, highlightTeamId = null, striped = true, onTeamClick = {})
+                FixtureRowView(it, isThisTeam = true, highlightTeamId = null, striped = true, onTeamClick = {}, onInfoClick = {})
             }
         }
     }

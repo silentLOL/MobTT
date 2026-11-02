@@ -4,9 +4,16 @@ struct LeagueDetailRoute: View {
     @State private var viewModel: LeagueDetailViewModel
 
     let onOpenTeam: (_ teamId: String) -> Void
+    let onOpenFixture: (_ fixtureId: String) -> Void
 
-    init(leagueId: String, highlightTeamId: String?, onOpenTeam: @escaping (_ teamId: String) -> Void) {
+    init(
+        leagueId: String,
+        highlightTeamId: String?,
+        onOpenTeam: @escaping (_ teamId: String) -> Void,
+        onOpenFixture: @escaping (_ fixtureId: String) -> Void
+    ) {
         self.onOpenTeam = onOpenTeam
+        self.onOpenFixture = onOpenFixture
         _viewModel = State(initialValue: LeagueDetailViewModel(leagueId: leagueId, highlightTeamId: highlightTeamId))
     }
 
@@ -18,6 +25,7 @@ struct LeagueDetailRoute: View {
                 for await event in viewModel.events {
                     switch event {
                     case .openTeam(let teamId): onOpenTeam(teamId)
+                    case .openFixture(let fixtureId): onOpenFixture(fixtureId)
                     }
                 }
             }
@@ -120,7 +128,8 @@ private struct ContentView: View {
                                     highlightTeamId: detail.highlightTeamId,
                                     isStriped: !index.isMultiple(of: 2),
                                     showsThisTeam: !detail.onlyTeamFixtures,
-                                    onTeamTap: { onAction(.teamClicked(teamId: $0)) }
+                                    onTeamTap: { onAction(.teamClicked(teamId: $0)) },
+                                    onInfoTap: { onAction(.fixtureInfoClicked(fixtureId: fixture.id)) }
                                 )
                             }
                         }

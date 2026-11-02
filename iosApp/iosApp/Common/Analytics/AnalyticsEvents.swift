@@ -31,6 +31,7 @@ enum AnalyticsScreen {
     static let playerDetail = "player_detail"
     static let teamDetail = "team_detail"
     static let leagueDetail = "league_detail"
+    static let fixtureDetail = "fixture_detail"
     static let settings = "settings"
 }
 
@@ -43,6 +44,7 @@ enum AnalyticsKind {
     static let club = "club"
     static let team = "team"
     static let league = "league"
+    static let fixture = "fixture"
 }
 
 enum AnalyticsSource {

@@ -8,7 +8,9 @@ import at.stefanirndorfer.mobtt.domain.app.GetPlatformNameUseCase
 import at.stefanirndorfer.mobtt.domain.club.Association
 import at.stefanirndorfer.mobtt.domain.club.Club
 import at.stefanirndorfer.mobtt.domain.club.ClubOverview
+import at.stefanirndorfer.mobtt.domain.club.FixtureDetail
 import at.stefanirndorfer.mobtt.domain.club.GetClubOverviewUseCase
+import at.stefanirndorfer.mobtt.domain.club.GetFixtureDetailUseCase
 import at.stefanirndorfer.mobtt.domain.club.GetLeagueDetailUseCase
 import at.stefanirndorfer.mobtt.domain.club.GetTeamDetailUseCase
 import at.stefanirndorfer.mobtt.domain.club.LeagueDetail
@@ -76,6 +78,8 @@ object KoinHelper : KoinComponent {
     suspend fun loadTeamDetail(teamId: String): DataResult<TeamDetail?> = dataResult { getGetTeamDetailUseCase().invoke(teamId) }
 
     suspend fun loadLeagueDetail(leagueId: String): DataResult<LeagueDetail?> = dataResult { getGetLeagueDetailUseCase().invoke(leagueId) }
+
+    suspend fun loadFixtureDetail(fixtureId: String): DataResult<FixtureDetail?> = dataResult { getGetFixtureDetailUseCase().invoke(fixtureId) }
 
     suspend fun loadPlayerDetail(playerId: String): DataResult<PlayerDetail?> = dataResult { getGetPlayerDetailUseCase().invoke(playerId) }
 
@@ -162,6 +166,11 @@ object KoinHelper : KoinComponent {
 
     fun getGetTeamDetailUseCase(): GetTeamDetailUseCase {
         val useCase: GetTeamDetailUseCase by inject()
+        return useCase
+    }
+
+    fun getGetFixtureDetailUseCase(): GetFixtureDetailUseCase {
+        val useCase: GetFixtureDetailUseCase by inject()
         return useCase
     }
 

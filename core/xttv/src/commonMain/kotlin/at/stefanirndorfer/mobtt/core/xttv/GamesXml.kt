@@ -12,7 +12,6 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import kotlin.time.Instant
 
-private val XTTV_TIME_ZONE = TimeZone.of("Europe/Vienna")
 private val log = Logger.withTag("GamesXml")
 
 /**
@@ -40,7 +39,7 @@ internal data class GameXml(
 ) {
     /** Null when [date] and [time] are not a local date-time, so one bad Game does not hide the rest. */
     fun toDomain(): Fixture? {
-        val startsAt = parseStart()
+        val startsAt = parseXttvStart(date, time)
         if (startsAt == null) {
             log.w { "Dropped Game $id: unreadable date '$date' or time '$time'" }
             return null
@@ -55,17 +54,23 @@ internal data class GameXml(
             awayTeamName = awayTeamName,
             startsAt = startsAt,
             venue = location?.trim()?.ifEmpty { null },
-            status = if (homeMatchesWon != null && awayMatchesWon != null && homeMatchesWon + awayMatchesWon > 0) {
-                FixtureStatus.Finished(FixtureScore(homeMatchesWon, awayMatchesWon))
-            } else {
-                FixtureStatus.Scheduled
-            },
+            status = fixtureStatus(homeMatchesWon, awayMatchesWon),
         )
     }
+}
 
-    private fun parseStart(): Instant? = runCatching {
-        val (day, month, year) = date.trim().split('.').map { it.toInt() }
-        val (hour, minute) = time.trim().split(':').map { it.toInt() }
-        LocalDateTime(year, month, day, hour, minute).toInstant(XTTV_TIME_ZONE)
-    }.getOrNull()
+private val XTTV_TIME_ZONE = TimeZone.of("Europe/Vienna")
+
+/** [date] is `dd.MM.yyyy` and [time] `HH:mm`, both local Austrian time. Null when either is unreadable. */
+internal fun parseXttvStart(date: String, time: String): Instant? = runCatching {
+    val (day, month, year) = date.trim().split('.').map { it.toInt() }
+    val (hour, minute) = time.trim().split(':').map { it.toInt() }
+    LocalDateTime(year, month, day, hour, minute).toInstant(XTTV_TIME_ZONE)
+}.getOrNull()
+
+/** Finished once both Matches-won counts are present and not 0:0, which is what XTTV sends for a Game not yet played. */
+internal fun fixtureStatus(homeMatchesWon: Int?, awayMatchesWon: Int?): FixtureStatus = if (homeMatchesWon != null && awayMatchesWon != null && homeMatchesWon + awayMatchesWon > 0) {
+    FixtureStatus.Finished(FixtureScore(homeMatchesWon, awayMatchesWon))
+} else {
+    FixtureStatus.Scheduled
 }

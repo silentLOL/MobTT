@@ -5,6 +5,7 @@ import at.stefanirndorfer.mobtt.domain.club.AssociationRepository
 import at.stefanirndorfer.mobtt.domain.club.Club
 import at.stefanirndorfer.mobtt.domain.club.ClubRepository
 import at.stefanirndorfer.mobtt.domain.club.Fixture
+import at.stefanirndorfer.mobtt.domain.club.FixtureDetail
 import at.stefanirndorfer.mobtt.domain.club.FixtureRepository
 import at.stefanirndorfer.mobtt.domain.club.FixtureScore
 import at.stefanirndorfer.mobtt.domain.club.FixtureStatus
@@ -72,6 +73,8 @@ private class FakeData :
     override suspend fun getStandings(leagueId: String) = emptyList<Standing>()
 
     override suspend fun getLeagueFixtures(leagueId: String): List<Fixture> = emptyList()
+
+    override suspend fun getFixtureDetail(fixtureId: String): FixtureDetail? = null
 
     override suspend fun getFixtures(teamId: String): List<Fixture> {
         check(!failing) { "XTTV unreachable" }

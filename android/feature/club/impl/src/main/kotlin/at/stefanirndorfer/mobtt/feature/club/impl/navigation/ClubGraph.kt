@@ -5,13 +5,16 @@ import androidx.navigation3.runtime.NavKey
 import at.stefanirndorfer.mobtt.feature.club.api.ChooseClubDestination
 import at.stefanirndorfer.mobtt.feature.club.api.ClubDestination
 import at.stefanirndorfer.mobtt.feature.club.api.ClubDetailDestination
+import at.stefanirndorfer.mobtt.feature.club.api.FixtureDetailDestination
 import at.stefanirndorfer.mobtt.feature.club.api.LeagueDetailDestination
 import at.stefanirndorfer.mobtt.feature.club.api.TeamDetailDestination
+import at.stefanirndorfer.mobtt.feature.club.api.navigateToFixtureDetail
 import at.stefanirndorfer.mobtt.feature.club.api.navigateToLeagueDetail
 import at.stefanirndorfer.mobtt.feature.club.api.navigateToTeamDetail
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.chooseclub.ChooseClubRoute
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.club.ClubRoute
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.club.models.ClubSource
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.FixtureDetailRoute
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.LeagueDetailRoute
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail.TeamDetailRoute
 import at.stefanirndorfer.mobtt.feature.navigation.GlobalNavigator
@@ -46,6 +49,13 @@ fun EntryProviderScope<NavKey>.clubGraph(navigator: GlobalNavigator) {
         LeagueDetailRoute(
             leagueId = destination.leagueId,
             highlightTeamId = destination.highlightTeamId,
+            onOpenTeam = navigator::navigateToTeamDetail,
+            onOpenFixture = navigator::navigateToFixtureDetail,
+        )
+    }
+    entry<FixtureDetailDestination> { destination ->
+        FixtureDetailRoute(
+            fixtureId = destination.fixtureId,
             onOpenTeam = navigator::navigateToTeamDetail,
         )
     }
