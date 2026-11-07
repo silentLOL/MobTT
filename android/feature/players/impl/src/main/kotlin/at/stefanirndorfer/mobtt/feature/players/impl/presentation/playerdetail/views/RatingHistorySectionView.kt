@@ -2,20 +2,22 @@ package at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import at.stefanirndorfer.mobtt.core.localization.R
-import at.stefanirndorfer.mobtt.core.ui.section.LazySectionView
 import at.stefanirndorfer.mobtt.core.ui.section.SectionMessage
+import at.stefanirndorfer.mobtt.core.ui.section.SectionStateView
 import at.stefanirndorfer.mobtt.core.ui.section.SectionUi
 import at.stefanirndorfer.mobtt.designsystem.icon.BatIcon
 import at.stefanirndorfer.mobtt.designsystem.preview.BatPreviewSurface
@@ -24,6 +26,7 @@ import at.stefanirndorfer.mobtt.designsystem.theme.BatDesign
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatChartPoint
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatIconButton
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatRatingChart
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSegmentedControl
 import at.stefanirndorfer.mobtt.domain.rating.RatingHistory
 import at.stefanirndorfer.mobtt.domain.rating.RatingUpdate
@@ -37,30 +40,28 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-/** The collapsed Rating history: the Rating after each Rating update, with its Deviation as a band. */
+/** The Rating history, always open: the Rating after each Rating update, with its Deviation as a band. */
 @Composable
 fun RatingHistorySectionView(
     section: RatingHistorySectionUi,
-    onToggle: () -> Unit,
     onRetry: () -> Unit,
     onSpanChosen: (RatingHistorySpan) -> Unit,
     onInfo: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LazySectionView(
-        title = stringResource(R.string.player_detail_rating_history_title),
-        expanded = section.expanded,
-        onToggle = onToggle,
-        section = section.history,
-        loadingLabel = stringResource(R.string.player_detail_rating_history_loading_cd),
-        unavailableText = stringResource(R.string.player_detail_rating_history_unavailable_body),
-        modifier = modifier,
-        onRetry = onRetry,
-        headerAction = {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            BatSectionHeader(title = stringResource(R.string.player_detail_rating_history_title), modifier = Modifier.weight(1f))
             BatIconButton(icon = BatIcon.Info, contentDescription = stringResource(R.string.player_detail_rating_info_cd), onClick = onInfo)
-        },
-    ) { history ->
-        RatingHistoryView(history, section, onSpanChosen)
+        }
+        SectionStateView(
+            section = section.history,
+            loadingLabel = stringResource(R.string.player_detail_rating_history_loading_cd),
+            unavailableText = stringResource(R.string.player_detail_rating_history_unavailable_body),
+            onRetry = onRetry,
+        ) { history ->
+            RatingHistoryView(history, section, onSpanChosen)
+        }
     }
 }
 
@@ -170,20 +171,17 @@ private const val MILLIS_PER_DAY = 86_400_000L
 private fun RatingHistorySectionViewPreview() {
     BatPreviewSurface {
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.lg)) {
-            RatingHistorySectionView(RatingHistorySectionUi(expanded = false), onToggle = {}, onRetry = {}, onSpanChosen = {}, onInfo = {})
-            RatingHistorySectionView(RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(ratingHistoryPreview)), onToggle = {}, onRetry = {}, onSpanChosen = {}, onInfo = {})
+            RatingHistorySectionView(RatingHistorySectionUi(history = SectionUi.Loaded(ratingHistoryPreview)), onRetry = {}, onSpanChosen = {}, onInfo = {})
             RatingHistorySectionView(
-                RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(RatingHistory(ratingHistoryPreview.updates.take(1)))),
-                onToggle = {},
+                RatingHistorySectionUi(history = SectionUi.Loaded(RatingHistory(ratingHistoryPreview.updates.take(1)))),
                 onRetry = {},
                 onSpanChosen = {},
                 onInfo = {},
             )
-            RatingHistorySectionView(RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(RatingHistory(emptyList()))), onToggle = {}, onRetry = {}, onSpanChosen = {}, onInfo = {})
-            RatingHistorySectionView(RatingHistorySectionUi(expanded = true, history = SectionUi.Unavailable), onToggle = {}, onRetry = {}, onSpanChosen = {}, onInfo = {})
+            RatingHistorySectionView(RatingHistorySectionUi(history = SectionUi.Loaded(RatingHistory(emptyList()))), onRetry = {}, onSpanChosen = {}, onInfo = {})
+            RatingHistorySectionView(RatingHistorySectionUi(history = SectionUi.Unavailable), onRetry = {}, onSpanChosen = {}, onInfo = {})
             RatingHistorySectionView(
-                RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(ratingHistoryPreview), since = LocalDate(2030, 1, 1)),
-                onToggle = {},
+                RatingHistorySectionUi(history = SectionUi.Loaded(ratingHistoryPreview), since = LocalDate(2030, 1, 1)),
                 onRetry = {},
                 onSpanChosen = {},
                 onInfo = {},

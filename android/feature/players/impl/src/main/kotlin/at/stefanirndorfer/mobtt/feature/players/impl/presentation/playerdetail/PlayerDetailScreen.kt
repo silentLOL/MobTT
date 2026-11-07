@@ -144,7 +144,6 @@ private fun ContentView(
         state.ratingHistory?.let { section ->
             RatingHistorySectionView(
                 section = section,
-                onToggle = { onAction(PlayerDetailAction.RatingHistoryToggled) },
                 onRetry = { onAction(PlayerDetailAction.RatingHistoryRetryClicked) },
                 onSpanChosen = { onAction(PlayerDetailAction.RatingHistorySpanChosen(it)) },
                 onInfo = { onAction(PlayerDetailAction.RatingInfoClicked) },

@@ -1,27 +1,26 @@
 import SwiftUI
 
-/// The collapsed Rating history: the Rating after each Rating update, with its Deviation as a band.
+/// The Rating history, always open: the Rating after each Rating update, with its Deviation as a band.
 struct RatingHistorySectionView: View {
     let section: RatingHistorySectionUi
-    let onToggle: () -> Void
     let onRetry: () -> Void
     let onSpanChosen: (RatingHistorySpan) -> Void
     let onInfo: () -> Void
 
     var body: some View {
-        LazySectionView(
-            title: String(localized: "player_detail_rating_history_title"),
-            isExpanded: section.isExpanded,
-            onToggle: onToggle,
-            section: section.history,
-            loadingLabel: String(localized: "player_detail_rating_history_loading_cd"),
-            unavailableText: String(localized: "player_detail_rating_history_unavailable_body"),
-            onRetry: onRetry,
-            headerAction: {
+        VStack(alignment: .leading, spacing: BatSpacing.sm) {
+            HStack(spacing: BatSpacing.sm) {
+                BatSectionHeaderView(title: String(localized: "player_detail_rating_history_title"))
                 BatIconButtonView(icon: .info, accessibilityText: String(localized: "player_detail_rating_info_cd"), action: onInfo)
             }
-        ) { history in
-            RatingHistoryView(history: history, section: section, onSpanChosen: onSpanChosen)
+            SectionStateView(
+                section: section.history,
+                loadingLabel: String(localized: "player_detail_rating_history_loading_cd"),
+                unavailableText: String(localized: "player_detail_rating_history_unavailable_body"),
+                onRetry: onRetry
+            ) { history in
+                RatingHistoryView(history: history, section: section, onSpanChosen: onSpanChosen)
+            }
         }
     }
 }
@@ -126,17 +125,15 @@ private extension Date {
 #Preview {
     BatPreviewMatrix {
         VStack(spacing: BatSpacing.lg) {
-            RatingHistorySectionView(section: RatingHistorySectionUi(isExpanded: false), onToggle: {}, onRetry: {}, onSpanChosen: { _ in }, onInfo: {})
-            RatingHistorySectionView(section: RatingHistorySectionUi(isExpanded: true, history: .loaded(PlayerDetailPreviewData.ratingHistory)), onToggle: {}, onRetry: {}, onSpanChosen: { _ in }, onInfo: {})
+            RatingHistorySectionView(section: RatingHistorySectionUi(history: .loaded(PlayerDetailPreviewData.ratingHistory)), onRetry: {}, onSpanChosen: { _ in }, onInfo: {})
             RatingHistorySectionView(
-                section: RatingHistorySectionUi(isExpanded: true, history: .loaded(RatingHistoryUi(updates: Array(PlayerDetailPreviewData.ratingHistory.updates.prefix(1))))),
-                onToggle: {},
+                section: RatingHistorySectionUi(history: .loaded(RatingHistoryUi(updates: Array(PlayerDetailPreviewData.ratingHistory.updates.prefix(1))))),
                 onRetry: {},
                 onSpanChosen: { _ in },
                 onInfo: {}
             )
-            RatingHistorySectionView(section: RatingHistorySectionUi(isExpanded: true, history: .loaded(RatingHistoryUi(updates: []))), onToggle: {}, onRetry: {}, onSpanChosen: { _ in }, onInfo: {})
-            RatingHistorySectionView(section: RatingHistorySectionUi(isExpanded: true, history: .unavailable), onToggle: {}, onRetry: {}, onSpanChosen: { _ in }, onInfo: {})
+            RatingHistorySectionView(section: RatingHistorySectionUi(history: .loaded(RatingHistoryUi(updates: []))), onRetry: {}, onSpanChosen: { _ in }, onInfo: {})
+            RatingHistorySectionView(section: RatingHistorySectionUi(history: .unavailable), onRetry: {}, onSpanChosen: { _ in }, onInfo: {})
         }
     }
 }

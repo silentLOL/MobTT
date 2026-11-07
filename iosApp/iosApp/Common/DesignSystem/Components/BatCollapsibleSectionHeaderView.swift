@@ -1,21 +1,12 @@
 import SwiftUI
 
-/// A section header the whole width of which opens and closes its section; the chevron points up while it is open. An `action`, such as an info button, sits before the chevron and is reached on its own, not as part of the header.
-struct BatCollapsibleSectionHeaderView<Action: View>: View {
+/// A section header the whole width of which opens and closes its section; the chevron points up while it is open.
+struct BatCollapsibleSectionHeaderView: View {
     let title: String
     let isExpanded: Bool
     let onToggle: () -> Void
-    @ViewBuilder var action: () -> Action
 
     var body: some View {
-        ZStack(alignment: .trailing) {
-            header
-            action()
-                .padding(.trailing, BatSizing.icon + BatSpacing.sm)
-        }
-    }
-
-    private var header: some View {
         Button(action: onToggle) {
             HStack {
                 Text(title)
@@ -37,20 +28,11 @@ struct BatCollapsibleSectionHeaderView<Action: View>: View {
     }
 }
 
-extension BatCollapsibleSectionHeaderView where Action == EmptyView {
-    init(title: String, isExpanded: Bool, onToggle: @escaping () -> Void) {
-        self.init(title: title, isExpanded: isExpanded, onToggle: onToggle) { EmptyView() }
-    }
-}
-
 #Preview {
     BatPreviewMatrix {
         VStack(spacing: BatSpacing.md) {
             BatCollapsibleSectionHeaderView(title: "Fixtures", isExpanded: false) {}
             BatCollapsibleSectionHeaderView(title: "Player ranking", isExpanded: true) {}
-            BatCollapsibleSectionHeaderView(title: "Rating history", isExpanded: false, onToggle: {}) {
-                BatIconButtonView(icon: .info, accessibilityText: "About", action: {})
-            }
         }
     }
 }

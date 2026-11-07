@@ -52,9 +52,8 @@ enum RatingHistorySpan: CaseIterable {
     case all
 }
 
-/// The Rating history section. It starts open, and `history` loads the first time it is open. `since` is the first day (midnight UTC) the chosen `span` covers, nil for the whole history.
+/// The Rating history section, always open. `since` is the first day (midnight UTC) the chosen `span` covers, nil for the whole history.
 struct RatingHistorySectionUi: Equatable {
-    var isExpanded = true
     var history = SectionUiState<RatingHistoryUi>.loading
     var span = RatingHistorySpan.lastYear
     var since: Date?

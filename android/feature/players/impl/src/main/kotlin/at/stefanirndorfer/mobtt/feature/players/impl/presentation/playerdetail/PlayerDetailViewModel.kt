@@ -8,12 +8,10 @@ import at.stefanirndorfer.mobtt.core.analytics.AnalyticsTracker
 import at.stefanirndorfer.mobtt.core.analytics.NoOpAnalyticsTracker
 import at.stefanirndorfer.mobtt.core.analytics.detailOpened
 import at.stefanirndorfer.mobtt.core.analytics.favoriteToggled
-import at.stefanirndorfer.mobtt.core.analytics.ratingHistoryOpened
 import at.stefanirndorfer.mobtt.core.analytics.ratingInfoOpened
 import at.stefanirndorfer.mobtt.core.analytics.screenView
 import at.stefanirndorfer.mobtt.core.ui.RetryTrigger
 import at.stefanirndorfer.mobtt.core.ui.section.SectionUi
-import at.stefanirndorfer.mobtt.core.ui.section.lazySection
 import at.stefanirndorfer.mobtt.core.ui.section.section
 import at.stefanirndorfer.mobtt.domain.player.Player
 import at.stefanirndorfer.mobtt.domain.rating.GetRatingHistoryUseCase
@@ -81,9 +79,6 @@ class PlayerDetailViewModel(
 
     private val ratingHistoryRetry = RetryTrigger()
 
-    /** Starts open, so the Rating history loads as soon as the Player's Ratings Central entry is known. */
-    private val ratingHistoryExpanded = MutableStateFlow(true)
-
     private val ratingHistorySpan = MutableStateFlow(RatingHistorySpan.LAST_YEAR)
 
     private val ratingInfoShown = MutableStateFlow(false)
@@ -119,7 +114,6 @@ class PlayerDetailViewModel(
             is PlayerDetailAction.TeamClicked -> openTeam(action.teamId)
             PlayerDetailAction.ClubRetryClicked -> clubRetry.retry()
             PlayerDetailAction.TeamsRetryClicked -> teamsRetry.retry()
-            PlayerDetailAction.RatingHistoryToggled -> toggleRatingHistory()
             PlayerDetailAction.RatingHistoryRetryClicked -> ratingHistoryRetry.retry()
             is PlayerDetailAction.RatingHistorySpanChosen -> ratingHistorySpan.value = action.span
             PlayerDetailAction.RatingInfoClicked -> {
@@ -158,8 +152,7 @@ class PlayerDetailViewModel(
 
     /**
      * Hidden until the Teams have loaded and their Leagues name the Player's Ratings Central entry; hidden for good
-     * without one, or in builds that may not show Rating histories. It starts open, so Ratings Central is asked once the
-     * entry is known; a section the user closed first is asked only when reopened.
+     * without one, or in builds that may not show Rating histories. Once the entry is known, Ratings Central is asked.
      */
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun ratingHistorySection(player: Player, teams: Flow<SectionUi<PlayerTeams>>): Flow<RatingHistorySectionUi?> {
@@ -175,12 +168,8 @@ class PlayerDetailViewModel(
                 if (ratingsCentralId == null) {
                     flowOf(null)
                 } else {
-                    combine(
-                        ratingHistoryExpanded,
-                        ratingHistoryRetry.lazySection(ratingHistoryExpanded) { getRatingHistory(ratingsCentralId) },
-                        ratingHistorySpan,
-                    ) { expanded, history, span ->
-                        RatingHistorySectionUi(expanded, history, span, since = firstDayOf(span))
+                    combine(ratingHistoryRetry.section { getRatingHistory(ratingsCentralId) }, ratingHistorySpan) { history, span ->
+                        RatingHistorySectionUi(history, span, since = firstDayOf(span))
                     }
                 }
             }
@@ -200,14 +189,6 @@ class PlayerDetailViewModel(
     private fun firstDayOf(span: RatingHistorySpan): LocalDate? = when (span) {
         RatingHistorySpan.LAST_YEAR -> clock.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.minus(DatePeriod(years = 1))
         RatingHistorySpan.ALL -> null
-    }
-
-    private fun toggleRatingHistory() {
-        val opened = !ratingHistoryExpanded.value
-        ratingHistoryExpanded.value = opened
-        if (opened) {
-            analytics.ratingHistoryOpened()
-        }
     }
 
     private suspend fun loadPlayer() = try {

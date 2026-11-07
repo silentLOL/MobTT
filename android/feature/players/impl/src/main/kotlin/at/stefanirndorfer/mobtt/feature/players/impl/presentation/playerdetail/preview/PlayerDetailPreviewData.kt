@@ -59,5 +59,5 @@ val ratingHistoryPreview = RatingHistory(
 )
 
 val playerDetailWithRatingHistoryPreview = playerDetailPreview.copy(
-    ratingHistory = RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(ratingHistoryPreview)),
+    ratingHistory = RatingHistorySectionUi(history = SectionUi.Loaded(ratingHistoryPreview)),
 )

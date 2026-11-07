@@ -205,14 +205,14 @@ struct PlayerDetailViewModelTests {
         ])
     }
 
-    @Test func aPlayerWithARatingsCentralEntryShowsTheRatingHistoryOpenAndLoaded() async {
+    @Test func aPlayerWithARatingsCentralEntryShowsTheRatingHistoryLoaded() async {
         var historyReads: [String] = []
         let viewModel = makeViewModel(loadRatingHistory: { historyReads.append($0); return history })
 
         viewModel.loadIfNeeded()
         await waitUntil { viewModel.ratingHistory?.history == .loaded(expectedHistory) }
 
-        #expect(viewModel.ratingHistory == RatingHistorySectionUi(isExpanded: true, history: .loaded(expectedHistory), since: yearBeforeNow))
+        #expect(viewModel.ratingHistory == RatingHistorySectionUi(history: .loaded(expectedHistory), since: yearBeforeNow))
         #expect(historyReads == ["163468"])
     }
 
@@ -224,28 +224,6 @@ struct PlayerDetailViewModelTests {
         await waitUntil { viewModel.ratingHistory != nil }
 
         #expect(lookups == [["l1"]])
-    }
-
-    @Test func closingTheRatingHistoryCollapsesIt() async {
-        let viewModel = makeViewModel()
-        await open(viewModel)
-
-        viewModel.onAction(.ratingHistoryToggled)
-
-        #expect(viewModel.ratingHistory?.isExpanded == false)
-    }
-
-    @Test func closingAndReopeningTheRatingHistoryKeepsItWithoutAskingAgain() async {
-        var historyReads = 0
-        let viewModel = makeViewModel(loadRatingHistory: { _ in historyReads += 1; return history })
-        await open(viewModel)
-
-        viewModel.onAction(.ratingHistoryToggled)
-        viewModel.onAction(.ratingHistoryToggled)
-        for _ in 0..<20 { await Task.yield() }
-
-        #expect(viewModel.ratingHistory?.history == .loaded(expectedHistory))
-        #expect(historyReads == 1)
     }
 
     @Test func anUnreachableRatingHistoryIsUnavailableAndRetryReloadsIt() async {
@@ -292,16 +270,6 @@ struct PlayerDetailViewModelTests {
 
         #expect(viewModel.ratingHistory == nil)
         #expect(lookups == 0)
-    }
-
-    @Test func reopeningTheRatingHistoryIsReportedButItsOpenStartAndClosingAreNot() async {
-        let analytics = RecordingAnalyticsTracker()
-        let viewModel = makeViewModel(analytics: analytics)
-        await open(viewModel)
-
-        for _ in 0..<4 { viewModel.onAction(.ratingHistoryToggled) }
-
-        #expect(analytics.events == [LoggedEvent("rating_history_opened", [:]), LoggedEvent("rating_history_opened", [:])])
     }
 
     @Test func theRatingHistoryStartsOnTheLast12Months() async {
@@ -396,7 +364,7 @@ struct PlayerDetailViewModelTests {
         #expect(await events.next() == .openWebPage(url: URL(string: "https://www.ratingscentral.com/HowItWorks.php")!))
     }
 
-    /// Loads the screen until the Rating history, which starts open, has an answer.
+    /// Loads the screen until the Rating history has an answer.
     private func open(_ viewModel: PlayerDetailViewModel) async {
         viewModel.loadIfNeeded()
         await waitUntil { viewModel.ratingHistory != nil && viewModel.ratingHistory?.history != .loading }

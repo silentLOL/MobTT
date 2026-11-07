@@ -372,11 +372,11 @@ class PlayerDetailViewModelTest {
     private fun PlayerDetailViewModel.content() = assertIs<PlayerDetailUiState.Content>(uiState.value)
 
     @Test
-    fun aPlayerWithARatingsCentralEntryShowsTheRatingHistoryOpenAndLoaded() = runTest {
+    fun aPlayerWithARatingsCentralEntryShowsTheRatingHistoryLoaded() = runTest {
         val viewModel = viewModel()
 
         assertEquals(
-            RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(histories.history), since = LocalDate(2025, 11, 7)),
+            RatingHistorySectionUi(history = SectionUi.Loaded(histories.history), since = LocalDate(2025, 11, 7)),
             viewModel.content().ratingHistory,
         )
         assertEquals(listOf("163468"), histories.reads)
@@ -387,25 +387,6 @@ class PlayerDetailViewModelTest {
         viewModel()
 
         assertEquals(listOf("l1"), data.rankingReads)
-    }
-
-    @Test
-    fun closingTheRatingHistoryCollapsesIt() = runTest {
-        val viewModel = viewModel()
-
-        viewModel.onAction(PlayerDetailAction.RatingHistoryToggled)
-
-        assertFalse(viewModel.content().ratingHistory!!.expanded)
-    }
-
-    @Test
-    fun closingAndReopeningTheRatingHistoryKeepsItWithoutAskingAgain() = runTest {
-        val viewModel = viewModel()
-
-        repeat(2) { viewModel.onAction(PlayerDetailAction.RatingHistoryToggled) }
-
-        assertEquals(SectionUi.Loaded(histories.history), viewModel.content().ratingHistory?.history)
-        assertEquals(listOf("163468"), histories.reads)
     }
 
     @Test
@@ -449,15 +430,6 @@ class PlayerDetailViewModelTest {
 
         assertNull(viewModel().content().ratingHistory)
         assertEquals(emptyList(), data.rankingReads)
-    }
-
-    @Test
-    fun reopeningTheRatingHistoryIsReportedButItsOpenStartAndClosingAreNot() = runTest {
-        val viewModel = viewModel()
-
-        repeat(4) { viewModel.onAction(PlayerDetailAction.RatingHistoryToggled) }
-
-        assertEquals(listOf(LoggedEvent("rating_history_opened", emptyMap()), LoggedEvent("rating_history_opened", emptyMap())), analytics.events.drop(1))
     }
 
     private fun update(date: LocalDate, points: Int) = RatingUpdate(date, "Week", Rating(points - 10, 70), Rating(points, 70), 10)

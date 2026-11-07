@@ -92,7 +92,6 @@ private struct ContentView: View {
                 if let ratingHistory = detail.ratingHistory {
                     RatingHistorySectionView(
                         section: ratingHistory,
-                        onToggle: { onAction(.ratingHistoryToggled) },
                         onRetry: { onAction(.ratingHistoryRetryClicked) },
                         onSpanChosen: { onAction(.ratingHistorySpanChosen($0)) },
                         onInfo: { onAction(.ratingInfoClicked) }

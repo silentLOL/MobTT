@@ -13,7 +13,7 @@ The Player screen is also slow to appear. It waits behind one spinner until the 
 
 The Player screen draws at once with the Player's name and Favorite star. Club, Teams and the stat row each load on their own, show their own loading and Unavailable states, and retry on their own.
 
-Below the Teams, a **Rating history** section shows how the Player's Rating changed after each Rating update. It starts expanded and loads as soon as the Player's Ratings Central entry is known; the user can collapse it. The chart is drawn natively on both platforms: a line through the Rating, a shaded band of ±1 Deviation, and a dot per Rating update. A **12 months / All** toggle chooses the time span. Touching the chart shows the date, name, Rating ±Deviation and change of the nearest Rating update.
+Below the Teams, a **Rating history** section shows how the Player's Rating changed after each Rating update. It is always shown open, with no collapse arrow, and loads as soon as the Player's Ratings Central entry is known. The chart is drawn natively on both platforms: a line through the Rating, a shaded band of ±1 Deviation, and a dot per Rating update. A **12 months / All** toggle chooses the time span. Touching the chart shows the date, name, Rating ±Deviation and change of the nearest Rating update.
 
 An info button next to the section title opens a short explanation of what the Rating, the Deviation and the band mean, with a link to Ratings Central's own explanation.
 
@@ -37,8 +37,8 @@ Android and iOS ship together.
 ### Rating history section
 
 9. As a fan, I want a Rating history section on the Player screen, so that I can see how the Player's playing strength developed
-10. As a fan, I want the section open when I open a Player, so that I see the Rating history without an extra tap
-11. As a fan, I want to collapse the section, so that the screen stays short when I only want the Teams
+10. As a fan, I want the Rating history always shown open on the Player screen, so that I see it without an extra tap
+11. As a fan, I want the Rating history to load with the Player screen, so that it is there when I scroll to it
 12. As a fan, I want the section to keep its chart when I close and reopen it, so that I am not waiting again
 13. As a fan, I want the section hidden for a Player without a Ratings Central entry, so that I am not shown a section that can never fill
 14. As a fan, I want "No Rating history yet" when the Player has an entry but no Rating update, so that I know the data is not missing by mistake
@@ -85,7 +85,7 @@ Android and iOS ship together.
 43. As the maintainer, I want the Rating history section enabled only in `deb` and `dev` builds until Ratings Central agrees, so that release builds do not use their data without permission
 44. As the maintainer, I want to turn the section on for `beta` and `prod` with one shared change, so that the release after their answer is small
 45. As the maintainer, I want requests to Ratings Central to identify the app, so that its maintainers can see and contact us
-46. As the maintainer, I want an analytics event when the Rating history section is opened, so that I know whether the feature is used
+46. ~~As the maintainer, I want an analytics event when the Rating history section is opened~~ (dropped: the section is always open)
 47. As the maintainer, I want an analytics event when the info sheet is opened, so that I know whether the explanation is needed
 48. As a developer, I want `deb` builds to show a fake Rating history, so that I can work on the chart without network access
 
@@ -123,7 +123,7 @@ Android and iOS ship together.
 - Both platforms reuse the section state pattern from the League screen (Android `SectionUi`, iOS `SectionUiState`: loading, unavailable, loaded), lifting it where both screens can share it.
 - The screen's top-level state keeps only "Player unavailable" versus content; each section holds its own state and retry.
 - The Rating history section waits for the Teams section, since it needs the Leagues. Opening it before the Teams have loaded shows it loading until both are done.
-- Rating history uses the League screen's collapsible-section pattern but starts expanded: loaded as soon as it is shown, kept when collapsed, retried only while open.
+- Rating history is a plain section (header with the info button, no collapse arrow) using the shared section state: loaded as soon as the Ratings Central entry is known, retried from its own Unavailable state.
 
 ### Chart
 
@@ -152,7 +152,7 @@ Android and iOS ship together.
 
 ### Analytics
 
-- Two events, each added as a catalog row first (docs/ANALYTICS.md): `rating_history_opened` when the user reopens the section after collapsing it (its expanded start is not counted), `rating_info_opened` when the info sheet opens. No Player identifiers. The 12 months / All toggle is not tracked.
+- One event, added as a catalog row first (docs/ANALYTICS.md): `rating_info_opened` when the info sheet opens. (`rating_history_opened` was dropped once the section stopped collapsing: there is nothing left to open.) No Player identifiers. The 12 months / All toggle is not tracked.
 
 ## Testing Decisions
 

@@ -6,7 +6,6 @@ enum PlayerDetailAction {
     case teamClicked(id: String)
     case clubRetryClicked
     case teamsRetryClicked
-    case ratingHistoryToggled
     case ratingHistoryRetryClicked
     case ratingHistorySpanChosen(RatingHistorySpan)
     case ratingInfoClicked

@@ -8,7 +8,6 @@ enum AnalyticsEvent {
     static let searchPerformed = "search_performed"
     static let consentChanged = "consent_changed"
     static let settingChanged = "setting_changed"
-    static let ratingHistoryOpened = "rating_history_opened"
     static let ratingInfoOpened = "rating_info_opened"
 }
 
@@ -91,10 +90,6 @@ extension AnalyticsTracker {
             AnalyticsParam.screen: screen,
             AnalyticsParam.queryLength: query.trimmingCharacters(in: .whitespacesAndNewlines).count,
         ])
-    }
-
-    func ratingHistoryOpened() {
-        logEvent(AnalyticsEvent.ratingHistoryOpened, parameters: [:])
     }
 
     func ratingInfoOpened() {

@@ -99,8 +99,6 @@ final class PlayerDetailViewModel {
             startClub()
         case .teamsRetryClicked:
             startTeams()
-        case .ratingHistoryToggled:
-            toggleRatingHistory()
         case .ratingHistoryRetryClicked:
             startRatingHistory()
         case .ratingInfoClicked:
@@ -186,7 +184,7 @@ final class PlayerDetailViewModel {
         }
     }
 
-    /// The Rating history is a bonus: a ranking XTTV cannot answer only hides it. The section starts open, so Ratings Central is asked once the entry is known.
+    /// The Rating history is a bonus: a ranking XTTV cannot answer only hides it. The section is always open, so Ratings Central is asked once the entry is known.
     private func findRatingsCentralId(player: Player, leagueIds: [String]) {
         guard ratingHistoryEnabled, ratingsCentralId == nil, !leagueIds.isEmpty else { return }
         ratingsCentralIdTask?.cancel()
@@ -194,7 +192,7 @@ final class PlayerDetailViewModel {
             guard let result = try? await loadRatingsCentralId(player.id, leagueIds), !Task.isCancelled else { return }
             guard case .success(let success) = onEnum(of: result), let id = success.value as? String else { return }
             ratingsCentralId = id
-            // The section starts open, so its Rating history loads straight away.
+            // The section is always open, so its Rating history loads straight away.
             updateContent { $0.ratingHistory = RatingHistorySectionUi(since: firstDay(of: .lastYear)) }
             startRatingHistory()
         }
@@ -212,17 +210,6 @@ final class PlayerDetailViewModel {
             var utc = Calendar(identifier: .gregorian)
             utc.timeZone = TimeZone(identifier: "UTC") ?? .gmt
             return utc.date(from: calendar.dateComponents([.year, .month, .day], from: yearAgo))
-        }
-    }
-
-    private func toggleRatingHistory() {
-        guard case .content(let detail) = uiState, var section = detail.ratingHistory else { return }
-        section.isExpanded.toggle()
-        updateContent { $0.ratingHistory = section }
-        guard section.isExpanded else { return }
-        analytics.ratingHistoryOpened()
-        if ratingHistoryTask == nil {
-            startRatingHistory()
         }
     }
 

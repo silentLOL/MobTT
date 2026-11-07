@@ -50,7 +50,7 @@ enum PlayerDetailPreviewData {
 
     static var withRatingHistory: PlayerDetailUi {
         var detail = loaded
-        detail.ratingHistory = RatingHistorySectionUi(isExpanded: true, history: .loaded(ratingHistory))
+        detail.ratingHistory = RatingHistorySectionUi(history: .loaded(ratingHistory))
         return detail
     }
 }
