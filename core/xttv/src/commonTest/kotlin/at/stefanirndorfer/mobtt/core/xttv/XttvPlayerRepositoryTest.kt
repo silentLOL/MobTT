@@ -3,6 +3,7 @@ package at.stefanirndorfer.mobtt.core.xttv
 import at.stefanirndorfer.mobtt.domain.club.DataUnavailable
 import at.stefanirndorfer.mobtt.domain.player.PickedPlayerStore
 import at.stefanirndorfer.mobtt.domain.player.Player
+import at.stefanirndorfer.mobtt.domain.player.RankedPlayer
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -96,6 +97,23 @@ class XttvPlayerRepositoryTest {
         assertEquals(
             listOf(Player("62323", "Beispiel Spieler", "112"), Player("3680", "Reinhard Blauensteiner", "99")),
             recorded.getLeaguePlayers("70"),
+        )
+    }
+
+    @Test
+    fun aRecordedStandingsRowMapsToTheRankingWithTeamAndMatches() = runTest {
+        val recorded = XttvPlayerRepository(
+            XttvApi(FakeXttv(mapOf(STANDINGS_70_URL to XttvSamples.SINGLE_STANDINGS_RECORDED)).client),
+            XttvSamples.HOST,
+            picked,
+        )
+
+        assertEquals(
+            listOf(
+                RankedPlayer(Player("3680", "Reinhard Blauensteiner", "99"), rank = 1, teamId = "2271", gamesPlayed = 21, matchesWon = 52, matchesLost = 2),
+                RankedPlayer(Player("62323", "Beispiel Spieler", "112"), rank = null, teamId = "54094", gamesPlayed = 1, matchesWon = 0, matchesLost = 2),
+            ),
+            recorded.getPlayerRanking("70"),
         )
     }
 }

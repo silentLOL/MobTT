@@ -10,17 +10,24 @@ import at.stefanirndorfer.mobtt.core.analytics.detailOpened
 import at.stefanirndorfer.mobtt.core.analytics.screenView
 import at.stefanirndorfer.mobtt.core.ui.RetryTrigger
 import at.stefanirndorfer.mobtt.domain.club.GetLeagueDetailUseCase
+import at.stefanirndorfer.mobtt.domain.user.GetPlayerRankingUseCase
+import at.stefanirndorfer.mobtt.domain.user.ObserveUserContextUseCase
+import at.stefanirndorfer.mobtt.domain.user.UserContext
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailAction
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailEvent
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailUiState
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.PlayerRankingUi
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -30,6 +37,8 @@ class LeagueDetailViewModel(
     private val highlightTeamId: String?,
     private val openedFromTeamId: String?,
     private val getLeagueDetail: GetLeagueDetailUseCase,
+    private val getPlayerRanking: GetPlayerRankingUseCase,
+    observeUserContext: ObserveUserContextUseCase,
     private val analytics: AnalyticsTracker = NoOpAnalyticsTracker,
 ) : ViewModel() {
     init {
@@ -40,6 +49,11 @@ class LeagueDetailViewModel(
 
     private val onlyTeamFixtures = MutableStateFlow(false)
 
+    private val myPlayerId: Flow<String?> = observeUserContext()
+        .map { (it as? UserContext.MyPlayer)?.player?.id }
+        .onStart { emit(null) }
+        .catch { emit(null) }
+
     val uiState: StateFlow<LeagueDetailUiState> = combine(
         retry.restarting {
             flow {
@@ -48,9 +62,16 @@ class LeagueDetailViewModel(
             }
         },
         onlyTeamFixtures,
-    ) { state, onlyTeam ->
+        retry.restarting {
+            flow {
+                emit(PlayerRankingUi.Loading)
+                emit(loadRanking())
+            }
+        },
+        myPlayerId,
+    ) { state, onlyTeam, ranking, myPlayer ->
         if (state is LeagueDetailUiState.Content) {
-            state.copy(onlyTeamFixtures = onlyTeam)
+            state.copy(onlyTeamFixtures = onlyTeam, ranking = ranking, myPlayerId = myPlayer)
         } else {
             state
         }
@@ -66,6 +87,7 @@ class LeagueDetailViewModel(
             is LeagueDetailAction.OnlyTeamFixturesToggled -> onlyTeamFixtures.value = action.enabled
             is LeagueDetailAction.TeamClicked -> openTeam(action.teamId)
             is LeagueDetailAction.FixtureInfoClicked -> openFixture(action.fixtureId)
+            is LeagueDetailAction.PlayerClicked -> openPlayer(action.playerId)
         }
     }
 
@@ -77,6 +99,19 @@ class LeagueDetailViewModel(
     private fun openFixture(fixtureId: String) {
         analytics.detailOpened(AnalyticsKind.FIXTURE, fixtureId, from = AnalyticsScreen.LEAGUE_DETAIL)
         viewModelScope.launch { eventChannel.send(LeagueDetailEvent.OpenFixture(fixtureId)) }
+    }
+
+    private fun openPlayer(playerId: String) {
+        analytics.detailOpened(AnalyticsKind.PLAYER, playerId, from = AnalyticsScreen.LEAGUE_DETAIL)
+        viewModelScope.launch { eventChannel.send(LeagueDetailEvent.OpenPlayer(playerId)) }
+    }
+
+    private suspend fun loadRanking(): PlayerRankingUi = try {
+        PlayerRankingUi.Loaded(getPlayerRanking(leagueId))
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        PlayerRankingUi.Unavailable
     }
 
     private suspend fun load(): LeagueDetailUiState = try {

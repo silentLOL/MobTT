@@ -5,16 +5,19 @@ struct LeagueDetailRoute: View {
 
     let onOpenTeam: (_ teamId: String) -> Void
     let onOpenFixture: (_ fixtureId: String) -> Void
+    let onOpenPlayer: (_ playerId: String) -> Void
 
     init(
         leagueId: String,
         highlightTeamId: String?,
         openedFromTeamId: String?,
         onOpenTeam: @escaping (_ teamId: String) -> Void,
-        onOpenFixture: @escaping (_ fixtureId: String) -> Void
+        onOpenFixture: @escaping (_ fixtureId: String) -> Void,
+        onOpenPlayer: @escaping (_ playerId: String) -> Void
     ) {
         self.onOpenTeam = onOpenTeam
         self.onOpenFixture = onOpenFixture
+        self.onOpenPlayer = onOpenPlayer
         _viewModel = State(initialValue: LeagueDetailViewModel(leagueId: leagueId, highlightTeamId: highlightTeamId, openedFromTeamId: openedFromTeamId))
     }
 
@@ -27,6 +30,7 @@ struct LeagueDetailRoute: View {
                     switch event {
                     case .openTeam(let teamId): onOpenTeam(teamId)
                     case .openFixture(let fixtureId): onOpenFixture(fixtureId)
+                    case .openPlayer(let playerId): onOpenPlayer(playerId)
                     }
                 }
             }
@@ -135,6 +139,11 @@ private struct ContentView: View {
                         }
                     }
                 }
+                PlayerRankingSectionView(
+                    ranking: detail.ranking,
+                    isMyPlayer: detail.isMyPlayer,
+                    onPlayerTap: { onAction(.playerClicked(playerId: $0)) }
+                )
             }
             .padding(BatSpacing.lg)
         }
@@ -166,6 +175,12 @@ private struct SectionMessage: View {
 #Preview("Loaded") {
     BatPreviewMatrix {
         LeagueDetailScreen(state: .content(LeagueDetailPreviewData.loaded), onAction: { _ in })
+    }
+}
+
+#Preview("Ranking") {
+    BatPreviewMatrix {
+        LeagueDetailScreen(state: .content(LeagueDetailPreviewData.withRanking), onAction: { _ in })
     }
 }
 

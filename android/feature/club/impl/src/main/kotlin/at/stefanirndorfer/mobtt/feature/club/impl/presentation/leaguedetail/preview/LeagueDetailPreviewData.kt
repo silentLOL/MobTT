@@ -6,6 +6,9 @@ import at.stefanirndorfer.mobtt.domain.club.FixtureStatus
 import at.stefanirndorfer.mobtt.domain.club.League
 import at.stefanirndorfer.mobtt.domain.club.LeagueDetail
 import at.stefanirndorfer.mobtt.domain.club.Standing
+import at.stefanirndorfer.mobtt.domain.player.Player
+import at.stefanirndorfer.mobtt.domain.player.RankedPlayer
+import at.stefanirndorfer.mobtt.domain.user.PlayerRankingRow
 import kotlin.time.Instant
 
 private fun fixture(id: String, home: String, away: String, startsAt: Long, venue: String? = null, score: FixtureScore? = null) = Fixture(
@@ -50,4 +53,20 @@ val leagueDetailLongNamesPreview = LeagueDetail(
             venue = "Mehrzweckhalle der Marktgemeinde St. Pölten Nord-West",
         ),
     ),
+)
+
+private fun rankingRow(id: String, name: String, rank: Int?, team: String?, won: Int, lost: Int, played: Int) = PlayerRankingRow(
+    RankedPlayer(Player(id, name, clubId = "c"), rank = rank, teamId = id, gamesPlayed = played, matchesWon = won, matchesLost = lost),
+    teamName = team,
+)
+
+val playerRankingPreview = listOf(
+    rankingRow("bauer", "Lukas Bauer", 1, "SK VÖEST Wien 1", won = 14, lost = 2, played = 6),
+    rankingRow("gruber", "Anna Gruber", 2, "TTC Olympic 1", won = 11, lost = 4, played = 6),
+    rankingRow("wagner", "Sophie Wagner", null, "Nussdorf TTC 1", won = 1, lost = 2, played = 1),
+)
+
+val playerRankingLongNamesPreview = listOf(
+    rankingRow("pichler", "Katharina Habsburg-Lothringen-Esterházy", 1, "Union Tischtennisclub St. Pölten Nord-West 1", won = 20, lost = 3, played = 8),
+    rankingRow("gone", "Felix Moser", 2, null, won = 9, lost = 9, played = 6),
 )

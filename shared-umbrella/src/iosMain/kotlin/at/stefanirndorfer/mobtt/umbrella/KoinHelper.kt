@@ -24,6 +24,7 @@ import at.stefanirndorfer.mobtt.domain.club.SearchClubsUseCase
 import at.stefanirndorfer.mobtt.domain.club.TeamDetail
 import at.stefanirndorfer.mobtt.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.mobtt.domain.user.GetPlayerDetailUseCase
+import at.stefanirndorfer.mobtt.domain.user.GetPlayerRankingUseCase
 import at.stefanirndorfer.mobtt.domain.user.ListLeaguePlayersUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveFavoritesUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveHomeFavoritesUseCase
@@ -33,6 +34,7 @@ import at.stefanirndorfer.mobtt.domain.user.ObserveUsageConsentPromptUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveUsageConsentUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.mobtt.domain.user.PlayerDetail
+import at.stefanirndorfer.mobtt.domain.user.PlayerRankingRow
 import at.stefanirndorfer.mobtt.domain.user.RememberPlayerUseCase
 import at.stefanirndorfer.mobtt.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.mobtt.domain.user.ResolvedFavorite
@@ -82,6 +84,8 @@ object KoinHelper : KoinComponent {
     suspend fun loadFixtureDetail(fixtureId: String): DataResult<FixtureDetail?> = dataResult { getGetFixtureDetailUseCase().invoke(fixtureId) }
 
     suspend fun loadPlayerDetail(playerId: String): DataResult<PlayerDetail?> = dataResult { getGetPlayerDetailUseCase().invoke(playerId) }
+
+    suspend fun loadPlayerRanking(leagueId: String): DataResult<List<PlayerRankingRow>> = dataResult { getGetPlayerRankingUseCase().invoke(leagueId) }
 
     suspend fun listAssociations(): DataResult<List<Association>> = dataResult { getListAssociationsUseCase().invoke() }
 
@@ -176,6 +180,11 @@ object KoinHelper : KoinComponent {
 
     fun getGetLeagueDetailUseCase(): GetLeagueDetailUseCase {
         val useCase: GetLeagueDetailUseCase by inject()
+        return useCase
+    }
+
+    fun getGetPlayerRankingUseCase(): GetPlayerRankingUseCase {
+        val useCase: GetPlayerRankingUseCase by inject()
         return useCase
     }
 

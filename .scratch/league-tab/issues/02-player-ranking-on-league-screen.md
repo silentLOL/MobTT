@@ -1,5 +1,5 @@
 ---
-status: ready-for-agent
+status: resolved
 blocked_by: [1]
 ---
 
@@ -11,11 +11,11 @@ Below the Fixtures, the League screen shows the Player ranking: the League's Pla
 
 ## Acceptance criteria
 
-- [ ] `XttvPlayerRepositoryTest` reads rank, ranked flag, Team, matches won and lost and games played from the recorded sample
-- [ ] The fake directory serves matching ranking rows
-- [ ] A shared use case orders the ranking by rank with unranked Players last and joins Team names from the standings; covered by domain tests
-- [ ] The section shows loading, loaded, empty and unavailable without changing the rest of the screen
-- [ ] Tapping a row opens the Player on Android and iOS, and sends `detail_opened` for Player
-- [ ] My Player's row is highlighted with a badge and announced as such
-- [ ] English and German strings ("Player ranking" / "Einzelrangliste") on both platforms
-- [ ] ViewModel tests on both platforms; previews for loaded, loading, unavailable, empty, long names
+- [x] `XttvPlayerRepositoryTest` reads rank, ranked flag, Team, matches won and lost and games played from the recorded sample
+- [x] The fake directory serves matching ranking rows
+- [x] A shared use case orders the ranking by rank with unranked Players last and joins Team names from the standings; covered by domain tests
+- [x] The section shows loading, loaded, empty and unavailable without changing the rest of the screen
+- [x] Tapping a row opens the Player on Android and iOS, and sends `detail_opened` for Player
+- [x] My Player's row is highlighted with a badge and announced as such
+- [x] English and German strings ("Player ranking" / "Einzelrangliste") on both platforms
+- [x] ViewModel tests on both platforms; previews for loaded, loading, unavailable, empty, long names

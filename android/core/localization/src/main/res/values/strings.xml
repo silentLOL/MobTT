@@ -124,6 +124,16 @@
     <string name="league_detail_error_body">Check your connection and try again.</string>
     <string name="league_detail_error_retry_button">Try again</string>
     <string name="league_detail_fixture_info_cd">Details for %1$s against %2$s</string>
+    <string name="league_detail_ranking_title">Player ranking</string>
+    <string name="league_detail_ranking_empty_body">No Players ranked yet.</string>
+    <string name="league_detail_ranking_unavailable_body">The Player ranking can\'t be loaded right now.</string>
+    <string name="league_detail_ranking_loading_cd">Loading Player ranking</string>
+    <string name="league_detail_ranking_stats_label">Matches %1$d:%2$d · %3$d played</string>
+    <string name="league_detail_ranking_unranked_label">–</string>
+    <string name="league_detail_ranking_rank_cd">Rank %1$d</string>
+    <string name="league_detail_ranking_unranked_cd">Unranked</string>
+    <string name="league_detail_ranking_stats_cd">%1$d Matches won, %2$d lost, %3$d played</string>
+    <string name="league_detail_my_player_badge">My Player</string>
     <string name="fixture_detail_hero_overline">Fixture</string>
     <string name="fixture_detail_not_played">Not played yet</string>
     <string name="fixture_detail_score">%1$d : %2$d</string>

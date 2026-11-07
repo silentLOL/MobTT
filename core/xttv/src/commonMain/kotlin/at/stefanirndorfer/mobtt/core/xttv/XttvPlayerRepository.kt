@@ -3,6 +3,7 @@ package at.stefanirndorfer.mobtt.core.xttv
 import at.stefanirndorfer.mobtt.domain.player.PickedPlayerStore
 import at.stefanirndorfer.mobtt.domain.player.Player
 import at.stefanirndorfer.mobtt.domain.player.PlayerRepository
+import at.stefanirndorfer.mobtt.domain.player.RankedPlayer
 import kotlin.concurrent.Volatile
 import kotlin.time.Duration.Companion.minutes
 
@@ -26,16 +27,19 @@ class XttvPlayerRepository(
 
     override suspend fun getPlayer(id: String): Player? = pickedPlayers.get(id)
 
-    override suspend fun getLeaguePlayers(leagueId: String): List<Player> {
+    override suspend fun getLeaguePlayers(leagueId: String): List<Player> = singleStandings(leagueId)
+        .map { it.toDomain() }
+        .distinctBy { it.id }
+        .sortedBy { it.name.lowercase() }
+        .also { latestResults = it }
+
+    override suspend fun getPlayerRanking(leagueId: String): List<RankedPlayer> = singleStandings(leagueId).map { it.toRanked() }
+
+    private suspend fun singleStandings(leagueId: String): List<SinglePlayerXml> {
         if (!XttvEndpoints.isXttvId(leagueId)) {
             return emptyList()
         }
-        return api.get(XttvEndpoints.singleStandings(host, leagueId), STANDINGS_TTL, SingleStandingsXml.serializer())
-            .rows
-            .map { it.toDomain() }
-            .distinctBy { it.id }
-            .sortedBy { it.name.lowercase() }
-            .also { latestResults = it }
+        return api.get(XttvEndpoints.singleStandings(host, leagueId), STANDINGS_TTL, SingleStandingsXml.serializer()).rows
     }
 
     override suspend fun remember(player: Player) = pickedPlayers.save(player)

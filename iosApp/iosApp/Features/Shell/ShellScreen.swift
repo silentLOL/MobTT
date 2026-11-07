@@ -214,7 +214,8 @@ extension ShellScreen {
             highlightTeamId: route.highlightTeamId,
             openedFromTeamId: route.openedFromTeamId,
             onOpenTeam: { path.wrappedValue.append(TeamDestination(teamId: $0)) },
-            onOpenFixture: { path.wrappedValue.append(FixtureDestination(fixtureId: $0)) }
+            onOpenFixture: { path.wrappedValue.append(FixtureDestination(fixtureId: $0)) },
+            onOpenPlayer: { path.wrappedValue.append(PlayerDestination(playerId: $0)) }
         )
             .navigationTitle(String(localized: "league_detail_hero_overline"))
             .navigationBarTitleDisplayMode(.inline)

@@ -5,10 +5,18 @@ import at.stefanirndorfer.mobtt.core.analytics.RecordingAnalyticsTracker
 import at.stefanirndorfer.mobtt.domain.club.Fixture
 import at.stefanirndorfer.mobtt.domain.club.FixtureStatus
 import at.stefanirndorfer.mobtt.domain.club.GetLeagueDetailUseCase
+import at.stefanirndorfer.mobtt.domain.club.Standing
+import at.stefanirndorfer.mobtt.domain.player.Player
+import at.stefanirndorfer.mobtt.domain.player.RankedPlayer
+import at.stefanirndorfer.mobtt.domain.user.GetPlayerRankingUseCase
+import at.stefanirndorfer.mobtt.domain.user.ObserveUserContextUseCase
+import at.stefanirndorfer.mobtt.domain.user.UserSelection
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.FakeClubData
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailAction
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailEvent
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailUiState
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.PlayerRankingUi
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -38,7 +46,15 @@ class LeagueDetailViewModelTest {
     fun tearDown() = Dispatchers.resetMain()
 
     private fun TestScope.viewModel(highlightTeamId: String? = "t1", openedFromTeamId: String? = highlightTeamId): LeagueDetailViewModel {
-        val viewModel = LeagueDetailViewModel("l1", highlightTeamId, openedFromTeamId, GetLeagueDetailUseCase(data, data), analytics)
+        val viewModel = LeagueDetailViewModel(
+            "l1",
+            highlightTeamId,
+            openedFromTeamId,
+            GetLeagueDetailUseCase(data, data),
+            GetPlayerRankingUseCase(data, data),
+            ObserveUserContextUseCase(data, data, data, data),
+            analytics,
+        )
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel
     }
@@ -144,6 +160,67 @@ class LeagueDetailViewModelTest {
                 LoggedEvent("detail_opened", mapOf("kind" to "team", "id" to "t1", "from" to "league_detail")),
             ),
             analytics.events,
+        )
+    }
+
+    private fun ranked(id: String, name: String, rank: Int?) = RankedPlayer(Player(id, name, clubId = "c1"), rank = rank, teamId = "t1", gamesPlayed = 4, matchesWon = 6, matchesLost = 2)
+
+    @Test
+    fun theRankingFollowsTheLeagueWithTeamNames() = runTest {
+        data.standings = listOf(Standing(position = 1, teamId = "t1", teamName = "Olympic 1", played = 6, points = 10))
+        data.ranking = listOf(ranked("p2", "Bea", null), ranked("p1", "Anna", 1))
+        val viewModel = viewModel()
+
+        val ranking = assertIs<PlayerRankingUi.Loaded>(assertIs<LeagueDetailUiState.Content>(viewModel.uiState.value).ranking)
+        assertEquals(listOf("Anna", "Bea"), ranking.rows.map { it.ranked.player.name })
+        assertEquals(listOf("Olympic 1", "Olympic 1"), ranking.rows.map { it.teamName })
+    }
+
+    @Test
+    fun theLeagueShowsBeforeTheRankingArrives() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        data.rankingGate = gate
+        data.ranking = listOf(ranked("p1", "Anna", 1))
+        val viewModel = viewModel()
+
+        assertEquals(PlayerRankingUi.Loading, assertIs<LeagueDetailUiState.Content>(viewModel.uiState.value).ranking)
+
+        gate.complete(Unit)
+        assertIs<PlayerRankingUi.Loaded>(assertIs<LeagueDetailUiState.Content>(viewModel.uiState.value).ranking)
+    }
+
+    @Test
+    fun aRankingXttvCannotAnswerForLeavesTheRestOfTheLeague() = runTest {
+        data.rankingUnavailable = true
+        val viewModel = viewModel()
+
+        assertEquals(PlayerRankingUi.Unavailable, assertIs<LeagueDetailUiState.Content>(viewModel.uiState.value).ranking)
+    }
+
+    @Test
+    fun myPlayerIsMarkedInTheRanking() = runTest {
+        data.players = listOf(Player("p1", "Anna", clubId = "c1"))
+        data.selection.value = UserSelection.MyPlayer("p1")
+        data.ranking = listOf(ranked("p1", "Anna", 1), ranked("p2", "Bea", 2))
+        val viewModel = viewModel()
+
+        val state = assertIs<LeagueDetailUiState.Content>(viewModel.uiState.value)
+        assertTrue(state.isMyPlayer("p1"))
+        assertFalse(state.isMyPlayer("p2"))
+    }
+
+    @Test
+    fun tappingAPlayerOpensThemAndReportsIt() = runTest {
+        val viewModel = viewModel()
+        val events = mutableListOf<LeagueDetailEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect(events::add) }
+
+        viewModel.onAction(LeagueDetailAction.PlayerClicked("p1"))
+
+        assertEquals(listOf<LeagueDetailEvent>(LeagueDetailEvent.OpenPlayer("p1")), events)
+        assertEquals(
+            LoggedEvent("detail_opened", mapOf("kind" to "player", "id" to "p1", "from" to "league_detail")),
+            analytics.events.last(),
         )
     }
 }

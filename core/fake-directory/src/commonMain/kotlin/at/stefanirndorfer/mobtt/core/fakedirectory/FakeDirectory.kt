@@ -17,6 +17,7 @@ import at.stefanirndorfer.mobtt.domain.club.Team
 import at.stefanirndorfer.mobtt.domain.club.TeamRepository
 import at.stefanirndorfer.mobtt.domain.player.Player
 import at.stefanirndorfer.mobtt.domain.player.PlayerRepository
+import at.stefanirndorfer.mobtt.domain.player.RankedPlayer
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
@@ -114,6 +115,27 @@ class FakeDirectory(private val clock: Clock = Clock.System) :
     override suspend fun getLeaguePlayers(leagueId: String): List<Player> {
         val clubIds = teams.filter { it.leagueId == leagueId }.map { it.clubId }.toSet()
         return players.filter { it.clubId in clubIds }.sortedBy { it.name }
+    }
+
+    /**
+     * Every League Player once, under the first of their Club's Teams in that League, ranked in name order. The
+     * last Player stays unranked, so the bottom of the list is shown too.
+     */
+    override suspend fun getPlayerRanking(leagueId: String): List<RankedPlayer> {
+        val leagueTeams = teams.filter { it.leagueId == leagueId }
+        val ranked = getLeaguePlayers(leagueId).mapNotNull { player ->
+            leagueTeams.firstOrNull { it.clubId == player.clubId }?.let { player to it.id }
+        }
+        return ranked.mapIndexed { index, (player, teamId) ->
+            RankedPlayer(
+                player = player,
+                rank = (index + 1).takeIf { index < ranked.lastIndex || ranked.size == 1 },
+                teamId = teamId,
+                gamesPlayed = 6 - index % 3,
+                matchesWon = (12 - index * 2).coerceAtLeast(0),
+                matchesLost = 2 + index,
+            )
+        }
     }
 
     override suspend fun getClub(id: String): Club? = clubs.firstOrNull { it.id == id }

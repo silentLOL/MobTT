@@ -78,4 +78,32 @@ enum LeagueDetailPreviewData {
             ),
         ]
     )
+
+    static let ranking = [
+        PlayerRankingRowUi(playerId: "bauer", teamId: "voest-1", name: "Lukas Bauer", rank: 1, teamName: "SK VÖEST Wien 1", matchesWon: 14, matchesLost: 2, gamesPlayed: 6),
+        PlayerRankingRowUi(playerId: "gruber", teamId: "olympic-1", name: "Anna Gruber", rank: 2, teamName: "TTC Olympic 1", matchesWon: 11, matchesLost: 4, gamesPlayed: 6),
+        PlayerRankingRowUi(playerId: "wagner", teamId: "nussdorf-1", name: "Sophie Wagner", rank: nil, teamName: "Nussdorf TTC 1", matchesWon: 1, matchesLost: 2, gamesPlayed: 1),
+    ]
+
+    static let longNamesRanking = [
+        PlayerRankingRowUi(
+            playerId: "pichler",
+            teamId: "s1",
+            name: "Katharina Habsburg-Lothringen-Esterházy",
+            rank: 1,
+            teamName: "Union Tischtennisclub St. Pölten Nord-West 1",
+            matchesWon: 20,
+            matchesLost: 3,
+            gamesPlayed: 8
+        ),
+        PlayerRankingRowUi(playerId: "moser", teamId: "gone", name: "Felix Moser", rank: 2, teamName: nil, matchesWon: 9, matchesLost: 9, gamesPlayed: 6),
+    ]
+
+    /// Loaded, with the ranking and My Player marked.
+    static var withRanking: LeagueDetailUi {
+        var detail = loaded
+        detail.ranking = .loaded(ranking)
+        detail.myPlayerId = "gruber"
+        return detail
+    }
 }

@@ -124,6 +124,16 @@
     <string name="league_detail_error_body">Prüfe deine Verbindung und versuche es erneut.</string>
     <string name="league_detail_error_retry_button">Erneut versuchen</string>
     <string name="league_detail_fixture_info_cd">Details zu %1$s gegen %2$s</string>
+    <string name="league_detail_ranking_title">Einzelrangliste</string>
+    <string name="league_detail_ranking_empty_body">Noch keine Spieler gereiht.</string>
+    <string name="league_detail_ranking_unavailable_body">Die Einzelrangliste kann gerade nicht geladen werden.</string>
+    <string name="league_detail_ranking_loading_cd">Einzelrangliste wird geladen</string>
+    <string name="league_detail_ranking_stats_label">Spiele %1$d:%2$d · %3$d Einsätze</string>
+    <string name="league_detail_ranking_unranked_label">–</string>
+    <string name="league_detail_ranking_rank_cd">Platz %1$d</string>
+    <string name="league_detail_ranking_unranked_cd">Nicht gereiht</string>
+    <string name="league_detail_ranking_stats_cd">%1$d Spiele gewonnen, %2$d verloren, %3$d Einsätze</string>
+    <string name="league_detail_my_player_badge">Mein Spieler</string>
     <string name="fixture_detail_hero_overline">Begegnung</string>
     <string name="fixture_detail_not_played">Noch nicht gespielt</string>
     <string name="fixture_detail_score">%1$d : %2$d</string>

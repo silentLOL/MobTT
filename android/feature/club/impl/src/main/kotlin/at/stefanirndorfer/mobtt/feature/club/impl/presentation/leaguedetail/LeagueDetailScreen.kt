@@ -36,10 +36,14 @@ import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailAction
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailEvent
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailUiState
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.PlayerRankingUi
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.leagueDetailEmptyPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.leagueDetailLongNamesPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.leagueDetailPreview
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.playerRankingLongNamesPreview
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.playerRankingPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.views.FixtureRowView
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.views.PlayerRankingSectionView
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.views.TeamFixturesToggleView
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -51,6 +55,7 @@ fun LeagueDetailRoute(
     openedFromTeamId: String?,
     onOpenTeam: (String) -> Unit,
     onOpenFixture: (String) -> Unit,
+    onOpenPlayer: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LeagueDetailViewModel = koinViewModel(
         key = "$leagueId/$highlightTeamId/$openedFromTeamId",
@@ -62,6 +67,7 @@ fun LeagueDetailRoute(
         when (event) {
             is LeagueDetailEvent.OpenTeam -> onOpenTeam(event.teamId)
             is LeagueDetailEvent.OpenFixture -> onOpenFixture(event.fixtureId)
+            is LeagueDetailEvent.OpenPlayer -> onOpenPlayer(event.playerId)
         }
     }
     LeagueDetailScreen(state = uiState, onAction = viewModel::onAction, modifier = modifier)
@@ -185,6 +191,11 @@ private fun ContentView(state: LeagueDetailUiState.Content, onAction: (LeagueDet
                 }
             }
         }
+        PlayerRankingSectionView(
+            ranking = state.ranking,
+            isMyPlayer = state::isMyPlayer,
+            onPlayerClick = { onAction(LeagueDetailAction.PlayerClicked(it)) },
+        )
     }
 }
 
@@ -213,7 +224,10 @@ private fun LeagueDetailScreenErrorPreview() {
 @Composable
 private fun LeagueDetailScreenLoadedPreview() {
     BatPreviewSurface {
-        LeagueDetailScreen(state = LeagueDetailUiState.Content(leagueDetailPreview), onAction = {})
+        LeagueDetailScreen(
+            state = LeagueDetailUiState.Content(leagueDetailPreview, ranking = PlayerRankingUi.Loaded(playerRankingPreview), myPlayerId = "gruber"),
+            onAction = {},
+        )
     }
 }
 
@@ -248,6 +262,9 @@ private fun LeagueDetailScreenEmptyPreview() {
 @Composable
 private fun LeagueDetailScreenLongNamesPreview() {
     BatPreviewSurface {
-        LeagueDetailScreen(state = LeagueDetailUiState.Content(leagueDetailLongNamesPreview), onAction = {})
+        LeagueDetailScreen(
+            state = LeagueDetailUiState.Content(leagueDetailLongNamesPreview, ranking = PlayerRankingUi.Loaded(playerRankingLongNamesPreview)),
+            onAction = {},
+        )
     }
 }

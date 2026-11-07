@@ -1,3 +1,4 @@
+import Foundation
 import Shared
 import Testing
 
@@ -41,7 +42,13 @@ struct LeagueDetailViewModelTests {
         viewModel.loadIfNeeded()
         await settle(viewModel)
 
-        #expect(viewModel.uiState == .content(LeagueDetailUi(leagueName: "Liga", standings: [], fixtures: [])))
+        guard case .content(let detail) = viewModel.uiState else {
+            Issue.record("Expected content")
+            return
+        }
+        #expect(detail.leagueName == "Liga")
+        #expect(detail.standings.isEmpty)
+        #expect(detail.fixtures.isEmpty)
     }
 
     @Test func theTeamFilterNarrowsTheFixturesToTheHighlightedTeam() async {
@@ -102,6 +109,79 @@ struct LeagueDetailViewModelTests {
         }
         #expect(detail.standings.map(\.isThisTeam) == [true, false])
         #expect(detail.standings.map(\.opensTeam) == [true, true])
+    }
+
+    @Test func theRankingFollowsTheLeagueWithTeamNames() async {
+        let viewModel = makeViewModel(loadRanking: { _ in
+            DataResultSuccess(value: [
+                PlayerRankingRow(ranked: self.ranked("p1", "Anna", rank: 1), teamName: "One"),
+                PlayerRankingRow(ranked: self.ranked("p2", "Bea", rank: nil), teamName: nil),
+            ] as NSArray)
+        }) { _ in self.twoTeamLeague() }
+        viewModel.loadIfNeeded()
+        await settleRanking(viewModel)
+
+        guard case .content(let detail) = viewModel.uiState, case .loaded(let rows) = detail.ranking else {
+            Issue.record("Expected a loaded ranking")
+            return
+        }
+        #expect(rows.map(\.name) == ["Anna", "Bea"])
+        #expect(rows.map(\.rank) == [1, nil])
+        #expect(rows.map(\.teamName) == ["One", nil])
+    }
+
+    @Test func aRankingXttvCannotAnswerForLeavesTheRestOfTheLeague() async {
+        let viewModel = makeViewModel(loadRanking: { _ in
+            DataResultUnavailable(error: DataUnavailable(message: "down", cause: nil))
+        }) { _ in self.twoTeamLeague() }
+        viewModel.loadIfNeeded()
+        await settleRanking(viewModel)
+
+        guard case .content(let detail) = viewModel.uiState else {
+            Issue.record("Expected content")
+            return
+        }
+        #expect(detail.ranking == .unavailable)
+        #expect(detail.standings.count == 2)
+    }
+
+    @Test func myPlayerIsMarkedInTheRanking() async {
+        let context = UserContextMyPlayer(
+            player: Player(id: "p1", name: "Anna", clubId: "c1"),
+            club: Club(id: "c1", name: "Olympic", associationId: "a1"),
+            association: Association(id: "a1", name: "WTTV", code: "WTTV")
+        )
+        let viewModel = makeViewModel(
+            observeUserContext: AsyncStream { $0.yield(DataResultSuccess(value: context)) },
+            loadRanking: { _ in DataResultSuccess(value: [PlayerRankingRow(ranked: self.ranked("p1", "Anna", rank: 1), teamName: "One")] as NSArray) }
+        ) { _ in self.twoTeamLeague() }
+        viewModel.loadIfNeeded()
+        await settleRanking(viewModel)
+        for _ in 0..<100 {
+            if case .content(let detail) = viewModel.uiState, detail.myPlayerId != nil { break }
+            await Task.yield()
+        }
+
+        guard case .content(let detail) = viewModel.uiState, case .loaded(let rows) = detail.ranking else {
+            Issue.record("Expected a loaded ranking")
+            return
+        }
+        #expect(rows.map { detail.isMyPlayer($0.playerId) } == [true])
+    }
+
+    @Test func tappingAPlayerOpensThemAndReportsIt() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(analytics: analytics) { _ in self.twoTeamLeague() }
+        var iterator = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.playerClicked(playerId: "p1"))
+
+        guard case .openPlayer(let playerId) = await iterator.next() else {
+            Issue.record("Expected an openPlayer event")
+            return
+        }
+        #expect(playerId == "p1")
+        #expect(analytics.events == [LoggedEvent("detail_opened", ["kind": "player", "id": "p1", "from": "league_detail"])])
     }
 
     @Test func tappingATeamSendsAnOpenTeamEvent() async {
@@ -173,10 +253,23 @@ struct LeagueDetailViewModelTests {
         ))
     }
 
+    private func ranked(_ id: String, _ name: String, rank: Int?) -> RankedPlayer {
+        RankedPlayer(
+            player: Player(id: id, name: name, clubId: "c1"),
+            rank: rank.map { KotlinInt(int: Int32($0)) },
+            teamId: "t1",
+            gamesPlayed: 4,
+            matchesWon: 6,
+            matchesLost: 2
+        )
+    }
+
     private func makeViewModel(
         highlightTeamId: String? = nil,
         openedFromTeamId: String? = nil,
         analytics: any AnalyticsTracker = NoOpAnalyticsTracker(),
+        observeUserContext: AsyncStream<DataResult> = AsyncStream { $0.finish() },
+        loadRanking: @escaping (String) async throws -> DataResult = { _ in DataResultSuccess(value: NSArray()) },
         loadDetail: @escaping (String) async throws -> DataResult
     ) -> LeagueDetailViewModel {
         LeagueDetailViewModel(
@@ -184,8 +277,17 @@ struct LeagueDetailViewModelTests {
             highlightTeamId: highlightTeamId,
             openedFromTeamId: openedFromTeamId,
             loadDetail: loadDetail,
+            loadRanking: loadRanking,
+            observeUserContext: observeUserContext,
             analytics: analytics
         )
+    }
+
+    private func settleRanking(_ viewModel: LeagueDetailViewModel) async {
+        for _ in 0..<200 {
+            if case .content(let detail) = viewModel.uiState, detail.ranking != .loading { return }
+            await Task.yield()
+        }
     }
 
     private func settle(_ viewModel: LeagueDetailViewModel) async {

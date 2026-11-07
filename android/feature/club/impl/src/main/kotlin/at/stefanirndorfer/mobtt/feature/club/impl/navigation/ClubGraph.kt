@@ -52,6 +52,7 @@ fun EntryProviderScope<NavKey>.clubGraph(navigator: GlobalNavigator) {
             openedFromTeamId = destination.openedFromTeamId,
             onOpenTeam = navigator::navigateToTeamDetail,
             onOpenFixture = navigator::navigateToFixtureDetail,
+            onOpenPlayer = navigator::navigateToPlayerDetail,
         )
     }
     entry<FixtureDetailDestination> { destination ->

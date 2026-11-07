@@ -4,4 +4,6 @@ sealed interface LeagueDetailEvent {
     data class OpenTeam(val teamId: String) : LeagueDetailEvent
 
     data class OpenFixture(val fixtureId: String) : LeagueDetailEvent
+
+    data class OpenPlayer(val playerId: String) : LeagueDetailEvent
 }

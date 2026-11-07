@@ -11,14 +11,18 @@ sealed interface LeagueDetailUiState {
     /**
      * [highlightTeamId] is the Team marked in the table and the Fixtures, if any. Only then can the Fixtures be
      * narrowed to that Team with [onlyTeamFixtures]. [openedFromTeamId] is the Team whose screen the user came from;
-     * its row does not open it again.
+     * its row does not open it again. [myPlayerId] marks My Player in the [ranking].
      */
     data class Content(
         val detail: LeagueDetail,
         val highlightTeamId: String? = null,
         val onlyTeamFixtures: Boolean = false,
         val openedFromTeamId: String? = highlightTeamId,
+        val ranking: PlayerRankingUi = PlayerRankingUi.Loading,
+        val myPlayerId: String? = null,
     ) : LeagueDetailUiState {
+        fun isMyPlayer(playerId: String): Boolean = playerId == myPlayerId
+
         fun isThisTeam(teamId: String): Boolean = teamId == highlightTeamId
 
         fun opensTeam(teamId: String): Boolean = teamId != openedFromTeamId
