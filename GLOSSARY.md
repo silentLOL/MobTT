@@ -44,6 +44,12 @@ _Avoid_: Einzelrangliste, single standings, player table
 One played segment of a Match, won by reaching the points target with a margin (German: Satz), e.g. 11:8.
 _Avoid_: Satz, game, round
 
+### Sharing
+
+**Fixture link**:
+A web address for one Fixture that anyone can open: it shows the Fixture in MobTT when the app is installed, and leads to the app stores otherwise.
+_Avoid_: Deep link, share link, dynamic link, universal link
+
 ### Rating
 
 **Ratings Central**:
