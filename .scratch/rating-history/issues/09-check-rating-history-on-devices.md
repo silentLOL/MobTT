@@ -14,6 +14,6 @@ blocked_by: [8]
 - [ ] The chart reads well in light and dark mode and at the largest text size; the callout follows a drag; the 12 months / All toggle switches spans
 - [ ] TalkBack and VoiceOver read the summary and step through Rating updates; VoiceOver plays the audio graph
 - [ ] The info sheet reads naturally in English, German and Austrian German, and its link opens Ratings Central
-- [ ] A `beta` build shows no Rating history section
+- [ ] A `beta` build shows the Rating history with real data (Ratings Central agreed on 2026-11-07)
 
 ## Comments

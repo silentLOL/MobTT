@@ -68,3 +68,6 @@ Option A gives the experience the feature exists for, and the flag means buildin
 
 ## Update 2026-11-07: the section starts expanded
 After trying it, the maintainer wants the Rating history open by default. Ratings Central is now asked whenever a Player screen with a Ratings Central entry opens, not only when the user opens the section; a user who closes the section is asked again only on reopening it. Each Player's history is still held for 24 hours, and the permission email describes this.
+
+## Update 2026-11-07: permission granted
+Ratings Central agreed, so the `AppConfig` flag is on in every environment and `beta` and `prod` show the Rating history. `deb` keeps its fake source. The flag stays as the one place to switch the section off again.

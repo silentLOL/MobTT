@@ -146,7 +146,7 @@ Android and iOS ship together.
 
 ### Release toggle
 
-- `AppConfig` gains a flag for the Rating history, derived from the environment like `xttvHost`: on for `deb` and `dev`, off for `beta` and `prod`.
+- `AppConfig` gains a flag for the Rating history, derived from the environment like `xttvHost`: on for `deb` and `dev`, off for `beta` and `prod` until Ratings Central agrees. (2026-11-07: they agreed; it is now on everywhere.)
 - With the flag off, the section is never shown and Ratings Central is never called.
 - `deb` binds a fake `RatingHistoryRepository` from `:core:fake-directory` with a few Players' histories, including one with a single Rating update and one with none.
 

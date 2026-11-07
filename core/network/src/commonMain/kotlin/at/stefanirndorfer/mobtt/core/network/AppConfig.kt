@@ -16,6 +16,9 @@ data class AppConfig(val environment: Environment, val appVersion: String, val x
     /** Ratings Central's explanation of its Rating and Deviation, linked from the Rating history's info sheet. */
     val ratingsCentralExplanationUrl: String = "$ratingsCentralHost/HowItWorks.php"
 
-    /** Off for `beta` and `prod` until Ratings Central agrees to the app reading its history export (ADR-0010). */
-    val ratingHistoryEnabled: Boolean = environment == Environment.Deb || environment == Environment.Dev
+    /**
+     * On in every environment since Ratings Central agreed to the app reading its history export (ADR-0010). Kept as a
+     * switch so the section can be turned off again in one place.
+     */
+    val ratingHistoryEnabled: Boolean = true
 }
