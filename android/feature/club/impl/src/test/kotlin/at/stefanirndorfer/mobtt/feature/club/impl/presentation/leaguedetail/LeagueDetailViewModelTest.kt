@@ -21,6 +21,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.time.Instant
@@ -36,8 +37,8 @@ class LeagueDetailViewModelTest {
     @After
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun TestScope.viewModel(highlightTeamId: String? = "t1"): LeagueDetailViewModel {
-        val viewModel = LeagueDetailViewModel("l1", highlightTeamId, GetLeagueDetailUseCase(data, data), analytics)
+    private fun TestScope.viewModel(highlightTeamId: String? = "t1", openedFromTeamId: String? = highlightTeamId): LeagueDetailViewModel {
+        val viewModel = LeagueDetailViewModel("l1", highlightTeamId, openedFromTeamId, GetLeagueDetailUseCase(data, data), analytics)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel
     }
@@ -86,6 +87,24 @@ class LeagueDetailViewModelTest {
         venue = null,
         status = FixtureStatus.Scheduled,
     )
+
+    @Test
+    fun everyStandingsRowOpensItsTeamExceptTheTeamTheUserCameFrom() = runTest {
+        val viewModel = viewModel(highlightTeamId = "t1", openedFromTeamId = "t1")
+
+        val state = assertIs<LeagueDetailUiState.Content>(viewModel.uiState.value)
+        assertFalse(state.opensTeam("t1"))
+        assertTrue(state.opensTeam("t2"))
+    }
+
+    @Test
+    fun aHighlightedTeamTheUserDidNotComeFromStillOpens() = runTest {
+        val viewModel = viewModel(highlightTeamId = "t1", openedFromTeamId = null)
+
+        val state = assertIs<LeagueDetailUiState.Content>(viewModel.uiState.value)
+        assertTrue(state.isThisTeam("t1"))
+        assertTrue(state.opensTeam("t1"))
+    }
 
     @Test
     fun tappingATeamSendsAnOpenTeamEvent() = runTest {

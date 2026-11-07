@@ -1,19 +1,14 @@
 package at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.views
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.text.style.TextDecoration
 import at.stefanirndorfer.mobtt.core.localization.R
 import at.stefanirndorfer.mobtt.core.ui.fixture.formatKickoff
 import at.stefanirndorfer.mobtt.designsystem.icon.BatIcon
@@ -30,16 +25,14 @@ import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.prev
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.leagueDetailPreview
 
 /**
- * One Fixture of a League: the pairing, when and where it is played, and the score once finished. Each Team
- * opens its Team, except [highlightTeamId], the Team the user came from. The info button opens the Fixture itself.
+ * One Fixture of a League: the pairing, when and where it is played, and the score once finished. The info button
+ * is the row's one action and opens the Fixture; Teams are opened from the standings.
  */
 @Composable
 fun FixtureRowView(
     fixture: Fixture,
     isThisTeam: Boolean,
-    highlightTeamId: String?,
     striped: Boolean,
-    onTeamClick: (teamId: String) -> Unit,
     onInfoClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -48,22 +41,14 @@ fun FixtureRowView(
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
             Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
-                    TeamLink(
-                        name = fixture.homeTeamName,
-                        onClick = fixture.homeTeamId.takeIf { it != highlightTeamId }?.let { { onTeamClick(it) } },
-                        modifier = Modifier.weight(1f, fill = false),
-                    )
+                    TeamName(name = fixture.homeTeamName, modifier = Modifier.weight(1f, fill = false))
                     Text(
                         text = stringResource(R.string.league_detail_fixture_versus),
                         modifier = Modifier.clearAndSetSemantics {},
                         color = BatDesign.colors.textSecondary,
                         style = BatDesign.typography.caption,
                     )
-                    TeamLink(
-                        name = fixture.awayTeamName,
-                        onClick = fixture.awayTeamId.takeIf { it != highlightTeamId }?.let { { onTeamClick(it) } },
-                        modifier = Modifier.weight(1f, fill = false),
-                    )
+                    TeamName(name = fixture.awayTeamName, modifier = Modifier.weight(1f, fill = false))
                 }
                 (fixture.status as? FixtureStatus.Finished)?.let { finished ->
                     Text(
@@ -90,16 +75,9 @@ fun FixtureRowView(
     }
 }
 
-/** Underlined when it opens the Team, so a link is never told apart by colour alone. */
 @Composable
-private fun TeamLink(name: String, onClick: (() -> Unit)?, modifier: Modifier = Modifier) {
-    val base = modifier.heightIn(min = BatDesign.sizing.minTouchTarget).wrapContentHeight(Alignment.CenterVertically)
-    Text(
-        text = name,
-        modifier = if (onClick != null) base.clickable(role = Role.Button, onClick = onClick) else base,
-        color = BatDesign.colors.textPrimary,
-        style = BatDesign.typography.bodyStrong.copy(textDecoration = if (onClick != null) TextDecoration.Underline else null),
-    )
+private fun TeamName(name: String, modifier: Modifier = Modifier) {
+    Text(text = name, modifier = modifier, color = BatDesign.colors.textPrimary, style = BatDesign.typography.bodyStrong)
 }
 
 @BatScreenPreview
@@ -108,11 +86,11 @@ private fun FixtureRowViewPreview() {
     BatPreviewSurface {
         BatList {
             leagueDetailPreview.fixtures.forEachIndexed { index, fixture ->
-                FixtureRowView(fixture, isThisTeam = false, highlightTeamId = null, striped = index % 2 == 1, onTeamClick = {}, onInfoClick = {})
+                FixtureRowView(fixture, isThisTeam = false, striped = index % 2 == 1, onInfoClick = {})
             }
-            FixtureRowView(leagueDetailPreview.fixtures[1], isThisTeam = true, highlightTeamId = "olympic-1", striped = false, onTeamClick = {}, onInfoClick = {})
+            FixtureRowView(leagueDetailPreview.fixtures[1], isThisTeam = true, striped = false, onInfoClick = {})
             leagueDetailLongNamesPreview.fixtures.forEach {
-                FixtureRowView(it, isThisTeam = true, highlightTeamId = null, striped = true, onTeamClick = {}, onInfoClick = {})
+                FixtureRowView(it, isThisTeam = true, striped = true, onInfoClick = {})
             }
         }
     }

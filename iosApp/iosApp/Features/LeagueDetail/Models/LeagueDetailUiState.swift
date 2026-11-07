@@ -15,7 +15,7 @@ struct FixtureRowUi: Identifiable, Equatable {
     let venue: String?
     /// Nil until the Fixture is finished.
     let score: FixtureScoreUi?
-    /// True when the Team the user came from plays in this Fixture.
+    /// True when the highlighted Team plays in this Fixture.
     var isThisTeam = false
 }
 
@@ -23,10 +23,8 @@ struct LeagueDetailUi: Equatable {
     let leagueName: String
     let standings: [StandingRowUi]
     let fixtures: [FixtureRowUi]
-    /// The Fixtures can only be narrowed to a Team when the user came from one.
+    /// The Fixtures can only be narrowed to a Team when one is highlighted.
     var canFilterToTeam = false
-    /// The Team the user came from, if any; its name does not open itself.
-    var highlightTeamId: String?
     var onlyTeamFixtures = false
 
     var visibleFixtures: [FixtureRowUi] {

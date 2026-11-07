@@ -23,8 +23,10 @@ private struct FixtureDestination: Hashable {
 
 private struct LeagueDestination: Hashable {
     let leagueId: String
-    /// The Team to highlight, when opened from its Team screen.
+    /// The Team to highlight in the table and the Fixtures.
     let highlightTeamId: String?
+    /// The Team whose screen pushed this League; its row does not open it again.
+    var openedFromTeamId: String?
 }
 
 struct ShellScreen: View {
@@ -187,7 +189,7 @@ extension ShellScreen {
     fileprivate func teamDetail(_ route: TeamDestination, path: Binding<NavigationPath>) -> some View {
         TeamDetailRoute(
             teamId: route.teamId,
-            onOpenLeague: { path.wrappedValue.append(LeagueDestination(leagueId: $0, highlightTeamId: $1)) },
+            onOpenLeague: { path.wrappedValue.append(LeagueDestination(leagueId: $0, highlightTeamId: $1, openedFromTeamId: $1)) },
             onOpenPlayer: { path.wrappedValue.append(PlayerDestination(playerId: $0)) }
         )
             .navigationTitle(String(localized: "team_detail_hero_overline"))
@@ -210,6 +212,7 @@ extension ShellScreen {
         LeagueDetailRoute(
             leagueId: route.leagueId,
             highlightTeamId: route.highlightTeamId,
+            openedFromTeamId: route.openedFromTeamId,
             onOpenTeam: { path.wrappedValue.append(TeamDestination(teamId: $0)) },
             onOpenFixture: { path.wrappedValue.append(FixtureDestination(fixtureId: $0)) }
         )

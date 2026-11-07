@@ -1,13 +1,11 @@
 import SwiftUI
 
-/// One Fixture of a League: the pairing, when and where it is played, and the score once finished. Each Team opens its Team, except `highlightTeamId`, the Team the user came from. The info button opens the Fixture itself.
+/// One Fixture of a League: the pairing, when and where it is played, and the score once finished. The info button is the row's one action and opens the Fixture; Teams are opened from the standings.
 struct FixtureRowView: View {
     let row: FixtureRowUi
-    var highlightTeamId: String?
     var isStriped = false
     /// Off when only the Team's own Fixtures are listed: marking every row would mark none.
     var showsThisTeam = true
-    let onTeamTap: (_ teamId: String) -> Void
     let onInfoTap: () -> Void
 
     var body: some View {
@@ -15,12 +13,12 @@ struct FixtureRowView: View {
             HStack(spacing: BatSpacing.sm) {
                 VStack(alignment: .leading, spacing: BatSpacing.xs) {
                     HStack(spacing: BatSpacing.sm) {
-                        teamLine(id: row.homeTeamId, name: row.homeTeamName)
+                        teamName(row.homeTeamName)
                         Text("league_detail_fixture_versus")
                             .batTextStyle(BatTypography.caption)
                             .foregroundStyle(BatColor.textSecondary)
                             .accessibilityHidden(true)
-                        teamLine(id: row.awayTeamId, name: row.awayTeamName)
+                        teamName(row.awayTeamName)
                         Spacer(minLength: 0)
                     }
                     if let score = row.score {
@@ -46,25 +44,10 @@ struct FixtureRowView: View {
         }
     }
 
-    /// Underlined when it opens the Team, so a link is never told apart by colour alone.
-    @ViewBuilder
-    private func teamLine(id: String, name: String) -> some View {
-        if id == highlightTeamId {
-            Text(name)
-                .batTextStyle(BatTypography.bodyStrong)
-                .foregroundStyle(BatColor.textPrimary)
-                .frame(minHeight: BatSizing.minTouchTarget)
-        } else {
-            Button { onTeamTap(id) } label: {
-                Text(name)
-                    .batTextStyle(BatTypography.bodyStrong)
-                    .underline()
-                    .foregroundStyle(BatColor.textPrimary)
-                    .frame(minHeight: BatSizing.minTouchTarget, alignment: .leading)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-        }
+    private func teamName(_ name: String) -> some View {
+        Text(name)
+            .batTextStyle(BatTypography.bodyStrong)
+            .foregroundStyle(BatColor.textPrimary)
     }
 
     private var kickoff: String { row.startsAt.formatted(date: .abbreviated, time: .shortened) }
@@ -78,10 +61,10 @@ struct FixtureRowView: View {
     BatPreviewMatrix {
         BatListView {
             ForEach(Array(LeagueDetailPreviewData.highlighted.fixtures.enumerated()), id: \.element.id) { index, row in
-                FixtureRowView(row: row, isStriped: !index.isMultiple(of: 2), onTeamTap: { _ in }, onInfoTap: {})
+                FixtureRowView(row: row, isStriped: !index.isMultiple(of: 2), onInfoTap: {})
             }
             ForEach(Array(LeagueDetailPreviewData.longNames.fixtures.enumerated()), id: \.element.id) { index, row in
-                FixtureRowView(row: row, isStriped: !index.isMultiple(of: 2), onTeamTap: { _ in }, onInfoTap: {})
+                FixtureRowView(row: row, isStriped: !index.isMultiple(of: 2), onInfoTap: {})
             }
         }
     }

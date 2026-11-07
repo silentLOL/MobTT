@@ -48,12 +48,13 @@ import org.koin.core.parameter.parametersOf
 fun LeagueDetailRoute(
     leagueId: String,
     highlightTeamId: String?,
+    openedFromTeamId: String?,
     onOpenTeam: (String) -> Unit,
     onOpenFixture: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LeagueDetailViewModel = koinViewModel(
-        key = "$leagueId/$highlightTeamId",
-        parameters = { parametersOf(leagueId, highlightTeamId) },
+        key = "$leagueId/$highlightTeamId/$openedFromTeamId",
+        parameters = { parametersOf(leagueId, highlightTeamId, openedFromTeamId) },
     ),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -138,6 +139,11 @@ private fun ContentView(state: LeagueDetailUiState.Content, onAction: (LeagueDet
                         val isThisTeam = state.isThisTeam(standing.teamId)
                         BatListRow(
                             title = standing.teamName,
+                            onClick = if (state.opensTeam(standing.teamId)) {
+                                { onAction(LeagueDetailAction.TeamClicked(standing.teamId)) }
+                            } else {
+                                null
+                            },
                             leadingText = standing.position.toString(),
                             supportingText = stringResource(R.string.team_detail_standing_stats_label, standing.played, standing.points),
                             badge = if (isThisTeam) stringResource(R.string.team_detail_this_team_badge) else null,
@@ -172,9 +178,7 @@ private fun ContentView(state: LeagueDetailUiState.Content, onAction: (LeagueDet
                         FixtureRowView(
                             fixture = fixture,
                             isThisTeam = state.isTeamFixture(fixture) && !state.onlyTeamFixtures,
-                            highlightTeamId = state.highlightTeamId,
                             striped = index % 2 == 1,
-                            onTeamClick = { onAction(LeagueDetailAction.TeamClicked(it)) },
                             onInfoClick = { onAction(LeagueDetailAction.FixtureInfoClicked(fixture.id)) },
                         )
                     }

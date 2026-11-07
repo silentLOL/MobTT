@@ -4,9 +4,9 @@ enum LeagueDetailPreviewData {
     static let loaded = LeagueDetailUi(
         leagueName: "1. Landesliga Herren",
         standings: [
-            StandingRowUi(id: "voest-1", position: 1, teamName: "SK VÖEST Wien 1", played: 6, points: 11, isThisTeam: false),
-            StandingRowUi(id: "olympic-1", position: 2, teamName: "TTC Olympic 1", played: 6, points: 9, isThisTeam: false),
-            StandingRowUi(id: "nussdorf-1", position: 3, teamName: "Nussdorf TTC 1", played: 6, points: 4, isThisTeam: false),
+            StandingRowUi(id: "voest-1", position: 1, teamName: "SK VÖEST Wien 1", played: 6, points: 11, isThisTeam: false, opensTeam: true),
+            StandingRowUi(id: "olympic-1", position: 2, teamName: "TTC Olympic 1", played: 6, points: 9, isThisTeam: false, opensTeam: true),
+            StandingRowUi(id: "nussdorf-1", position: 3, teamName: "Nussdorf TTC 1", played: 6, points: 4, isThisTeam: false, opensTeam: true),
         ],
         fixtures: [
             FixtureRowUi(
@@ -33,7 +33,7 @@ enum LeagueDetailPreviewData {
         LeagueDetailUi(
             leagueName: loaded.leagueName,
             standings: loaded.standings.map {
-                StandingRowUi(id: $0.id, position: $0.position, teamName: $0.teamName, played: $0.played, points: $0.points, isThisTeam: $0.id == "olympic-1")
+                StandingRowUi(id: $0.id, position: $0.position, teamName: $0.teamName, played: $0.played, points: $0.points, isThisTeam: $0.id == "olympic-1", opensTeam: $0.id != "olympic-1")
             },
             fixtures: loaded.fixtures.map {
                 FixtureRowUi(
@@ -64,8 +64,8 @@ enum LeagueDetailPreviewData {
     static let longNames = LeagueDetailUi(
         leagueName: "Gebietsliga Nord Herren Oberes Playoff",
         standings: [
-            StandingRowUi(id: "h1", position: 1, teamName: "Sportunion Hollabrunn Tischtennis 1", played: 4, points: 8, isThisTeam: false),
-            StandingRowUi(id: "s1", position: 2, teamName: "Union Tischtennisclub St. Pölten Nord-West 1", played: 4, points: 7, isThisTeam: false),
+            StandingRowUi(id: "h1", position: 1, teamName: "Sportunion Hollabrunn Tischtennis 1", played: 4, points: 8, isThisTeam: false, opensTeam: true),
+            StandingRowUi(id: "s1", position: 2, teamName: "Union Tischtennisclub St. Pölten Nord-West 1", played: 4, points: 7, isThisTeam: false, opensTeam: true),
         ],
         fixtures: [
             FixtureRowUi(

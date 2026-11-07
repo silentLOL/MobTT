@@ -9,12 +9,13 @@ struct LeagueDetailRoute: View {
     init(
         leagueId: String,
         highlightTeamId: String?,
+        openedFromTeamId: String?,
         onOpenTeam: @escaping (_ teamId: String) -> Void,
         onOpenFixture: @escaping (_ fixtureId: String) -> Void
     ) {
         self.onOpenTeam = onOpenTeam
         self.onOpenFixture = onOpenFixture
-        _viewModel = State(initialValue: LeagueDetailViewModel(leagueId: leagueId, highlightTeamId: highlightTeamId))
+        _viewModel = State(initialValue: LeagueDetailViewModel(leagueId: leagueId, highlightTeamId: highlightTeamId, openedFromTeamId: openedFromTeamId))
     }
 
     var body: some View {
@@ -97,7 +98,8 @@ private struct ContentView: View {
                                     isHighlighted: row.isThisTeam,
                                     accessibilityText: row.isThisTeam
                                         ? String(localized: "team_detail_standing_row_this_team_cd \(row.position) \(row.teamName) \(row.played) \(row.points)")
-                                        : String(localized: "team_detail_standing_row_cd \(row.position) \(row.teamName) \(row.played) \(row.points)")
+                                        : String(localized: "team_detail_standing_row_cd \(row.position) \(row.teamName) \(row.played) \(row.points)"),
+                                    action: row.opensTeam ? { onAction(.teamClicked(teamId: row.id)) } : nil
                                 )
                             }
                         }
@@ -125,10 +127,8 @@ private struct ContentView: View {
                             ForEach(Array(detail.visibleFixtures.enumerated()), id: \.element.id) { index, fixture in
                                 FixtureRowView(
                                     row: fixture,
-                                    highlightTeamId: detail.highlightTeamId,
                                     isStriped: !index.isMultiple(of: 2),
                                     showsThisTeam: !detail.onlyTeamFixtures,
-                                    onTeamTap: { onAction(.teamClicked(teamId: $0)) },
                                     onInfoTap: { onAction(.fixtureInfoClicked(fixtureId: fixture.id)) }
                                 )
                             }

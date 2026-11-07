@@ -9,7 +9,7 @@ import at.stefanirndorfer.mobtt.feature.club.api.FixtureDetailDestination
 import at.stefanirndorfer.mobtt.feature.club.api.LeagueDetailDestination
 import at.stefanirndorfer.mobtt.feature.club.api.TeamDetailDestination
 import at.stefanirndorfer.mobtt.feature.club.api.navigateToFixtureDetail
-import at.stefanirndorfer.mobtt.feature.club.api.navigateToLeagueDetail
+import at.stefanirndorfer.mobtt.feature.club.api.navigateToLeagueDetailFromTeam
 import at.stefanirndorfer.mobtt.feature.club.api.navigateToTeamDetail
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.chooseclub.ChooseClubRoute
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.club.ClubRoute
@@ -41,7 +41,7 @@ fun EntryProviderScope<NavKey>.clubGraph(navigator: GlobalNavigator) {
     entry<TeamDetailDestination> { destination ->
         TeamDetailRoute(
             teamId = destination.teamId,
-            onOpenLeague = navigator::navigateToLeagueDetail,
+            onOpenLeague = navigator::navigateToLeagueDetailFromTeam,
             onOpenPlayer = navigator::navigateToPlayerDetail,
         )
     }
@@ -49,6 +49,7 @@ fun EntryProviderScope<NavKey>.clubGraph(navigator: GlobalNavigator) {
         LeagueDetailRoute(
             leagueId = destination.leagueId,
             highlightTeamId = destination.highlightTeamId,
+            openedFromTeamId = destination.openedFromTeamId,
             onOpenTeam = navigator::navigateToTeamDetail,
             onOpenFixture = navigator::navigateToFixtureDetail,
         )

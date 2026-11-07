@@ -19,9 +19,16 @@ data object ChooseClubDestination : GlobalAppDestination
 @Serializable
 data class TeamDetailDestination(val teamId: String) : GlobalAppDestination
 
-/** [highlightTeamId] marks that Team in the table and the Fixtures, e.g. when opened from its Team screen. */
+/**
+ * [highlightTeamId] marks that Team in the table and the Fixtures. [openedFromTeamId] is the Team whose screen pushed
+ * this League, so its row does not open it again.
+ */
 @Serializable
-data class LeagueDetailDestination(val leagueId: String, val highlightTeamId: String? = null) : GlobalAppDestination
+data class LeagueDetailDestination(
+    val leagueId: String,
+    val highlightTeamId: String? = null,
+    val openedFromTeamId: String? = null,
+) : GlobalAppDestination
 
 /** A Fixture with its Matches, pushed from a Fixture row. */
 @Serializable
@@ -34,6 +41,9 @@ fun GlobalNavigator.navigateToClubDetail(clubId: String) = navigate(ClubDetailDe
 fun GlobalNavigator.navigateToTeamDetail(teamId: String) = navigate(TeamDetailDestination(teamId))
 
 fun GlobalNavigator.navigateToLeagueDetail(leagueId: String, highlightTeamId: String? = null) = navigate(LeagueDetailDestination(leagueId, highlightTeamId))
+
+/** The League of [teamId], opened from that Team's screen: the Team is highlighted and its row is not a link. */
+fun GlobalNavigator.navigateToLeagueDetailFromTeam(leagueId: String, teamId: String) = navigate(LeagueDetailDestination(leagueId, highlightTeamId = teamId, openedFromTeamId = teamId))
 
 fun GlobalNavigator.navigateToChooseClub() = navigate(ChooseClubDestination)
 

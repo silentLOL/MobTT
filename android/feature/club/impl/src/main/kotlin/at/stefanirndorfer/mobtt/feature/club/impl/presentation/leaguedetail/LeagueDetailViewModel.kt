@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 class LeagueDetailViewModel(
     private val leagueId: String,
     private val highlightTeamId: String?,
+    private val openedFromTeamId: String?,
     private val getLeagueDetail: GetLeagueDetailUseCase,
     private val analytics: AnalyticsTracker = NoOpAnalyticsTracker,
 ) : ViewModel() {
@@ -79,7 +80,7 @@ class LeagueDetailViewModel(
     }
 
     private suspend fun load(): LeagueDetailUiState = try {
-        getLeagueDetail(leagueId)?.let { LeagueDetailUiState.Content(it, highlightTeamId) } ?: LeagueDetailUiState.Error
+        getLeagueDetail(leagueId)?.let { LeagueDetailUiState.Content(it, highlightTeamId, openedFromTeamId = openedFromTeamId) } ?: LeagueDetailUiState.Error
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {

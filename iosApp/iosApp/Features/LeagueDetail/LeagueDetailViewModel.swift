@@ -9,6 +9,7 @@ final class LeagueDetailViewModel {
 
     private let leagueId: String
     private let highlightTeamId: String?
+    private let openedFromTeamId: String?
     private var onlyTeamFixtures = false
     private var loadTask: Task<Void, Never>?
     @ObservationIgnored private let eventStream = AsyncStream<LeagueDetailEvent>.makeStream()
@@ -22,11 +23,13 @@ final class LeagueDetailViewModel {
     init(
         leagueId: String,
         highlightTeamId: String? = nil,
+        openedFromTeamId: String? = nil,
         loadDetail: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadLeagueDetail(leagueId: $0) },
         analytics: any AnalyticsTracker = AppAnalytics.tracker
     ) {
         self.leagueId = leagueId
         self.highlightTeamId = highlightTeamId
+        self.openedFromTeamId = openedFromTeamId
         self.loadDetail = loadDetail
         self.analytics = analytics
         self.screenViews = ScreenViewReporter(tracker: analytics, screen: AnalyticsScreen.leagueDetail)
@@ -68,7 +71,7 @@ final class LeagueDetailViewModel {
             let result = try await loadDetail(leagueId)
             guard !Task.isCancelled else { return }
             switch onEnum(of: result) {
-            case .success(let success): uiState = (success.value as? LeagueDetail).map { .content($0.toUi(highlightTeamId: highlightTeamId, onlyTeamFixtures: onlyTeamFixtures)) } ?? .error
+            case .success(let success): uiState = (success.value as? LeagueDetail).map { .content($0.toUi(highlightTeamId: highlightTeamId, openedFromTeamId: openedFromTeamId, onlyTeamFixtures: onlyTeamFixtures)) } ?? .error
             case .unavailable: uiState = .error
             }
         } catch {
@@ -78,7 +81,7 @@ final class LeagueDetailViewModel {
 }
 
 private extension LeagueDetail {
-    func toUi(highlightTeamId: String?, onlyTeamFixtures: Bool) -> LeagueDetailUi {
+    func toUi(highlightTeamId: String?, openedFromTeamId: String?, onlyTeamFixtures: Bool) -> LeagueDetailUi {
         LeagueDetailUi(
             leagueName: league.name,
             standings: standings.map {
@@ -88,12 +91,12 @@ private extension LeagueDetail {
                     teamName: $0.teamName,
                     played: Int($0.played),
                     points: Int($0.points),
-                    isThisTeam: $0.teamId == highlightTeamId
+                    isThisTeam: $0.teamId == highlightTeamId,
+                    opensTeam: $0.teamId != openedFromTeamId
                 )
             },
             fixtures: fixtures.map { $0.toUi(highlightTeamId: highlightTeamId) },
             canFilterToTeam: highlightTeamId != nil,
-            highlightTeamId: highlightTeamId,
             onlyTeamFixtures: onlyTeamFixtures && highlightTeamId != nil
         )
     }

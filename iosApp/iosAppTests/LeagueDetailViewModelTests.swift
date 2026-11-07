@@ -79,6 +79,31 @@ struct LeagueDetailViewModelTests {
         #expect(!detail.canFilterToTeam)
     }
 
+    @Test func everyStandingsRowOpensItsTeamExceptTheTeamTheUserCameFrom() async {
+        let viewModel = makeViewModel(highlightTeamId: "t1", openedFromTeamId: "t1") { _ in self.twoTeamLeague() }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+
+        guard case .content(let detail) = viewModel.uiState else {
+            Issue.record("Expected content")
+            return
+        }
+        #expect(detail.standings.map(\.opensTeam) == [false, true])
+    }
+
+    @Test func aHighlightedTeamTheUserDidNotComeFromStillOpens() async {
+        let viewModel = makeViewModel(highlightTeamId: "t1", openedFromTeamId: nil) { _ in self.twoTeamLeague() }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+
+        guard case .content(let detail) = viewModel.uiState else {
+            Issue.record("Expected content")
+            return
+        }
+        #expect(detail.standings.map(\.isThisTeam) == [true, false])
+        #expect(detail.standings.map(\.opensTeam) == [true, true])
+    }
+
     @Test func tappingATeamSendsAnOpenTeamEvent() async {
         let viewModel = makeViewModel { _ in
             DataResultSuccess(value: LeagueDetail(league: League(id: "l1", name: "Liga"), standings: [], fixtures: []))
@@ -137,12 +162,30 @@ struct LeagueDetailViewModelTests {
         ])
     }
 
+    private func twoTeamLeague() -> DataResult {
+        DataResultSuccess(value: LeagueDetail(
+            league: League(id: "l1", name: "Liga"),
+            standings: [
+                Standing(position: 1, teamId: "t1", teamName: "One", played: 2, points: 4),
+                Standing(position: 2, teamId: "t2", teamName: "Two", played: 2, points: 2),
+            ],
+            fixtures: []
+        ))
+    }
+
     private func makeViewModel(
         highlightTeamId: String? = nil,
+        openedFromTeamId: String? = nil,
         analytics: any AnalyticsTracker = NoOpAnalyticsTracker(),
         loadDetail: @escaping (String) async throws -> DataResult
     ) -> LeagueDetailViewModel {
-        LeagueDetailViewModel(leagueId: "l1", highlightTeamId: highlightTeamId, loadDetail: loadDetail, analytics: analytics)
+        LeagueDetailViewModel(
+            leagueId: "l1",
+            highlightTeamId: highlightTeamId,
+            openedFromTeamId: openedFromTeamId,
+            loadDetail: loadDetail,
+            analytics: analytics
+        )
     }
 
     private func settle(_ viewModel: LeagueDetailViewModel) async {
