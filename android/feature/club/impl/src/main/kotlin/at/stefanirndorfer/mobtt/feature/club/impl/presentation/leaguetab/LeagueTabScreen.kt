@@ -28,10 +28,15 @@ import at.stefanirndorfer.mobtt.designsystem.theme.BatDesign
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatEmptyState
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatPrimaryButton
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSecondaryButton
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSectionHeader
+import at.stefanirndorfer.mobtt.domain.club.TeamDetail
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.LeagueDetailRoute
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguetab.models.LeagueTabAction
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguetab.models.LeagueTabEvent
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguetab.models.LeagueTabUiState
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail.preview.teamDetailLongNamesPreview
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail.preview.teamDetailPreview
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail.views.TeamLeagueCardView
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -40,6 +45,7 @@ fun LeagueTabRoute(
     onOpenPlayer: (String) -> Unit,
     onOpenTeam: (String) -> Unit,
     onOpenFixture: (String) -> Unit,
+    onOpenLeague: (leagueId: String, teamId: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LeagueTabViewModel = koinViewModel(),
 ) {
@@ -48,6 +54,7 @@ fun LeagueTabRoute(
         when (event) {
             LeagueTabEvent.OpenChoosePlayer -> onChoosePlayer()
             is LeagueTabEvent.OpenPlayer -> onOpenPlayer(event.playerId)
+            is LeagueTabEvent.OpenLeague -> onOpenLeague(event.leagueId, event.teamId)
         }
     }
     when (val state = uiState) {
@@ -91,6 +98,7 @@ fun LeagueTabScreen(
                 onClick = { onAction(LeagueTabAction.MyPlayerClicked(state.playerId)) },
             )
         }
+        is LeagueTabUiState.Teams -> TeamsView(state.teams, onAction, modifier)
         LeagueTabUiState.Unavailable -> MessageView(
             title = stringResource(R.string.league_tab_error_title),
             body = stringResource(R.string.league_detail_error_body),
@@ -98,6 +106,30 @@ fun LeagueTabScreen(
             announce = true,
         ) {
             BatPrimaryButton(text = stringResource(R.string.league_detail_error_retry_button), onClick = { onAction(LeagueTabAction.RetryClicked) })
+        }
+    }
+}
+
+/** One card per Team of My Player, each opening its League with that Team highlighted. */
+@Composable
+private fun TeamsView(teams: List<TeamDetail>, onAction: (LeagueTabAction) -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(BatDesign.spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.md),
+    ) {
+        BatSectionHeader(title = stringResource(R.string.league_tab_teams_title))
+        teams.forEach { detail ->
+            val league = detail.league ?: return@forEach
+            TeamLeagueCardView(
+                league = league,
+                standing = detail.standing,
+                nextFixture = detail.nextFixture,
+                onClick = { onAction(LeagueTabAction.TeamCardClicked(leagueId = league.id, teamId = detail.team.id)) },
+                teamName = detail.team.name,
+            )
         }
     }
 }
@@ -160,6 +192,14 @@ private fun LeagueTabScreenNoMyPlayerPreview() {
 private fun LeagueTabScreenNoTeamPreview() {
     BatPreviewSurface {
         LeagueTabScreen(state = LeagueTabUiState.NoTeam("p1", "Katharina Habsburg-Lothringen-Esterházy"), onAction = {})
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun LeagueTabScreenTeamsPreview() {
+    BatPreviewSurface {
+        LeagueTabScreen(state = LeagueTabUiState.Teams(listOf(teamDetailPreview, teamDetailLongNamesPreview)), onAction = {})
     }
 }
 

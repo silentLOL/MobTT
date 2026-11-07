@@ -25,6 +25,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class LeagueTabViewModelTest {
@@ -136,5 +137,40 @@ class LeagueTabViewModelTest {
         viewModel()
 
         assertEquals(listOf(LoggedEvent("screen_view", mapOf("screen" to "league"))), analytics.events)
+    }
+
+    @Test
+    fun severalTeamsListOneCardPerTeam() = runTest {
+        data.selection.value = UserSelection.MyPlayer("p1")
+        data.lineups = mapOf("t1" to lineup(anna), "t2" to lineup(anna))
+
+        val state = assertIs<LeagueTabUiState.Teams>(viewModel().uiState.value)
+
+        assertEquals(listOf("t1", "t2"), state.teams.map { it.team.id })
+    }
+
+    @Test
+    fun twoTeamsInTheSameLeagueGiveTwoCards() = runTest {
+        data.teams = listOf(Team("t1", "Olympic 1", "c1", "l1"), Team("t2", "Olympic 2", "c1", "l1"))
+        data.selection.value = UserSelection.MyPlayer("p1")
+        data.lineups = mapOf("t1" to lineup(anna), "t2" to lineup(anna))
+
+        val state = assertIs<LeagueTabUiState.Teams>(viewModel().uiState.value)
+
+        assertEquals(listOf("l1", "l1"), state.teams.map { it.league?.id })
+    }
+
+    @Test
+    fun tappingACardOpensItsLeagueWithTheTeamAndReportsIt() = runTest {
+        val viewModel = viewModel()
+        val events = events(viewModel)
+
+        viewModel.onAction(LeagueTabAction.TeamCardClicked(leagueId = "l2", teamId = "t2"))
+
+        assertEquals(listOf<LeagueTabEvent>(LeagueTabEvent.OpenLeague(leagueId = "l2", teamId = "t2")), events)
+        assertEquals(
+            LoggedEvent("detail_opened", mapOf("kind" to "league", "id" to "l2", "from" to "league")),
+            analytics.events.last(),
+        )
     }
 }

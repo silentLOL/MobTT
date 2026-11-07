@@ -11,6 +11,7 @@ final class LeagueTabViewModel {
     private(set) var retryCount = 0
 
     @ObservationIgnored private let observeMyTeams: () -> any AsyncSequence<DataResult, Never>
+    @ObservationIgnored private let analytics: any AnalyticsTracker
     @ObservationIgnored private let screenViews: ScreenViewReporter
     @ObservationIgnored private let eventStream = AsyncStream<LeagueTabEvent>.makeStream()
 
@@ -21,6 +22,7 @@ final class LeagueTabViewModel {
         analytics: any AnalyticsTracker = AppAnalytics.tracker
     ) {
         self.observeMyTeams = observeMyTeams
+        self.analytics = analytics
         self.screenViews = ScreenViewReporter(tracker: analytics, screen: AnalyticsScreen.league)
     }
 
@@ -50,6 +52,9 @@ final class LeagueTabViewModel {
             eventStream.continuation.yield(.openChoosePlayer)
         case .myPlayerClicked(let playerId):
             eventStream.continuation.yield(.openPlayer(playerId: playerId))
+        case .teamCardClicked(let leagueId, let teamId):
+            analytics.detailOpened(kind: AnalyticsKind.league, id: leagueId, from: AnalyticsScreen.league)
+            eventStream.continuation.yield(.openLeague(leagueId: leagueId, teamId: teamId))
         }
     }
 
@@ -58,10 +63,14 @@ final class LeagueTabViewModel {
         case .noMyPlayer:
             return .noMyPlayer
         case .found(let found):
-            guard let detail = found.teams.first, let league = detail.league else {
-                return .noTeam(playerId: found.player.id, playerName: found.player.name)
+            let cards = found.teams.compactMap { detail in
+                detail.leagueUi().map { LeagueTeamCardUi(teamId: detail.team.id, teamName: detail.team.name, league: $0) }
             }
-            return .league(leagueId: league.id, teamId: detail.team.id)
+            switch cards.count {
+            case 0: return .noTeam(playerId: found.player.id, playerName: found.player.name)
+            case 1: return .league(leagueId: cards[0].league.id, teamId: cards[0].teamId)
+            default: return .teams(cards)
+            }
         }
     }
 }

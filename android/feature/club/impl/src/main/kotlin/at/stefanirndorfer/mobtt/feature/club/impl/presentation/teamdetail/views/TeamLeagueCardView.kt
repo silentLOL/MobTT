@@ -21,7 +21,10 @@ import at.stefanirndorfer.mobtt.domain.club.Standing
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail.preview.teamDetailLongNamesPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail.preview.teamDetailPreview
 
-/** The Team's League at a glance; opens the League with its full table and Fixtures. */
+/**
+ * The Team's League at a glance; opens the League with its full table and Fixtures. [teamName] adds a line naming the
+ * Team, for lists where two cards can show the same League.
+ */
 @Composable
 fun TeamLeagueCardView(
     league: League,
@@ -29,6 +32,7 @@ fun TeamLeagueCardView(
     nextFixture: NextFixture,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    teamName: String? = null,
 ) {
     BatCard(modifier = modifier.fillMaxWidth(), onClick = onClick) {
         Column(
@@ -36,6 +40,7 @@ fun TeamLeagueCardView(
             verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.md),
         ) {
             Column {
+                teamName?.let { Text(text = it, color = BatDesign.colors.textSecondary, style = BatDesign.typography.caption) }
                 Text(text = league.name, color = BatDesign.colors.textPrimary, style = BatDesign.typography.title)
                 Text(
                     text = standing?.let { stringResource(R.string.club_team_standing_label, it.position, it.played, it.points) }
@@ -58,6 +63,9 @@ private fun TeamLeagueCardViewPreview() {
             teamDetailPreview.let { TeamLeagueCardView(it.league!!, it.standing, it.nextFixture, onClick = {}) }
             teamDetailLongNamesPreview.let { TeamLeagueCardView(it.league!!, it.standing, it.nextFixture, onClick = {}) }
             TeamLeagueCardView(teamDetailPreview.league!!, standing = null, nextFixture = NextFixture.FreeWeek, onClick = {})
+            teamDetailLongNamesPreview.let {
+                TeamLeagueCardView(it.league!!, it.standing, it.nextFixture, onClick = {}, teamName = it.team.name)
+            }
         }
     }
 }

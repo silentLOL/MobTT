@@ -1,5 +1,7 @@
 package at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguetab.models
 
+import at.stefanirndorfer.mobtt.domain.club.TeamDetail
+
 sealed interface LeagueTabUiState {
     data object Loading : LeagueTabUiState
 
@@ -11,6 +13,9 @@ sealed interface LeagueTabUiState {
 
     data object Unavailable : LeagueTabUiState
 
-    /** The League of My Player's Team [teamId], shown as the tab's root with that Team highlighted. */
+    /** The League of My Player's only Team [teamId], shown as the tab's root with that Team highlighted. */
     data class League(val leagueId: String, val teamId: String) : LeagueTabUiState
+
+    /** My Player plays in two or more Teams: one card each, every one with a League. */
+    data class Teams(val teams: List<TeamDetail>) : LeagueTabUiState
 }

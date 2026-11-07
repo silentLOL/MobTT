@@ -143,6 +143,7 @@
     <string name="league_tab_open_player_button">Open My Player</string>
     <string name="league_tab_loading_cd">Finding your League</string>
     <string name="league_tab_error_title">Couldn\'t load your League</string>
+    <string name="league_tab_teams_title">My Teams</string>
     <string name="fixture_detail_hero_overline">Fixture</string>
     <string name="fixture_detail_not_played">Not played yet</string>
     <string name="fixture_detail_score">%1$d : %2$d</string>

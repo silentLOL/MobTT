@@ -1,5 +1,5 @@
 ---
-status: ready-for-agent
+status: resolved
 blocked_by: [3]
 ---
 
@@ -11,9 +11,9 @@ When My Player plays in two or more Teams, the League tab lists one card per Tea
 
 ## Acceptance criteria
 
-- [ ] The League card takes an optional Team name line; the Team screen keeps it without
-- [ ] Two or more Teams show the card list; one Team still opens its League directly
-- [ ] A card opens its League with the Team highlighted, and back returns to the list
-- [ ] `detail_opened` for League from the League tab
-- [ ] Cards read as one button to TalkBack and VoiceOver
-- [ ] ViewModel tests on both platforms; previews for the list and long names
+- [x] The League card takes an optional Team name line; the Team screen keeps it without
+- [x] Two or more Teams show the card list; one Team still opens its League directly
+- [x] A card opens its League with the Team highlighted, and back returns to the list
+- [x] `detail_opened` for League from the League tab
+- [x] Cards read as one button to TalkBack and VoiceOver
+- [x] ViewModel tests on both platforms; previews for the list and long names

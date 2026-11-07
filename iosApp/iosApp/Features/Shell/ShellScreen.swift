@@ -110,7 +110,8 @@ struct ShellScreen: View {
                         onChoosePlayer: { leaguePath.append(ChooseHeroDestination(mode: .myPlayer)) },
                         onOpenPlayer: { leaguePath.append(PlayerDestination(playerId: $0)) },
                         onOpenTeam: { leaguePath.append(TeamDestination(teamId: $0)) },
-                        onOpenFixture: { leaguePath.append(FixtureDestination(fixtureId: $0)) }
+                        onOpenFixture: { leaguePath.append(FixtureDestination(fixtureId: $0)) },
+                        onOpenLeague: { leaguePath.append(LeagueDestination(leagueId: $0, highlightTeamId: $1)) }
                     )
                     .toolbar(.hidden, for: .navigationBar)
                     .navigationDestination(for: ChooseHeroDestination.self) { route in

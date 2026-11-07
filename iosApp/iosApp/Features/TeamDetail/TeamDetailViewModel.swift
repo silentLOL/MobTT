@@ -131,16 +131,23 @@ private extension TeamDetail {
         TeamDetailUi(
             teamName: team.name,
             clubName: clubName,
-            league: league.map {
-                TeamLeagueUi(
-                    id: $0.id,
-                    name: $0.name,
-                    standing: standing.map { StandingUi(position: Int($0.position), played: Int($0.played), points: Int($0.points)) },
-                    nextFixture: nextFixture.toUi()
-                )
-            },
+            league: leagueUi(),
             lineup: lineup.map { LineupPlayerUi(id: $0.playerId, name: $0.name, rcPoints: $0.rcPoints?.intValue) },
             isFavorite: isFavorite
         )
+    }
+}
+
+extension TeamDetail {
+    /// The Team's League card; nil when the Team has no League.
+    func leagueUi() -> TeamLeagueUi? {
+        league.map {
+            TeamLeagueUi(
+                id: $0.id,
+                name: $0.name,
+                standing: standing.map { StandingUi(position: Int($0.position), played: Int($0.played), points: Int($0.points)) },
+                nextFixture: nextFixture.toUi()
+            )
+        }
     }
 }

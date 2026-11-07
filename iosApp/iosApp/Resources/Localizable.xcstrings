@@ -3009,6 +3009,23 @@
           }
         }
       }
+    },
+    "league_tab_teams_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meine Mannschaften"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My Teams"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

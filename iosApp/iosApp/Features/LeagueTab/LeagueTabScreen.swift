@@ -7,6 +7,7 @@ struct LeagueTabRoute: View {
     let onOpenPlayer: (_ playerId: String) -> Void
     let onOpenTeam: (_ teamId: String) -> Void
     let onOpenFixture: (_ fixtureId: String) -> Void
+    let onOpenLeague: (_ leagueId: String, _ teamId: String) -> Void
 
     var body: some View {
         content
@@ -17,6 +18,7 @@ struct LeagueTabRoute: View {
                     switch event {
                     case .openChoosePlayer: onChoosePlayer()
                     case .openPlayer(let playerId): onOpenPlayer(playerId)
+                    case .openLeague(let leagueId, let teamId): onOpenLeague(leagueId, teamId)
                     }
                 }
             }
@@ -61,6 +63,18 @@ struct LeagueTabScreen: View {
             message(title: String(localized: "league_tab_no_team_title"), body: String(localized: "league_tab_no_team_body \(playerName)")) {
                 BatSecondaryButtonView(title: String(localized: "league_tab_open_player_button")) { onAction(.myPlayerClicked(playerId: playerId)) }
             }
+        case .teams(let cards):
+            ScrollView {
+                VStack(alignment: .leading, spacing: BatSpacing.md) {
+                    BatSectionHeaderView(title: String(localized: "league_tab_teams_title"))
+                    ForEach(cards) { card in
+                        TeamLeagueCardView(league: card.league, teamName: card.teamName) {
+                            onAction(.teamCardClicked(leagueId: card.league.id, teamId: card.teamId))
+                        }
+                    }
+                }
+                .padding(BatSpacing.lg)
+            }
         case .unavailable:
             message(title: String(localized: "league_tab_error_title"), body: String(localized: "league_detail_error_body")) {
                 BatPrimaryButtonView(title: String(localized: "league_detail_error_retry_button")) { onAction(.retryClicked) }
@@ -95,6 +109,18 @@ struct LeagueTabScreen: View {
 #Preview("No Team") {
     BatPreviewMatrix {
         LeagueTabScreen(state: .noTeam(playerId: "p1", playerName: "Katharina Habsburg-Lothringen-Esterházy"), onAction: { _ in })
+    }
+}
+
+#Preview("Teams") {
+    BatPreviewMatrix {
+        LeagueTabScreen(
+            state: .teams([
+                LeagueTeamCardUi(teamId: "olympic-1", teamName: "TTC Olympic 1", league: TeamDetailPreviewData.loaded.league!),
+                LeagueTeamCardUi(teamId: "s1", teamName: "Union Tischtennisclub St. Pölten Nord-West 1", league: TeamDetailPreviewData.longNames.league!),
+            ]),
+            onAction: { _ in }
+        )
     }
 }
 

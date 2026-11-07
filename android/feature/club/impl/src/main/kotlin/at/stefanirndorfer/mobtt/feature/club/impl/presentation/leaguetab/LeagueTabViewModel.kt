@@ -2,9 +2,11 @@ package at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguetab
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsKind
 import at.stefanirndorfer.mobtt.core.analytics.AnalyticsScreen
 import at.stefanirndorfer.mobtt.core.analytics.AnalyticsTracker
 import at.stefanirndorfer.mobtt.core.analytics.NoOpAnalyticsTracker
+import at.stefanirndorfer.mobtt.core.analytics.detailOpened
 import at.stefanirndorfer.mobtt.core.analytics.screenView
 import at.stefanirndorfer.mobtt.core.ui.RetryTrigger
 import at.stefanirndorfer.mobtt.core.ui.catchUnavailable
@@ -50,6 +52,10 @@ class LeagueTabViewModel(
             LeagueTabAction.RetryClicked -> retry.retry()
             LeagueTabAction.ChoosePlayerClicked -> send(LeagueTabEvent.OpenChoosePlayer)
             is LeagueTabAction.MyPlayerClicked -> send(LeagueTabEvent.OpenPlayer(action.playerId))
+            is LeagueTabAction.TeamCardClicked -> {
+                analytics.detailOpened(AnalyticsKind.LEAGUE, action.leagueId, from = AnalyticsScreen.LEAGUE)
+                send(LeagueTabEvent.OpenLeague(action.leagueId, action.teamId))
+            }
         }
     }
 
@@ -59,9 +65,11 @@ class LeagueTabViewModel(
 
     private fun MyTeams.toUiState(): LeagueTabUiState = when (this) {
         MyTeams.NoMyPlayer -> LeagueTabUiState.NoMyPlayer
-        is MyTeams.Found -> teams.firstOrNull()?.let { detail ->
-            detail.league?.let { LeagueTabUiState.League(leagueId = it.id, teamId = detail.team.id) }
-        } ?: LeagueTabUiState.NoTeam(playerId = player.id, playerName = player.name)
+        is MyTeams.Found -> when (teams.size) {
+            0 -> LeagueTabUiState.NoTeam(playerId = player.id, playerName = player.name)
+            1 -> teams.single().let { LeagueTabUiState.League(leagueId = requireNotNull(it.league).id, teamId = it.team.id) }
+            else -> LeagueTabUiState.Teams(teams)
+        }
     }
 
     private companion object {

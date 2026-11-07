@@ -24,6 +24,48 @@ struct LeagueTabViewModelTests {
         #expect(viewModel.uiState == .league(leagueId: "l1", teamId: "t1"))
     }
 
+    @Test func severalTeamsListOneCardPerTeam() async {
+        let viewModel = makeViewModel([found([teamDetail("t1", leagueId: "l1"), teamDetail("t2", leagueId: "l2")])])
+
+        await viewModel.observe()
+
+        guard case .teams(let cards) = viewModel.uiState else {
+            Issue.record("Expected Team cards")
+            return
+        }
+        #expect(cards.map(\.teamId) == ["t1", "t2"])
+        #expect(cards.map(\.league.id) == ["l1", "l2"])
+        #expect(cards.map(\.teamName) == ["Olympic t1", "Olympic t2"])
+    }
+
+    @Test func twoTeamsInTheSameLeagueGiveTwoCards() async {
+        let viewModel = makeViewModel([found([teamDetail("t1", leagueId: "l1"), teamDetail("t2", leagueId: "l1")])])
+
+        await viewModel.observe()
+
+        guard case .teams(let cards) = viewModel.uiState else {
+            Issue.record("Expected Team cards")
+            return
+        }
+        #expect(cards.map(\.league.id) == ["l1", "l1"])
+    }
+
+    @Test func tappingACardOpensItsLeagueWithTheTeamAndReportsIt() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel([], analytics: analytics)
+        var iterator = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.teamCardClicked(leagueId: "l2", teamId: "t2"))
+
+        guard case .openLeague(let leagueId, let teamId) = await iterator.next() else {
+            Issue.record("Expected an openLeague event")
+            return
+        }
+        #expect(leagueId == "l2")
+        #expect(teamId == "t2")
+        #expect(analytics.events == [LoggedEvent("detail_opened", ["kind": "league", "id": "l2", "from": "league"])])
+    }
+
     @Test func noLineupNamingMyPlayerSaysNoTeamWasFound() async {
         let viewModel = makeViewModel([found([])])
 
@@ -90,7 +132,7 @@ struct LeagueTabViewModelTests {
 
     private func teamDetail(_ teamId: String, leagueId: String) -> TeamDetail {
         TeamDetail(
-            team: Team(id: teamId, name: "Olympic", clubId: "c1", leagueId: leagueId),
+            team: Team(id: teamId, name: "Olympic \(teamId)", clubId: "c1", leagueId: leagueId),
             clubName: "TTC Olympic",
             league: League(id: leagueId, name: "Liga"),
             standing: nil,
