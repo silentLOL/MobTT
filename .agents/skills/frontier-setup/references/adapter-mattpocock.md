@@ -1,6 +1,6 @@
 # Adapter: mattpocock/skills
 
-How Setup installs the Adapter for `mattpocock/skills`. The family's own setup, `/setup-matt-pocock-skills`, writes three things this Adapter builds on:
+How Setup installs the Rules Adapter for `mattpocock/skills`. The family's own setup, `/setup-matt-pocock-skills`, writes three things this Rules Adapter builds on:
 
 - **The `## Agent skills` block** in `CLAUDE.md`, else `AGENTS.md`: the sub-sections `### Issue tracker`, `### Triage labels` (only when `triage` is installed) and `### Domain docs`, each a one-line summary ending in a pointer such as "See `docs/agents/issue-tracker.md`." A re-run of the family's setup regenerates the block in place and leaves the sections around it alone.
 - **`docs/agents/issue-tracker.md`**, from one of its templates: local markdown, GitHub, GitLab, or free prose for any other tracker.
@@ -15,12 +15,12 @@ Read `docs/agents/issue-tracker.md`. Setup stops here, with nothing written, in 
 
 The tracker the doc chose follows from where it says Specs and Tickets are written:
 
-- **Local markdown**: they are markdown files in a directory of the Repository, such as upstream's "Issue tracker: Local Markdown" with `.scratch/<feature-slug>/`. This Adapter's own doc counts too, and so does a doc brought onto the contract by hand. A local-markdown doc may still name Jira or another tracker as the team's tracker of record, or name Ticket ids from one; the files decide.
+- **Local markdown**: they are markdown files in a directory of the Repository, such as upstream's "Issue tracker: Local Markdown" with `.scratch/<feature-slug>/`. This Rules Adapter's own doc counts too, and so does a doc brought onto the contract by hand. A local-markdown doc may still name Jira or another tracker as the team's tracker of record, or name Ticket ids from one; the files decide.
 - **GitHub**: issues live in GitHub Issues, written with `gh`.
 - **GitLab**: issues live in GitLab Issues, written with `glab`.
 - **Another tracker**: prose describing Jira, Linear or any other place, with no directory of files for Specs and Tickets.
 
-**The Feature root** is the directory the doc names for Features: `.scratch` in upstream's template and in this Adapter's doc.
+**The Feature root** is the directory the doc names for Features: `.scratch` in upstream's template and in this Rules Adapter's doc.
 
 ## Write the project rules
 
