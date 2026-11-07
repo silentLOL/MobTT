@@ -19,10 +19,11 @@ blocked_by: []
 - [x] Previews cover a Fixture with and without a Venue
 - [x] New strings are added in English and German
 - [x] New strings pushed to Loco
-- [ ] Tapped in a `deb` build: the maps app opens on the Venue
+- [x] Tapped in a `deb` build: the maps app opens on the Venue
 - [x] `./gradlew check` passes
 
 ## Comments
 
 - 2026-11-07: The search text lives in `formatting/VenueSearch.kt` (`venueLines`, `venueSearchText`). `Context.openInMaps` tries `geo:` and then the Google Maps URL, logging a warning when no app opens one, so a device with neither does not crash. TalkBack reads the Venue lines as the label and "Open in Maps" as the click action (`fixture_detail_venue_open_cd`), reusing the visible text (CODING_STANDARDS §12). Not done yet: the Loco push and tapping it in a `deb` build.
 - 2026-11-07: Pushed to Loco (Android and iOS, en and de-AT); `fixture_detail_venue_open_cd` reads back as "Open in Maps" and "In Karten öffnen".
+- 2026-11-07: Tapped by hand in the app and confirmed.
