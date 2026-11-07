@@ -22,6 +22,8 @@ struct FixtureDetailUi: Equatable {
     /// Matches won; nil until the Fixture is played.
     let score: FixtureScoreUi?
     let matches: [MatchRowUi]
+    /// False until sharing Fixtures is switched on for this build.
+    var canShare = false
 }
 
 enum FixtureDetailUiState: Equatable {

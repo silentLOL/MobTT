@@ -7,5 +7,6 @@ sealed interface FixtureDetailUiState {
 
     data object Error : FixtureDetailUiState
 
-    data class Content(val detail: FixtureDetail) : FixtureDetailUiState
+    /** [canShare] is false until sharing Fixtures is switched on for this build. */
+    data class Content(val detail: FixtureDetail, val canShare: Boolean = false) : FixtureDetailUiState
 }

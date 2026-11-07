@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Fixture links (ADR-0011); the host comes from LINKS_HOST in Config.xcconfig. -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:$(LINKS_HOST)</string>
+	</array>
+</dict>
+</plist>

@@ -27,15 +27,24 @@ struct BatHeroPillView: View {
 }
 
 /// The pill on a row as tall as a touch target, so a trailing action overlaid at the top end never covers the text below.
-struct BatHeroPillRowView: View {
+/// A `trailing` action sits at the row's end instead, for a card whose content below is not combined for accessibility.
+struct BatHeroPillRowView<Trailing: View>: View {
     let text: String
+    @ViewBuilder let trailing: () -> Trailing
 
     var body: some View {
         HStack(spacing: 0) {
             BatHeroPillView(text: text)
             Spacer(minLength: 0)
+            trailing()
         }
         .frame(minHeight: BatSizing.minTouchTarget)
+    }
+}
+
+extension BatHeroPillRowView where Trailing == EmptyView {
+    init(text: String) {
+        self.init(text: text) { EmptyView() }
     }
 }
 
@@ -67,6 +76,19 @@ struct BatHeroStatRowView<Content: View>: View {
                 BatStatView(label: "ÖTTV rank", value: "#45", onHero: true)
                 BatStatView(label: "Singles", value: "34:12", onHero: true)
             }
+        }
+    }
+}
+
+#Preview("Trailing action") {
+    BatPreviewMatrix {
+        BatHeroCardView {
+            BatHeroPillRowView(text: "Fixture") {
+                BatIconButtonView(icon: .share, accessibilityText: "Share Fixture") {}
+            }
+            Text("6 : 4")
+                .batTextStyle(BatTypography.display)
+                .foregroundStyle(BatColor.onHero)
         }
     }
 }

@@ -11,6 +11,7 @@ import at.stefanirndorfer.mobtt.domain.club.Club
 import at.stefanirndorfer.mobtt.domain.club.ClubOverview
 import at.stefanirndorfer.mobtt.domain.club.Fixture
 import at.stefanirndorfer.mobtt.domain.club.FixtureDetail
+import at.stefanirndorfer.mobtt.domain.club.FixtureLinks
 import at.stefanirndorfer.mobtt.domain.club.GetClubOverviewUseCase
 import at.stefanirndorfer.mobtt.domain.club.GetFixtureDetailUseCase
 import at.stefanirndorfer.mobtt.domain.club.GetLeagueDetailUseCase
@@ -104,6 +105,15 @@ object KoinHelper : KoinComponent {
     suspend fun loadPlayerClub(player: Player): DataResult<PlayerClub?> = dataResult { get<GetPlayerClubUseCase>().invoke(player) }
 
     suspend fun loadPlayerTeams(player: Player): DataResult<PlayerTeams> = dataResult { get<GetPlayerTeamsUseCase>().invoke(player) }
+
+    /** False until sharing Fixtures is switched on for this build; the Fixture screen then shows no Share button. */
+    fun isFixtureSharingEnabled(): Boolean = get<FixtureLinks>().sharingEnabled
+
+    /** The Fixture link that opens [fixtureId] in MobTT (ADR-0011), or null while there is no links domain. */
+    fun fixtureLink(fixtureId: String): String? = get<FixtureLinks>().linkTo(fixtureId)
+
+    /** The Fixture id in [url], or null when [url] is not a Fixture link. */
+    fun fixtureIdOfLink(url: String): String? = get<FixtureLinks>().fixtureIdOf(url)
 
     /** False in builds that may not show Rating histories (ADR-0010); the Player screen then never asks for one. */
     fun isRatingHistoryEnabled(): Boolean = get<GetRatingHistoryUseCase>().isEnabled

@@ -2,6 +2,8 @@ import SwiftUI
 
 struct FixtureDetailRoute: View {
     @State private var viewModel: FixtureDetailViewModel
+    @State private var share: ShareContent?
+    @Environment(\.displayScale) private var displayScale
 
     let onOpenTeam: (_ teamId: String) -> Void
 
@@ -18,9 +20,26 @@ struct FixtureDetailRoute: View {
                 for await event in viewModel.events {
                     switch event {
                     case .openTeam(let teamId): onOpenTeam(teamId)
+                    case .share(let detail, let link): share = shareContent(detail: detail, link: link)
                     }
                 }
             }
+            .sheet(item: $share) { content in
+                ShareSheetView(content: content)
+                    .presentationDetents([.medium, .large])
+            }
+    }
+}
+
+extension FixtureDetailRoute {
+    /// The picture with a short caption; the full text alone when the picture cannot be drawn.
+    private func shareContent(detail: FixtureDetailUi, link: String?) -> ShareContent {
+        guard let image = FixtureShareImageView.render(detail: detail, link: link, scale: displayScale) else {
+            return FixtureShare.content(detail: detail, link: link)
+        }
+        var caption = FixtureShare.caption(detail: detail, link: link)
+        caption.image = image
+        return caption
     }
 }
 
@@ -89,7 +108,13 @@ private struct ContentView: View {
     private var header: some View {
         BatHeroCardView {
             VStack(alignment: .leading, spacing: BatSpacing.sm) {
-                BatHeroPillRowView(text: String(localized: "fixture_detail_hero_overline"))
+                BatHeroPillRowView(text: String(localized: "fixture_detail_hero_overline")) {
+                    if detail.canShare {
+                        BatIconButtonView(icon: .share, accessibilityText: String(localized: "fixture_detail_share_button_cd")) {
+                            onAction(.shareClicked)
+                        }
+                    }
+                }
                 VStack(alignment: .leading, spacing: BatSpacing.xs) {
                     teamLink(id: detail.homeTeamId, name: detail.homeTeamName)
                     teamLink(id: detail.awayTeamId, name: detail.awayTeamName)

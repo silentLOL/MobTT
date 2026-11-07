@@ -45,4 +45,6 @@ object BatIcon {
     @DrawableRes val Star = R.drawable.bat_ic_star
 
     @DrawableRes val StarFilled = R.drawable.bat_ic_star_filled
+
+    @DrawableRes val Share = R.drawable.bat_ic_share
 }

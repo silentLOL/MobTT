@@ -33,6 +33,7 @@ dependencies {
     implementation(project(":android:core:analytics"))
     implementation(project(":android:core:design-system"))
     implementation(project(":android:core:localization"))
+    implementation(project(":android:core:ui"))
     implementation(project(":android:feature:navigation"))
     for (feature in listOf("home", "club", "players", "settings")) {
         implementation(project(":android:feature:$feature:api"))
@@ -65,6 +66,9 @@ android {
         versionCode = 1
         versionName = "1.0"
         buildConfigField("String", "XTTV_API_KEY", "\"$xttvApiKey\"")
+        // The Fixture link host (ADR-0011). A .example placeholder until the domain is registered: it never verifies, so no
+        // link reaches the app. Replace it together with AppConfig.linksHost and the iOS LINKS_HOST.
+        manifestPlaceholders["linksHost"] = "links.mobtt.example"
     }
     flavorDimensions += "environment"
     productFlavors {

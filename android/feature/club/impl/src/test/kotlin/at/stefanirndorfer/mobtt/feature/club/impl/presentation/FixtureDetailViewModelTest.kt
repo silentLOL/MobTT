@@ -4,6 +4,8 @@ import at.stefanirndorfer.mobtt.core.analytics.LoggedEvent
 import at.stefanirndorfer.mobtt.core.analytics.RecordingAnalyticsTracker
 import at.stefanirndorfer.mobtt.domain.club.Fixture
 import at.stefanirndorfer.mobtt.domain.club.FixtureDetail
+import at.stefanirndorfer.mobtt.domain.club.FixtureLinks
+import at.stefanirndorfer.mobtt.domain.club.FixtureScore
 import at.stefanirndorfer.mobtt.domain.club.FixtureStatus
 import at.stefanirndorfer.mobtt.domain.club.GetFixtureDetailUseCase
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.FixtureDetailViewModel
@@ -50,8 +52,9 @@ class FixtureDetailViewModelTest {
     @After
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun TestScope.viewModel(): FixtureDetailViewModel {
-        val viewModel = FixtureDetailViewModel("f1", GetFixtureDetailUseCase(data), analytics)
+    private fun TestScope.viewModel(sharingEnabled: Boolean = true, linksHost: String? = "links.mobtt.example"): FixtureDetailViewModel {
+        val links = FixtureLinks(host = linksHost, sharingEnabled = sharingEnabled)
+        val viewModel = FixtureDetailViewModel("f1", GetFixtureDetailUseCase(data), links, analytics)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel
     }
@@ -60,7 +63,7 @@ class FixtureDetailViewModelTest {
     fun aKnownFixtureIsShownAsContent() = runTest {
         data.fixtureDetail = detail
 
-        assertEquals(FixtureDetailUiState.Content(detail), viewModel().uiState.value)
+        assertEquals(FixtureDetailUiState.Content(detail, canShare = true), viewModel().uiState.value)
     }
 
     @Test
@@ -105,5 +108,48 @@ class FixtureDetailViewModelTest {
             ),
             analytics.events,
         )
+    }
+
+    @Test
+    fun withSharingOffTheFixtureCannotBeShared() = runTest {
+        data.fixtureDetail = detail
+
+        assertEquals(FixtureDetailUiState.Content(detail, canShare = false), viewModel(sharingEnabled = false).uiState.value)
+    }
+
+    @Test
+    fun sharingSendsTheFixtureWithItsLinkAndReportsItsStatus() = runTest {
+        val finished = detail.copy(fixture = detail.fixture.copy(status = FixtureStatus.Finished(FixtureScore(6, 4))))
+        data.fixtureDetail = finished
+        val viewModel = viewModel()
+        val events = mutableListOf<FixtureDetailEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect(events::add) }
+
+        viewModel.onAction(FixtureDetailAction.ShareClicked)
+
+        assertEquals(listOf<FixtureDetailEvent>(FixtureDetailEvent.Share(finished, "https://links.mobtt.example/f/f1")), events)
+        assertEquals(LoggedEvent("fixture_share_tapped", mapOf("status" to "finished")), analytics.events.last())
+    }
+
+    @Test
+    fun sharingAScheduledFixtureReportsItAsScheduled() = runTest {
+        data.fixtureDetail = detail
+        val viewModel = viewModel()
+
+        viewModel.onAction(FixtureDetailAction.ShareClicked)
+
+        assertEquals(LoggedEvent("fixture_share_tapped", mapOf("status" to "scheduled")), analytics.events.last())
+    }
+
+    @Test
+    fun withoutALinksDomainTheFixtureIsSharedWithoutALink() = runTest {
+        data.fixtureDetail = detail
+        val viewModel = viewModel(linksHost = null)
+        val events = mutableListOf<FixtureDetailEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect(events::add) }
+
+        viewModel.onAction(FixtureDetailAction.ShareClicked)
+
+        assertEquals(listOf<FixtureDetailEvent>(FixtureDetailEvent.Share(detail, link = null)), events)
     }
 }

@@ -113,6 +113,87 @@ struct FixtureDetailViewModelTests {
         ])
     }
 
+    @Test func withSharingOnTheFixtureCanBeShared() async {
+        let viewModel = makeViewModel(sharingEnabled: true) { _ in
+            DataResultSuccess(value: FixtureDetail(fixture: fixture(status: FixtureStatusScheduled.shared), address: nil, matches: []))
+        }
+
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+
+        guard case .content(let detail) = viewModel.uiState else {
+            Issue.record("Expected content")
+            return
+        }
+        #expect(detail.canShare)
+    }
+
+    @Test func withSharingOffTheFixtureCannotBeShared() async {
+        let viewModel = makeViewModel(sharingEnabled: false) { _ in
+            DataResultSuccess(value: FixtureDetail(fixture: fixture(status: FixtureStatusScheduled.shared), address: nil, matches: []))
+        }
+
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+
+        guard case .content(let detail) = viewModel.uiState else {
+            Issue.record("Expected content")
+            return
+        }
+        #expect(!detail.canShare)
+    }
+
+    @Test func sharingSendsTheFixtureWithItsLinkAndReportsItsStatus() async {
+        let analytics = RecordingAnalyticsTracker()
+        let finished = FixtureStatusFinished(score: FixtureScore(homeMatchesWon: 6, awayMatchesWon: 4))
+        let viewModel = makeViewModel(analytics: analytics, sharingEnabled: true) { _ in
+            DataResultSuccess(value: FixtureDetail(fixture: fixture(status: finished), address: nil, matches: []))
+        }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+        var iterator = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.shareClicked)
+
+        guard case .share(let detail, let link) = await iterator.next() else {
+            Issue.record("Expected a share event")
+            return
+        }
+        #expect(detail.homeTeamName == "Olympic 1")
+        #expect(link == "https://links.mobtt.example/f/f1")
+        #expect(analytics.events.last == LoggedEvent("fixture_share_tapped", ["status": "finished"]))
+    }
+
+    @Test func sharingAScheduledFixtureReportsItAsScheduled() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(analytics: analytics, sharingEnabled: true) { _ in
+            DataResultSuccess(value: FixtureDetail(fixture: fixture(status: FixtureStatusScheduled.shared), address: nil, matches: []))
+        }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+
+        viewModel.onAction(.shareClicked)
+
+        #expect(analytics.events.last == LoggedEvent("fixture_share_tapped", ["status": "scheduled"]))
+    }
+
+    @Test func withoutALinksDomainTheFixtureIsSharedWithoutALink() async {
+        let viewModel = makeViewModel(sharingEnabled: true, linkTo: { _ in nil }) { _ in
+            DataResultSuccess(value: FixtureDetail(fixture: fixture(status: FixtureStatusScheduled.shared), address: nil, matches: []))
+        }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+        var iterator = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.shareClicked)
+
+        guard case .share(_, let link) = await iterator.next() else {
+            Issue.record("Expected a share event")
+            return
+        }
+        #expect(link == nil)
+    }
+
     private func fixture(status: FixtureStatus) -> Fixture {
         Fixture(
             id: "f1",
@@ -128,9 +209,17 @@ struct FixtureDetailViewModelTests {
 
     private func makeViewModel(
         analytics: any AnalyticsTracker = NoOpAnalyticsTracker(),
+        sharingEnabled: Bool = false,
+        linkTo: @escaping (String) -> String? = { "https://links.mobtt.example/f/\($0)" },
         loadDetail: @escaping (String) async throws -> DataResult
     ) -> FixtureDetailViewModel {
-        FixtureDetailViewModel(fixtureId: "f1", loadDetail: loadDetail, analytics: analytics)
+        FixtureDetailViewModel(
+            fixtureId: "f1",
+            loadDetail: loadDetail,
+            sharingEnabled: sharingEnabled,
+            linkTo: linkTo,
+            analytics: analytics
+        )
     }
 
     private func settle(_ viewModel: FixtureDetailViewModel) async {

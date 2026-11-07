@@ -9,6 +9,7 @@ import at.stefanirndorfer.mobtt.core.ratingscentral.ratingsCentralModule
 import at.stefanirndorfer.mobtt.core.xttv.xttvModule
 import at.stefanirndorfer.mobtt.domain.app.di.appDomainModule
 import at.stefanirndorfer.mobtt.domain.club.DataUnavailable
+import at.stefanirndorfer.mobtt.domain.club.FixtureLinks
 import at.stefanirndorfer.mobtt.domain.club.di.clubDomainModule
 import at.stefanirndorfer.mobtt.domain.rating.RatingHistory
 import at.stefanirndorfer.mobtt.domain.rating.RatingHistoryAvailability
@@ -35,6 +36,7 @@ private val sharedModules = listOf(
 private fun configModule(config: AppConfig): Module = module {
     single { RatingHistoryAvailability(config.ratingHistoryEnabled) }
     single { RatingHistoryExplanation(config.ratingsCentralExplanationUrl) }
+    single { FixtureLinks(config.linksHost, config.fixtureSharingEnabled) }
 }
 
 /**
