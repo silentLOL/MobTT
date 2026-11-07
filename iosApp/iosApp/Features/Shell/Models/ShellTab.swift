@@ -2,12 +2,14 @@ import SwiftUI
 
 enum ShellTab: Hashable, CaseIterable {
     case home
+    case league
     case club
     case players
 
     var icon: BatIcon {
         switch self {
         case .home: .home
+        case .league: .league
         case .club: .club
         case .players: .search
         }
@@ -16,6 +18,7 @@ enum ShellTab: Hashable, CaseIterable {
     var label: LocalizedStringResource {
         switch self {
         case .home: "core_tab_home_label"
+        case .league: "core_tab_league_label"
         case .club: "core_tab_club_label"
         case .players: "core_tab_players_label"
         }

@@ -12,6 +12,7 @@ import at.stefanirndorfer.mobtt.domain.user.GetPlayerRankingUseCase
 import at.stefanirndorfer.mobtt.domain.user.ListLeaguePlayersUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveFavoritesUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveHomeFavoritesUseCase
+import at.stefanirndorfer.mobtt.domain.user.ObserveMyTeamsUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveResolvedFavoritesUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveUpcomingFixturesUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveUsageConsentPromptUseCase
@@ -47,6 +48,7 @@ val userDomainModule = module {
     factoryOf(::ListLeaguePlayersUseCase)
     factoryOf(::GetPlayerRankingUseCase)
     factoryOf(::GetPlayerDetailUseCase)
+    factoryOf(::ObserveMyTeamsUseCase)
     factoryOf(::ObserveUsageConsentUseCase)
     factoryOf(::ObserveUsageConsentPromptUseCase)
     factoryOf(::SetUsageConsentUseCase)

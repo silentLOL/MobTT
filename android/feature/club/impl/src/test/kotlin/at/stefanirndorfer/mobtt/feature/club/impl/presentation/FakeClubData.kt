@@ -43,6 +43,7 @@ class FakeClubData :
     val favorites = MutableStateFlow<Set<Favorite>>(emptySet())
     var teams = listOf(Team("t1", "Olympic 1", "c1", "l1"))
     var standings = emptyList<Standing>()
+    var lineups = emptyMap<String, List<LineupPlayer>>()
     var players = emptyList<Player>()
     var ranking = emptyList<RankedPlayer>()
     var rankingUnavailable = false
@@ -72,7 +73,7 @@ class FakeClubData :
 
     override suspend fun getTeams(clubId: String): List<Team> = read(teams)
 
-    override suspend fun getLineup(teamId: String): List<LineupPlayer> = read(emptyList())
+    override suspend fun getLineup(teamId: String): List<LineupPlayer> = read(lineups[teamId].orEmpty())
 
     override suspend fun getLeague(id: String): League? = read(League(id, "Liga"))
 

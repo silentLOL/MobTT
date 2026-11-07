@@ -35,6 +35,7 @@ struct ShellScreen: View {
     @State private var isSettingsPresented = false
     @State private var consentViewModel = UsageConsentViewModel()
     @State private var homePath = NavigationPath()
+    @State private var leaguePath = NavigationPath()
     @State private var clubPath = NavigationPath()
     @State private var playersPath = NavigationPath()
 
@@ -55,6 +56,7 @@ struct ShellScreen: View {
                     ) {
                         selectedTab = tab
                         homePath = NavigationPath()
+                        leaguePath = NavigationPath()
                         clubPath = NavigationPath()
                         playersPath = NavigationPath()
                     }
@@ -103,6 +105,45 @@ struct ShellScreen: View {
                     }
                 }
                 .tag(ShellTab.home)
+                NavigationStack(path: $leaguePath) {
+                    LeagueTabRoute(
+                        onChoosePlayer: { leaguePath.append(ChooseHeroDestination(mode: .myPlayer)) },
+                        onOpenPlayer: { leaguePath.append(PlayerDestination(playerId: $0)) },
+                        onOpenTeam: { leaguePath.append(TeamDestination(teamId: $0)) },
+                        onOpenFixture: { leaguePath.append(FixtureDestination(fixtureId: $0)) }
+                    )
+                    .toolbar(.hidden, for: .navigationBar)
+                    .navigationDestination(for: ChooseHeroDestination.self) { route in
+                        PlayersRoute(mode: route.mode, onDone: { leaguePath = NavigationPath() })
+                            .navigationTitle(String(localized: "home_choose_player_title"))
+                            .navigationBarTitleDisplayMode(.inline)
+                            .batBackground()
+                    }
+                    .navigationDestination(for: ClubDetailRoute.self) { route in
+                        ClubRoute(
+                            source: .specific(clubId: route.clubId),
+                            onOpenSettings: { isSettingsPresented = true },
+                            onOpenTeam: { leaguePath.append(TeamDestination(teamId: $0)) },
+                            onOpenPlayer: { leaguePath.append(PlayerDestination(playerId: $0)) }
+                        )
+                        .navigationTitle(String(localized: "club_hero_overline"))
+                        .navigationBarTitleDisplayMode(.inline)
+                        .batBackground()
+                    }
+                    .navigationDestination(for: TeamDestination.self) { route in
+                        teamDetail(route, path: $leaguePath)
+                    }
+                    .navigationDestination(for: LeagueDestination.self) { route in
+                        leagueDetail(route, path: $leaguePath)
+                    }
+                    .navigationDestination(for: FixtureDestination.self) { route in
+                        fixtureDetail(route, path: $leaguePath)
+                    }
+                    .navigationDestination(for: PlayerDestination.self) { route in
+                        playerDetail(route, path: $leaguePath)
+                    }
+                }
+                .tag(ShellTab.league)
                 NavigationStack(path: $clubPath) {
                     ClubTabRoute(
                         onOpenTeam: { clubPath.append(TeamDestination(teamId: $0)) },

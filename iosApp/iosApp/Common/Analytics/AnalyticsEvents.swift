@@ -24,6 +24,7 @@ enum AnalyticsParam {
 
 enum AnalyticsScreen {
     static let home = "home"
+    static let league = "league"
     static let players = "players"
     static let choosePlayer = "choose_player"
     static let chooseClub = "choose_club"

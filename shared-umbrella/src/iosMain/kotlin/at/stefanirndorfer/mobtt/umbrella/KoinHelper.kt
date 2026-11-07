@@ -26,8 +26,10 @@ import at.stefanirndorfer.mobtt.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.mobtt.domain.user.GetPlayerDetailUseCase
 import at.stefanirndorfer.mobtt.domain.user.GetPlayerRankingUseCase
 import at.stefanirndorfer.mobtt.domain.user.ListLeaguePlayersUseCase
+import at.stefanirndorfer.mobtt.domain.user.MyTeams
 import at.stefanirndorfer.mobtt.domain.user.ObserveFavoritesUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveHomeFavoritesUseCase
+import at.stefanirndorfer.mobtt.domain.user.ObserveMyTeamsUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveResolvedFavoritesUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveUpcomingFixturesUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveUsageConsentPromptUseCase
@@ -74,6 +76,8 @@ object KoinHelper : KoinComponent {
     fun observeResolvedFavorites(): Flow<DataResult<List<ResolvedFavorite>>> = getObserveResolvedFavoritesUseCase().invoke().asDataResult()
 
     fun observeHomeFavorites(): Flow<DataResult<List<ResolvedFavorite>>> = getObserveHomeFavoritesUseCase().invoke().asDataResult()
+
+    fun observeMyTeams(): Flow<DataResult<MyTeams>> = getObserveMyTeamsUseCase().invoke().asDataResult()
 
     suspend fun loadClubOverview(clubId: String): DataResult<ClubOverview?> = dataResult { getGetClubOverviewUseCase().invoke(clubId) }
 
@@ -180,6 +184,11 @@ object KoinHelper : KoinComponent {
 
     fun getGetLeagueDetailUseCase(): GetLeagueDetailUseCase {
         val useCase: GetLeagueDetailUseCase by inject()
+        return useCase
+    }
+
+    fun getObserveMyTeamsUseCase(): ObserveMyTeamsUseCase {
+        val useCase: ObserveMyTeamsUseCase by inject()
         return useCase
     }
 

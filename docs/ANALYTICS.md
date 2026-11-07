@@ -15,7 +15,7 @@ The single source of truth for the events both apps send to Firebase Analytics (
 
 | Parameter | Values |
 |---|---|
-| `screen` | `home`, `players`, `choose_player`, `choose_club`, `club`, `player_detail`, `team_detail`, `league_detail`, `fixture_detail`, `settings` |
+| `screen` | `home`, `league`, `players`, `choose_player`, `choose_club`, `club`, `player_detail`, `team_detail`, `league_detail`, `fixture_detail`, `settings` |
 | `kind` | `player`, `club`, `team`, `league`, `fixture` |
 | `source` | `home`, `settings`, `prompt` |
 | `from` | a `screen` value |
@@ -38,6 +38,7 @@ The single source of truth for the events both apps send to Firebase Analytics (
 | Screen | Android | iOS |
 |---|---|---|
 | Home | `HomeViewModel` | `HomeViewModel` |
+| League tab | `LeagueTabViewModel` | `LeagueTabViewModel` |
 | Players, choose Player, choose Club | `PlayersViewModel`, `ChooseClubViewModel` | `PlayersViewModel` (by mode) |
 | Club | `ClubViewModel` | `ClubViewModel` |
 | Player, Team, League detail | the matching `*DetailViewModel` | the matching `*DetailViewModel` |

@@ -7,6 +7,7 @@ import at.stefanirndorfer.mobtt.feature.club.api.ClubDestination
 import at.stefanirndorfer.mobtt.feature.club.api.ClubDetailDestination
 import at.stefanirndorfer.mobtt.feature.club.api.FixtureDetailDestination
 import at.stefanirndorfer.mobtt.feature.club.api.LeagueDetailDestination
+import at.stefanirndorfer.mobtt.feature.club.api.LeagueTabDestination
 import at.stefanirndorfer.mobtt.feature.club.api.TeamDetailDestination
 import at.stefanirndorfer.mobtt.feature.club.api.navigateToFixtureDetail
 import at.stefanirndorfer.mobtt.feature.club.api.navigateToLeagueDetailFromTeam
@@ -16,8 +17,10 @@ import at.stefanirndorfer.mobtt.feature.club.impl.presentation.club.ClubRoute
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.club.models.ClubSource
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.FixtureDetailRoute
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.LeagueDetailRoute
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguetab.LeagueTabRoute
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail.TeamDetailRoute
 import at.stefanirndorfer.mobtt.feature.navigation.GlobalNavigator
+import at.stefanirndorfer.mobtt.feature.players.api.navigateToChoosePlayer
 import at.stefanirndorfer.mobtt.feature.players.api.navigateToPlayerDetail
 
 fun EntryProviderScope<NavKey>.clubGraph(navigator: GlobalNavigator) {
@@ -26,6 +29,14 @@ fun EntryProviderScope<NavKey>.clubGraph(navigator: GlobalNavigator) {
             source = ClubSource.Mine,
             onOpenTeam = navigator::navigateToTeamDetail,
             onOpenPlayer = navigator::navigateToPlayerDetail,
+        )
+    }
+    entry<LeagueTabDestination> {
+        LeagueTabRoute(
+            onChoosePlayer = navigator::navigateToChoosePlayer,
+            onOpenPlayer = navigator::navigateToPlayerDetail,
+            onOpenTeam = navigator::navigateToTeamDetail,
+            onOpenFixture = navigator::navigateToFixtureDetail,
         )
     }
     entry<ClubDetailDestination> { destination ->

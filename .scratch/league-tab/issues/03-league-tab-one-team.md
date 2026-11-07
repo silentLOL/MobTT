@@ -1,5 +1,5 @@
 ---
-status: ready-for-agent
+status: resolved
 blocked_by: [1]
 ---
 
@@ -11,10 +11,10 @@ A fourth tab, League (Liga), sits between Home and Club with a new trophy icon. 
 
 ## Acceptance criteria
 
-- [ ] Domain tests cover no My Player, My Club only, one Team, two Teams, two Teams in one League, no Team, a Team without League, a Team that fails alone, unavailable, My Player changing
-- [ ] Tab bar order Home, League, Club, Players on both platforms with `BatIcon.League` / SF Symbol trophy
-- [ ] Every tab state renders on both platforms, with English and German strings
-- [ ] The empty state's button opens the Player picker; the no-Team link opens My Player's screen
-- [ ] With one Team the League screen is the tab's root, with the Team highlighted and the "only my Team's Fixtures" toggle
-- [ ] `screen_view` for the League tab, recorded in `docs/ANALYTICS.md`
-- [ ] ViewModel tests on both platforms; previews for every state
+- [x] Domain tests cover no My Player, My Club only, one Team, two Teams, two Teams in one League, no Team, a Team without League, a Team that fails alone, unavailable, My Player changing
+- [x] Tab bar order Home, League, Club, Players on both platforms with `BatIcon.League` / SF Symbol trophy
+- [x] Every tab state renders on both platforms, with English and German strings
+- [x] The empty state's button opens the Player picker; the no-Team link opens My Player's screen
+- [x] With one Team the League screen is the tab's root, with the Team highlighted and the "only my Team's Fixtures" toggle
+- [x] `screen_view` for the League tab, recorded in `docs/ANALYTICS.md`
+- [x] ViewModel tests on both platforms; previews for every state

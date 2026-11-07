@@ -10,6 +10,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="core_app_title">MobTT</string>
     <string name="core_tab_home_label">Start</string>
+    <string name="core_tab_league_label">Liga</string>
     <string name="core_tab_club_label">Verein</string>
     <string name="core_tab_players_label">Spieler</string>
     <string name="core_settings_button_cd">Einstellungen</string>
@@ -134,6 +135,14 @@
     <string name="league_detail_ranking_unranked_cd">Nicht gereiht</string>
     <string name="league_detail_ranking_stats_cd">%1$d Spiele gewonnen, %2$d verloren, %3$d Einsätze</string>
     <string name="league_detail_my_player_badge">Mein Spieler</string>
+    <string name="league_tab_no_player_title">Wähle zuerst Mein Spieler</string>
+    <string name="league_tab_no_player_body">Deine Liga erscheint hier, sobald du Mein Spieler wählst.</string>
+    <string name="league_tab_choose_player_button">Mein Spieler wählen</string>
+    <string name="league_tab_no_team_title">Keine Mannschaft gefunden</string>
+    <string name="league_tab_no_team_body">Noch nennt keine Mannschaftsaufstellung %1$s, daher gibt es keine Liga.</string>
+    <string name="league_tab_open_player_button">Mein Spieler öffnen</string>
+    <string name="league_tab_loading_cd">Deine Liga wird gesucht</string>
+    <string name="league_tab_error_title">Deine Liga konnte nicht geladen werden</string>
     <string name="fixture_detail_hero_overline">Begegnung</string>
     <string name="fixture_detail_not_played">Noch nicht gespielt</string>
     <string name="fixture_detail_score">%1$d : %2$d</string>

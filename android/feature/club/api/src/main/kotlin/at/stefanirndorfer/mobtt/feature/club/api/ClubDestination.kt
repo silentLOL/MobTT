@@ -8,6 +8,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object ClubDestination : GlobalAppDestination
 
+/** The League tab: the League of My Player's Team, or why there is none. */
+@Serializable
+data object LeagueTabDestination : GlobalAppDestination
+
 /** A specific Club pushed on top of the current tab, e.g. from a Favorite. */
 @Serializable
 data class ClubDetailDestination(val clubId: String) : GlobalAppDestination

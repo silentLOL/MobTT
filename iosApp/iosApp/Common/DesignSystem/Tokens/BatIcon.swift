@@ -4,6 +4,7 @@ enum BatIcon {
     case logo
     case home
     case club
+    case league
     case search
     case live
     case code
@@ -27,6 +28,7 @@ enum BatIcon {
         case .logo: Image("Logo")
         case .home: Image(systemName: "house")
         case .club: Image(systemName: "shield")
+        case .league: Image(systemName: "trophy")
         case .search: Image(systemName: "magnifyingglass")
         case .live: Image(systemName: "bolt")
         case .code: Image(systemName: "chevron.left.forwardslash.chevron.right")

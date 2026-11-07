@@ -10,6 +10,8 @@ object BatIcon {
 
     @DrawableRes val Club = R.drawable.bat_ic_shield
 
+    @DrawableRes val League = R.drawable.bat_ic_trophy
+
     @DrawableRes val Search = R.drawable.bat_ic_search
 
     @DrawableRes val Live = R.drawable.bat_ic_bolt

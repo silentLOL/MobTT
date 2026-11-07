@@ -30,21 +30,11 @@ class GetPlayerDetailUseCase(
         )
     }
 
-    // XTTV has no Player-to-Team lookup, so the Club's Teams are asked for their lineup. The Team section is a
-    // bonus: a Team XTTV cannot answer for is left out instead of failing the whole Player. The Player's RC and age
-    // group ride on the same lineup entries.
-    private suspend fun lineupEntries(player: Player): List<Pair<Team, LineupPlayer>> {
-        val teams = try {
-            teamRepository.getTeams(player.clubId)
-        } catch (e: DataUnavailable) {
-            return emptyList()
-        }
-        return teams.mapNotNull { team ->
-            try {
-                teamRepository.getLineup(team.id).firstOrNull { it.playerId == player.id }?.let { team to it }
-            } catch (e: DataUnavailable) {
-                null
-            }
-        }
+    // The Team section is a bonus: the Club's Teams being unavailable leaves it empty instead of failing the Player.
+    // The Player's RC and age group ride on the same lineup entries.
+    private suspend fun lineupEntries(player: Player): List<Pair<Team, LineupPlayer>> = try {
+        teamRepository.lineupEntriesOf(player)
+    } catch (e: DataUnavailable) {
+        emptyList()
     }
 }
