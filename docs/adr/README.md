@@ -20,3 +20,4 @@ should link here instead of duplicating the rationale.
 | [0007](0007-xttv-backed-repositories-in-core-xttv.md) | XTTV-backed repositories live in `:core:xttv`; the fake directory stays for `deb` | Accepted |
 | [0008](0008-xttv-hosts-per-association-and-id-strategy.md) | One XTTV host per Association, and plain string IDs | Accepted |
 | [0009](0009-native-firebase-behind-interfaces-with-opt-in-consent.md) | Native Firebase behind interfaces, opt-in consent, no advertising IDs | Proposed |
+| [0010](0010-ratings-central-history-behind-a-release-flag.md) | Ratings Central history export as a second data source, off in release builds until permitted | Accepted |

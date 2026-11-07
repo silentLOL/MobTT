@@ -34,3 +34,4 @@ Cost: one `getSingleStandings` per League of the Player's Teams (the Teams looku
 
 - 2026-10-31: split out of the Player screen change (Teams, tappable Club, no hero card), which ships only what the API provably gives us.
 - 2026-10-31: Needs a human: please ask XTTV by email whether `getPlayerDetails` can be opened to our API key, and note the answer here. Everything else is answered above.
+- 2026-11-07: `player_rc_id` is no longer an identifier to skip: it is the key to the Player's Rating history on Ratings Central, which the new feature `.scratch/rating-history/` adds to the Player screen (ADR-0010). Proposal 1's Rating stays as the stat row shows it today; proposal 2 (rank and matches per Team) remains open and out of that feature's scope. This ticket stays `needs-human` for the XTTV email about `getPlayerDetails`.

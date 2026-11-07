@@ -44,6 +44,28 @@ _Avoid_: Einzelrangliste, single standings, player table
 One played segment of a Match, won by reaching the points target with a margin (German: Satz), e.g. 11:8.
 _Avoid_: Satz, game, round
 
+### Rating
+
+**Ratings Central**:
+The external rating system that estimates every Player's playing strength from their results. XTTV links each Player to their entry there.
+_Avoid_: RC, rating site
+
+**Rating**:
+A Player's estimated playing strength according to Ratings Central, given as points with a Deviation, e.g. 519 ±87.
+_Avoid_: RC points, TTR, QTTR, PTR, Elo
+
+**Deviation**:
+How uncertain a Rating is, shown as ±. The true playing strength lies within one Deviation of the Rating about two times in three.
+_Avoid_: StDev, standard deviation, error, tolerance
+
+**Rating update**:
+One processing of a Player's results by Ratings Central, which moves their Rating; usually one per week of play.
+_Avoid_: Event, rating period
+
+**Rating history**:
+A Player's Rating and Deviation after each Rating update, over time.
+_Avoid_: Rating graph, RC graph, history graph
+
 ### The user
 
 **My Player**:
