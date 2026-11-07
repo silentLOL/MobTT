@@ -12,6 +12,7 @@ object AnalyticsEvent {
     const val SETTING_CHANGED = "setting_changed"
     const val RATING_INFO_OPENED = "rating_info_opened"
     const val FIXTURE_SHARE_TAPPED = "fixture_share_tapped"
+    const val FIXTURE_LINK_OPENED = "fixture_link_opened"
 }
 
 object AnalyticsParam {
@@ -25,6 +26,7 @@ object AnalyticsParam {
     const val SETTING = "setting"
     const val VALUE = "value"
     const val STATUS = "status"
+    const val START = "start"
 }
 
 object AnalyticsScreen {
@@ -58,6 +60,11 @@ object AnalyticsFixtureStatus {
     const val FINISHED = "finished"
 }
 
+object AnalyticsStart {
+    const val COLD = "cold"
+    const val RUNNING = "running"
+}
+
 object AnalyticsSource {
     const val HOME = "home"
     const val SETTINGS = "settings"
@@ -81,6 +88,8 @@ fun AnalyticsTracker.detailOpened(kind: String, id: String, from: String) = logE
 )
 
 fun AnalyticsTracker.ratingInfoOpened() = logEvent(AnalyticsEvent.RATING_INFO_OPENED, emptyMap())
+
+fun AnalyticsTracker.fixtureLinkOpened(start: String) = logEvent(AnalyticsEvent.FIXTURE_LINK_OPENED, mapOf(AnalyticsParam.START to start))
 
 fun AnalyticsTracker.fixtureShareTapped(status: String) = logEvent(AnalyticsEvent.FIXTURE_SHARE_TAPPED, mapOf(AnalyticsParam.STATUS to status))
 

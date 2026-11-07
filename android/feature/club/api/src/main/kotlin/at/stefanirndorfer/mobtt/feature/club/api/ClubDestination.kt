@@ -34,7 +34,7 @@ data class LeagueDetailDestination(
     val openedFromTeamId: String? = null,
 ) : GlobalAppDestination
 
-/** A Fixture with its Matches, pushed from a Fixture row. */
+/** A Fixture with its Matches, pushed from a Fixture row or opened from a Fixture link. */
 @Serializable
 data class FixtureDetailDestination(val fixtureId: String) : GlobalAppDestination
 
@@ -52,3 +52,6 @@ fun GlobalNavigator.navigateToLeagueDetailFromTeam(leagueId: String, teamId: Str
 fun GlobalNavigator.navigateToChooseClub() = navigate(ChooseClubDestination)
 
 fun GlobalNavigator.navigateToFixtureDetail(fixtureId: String) = navigate(FixtureDetailDestination(fixtureId))
+
+/** A Fixture opened from a Fixture link: on top of the start destination, whatever was open before. */
+fun GlobalNavigator.navigateToFixtureFromLink(fixtureId: String) = navigateFromStart(FixtureDetailDestination(fixtureId))

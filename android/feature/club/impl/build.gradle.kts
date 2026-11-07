@@ -28,6 +28,7 @@ dependencies {
     implementation(project(":android:core:ui"))
     implementation(project(":domain:club"))
     implementation(project(":domain:player"))
+    implementation(libs.kermit)
     implementation(project(":domain:user"))
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.lifecycle.compose.runtime)

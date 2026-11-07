@@ -4,6 +4,7 @@ import at.stefanirndorfer.mobtt.feature.club.impl.presentation.chooseclub.Choose
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.club.ClubViewModel
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.club.models.ClubSource
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.FixtureDetailViewModel
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturelink.FixtureLinkViewModel
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.LeagueDetailViewModel
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguetab.LeagueTabViewModel
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.teamdetail.TeamDetailViewModel
@@ -29,5 +30,6 @@ val clubModule = module {
     }
     viewModel { LeagueTabViewModel(get(), get()) }
     viewModel { params -> FixtureDetailViewModel(params.get<String>(), get(), get(), get()) }
+    viewModel { FixtureLinkViewModel(get(), get()) }
     viewModel { params -> TeamDetailViewModel(params.get<String>(), get(), get(), get(), get(), get(), get()) }
 }

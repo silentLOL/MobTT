@@ -2,6 +2,7 @@ package at.stefanirndorfer.mobtt
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -11,6 +12,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import at.stefanirndorfer.mobtt.core.localization.R
+import at.stefanirndorfer.mobtt.core.ui.ObserveAsEvents
 import at.stefanirndorfer.mobtt.designsystem.icon.BatIcon
 import at.stefanirndorfer.mobtt.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.mobtt.designsystem.theme.BatTheme
@@ -20,17 +22,37 @@ import at.stefanirndorfer.mobtt.designsystem.ui.components.BatNavigationItem
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatScreenScaffold
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatTopBar
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatTopBarBack
+import at.stefanirndorfer.mobtt.feature.club.api.navigateToFixtureFromLink
 import at.stefanirndorfer.mobtt.feature.club.impl.navigation.clubGraph
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturelink.FixtureLinkViewModel
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturelink.models.FixtureLinkAction
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturelink.models.FixtureLinkEvent
 import at.stefanirndorfer.mobtt.feature.home.api.HomeDestination
 import at.stefanirndorfer.mobtt.feature.home.impl.navigation.homeGraph
 import at.stefanirndorfer.mobtt.feature.navigation.BackStackGlobalNavigator
 import at.stefanirndorfer.mobtt.feature.players.impl.navigation.playersGraph
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.consent.UsageConsentSheet
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.SettingsSheet
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import org.koin.androidx.compose.koinViewModel
 
+/** [incomingLinks] are the links the app is opened with; a Fixture link opens that Fixture on top of Home. */
 @Composable
-fun MobTTApp(modifier: Modifier = Modifier) {
+fun MobTTApp(
+    modifier: Modifier = Modifier,
+    incomingLinks: Flow<IncomingLink> = emptyFlow(),
+    fixtureLinkViewModel: FixtureLinkViewModel = koinViewModel(),
+) {
     val navigator = remember { BackStackGlobalNavigator(HomeDestination) }
+    LaunchedEffect(incomingLinks) {
+        incomingLinks.collect { fixtureLinkViewModel.onAction(FixtureLinkAction.LinkReceived(it.url, it.coldStart)) }
+    }
+    ObserveAsEvents(fixtureLinkViewModel.events) { event ->
+        when (event) {
+            is FixtureLinkEvent.OpenFixture -> navigator.navigateToFixtureFromLink(event.fixtureId)
+        }
+    }
     BatScreenScaffold(
         modifier = modifier,
         topBar = {

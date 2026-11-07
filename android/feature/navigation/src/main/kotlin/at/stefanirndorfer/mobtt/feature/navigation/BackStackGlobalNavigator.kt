@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.navigation3.runtime.NavKey
 
-class BackStackGlobalNavigator(startDestination: GlobalAppDestination) : GlobalNavigator {
+class BackStackGlobalNavigator(private val startDestination: GlobalAppDestination) : GlobalNavigator {
     val backStack = mutableStateListOf<NavKey>(startDestination)
 
     var isSettingsOpen by mutableStateOf(false)
@@ -24,6 +24,12 @@ class BackStackGlobalNavigator(startDestination: GlobalAppDestination) : GlobalN
             return
         }
         backStack.clear()
+        backStack.add(destination)
+    }
+
+    override fun navigateFromStart(destination: GlobalAppDestination) {
+        backStack.clear()
+        backStack.add(startDestination)
         backStack.add(destination)
     }
 
