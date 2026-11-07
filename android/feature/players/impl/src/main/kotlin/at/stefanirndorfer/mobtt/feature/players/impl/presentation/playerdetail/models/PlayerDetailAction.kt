@@ -6,4 +6,8 @@ sealed interface PlayerDetailAction {
     data object ClubClicked : PlayerDetailAction
 
     data class TeamClicked(val teamId: String) : PlayerDetailAction
+
+    data object ClubRetryClicked : PlayerDetailAction
+
+    data object TeamsRetryClicked : PlayerDetailAction
 }

@@ -1,5 +1,6 @@
 package at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models
 
+import at.stefanirndorfer.mobtt.core.ui.section.SectionUi
 import at.stefanirndorfer.mobtt.domain.club.Fixture
 import at.stefanirndorfer.mobtt.domain.club.LeagueDetail
 import at.stefanirndorfer.mobtt.domain.user.PlayerRankingRow

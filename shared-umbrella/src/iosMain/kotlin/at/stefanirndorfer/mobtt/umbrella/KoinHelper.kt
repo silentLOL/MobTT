@@ -24,9 +24,12 @@ import at.stefanirndorfer.mobtt.domain.club.ListClubPlayersUseCase
 import at.stefanirndorfer.mobtt.domain.club.ListLeaguesUseCase
 import at.stefanirndorfer.mobtt.domain.club.SearchClubsUseCase
 import at.stefanirndorfer.mobtt.domain.club.TeamDetail
+import at.stefanirndorfer.mobtt.domain.player.Player
 import at.stefanirndorfer.mobtt.domain.user.AddFavoriteUseCase
-import at.stefanirndorfer.mobtt.domain.user.GetPlayerDetailUseCase
+import at.stefanirndorfer.mobtt.domain.user.GetPlayerClubUseCase
 import at.stefanirndorfer.mobtt.domain.user.GetPlayerRankingUseCase
+import at.stefanirndorfer.mobtt.domain.user.GetPlayerTeamsUseCase
+import at.stefanirndorfer.mobtt.domain.user.GetPlayerUseCase
 import at.stefanirndorfer.mobtt.domain.user.ListLeaguePlayersUseCase
 import at.stefanirndorfer.mobtt.domain.user.MyTeams
 import at.stefanirndorfer.mobtt.domain.user.ObserveFavoritesUseCase
@@ -37,8 +40,9 @@ import at.stefanirndorfer.mobtt.domain.user.ObserveUpcomingFixturesUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveUsageConsentPromptUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveUsageConsentUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveUserContextUseCase
-import at.stefanirndorfer.mobtt.domain.user.PlayerDetail
+import at.stefanirndorfer.mobtt.domain.user.PlayerClub
 import at.stefanirndorfer.mobtt.domain.user.PlayerRankingRow
+import at.stefanirndorfer.mobtt.domain.user.PlayerTeams
 import at.stefanirndorfer.mobtt.domain.user.RememberPlayerUseCase
 import at.stefanirndorfer.mobtt.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.mobtt.domain.user.ResolvedFavorite
@@ -48,6 +52,7 @@ import at.stefanirndorfer.mobtt.domain.user.SetUsageConsentUseCase
 import at.stefanirndorfer.mobtt.domain.user.UserContext
 import kotlinx.coroutines.flow.Flow
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import org.koin.core.component.inject
 
 object KoinHelper : KoinComponent {
@@ -91,7 +96,11 @@ object KoinHelper : KoinComponent {
 
     suspend fun loadFixtureDetail(fixtureId: String): DataResult<FixtureDetail?> = dataResult { getGetFixtureDetailUseCase().invoke(fixtureId) }
 
-    suspend fun loadPlayerDetail(playerId: String): DataResult<PlayerDetail?> = dataResult { getGetPlayerDetailUseCase().invoke(playerId) }
+    suspend fun loadPlayer(playerId: String): DataResult<Player?> = dataResult { get<GetPlayerUseCase>().invoke(playerId) }
+
+    suspend fun loadPlayerClub(player: Player): DataResult<PlayerClub?> = dataResult { get<GetPlayerClubUseCase>().invoke(player) }
+
+    suspend fun loadPlayerTeams(player: Player): DataResult<PlayerTeams> = dataResult { get<GetPlayerTeamsUseCase>().invoke(player) }
 
     suspend fun loadPlayerRanking(leagueId: String): DataResult<List<PlayerRankingRow>> = dataResult { getGetPlayerRankingUseCase().invoke(leagueId) }
 
@@ -203,11 +212,6 @@ object KoinHelper : KoinComponent {
 
     fun getGetPlayerRankingUseCase(): GetPlayerRankingUseCase {
         val useCase: GetPlayerRankingUseCase by inject()
-        return useCase
-    }
-
-    fun getGetPlayerDetailUseCase(): GetPlayerDetailUseCase {
-        val useCase: GetPlayerDetailUseCase by inject()
         return useCase
     }
 

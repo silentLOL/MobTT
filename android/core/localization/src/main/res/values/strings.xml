@@ -17,6 +17,7 @@
     <string name="core_close_button_cd">Close</string>
     <string name="core_section_expanded_cd">Expanded</string>
     <string name="core_section_collapsed_cd">Collapsed</string>
+    <string name="core_section_retry_button">Try again</string>
     <string name="home_empty_title">Welcome to MobTT</string>
     <string name="home_empty_body">Your results, form and next Fixture will show up here.</string>
     <string name="club_empty_title">No Club yet</string>
@@ -172,6 +173,10 @@
     <string name="player_detail_age_group_label">Age group</string>
     <string name="player_detail_club_title">Club</string>
     <string name="player_detail_teams_title">Teams</string>
+    <string name="player_detail_club_loading_cd">Loading Club</string>
+    <string name="player_detail_club_unavailable_body">The Club can\'t be loaded right now.</string>
+    <string name="player_detail_teams_loading_cd">Loading Teams</string>
+    <string name="player_detail_teams_unavailable_body">The Teams can\'t be loaded right now.</string>
     <string name="player_detail_loading_cd">Loading Player</string>
     <string name="player_detail_unavailable_title">This Player isn\'t available</string>
     <string name="player_detail_unavailable_body">We couldn\'t find this Player. Try again later.</string>

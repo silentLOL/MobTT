@@ -5,12 +5,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import at.stefanirndorfer.mobtt.core.localization.R
+import at.stefanirndorfer.mobtt.core.ui.section.LazySectionView
+import at.stefanirndorfer.mobtt.core.ui.section.SectionMessage
+import at.stefanirndorfer.mobtt.core.ui.section.SectionUi
 import at.stefanirndorfer.mobtt.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.mobtt.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatList
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatListRow
 import at.stefanirndorfer.mobtt.domain.user.PlayerRankingRow
-import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.SectionUi
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.playerRankingLongNamesPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.playerRankingPreview
 

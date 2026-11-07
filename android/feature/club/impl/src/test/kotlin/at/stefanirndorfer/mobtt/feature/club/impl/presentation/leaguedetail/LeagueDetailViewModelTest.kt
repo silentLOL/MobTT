@@ -2,6 +2,7 @@ package at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail
 
 import at.stefanirndorfer.mobtt.core.analytics.LoggedEvent
 import at.stefanirndorfer.mobtt.core.analytics.RecordingAnalyticsTracker
+import at.stefanirndorfer.mobtt.core.ui.section.SectionUi
 import at.stefanirndorfer.mobtt.domain.club.Fixture
 import at.stefanirndorfer.mobtt.domain.club.FixtureStatus
 import at.stefanirndorfer.mobtt.domain.club.GetLeagueDetailUseCase
@@ -17,7 +18,6 @@ import at.stefanirndorfer.mobtt.feature.club.impl.presentation.FakeClubData
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailAction
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailEvent
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailUiState
-import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.SectionUi
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

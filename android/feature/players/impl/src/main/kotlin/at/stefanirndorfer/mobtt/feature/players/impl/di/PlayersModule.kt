@@ -8,5 +8,5 @@ import org.koin.dsl.module
 
 val playersModule = module {
     viewModel { params -> PlayersViewModel(params.get<PlayersMode>(), get(), get(), get(), get(), get(), get()) }
-    viewModel { params -> PlayerDetailViewModel(params.get<String>(), get(), get(), get(), get(), get()) }
+    viewModel { params -> PlayerDetailViewModel(params.get<String>(), get(), get(), get(), get(), get(), get(), get()) }
 }

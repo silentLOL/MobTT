@@ -2,6 +2,7 @@ package at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail
 
 import at.stefanirndorfer.mobtt.core.analytics.LoggedEvent
 import at.stefanirndorfer.mobtt.core.analytics.RecordingAnalyticsTracker
+import at.stefanirndorfer.mobtt.core.ui.section.SectionUi
 import at.stefanirndorfer.mobtt.domain.club.Association
 import at.stefanirndorfer.mobtt.domain.club.AssociationRepository
 import at.stefanirndorfer.mobtt.domain.club.Club
@@ -15,15 +16,19 @@ import at.stefanirndorfer.mobtt.domain.player.PlayerRepository
 import at.stefanirndorfer.mobtt.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.mobtt.domain.user.Favorite
 import at.stefanirndorfer.mobtt.domain.user.FavoritesRepository
-import at.stefanirndorfer.mobtt.domain.user.GetPlayerDetailUseCase
+import at.stefanirndorfer.mobtt.domain.user.GetPlayerClubUseCase
+import at.stefanirndorfer.mobtt.domain.user.GetPlayerTeamsUseCase
+import at.stefanirndorfer.mobtt.domain.user.GetPlayerUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveFavoritesUseCase
-import at.stefanirndorfer.mobtt.domain.user.PlayerDetail
+import at.stefanirndorfer.mobtt.domain.user.PlayerClub
+import at.stefanirndorfer.mobtt.domain.user.PlayerTeams
 import at.stefanirndorfer.mobtt.domain.user.RemoveFavoriteUseCase
 import at.stefanirndorfer.mobtt.domain.user.UserSelection
 import at.stefanirndorfer.mobtt.domain.user.UserSelectionRepository
 import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.models.PlayerDetailAction
 import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.models.PlayerDetailEvent
 import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.models.PlayerDetailUiState
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -45,7 +50,10 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
-/** XTTV stand-in: every read throws [DataUnavailable] while [unavailable] is set. */
+/**
+ * XTTV stand-in: every read throws [DataUnavailable] while [unavailable] is set; [clubUnavailable] and
+ * [teamsUnavailable] fail only the Club or the Team list.
+ */
 private class FakePlayerData :
     PlayerRepository,
     ClubRepository,
@@ -54,6 +62,12 @@ private class FakePlayerData :
     FavoritesRepository,
     UserSelectionRepository {
     var unavailable = false
+    var clubUnavailable = false
+    var teamsUnavailable = false
+    var teamListReads = 0
+
+    /** While not completed, the Club and the Team list never answer. */
+    var sectionsGate: CompletableDeferred<Unit>? = null
     var players = listOf(Player("p1", "Anna Gruber", "c1"))
     var teams = listOf(Team("t1", "TTC Olympic 1", "c1", "l1"))
     var lineup = listOf(LineupPlayer("p1", "Anna Gruber"))
@@ -70,7 +84,13 @@ private class FakePlayerData :
 
     override suspend fun getLeaguePlayers(leagueId: String): List<Player> = read(players)
 
-    override suspend fun getClub(id: String): Club? = read(Club("c1", "TTC Olympic", "a1").takeIf { it.id == id })
+    override suspend fun getClub(id: String): Club? {
+        sectionsGate?.await()
+        if (clubUnavailable) {
+            throw DataUnavailable("XTTV unreachable")
+        }
+        return read(Club("c1", "TTC Olympic", "a1").takeIf { it.id == id })
+    }
 
     override suspend fun searchClubs(query: String): List<Club> = read(emptyList())
 
@@ -80,7 +100,14 @@ private class FakePlayerData :
 
     override suspend fun getTeam(id: String): Team? = read(teams.firstOrNull { it.id == id })
 
-    override suspend fun getTeams(clubId: String): List<Team> = read(teams.filter { it.clubId == clubId })
+    override suspend fun getTeams(clubId: String): List<Team> {
+        teamListReads++
+        sectionsGate?.await()
+        if (teamsUnavailable) {
+            throw DataUnavailable("XTTV unreachable")
+        }
+        return read(teams.filter { it.clubId == clubId })
+    }
 
     override suspend fun getLineup(teamId: String): List<LineupPlayer> = read(lineup)
 
@@ -109,7 +136,9 @@ class PlayerDetailViewModelTest {
     private fun TestScope.viewModel(playerId: String = "p1"): PlayerDetailViewModel {
         val viewModel = PlayerDetailViewModel(
             playerId = playerId,
-            getPlayerDetail = GetPlayerDetailUseCase(data, data, data, data),
+            getPlayer = GetPlayerUseCase(data),
+            getPlayerClub = GetPlayerClubUseCase(data, data),
+            getPlayerTeams = GetPlayerTeamsUseCase(data),
             observeFavorites = ObserveFavoritesUseCase(data),
             addFavorite = AddFavoriteUseCase(data, data),
             removeFavorite = RemoveFavoriteUseCase(data),
@@ -120,11 +149,24 @@ class PlayerDetailViewModelTest {
     }
 
     @Test
-    fun aResolvablePlayerShowsNameClubAndAssociation() = runTest {
+    fun aResolvablePlayerShowsNameClubAssociationAndTeams() = runTest {
         val state = assertIs<PlayerDetailUiState.Content>(viewModel().uiState.value)
 
-        assertEquals(PlayerDetail(Player("p1", "Anna Gruber", "c1"), "TTC Olympic", "WTTV", data.teams), state.detail)
+        assertEquals(Player("p1", "Anna Gruber", "c1"), state.player)
+        assertEquals(SectionUi.Loaded(PlayerClub("TTC Olympic", "WTTV")), state.club)
+        assertEquals(SectionUi.Loaded(PlayerTeams(data.teams)), state.teams)
         assertFalse(state.isFavorite)
+    }
+
+    @Test
+    fun theScreenShowsThePlayerBeforeItsSectionsLoad() = runTest {
+        data.sectionsGate = CompletableDeferred()
+
+        val state = assertIs<PlayerDetailUiState.Content>(viewModel().uiState.value)
+
+        assertEquals("Anna Gruber", state.player.name)
+        assertEquals(SectionUi.Loading, state.club)
+        assertEquals(SectionUi.Loading, state.teams)
     }
 
     @Test
@@ -137,6 +179,51 @@ class PlayerDetailViewModelTest {
         data.unavailable = true
 
         assertEquals(PlayerDetailUiState.Unavailable, viewModel().uiState.value)
+    }
+
+    @Test
+    fun anUnreachableClubLeavesTheTeamsLoaded() = runTest {
+        data.clubUnavailable = true
+
+        val state = assertIs<PlayerDetailUiState.Content>(viewModel().uiState.value)
+
+        assertEquals(SectionUi.Unavailable, state.club)
+        assertEquals(SectionUi.Loaded(PlayerTeams(data.teams)), state.teams)
+    }
+
+    @Test
+    fun unreachableTeamsLeaveTheClubLoaded() = runTest {
+        data.teamsUnavailable = true
+
+        val state = assertIs<PlayerDetailUiState.Content>(viewModel().uiState.value)
+
+        assertEquals(SectionUi.Loaded(PlayerClub("TTC Olympic", "WTTV")), state.club)
+        assertEquals(SectionUi.Unavailable, state.teams)
+    }
+
+    @Test
+    fun retryingTheClubReloadsOnlyTheClub() = runTest {
+        data.clubUnavailable = true
+        val viewModel = viewModel()
+        val teamReadsBefore = data.teamListReads
+
+        data.clubUnavailable = false
+        viewModel.onAction(PlayerDetailAction.ClubRetryClicked)
+
+        val state = assertIs<PlayerDetailUiState.Content>(viewModel.uiState.value)
+        assertEquals(SectionUi.Loaded(PlayerClub("TTC Olympic", "WTTV")), state.club)
+        assertEquals(teamReadsBefore, data.teamListReads)
+    }
+
+    @Test
+    fun retryingTheTeamsReloadsThem() = runTest {
+        data.teamsUnavailable = true
+        val viewModel = viewModel()
+
+        data.teamsUnavailable = false
+        viewModel.onAction(PlayerDetailAction.TeamsRetryClicked)
+
+        assertEquals(SectionUi.Loaded(PlayerTeams(data.teams)), assertIs<PlayerDetailUiState.Content>(viewModel.uiState.value).teams)
     }
 
     @Test

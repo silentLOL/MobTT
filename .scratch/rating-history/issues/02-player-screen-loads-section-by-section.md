@@ -1,5 +1,5 @@
 ---
-status: ready-for-agent
+status: resolved
 blocked_by: []
 ---
 
@@ -9,13 +9,14 @@ blocked_by: []
 
 **Blocked by:** None (can start immediately)
 
-- [ ] The domain offers the Player, the Club with its Association, and the Teams with the lineup-derived Rating and age group as separate calls
-- [ ] The screen draws at once with the name and the Favorite star; the Favorite star works while sections load
-- [ ] Club, Teams and the stat row each show their own loading and Unavailable states, with a retry that leaves the other sections alone
-- [ ] An unknown Player still shows the Player-unavailable state
-- [ ] The League screen's section state type is reused on each platform, lifted where both screens can share it
-- [ ] Domain tests for the split calls; Android and iOS ViewModel tests cover: drawn before any section loads, each section failing and retrying on its own, unknown Player
-- [ ] Previews show each section loading and unavailable
-- [ ] `./gradlew check` and the iOS build pass
+- [x] The domain offers the Player, the Club with its Association, and the Teams with the lineup-derived Rating and age group as separate calls
+- [x] The screen draws at once with the name and the Favorite star; the Favorite star works while sections load
+- [x] Club, Teams and the stat row each show their own loading and Unavailable states, with a retry that leaves the other sections alone
+- [x] An unknown Player still shows the Player-unavailable state
+- [x] The League screen's section state type is reused on each platform, lifted where both screens can share it
+- [x] Domain tests for the split calls; Android and iOS ViewModel tests cover: drawn before any section loads, each section failing and retrying on its own, unknown Player
+- [x] Previews show each section loading and unavailable
+- [x] `./gradlew check` and the iOS build pass
 
 ## Comments
+- 2026-11-07: Split into `GetPlayerUseCase`, `GetPlayerClubUseCase` and `GetPlayerTeamsUseCase`; `GetPlayerDetailUseCase` is gone. The section state and views moved to `:android:core:ui` (`section` package) and `iosApp/Common/Section`, now with an optional per-section retry; the League screen uses them from there. The stat row draws once the Teams have loaded.

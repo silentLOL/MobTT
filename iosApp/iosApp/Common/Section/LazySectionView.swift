@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// A collapsible League section that shows its own loading and failure while open; `content` draws the loaded value.
+/// A collapsible section that shows its own loading and failure while open; `content` draws the loaded value.
 struct LazySectionView<Value: Equatable, Content: View>: View {
     let title: String
     let isExpanded: Bool
@@ -8,6 +8,7 @@ struct LazySectionView<Value: Equatable, Content: View>: View {
     let section: SectionUiState<Value>
     let loadingLabel: String
     let unavailableText: String
+    var onRetry: (() -> Void)?
     @ViewBuilder let content: (Value) -> Content
 
     var body: some View {
@@ -16,24 +17,8 @@ struct LazySectionView<Value: Equatable, Content: View>: View {
                 withAnimation(.easeInOut(duration: 0.2)) { onToggle() }
             }
             if isExpanded {
-                Group {
-                    switch section {
-                    case .loading:
-                        ProgressView()
-                            .tint(BatColor.brand)
-                            .accessibilityLabel(Text(loadingLabel))
-                            .frame(maxWidth: .infinity)
-                            .padding(BatSpacing.md)
-                    case .unavailable:
-                        Text(unavailableText)
-                            .batTextStyle(BatTypography.body)
-                            .foregroundStyle(BatColor.textSecondary)
-                            .onAppear { AccessibilityNotification.Announcement(unavailableText).post() }
-                    case .loaded(let value):
-                        VStack(alignment: .leading, spacing: 0) { content(value) }
-                    }
-                }
-                .transition(.opacity)
+                SectionStateView(section: section, loadingLabel: loadingLabel, unavailableText: unavailableText, onRetry: onRetry, content: content)
+                    .transition(.opacity)
             }
         }
     }

@@ -9,6 +9,7 @@ import at.stefanirndorfer.mobtt.core.analytics.NoOpAnalyticsTracker
 import at.stefanirndorfer.mobtt.core.analytics.detailOpened
 import at.stefanirndorfer.mobtt.core.analytics.screenView
 import at.stefanirndorfer.mobtt.core.ui.RetryTrigger
+import at.stefanirndorfer.mobtt.core.ui.section.lazySection
 import at.stefanirndorfer.mobtt.domain.club.GetLeagueDetailUseCase
 import at.stefanirndorfer.mobtt.domain.club.GetLeagueFixturesUseCase
 import at.stefanirndorfer.mobtt.domain.user.GetPlayerRankingUseCase
@@ -17,9 +18,7 @@ import at.stefanirndorfer.mobtt.domain.user.UserContext
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailAction
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailEvent
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailUiState
-import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.SectionUi
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,14 +26,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -68,9 +64,9 @@ class LeagueDetailViewModel(
 
     private val rankingExpanded = MutableStateFlow(false)
 
-    private val fixtures = lazySection(fixturesExpanded) { getLeagueFixtures(leagueId) }
+    private val fixtures = retry.lazySection(fixturesExpanded) { getLeagueFixtures(leagueId) }
 
-    private val ranking = lazySection(rankingExpanded) { getPlayerRanking(leagueId) }
+    private val ranking = retry.lazySection(rankingExpanded) { getPlayerRanking(leagueId) }
 
     val uiState: StateFlow<LeagueDetailUiState> = combine(
         retry.restarting {
@@ -126,32 +122,6 @@ class LeagueDetailViewModel(
     private fun openPlayer(playerId: String) {
         analytics.detailOpened(AnalyticsKind.PLAYER, playerId, from = AnalyticsScreen.LEAGUE_DETAIL)
         viewModelScope.launch { eventChannel.send(LeagueDetailEvent.OpenPlayer(playerId)) }
-    }
-
-    /**
-     * Waits until [expanded] first turns true, then loads with [load] and keeps the result when the section is closed
-     * again. A retry reloads it only once it has been opened.
-     */
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private fun <T> lazySection(expanded: Flow<Boolean>, load: suspend () -> T): Flow<SectionUi<T>> = expanded
-        .filter { it }
-        .take(1)
-        .flatMapLatest {
-            retry.restarting {
-                flow {
-                    emit(SectionUi.Loading)
-                    emit(loadSection(load))
-                }
-            }
-        }
-        .onStart { emit(SectionUi.Loading) }
-
-    private suspend fun <T> loadSection(load: suspend () -> T): SectionUi<T> = try {
-        SectionUi.Loaded(load())
-    } catch (e: CancellationException) {
-        throw e
-    } catch (e: Exception) {
-        SectionUi.Unavailable
     }
 
     private suspend fun load(): LeagueDetailUiState = try {

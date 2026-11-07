@@ -22,6 +22,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.stefanirndorfer.mobtt.core.localization.R
 import at.stefanirndorfer.mobtt.core.ui.ObserveAsEvents
+import at.stefanirndorfer.mobtt.core.ui.section.LazySectionView
+import at.stefanirndorfer.mobtt.core.ui.section.SectionMessage
+import at.stefanirndorfer.mobtt.core.ui.section.SectionUi
 import at.stefanirndorfer.mobtt.designsystem.icon.BatIcon
 import at.stefanirndorfer.mobtt.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.mobtt.designsystem.preview.BatScreenPreview
@@ -36,7 +39,6 @@ import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailAction
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailEvent
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailUiState
-import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.SectionUi
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.leagueDetailEmptyPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.leagueDetailLongNamesPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.leagueDetailPreview
@@ -45,9 +47,7 @@ import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.prev
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.playerRankingLongNamesPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.playerRankingPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.views.FixtureRowView
-import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.views.LazySectionView
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.views.PlayerRankingSectionView
-import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.views.SectionMessage
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.views.TeamFixturesToggleView
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf

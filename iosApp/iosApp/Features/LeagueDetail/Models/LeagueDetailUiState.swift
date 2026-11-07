@@ -34,13 +34,6 @@ struct PlayerRankingRowUi: Identifiable, Equatable {
     let gamesPlayed: Int
 }
 
-/// A League section loaded on its own the first time the user opens it, so the League never waits for it.
-enum SectionUiState<Value: Equatable>: Equatable {
-    case loading
-    case unavailable
-    case loaded(Value)
-}
-
 struct LeagueDetailUi: Equatable {
     let leagueName: String
     let standings: [StandingRowUi]

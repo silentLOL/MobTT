@@ -79,33 +79,86 @@ private struct ContentView: View {
                         action: { onAction(.favoriteClicked) }
                     )
                 }
-                if detail.rcPoints != nil || detail.ageGroup != nil {
-                    HStack(spacing: BatSpacing.lg) {
-                        if let rcPoints = detail.rcPoints {
-                            BatStatView(label: String(localized: "player_detail_rc_label"), value: String(rcPoints))
-                        }
-                        if let ageGroup = detail.ageGroup {
-                            BatStatView(label: String(localized: "player_detail_age_group_label"), value: ageGroup)
-                        }
+                if case .loaded(let teams) = detail.teams {
+                    StatRowView(teams: teams)
+                }
+                ClubSectionView(club: detail.club, onAction: onAction)
+                TeamsSectionView(teams: detail.teams, onAction: onAction)
+            }
+            .padding(BatSpacing.lg)
+        }
+    }
+}
+
+private struct StatRowView: View {
+    let teams: PlayerTeamsUi
+
+    var body: some View {
+        if teams.rcPoints != nil || teams.ageGroup != nil {
+            HStack(spacing: BatSpacing.lg) {
+                if let rcPoints = teams.rcPoints {
+                    BatStatView(label: String(localized: "player_detail_rc_label"), value: String(rcPoints))
+                }
+                if let ageGroup = teams.ageGroup {
+                    BatStatView(label: String(localized: "player_detail_age_group_label"), value: ageGroup)
+                }
+            }
+        }
+    }
+}
+
+/// Hidden once loaded when XTTV no longer resolves the Club.
+private struct ClubSectionView: View {
+    let club: SectionUiState<PlayerClubUi?>
+    let onAction: (PlayerDetailAction) -> Void
+
+    var body: some View {
+        if club != .loaded(nil) {
+            VStack(alignment: .leading, spacing: BatSpacing.sm) {
+                BatSectionHeaderView(title: String(localized: "player_detail_club_title"))
+                SectionStateView(
+                    section: club,
+                    loadingLabel: String(localized: "player_detail_club_loading_cd"),
+                    unavailableText: String(localized: "player_detail_club_unavailable_body"),
+                    onRetry: { onAction(.clubRetryClicked) }
+                ) { loaded in
+                    if let loaded {
+                        LinkRowView(title: loaded.clubName, detail: loaded.associationName) { onAction(.clubClicked) }
                     }
                 }
-                if let clubName = detail.clubName {
+            }
+        }
+    }
+}
+
+/// Hidden once loaded when no lineup of the Club lists the Player.
+private struct TeamsSectionView: View {
+    let teams: SectionUiState<PlayerTeamsUi>
+    let onAction: (PlayerDetailAction) -> Void
+
+    var body: some View {
+        if !isLoadedEmpty {
+            VStack(alignment: .leading, spacing: BatSpacing.sm) {
+                BatSectionHeaderView(title: String(localized: "player_detail_teams_title"))
+                SectionStateView(
+                    section: teams,
+                    loadingLabel: String(localized: "player_detail_teams_loading_cd"),
+                    unavailableText: String(localized: "player_detail_teams_unavailable_body"),
+                    onRetry: { onAction(.teamsRetryClicked) }
+                ) { loaded in
                     VStack(alignment: .leading, spacing: BatSpacing.sm) {
-                        BatSectionHeaderView(title: String(localized: "player_detail_club_title"))
-                        LinkRowView(title: clubName, detail: detail.associationName) { onAction(.clubClicked) }
-                    }
-                }
-                if !detail.teams.isEmpty {
-                    VStack(alignment: .leading, spacing: BatSpacing.sm) {
-                        BatSectionHeaderView(title: String(localized: "player_detail_teams_title"))
-                        ForEach(detail.teams) { team in
+                        ForEach(loaded.teams) { team in
                             LinkRowView(title: team.name, detail: nil) { onAction(.teamClicked(id: team.id)) }
                         }
                     }
                 }
             }
-            .padding(BatSpacing.lg)
         }
+    }
+
+    private var isLoadedEmpty: Bool {
+        if case .loaded(let loaded) = teams { return loaded.teams.isEmpty }
+        return false
     }
 }
 
@@ -152,6 +205,18 @@ private struct LinkRowView: View {
 #Preview("Favorite") {
     BatPreviewMatrix {
         PlayerDetailScreen(state: .content(PlayerDetailPreviewData.favorite), onAction: { _ in })
+    }
+}
+
+#Preview("Sections loading") {
+    BatPreviewMatrix {
+        PlayerDetailScreen(state: .content(PlayerDetailPreviewData.sectionsLoading), onAction: { _ in })
+    }
+}
+
+#Preview("Sections unavailable") {
+    BatPreviewMatrix {
+        PlayerDetailScreen(state: .content(PlayerDetailPreviewData.sectionsUnavailable), onAction: { _ in })
     }
 }
 
