@@ -19,3 +19,4 @@ blocked_by: [3]
 - [ ] `./gradlew check` and the iOS build pass
 
 ## Comments
+- 2026-11-07: `RankedPlayer.ratingsCentralId` and its XTTV mapping (with tests) were done in ticket 03; the first two criteria here only need checking. To keep `deb` on the fake, bind the Ratings Central module in `:core:di` for every environment except `deb` (the fake directory is bound before `initKoin`'s modules, so anything bound there wins over it).

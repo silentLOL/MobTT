@@ -119,7 +119,7 @@ class FakeDirectory(private val clock: Clock = Clock.System) :
 
     /**
      * Every League Player once, under the first of their Club's Teams in that League, ranked in name order. The
-     * last Player stays unranked, so the bottom of the list is shown too.
+     * last Player stays unranked, so the bottom of the list is shown too, and has no Ratings Central entry.
      */
     override suspend fun getPlayerRanking(leagueId: String): List<RankedPlayer> {
         val leagueTeams = teams.filter { it.leagueId == leagueId }
@@ -134,6 +134,7 @@ class FakeDirectory(private val clock: Clock = Clock.System) :
                 gamesPlayed = 6 - index % 3,
                 matchesWon = (12 - index * 2).coerceAtLeast(0),
                 matchesLost = 2 + index,
+                ratingsCentralId = "fake-${player.id}".takeIf { index < ranked.lastIndex || ranked.size == 1 },
             )
         }
     }

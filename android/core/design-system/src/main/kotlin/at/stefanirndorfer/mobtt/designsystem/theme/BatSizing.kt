@@ -20,4 +20,7 @@ class BatSizing(
     val listTrailingColumn: Dp = 64.dp,
     val borderFocused: Dp = 2.dp,
     val maxContentWidth: Dp = 672.dp,
+    val chartHeight: Dp = 200.dp,
+    val chartLine: Dp = 2.dp,
+    val chartDot: Dp = 6.dp,
 )

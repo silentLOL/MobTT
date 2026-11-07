@@ -10,4 +10,8 @@ sealed interface PlayerDetailAction {
     data object ClubRetryClicked : PlayerDetailAction
 
     data object TeamsRetryClicked : PlayerDetailAction
+
+    data object RatingHistoryToggled : PlayerDetailAction
+
+    data object RatingHistoryRetryClicked : PlayerDetailAction
 }

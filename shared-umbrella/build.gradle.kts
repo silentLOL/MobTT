@@ -13,6 +13,7 @@ kotlin {
             export(project(":domain:user"))
             export(project(":domain:club"))
             export(project(":domain:player"))
+            export(project(":domain:rating"))
         }
     }
 
@@ -26,5 +27,6 @@ kotlin {
         api(project(":domain:user"))
         api(project(":domain:club"))
         api(project(":domain:player"))
+        api(project(":domain:rating"))
     }
 }

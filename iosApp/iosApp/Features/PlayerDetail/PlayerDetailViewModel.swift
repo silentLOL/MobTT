@@ -12,12 +12,18 @@ final class PlayerDetailViewModel {
     @ObservationIgnored private var player: Player?
     @ObservationIgnored private var clubTask: Task<Void, Never>?
     @ObservationIgnored private var teamsTask: Task<Void, Never>?
+    @ObservationIgnored private var ratingsCentralId: String?
+    @ObservationIgnored private var ratingsCentralIdTask: Task<Void, Never>?
+    @ObservationIgnored private var ratingHistoryTask: Task<Void, Never>?
     @ObservationIgnored private var favorites: Set<AnyHashable> = []
 
     @ObservationIgnored private let eventStream = AsyncStream<PlayerDetailEvent>.makeStream()
     @ObservationIgnored private let loadPlayer: (String) async throws -> DataResult
     @ObservationIgnored private let loadClub: (Player) async throws -> DataResult
     @ObservationIgnored private let loadTeams: (Player) async throws -> DataResult
+    @ObservationIgnored private let ratingHistoryEnabled: Bool
+    @ObservationIgnored private let loadRatingsCentralId: (String, [String]) async throws -> DataResult
+    @ObservationIgnored private let loadRatingHistory: (String) async throws -> DataResult
     @ObservationIgnored private let observeFavorites: any AsyncSequence<Set<AnyHashable>, Never>
     @ObservationIgnored private let addFavorite: (Favorite) async throws -> Void
     @ObservationIgnored private let removeFavorite: (Favorite) async throws -> Void
@@ -29,6 +35,9 @@ final class PlayerDetailViewModel {
         loadPlayer: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadPlayer(playerId: $0) },
         loadClub: @escaping (Player) async throws -> DataResult = { try await KoinHelper.shared.loadPlayerClub(player: $0) },
         loadTeams: @escaping (Player) async throws -> DataResult = { try await KoinHelper.shared.loadPlayerTeams(player: $0) },
+        ratingHistoryEnabled: Bool = KoinHelper.shared.isRatingHistoryEnabled(),
+        loadRatingsCentralId: @escaping (String, [String]) async throws -> DataResult = { try await KoinHelper.shared.loadRatingsCentralId(playerId: $0, leagueIds: $1) },
+        loadRatingHistory: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadRatingHistory(ratingsCentralId: $0) },
         observeFavorites: any AsyncSequence<Set<AnyHashable>, Never> = KoinHelper.shared.getObserveFavoritesUseCase().invoke(),
         addFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getAddFavoriteUseCase().invoke(favorite: $0) },
         removeFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getRemoveFavoriteUseCase().invoke(favorite: $0) },
@@ -38,6 +47,9 @@ final class PlayerDetailViewModel {
         self.loadPlayer = loadPlayer
         self.loadClub = loadClub
         self.loadTeams = loadTeams
+        self.ratingHistoryEnabled = ratingHistoryEnabled
+        self.loadRatingsCentralId = loadRatingsCentralId
+        self.loadRatingHistory = loadRatingHistory
         self.observeFavorites = observeFavorites
         self.addFavorite = addFavorite
         self.removeFavorite = removeFavorite
@@ -81,6 +93,10 @@ final class PlayerDetailViewModel {
             startClub()
         case .teamsRetryClicked:
             startTeams()
+        case .ratingHistoryToggled:
+            toggleRatingHistory()
+        case .ratingHistoryRetryClicked:
+            startRatingHistory()
         }
     }
 
@@ -140,8 +156,49 @@ final class PlayerDetailViewModel {
         teamsTask?.cancel()
         teamsTask = Task {
             updateContent { $0.teams = .loading }
-            guard let section = await loadSection({ try await self.loadTeams(player) }, map: { (teams: PlayerTeams?) in teams?.toUi() ?? PlayerTeamsUi() }) else { return }
-            updateContent { $0.teams = section }
+            let result = try? await loadTeams(player)
+            guard !Task.isCancelled else { return }
+            guard let result, case .success(let success) = onEnum(of: result), let teams = success.value as? PlayerTeams else {
+                updateContent { $0.teams = .unavailable }
+                return
+            }
+            updateContent { $0.teams = .loaded(teams.toUi()) }
+            findRatingsCentralId(player: player, leagueIds: teams.teams.map(\.leagueId))
+        }
+    }
+
+    /// The Rating history is a bonus: a ranking XTTV cannot answer only hides it. Ratings Central is asked only once the section is opened.
+    private func findRatingsCentralId(player: Player, leagueIds: [String]) {
+        guard ratingHistoryEnabled, ratingsCentralId == nil, !leagueIds.isEmpty else { return }
+        ratingsCentralIdTask?.cancel()
+        ratingsCentralIdTask = Task {
+            guard let result = try? await loadRatingsCentralId(player.id, leagueIds), !Task.isCancelled else { return }
+            guard case .success(let success) = onEnum(of: result), let id = success.value as? String else { return }
+            ratingsCentralId = id
+            updateContent { $0.ratingHistory = RatingHistorySectionUi() }
+        }
+    }
+
+    private func toggleRatingHistory() {
+        guard case .content(let detail) = uiState, var section = detail.ratingHistory else { return }
+        section.isExpanded.toggle()
+        updateContent { $0.ratingHistory = section }
+        guard section.isExpanded else { return }
+        analytics.ratingHistoryOpened()
+        if ratingHistoryTask == nil {
+            startRatingHistory()
+        }
+    }
+
+    private func startRatingHistory() {
+        guard let ratingsCentralId else { return }
+        ratingHistoryTask?.cancel()
+        ratingHistoryTask = Task {
+            updateContent { $0.ratingHistory?.history = .loading }
+            guard let section = await loadSection({ try await self.loadRatingHistory(ratingsCentralId) }, map: { (history: RatingHistory?) in
+                history?.toUi() ?? RatingHistoryUi(updates: [])
+            }) else { return }
+            updateContent { $0.ratingHistory?.history = section }
         }
     }
 
@@ -173,6 +230,20 @@ final class PlayerDetailViewModel {
 private extension PlayerClub {
     func toUi() -> PlayerClubUi {
         PlayerClubUi(clubName: clubName, associationName: associationCode)
+    }
+}
+
+private extension RatingHistory {
+    func toUi() -> RatingHistoryUi {
+        RatingHistoryUi(updates: updates.map { update in
+            RatingUpdateUi(
+                date: Date(timeIntervalSince1970: TimeInterval(update.date.toEpochDays()) * 86_400),
+                name: update.name,
+                points: Int(update.after.points),
+                deviation: Int(update.after.deviation),
+                pointChange: Int(update.pointChange)
+            )
+        })
     }
 }
 

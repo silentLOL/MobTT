@@ -110,10 +110,18 @@ class XttvPlayerRepositoryTest {
 
         assertEquals(
             listOf(
-                RankedPlayer(Player("3680", "Reinhard Blauensteiner", "99"), rank = 1, teamId = "2271", gamesPlayed = 21, matchesWon = 52, matchesLost = 2),
-                RankedPlayer(Player("62323", "Beispiel Spieler", "112"), rank = null, teamId = "54094", gamesPlayed = 1, matchesWon = 0, matchesLost = 2),
+                RankedPlayer(Player("3680", "Reinhard Blauensteiner", "99"), rank = 1, teamId = "2271", gamesPlayed = 21, matchesWon = 52, matchesLost = 2, ratingsCentralId = "27808"),
+                RankedPlayer(Player("62323", "Beispiel Spieler", "112"), rank = null, teamId = "54094", gamesPlayed = 1, matchesWon = 0, matchesLost = 2, ratingsCentralId = "28424"),
             ),
             recorded.getPlayerRanking("70"),
         )
+    }
+
+    @Test
+    fun anEmptyRatingsCentralIdMapsToNone() = runTest {
+        val withoutId = XttvSamples.SINGLE_STANDINGS_RECORDED.replace("<player_rc_id>28424</player_rc_id>", "<player_rc_id></player_rc_id>")
+        val recorded = XttvPlayerRepository(XttvApi(FakeXttv(mapOf(STANDINGS_70_URL to withoutId)).client), XttvSamples.HOST, picked)
+
+        assertEquals(listOf("27808", null), recorded.getPlayerRanking("70").map { it.ratingsCentralId })
     }
 }

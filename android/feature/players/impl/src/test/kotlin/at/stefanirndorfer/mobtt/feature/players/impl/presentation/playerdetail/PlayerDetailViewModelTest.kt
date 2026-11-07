@@ -13,6 +13,14 @@ import at.stefanirndorfer.mobtt.domain.club.Team
 import at.stefanirndorfer.mobtt.domain.club.TeamRepository
 import at.stefanirndorfer.mobtt.domain.player.Player
 import at.stefanirndorfer.mobtt.domain.player.PlayerRepository
+import at.stefanirndorfer.mobtt.domain.player.RankedPlayer
+import at.stefanirndorfer.mobtt.domain.rating.GetRatingHistoryUseCase
+import at.stefanirndorfer.mobtt.domain.rating.GetRatingsCentralIdUseCase
+import at.stefanirndorfer.mobtt.domain.rating.Rating
+import at.stefanirndorfer.mobtt.domain.rating.RatingHistory
+import at.stefanirndorfer.mobtt.domain.rating.RatingHistoryAvailability
+import at.stefanirndorfer.mobtt.domain.rating.RatingHistoryRepository
+import at.stefanirndorfer.mobtt.domain.rating.RatingUpdate
 import at.stefanirndorfer.mobtt.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.mobtt.domain.user.Favorite
 import at.stefanirndorfer.mobtt.domain.user.FavoritesRepository
@@ -28,6 +36,7 @@ import at.stefanirndorfer.mobtt.domain.user.UserSelectionRepository
 import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.models.PlayerDetailAction
 import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.models.PlayerDetailEvent
 import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.models.PlayerDetailUiState
+import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.models.RatingHistorySectionUi
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,12 +51,14 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.LocalDate
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -66,6 +77,9 @@ private class FakePlayerData :
     var teamsUnavailable = false
     var teamListReads = 0
 
+    var ratingsCentralId: String? = "163468"
+    val rankingReads = mutableListOf<String>()
+
     /** While not completed, the Club and the Team list never answer. */
     var sectionsGate: CompletableDeferred<Unit>? = null
     var players = listOf(Player("p1", "Anna Gruber", "c1"))
@@ -83,6 +97,11 @@ private class FakePlayerData :
     override suspend fun getPlayer(id: String): Player? = read(players.firstOrNull { it.id == id })
 
     override suspend fun getLeaguePlayers(leagueId: String): List<Player> = read(players)
+
+    override suspend fun getPlayerRanking(leagueId: String): List<RankedPlayer> {
+        rankingReads += leagueId
+        return read(players.map { RankedPlayer(it, 1, "t1", 4, 3, 1, ratingsCentralId) })
+    }
 
     override suspend fun getClub(id: String): Club? {
         sectionsGate?.await()
@@ -122,10 +141,27 @@ private class FakePlayerData :
     override suspend fun saveSelection(selection: UserSelection) = Unit
 }
 
+/** Ratings Central stand-in: fails while [unavailable] is set. */
+private class FakeRatingHistories : RatingHistoryRepository {
+    var unavailable = false
+    val reads = mutableListOf<String>()
+    val history = RatingHistory(listOf(RatingUpdate(LocalDate(2026, 10, 25), "OÖTTV KW 43", Rating(447, 66), Rating(519, 86), 72)))
+
+    override suspend fun getRatingHistory(ratingsCentralId: String): RatingHistory {
+        reads += ratingsCentralId
+        if (unavailable) {
+            throw DataUnavailable("Ratings Central unreachable")
+        }
+        return history
+    }
+}
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class PlayerDetailViewModelTest {
     private val data = FakePlayerData()
     private val analytics = RecordingAnalyticsTracker()
+    private val histories = FakeRatingHistories()
+    private var ratingHistoryEnabled = true
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -139,6 +175,8 @@ class PlayerDetailViewModelTest {
             getPlayer = GetPlayerUseCase(data),
             getPlayerClub = GetPlayerClubUseCase(data, data),
             getPlayerTeams = GetPlayerTeamsUseCase(data),
+            getRatingsCentralId = GetRatingsCentralIdUseCase(data),
+            getRatingHistory = GetRatingHistoryUseCase(histories, RatingHistoryAvailability(ratingHistoryEnabled)),
             observeFavorites = ObserveFavoritesUseCase(data),
             addFavorite = AddFavoriteUseCase(data, data),
             removeFavorite = RemoveFavoriteUseCase(data),
@@ -318,5 +356,95 @@ class PlayerDetailViewModelTest {
         viewModel.onAction(PlayerDetailAction.FavoriteClicked)
 
         assertEquals(1, analytics.events.size)
+    }
+
+    private fun PlayerDetailViewModel.content() = assertIs<PlayerDetailUiState.Content>(uiState.value)
+
+    @Test
+    fun aPlayerWithARatingsCentralEntryShowsTheRatingHistoryCollapsedWithoutAskingForIt() = runTest {
+        val viewModel = viewModel()
+
+        assertEquals(RatingHistorySectionUi(), viewModel.content().ratingHistory)
+        assertEquals(emptyList(), histories.reads)
+    }
+
+    @Test
+    fun theRatingsCentralEntryIsLookedUpInTheLeagueOfThePlayersTeam() = runTest {
+        viewModel()
+
+        assertEquals(listOf("l1"), data.rankingReads)
+    }
+
+    @Test
+    fun openingTheRatingHistoryLoadsIt() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onAction(PlayerDetailAction.RatingHistoryToggled)
+
+        assertEquals(RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(histories.history)), viewModel.content().ratingHistory)
+        assertEquals(listOf("163468"), histories.reads)
+    }
+
+    @Test
+    fun closingAndReopeningTheRatingHistoryKeepsItWithoutAskingAgain() = runTest {
+        val viewModel = viewModel()
+
+        repeat(3) { viewModel.onAction(PlayerDetailAction.RatingHistoryToggled) }
+
+        assertEquals(SectionUi.Loaded(histories.history), viewModel.content().ratingHistory?.history)
+        assertEquals(listOf("163468"), histories.reads)
+    }
+
+    @Test
+    fun anUnreachableRatingHistoryIsUnavailableAndRetryReloadsIt() = runTest {
+        histories.unavailable = true
+        val viewModel = viewModel()
+        viewModel.onAction(PlayerDetailAction.RatingHistoryToggled)
+        assertEquals(SectionUi.Unavailable, viewModel.content().ratingHistory?.history)
+
+        histories.unavailable = false
+        viewModel.onAction(PlayerDetailAction.RatingHistoryRetryClicked)
+
+        assertEquals(SectionUi.Loaded(histories.history), viewModel.content().ratingHistory?.history)
+    }
+
+    @Test
+    fun aPlayerWithoutARatingsCentralEntryHasNoRatingHistory() = runTest {
+        data.ratingsCentralId = null
+
+        assertNull(viewModel().content().ratingHistory)
+    }
+
+    @Test
+    fun aPlayerWithoutTeamsHasNoRatingHistory() = runTest {
+        data.teams = emptyList()
+
+        assertNull(viewModel().content().ratingHistory)
+        assertEquals(emptyList(), data.rankingReads)
+    }
+
+    @Test
+    fun theRatingHistoryWaitsForTheTeams() = runTest {
+        data.sectionsGate = CompletableDeferred()
+
+        assertNull(viewModel().content().ratingHistory)
+        assertEquals(emptyList(), data.rankingReads)
+    }
+
+    @Test
+    fun withRatingHistoriesSwitchedOffNothingIsShownOrAsked() = runTest {
+        ratingHistoryEnabled = false
+
+        assertNull(viewModel().content().ratingHistory)
+        assertEquals(emptyList(), data.rankingReads)
+    }
+
+    @Test
+    fun openingTheRatingHistoryIsReportedEachTimeButClosingIsNot() = runTest {
+        val viewModel = viewModel()
+
+        repeat(3) { viewModel.onAction(PlayerDetailAction.RatingHistoryToggled) }
+
+        assertEquals(listOf(LoggedEvent("rating_history_opened", emptyMap()), LoggedEvent("rating_history_opened", emptyMap())), analytics.events.drop(1))
     }
 }

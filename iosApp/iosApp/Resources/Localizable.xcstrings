@@ -3264,6 +3264,108 @@
           }
         }
       }
+    },
+    "player_detail_rating_history_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ratingverlauf"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rating history"
+          }
+        }
+      }
+    },
+    "player_detail_rating_history_loading_cd": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ratingverlauf wird geladen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading Rating history"
+          }
+        }
+      }
+    },
+    "player_detail_rating_history_unavailable_body": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Ratingverlauf kann gerade nicht geladen werden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Rating history can't be loaded right now."
+          }
+        }
+      }
+    },
+    "player_detail_rating_history_empty_body": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch kein Ratingverlauf."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Rating history yet."
+          }
+        }
+      }
+    },
+    "player_detail_rating_history_chart_cd %lld %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ratingverlauf, %1$lld ±%2$lld nach der letzten Auswertung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rating history, %1$lld ±%2$lld after the last Rating update"
+          }
+        }
+      }
+    },
+    "player_detail_rating_history_single_body %lld %lld %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld ±%2$lld nach der ersten Auswertung am %3$@."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld ±%2$lld after the first Rating update on %3$@."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -15,4 +15,7 @@ enum BatSizing {
     static let listTrailingColumn: CGFloat = 64
     static let borderFocused: CGFloat = 2
     static let maxContentWidth: CGFloat = 672
+    static let chartHeight: CGFloat = 200
+    static let chartLine: CGFloat = 2
+    static let chartDot: CGFloat = 6
 }

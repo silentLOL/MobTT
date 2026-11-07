@@ -6,6 +6,7 @@ import at.stefanirndorfer.mobtt.domain.club.FixtureRepository
 import at.stefanirndorfer.mobtt.domain.club.LeagueRepository
 import at.stefanirndorfer.mobtt.domain.club.TeamRepository
 import at.stefanirndorfer.mobtt.domain.player.PlayerRepository
+import at.stefanirndorfer.mobtt.domain.rating.RatingHistoryRepository
 import org.koin.dsl.binds
 import org.koin.dsl.module
 
@@ -19,4 +20,5 @@ val fakeDirectoryModule = module {
         LeagueRepository::class,
         FixtureRepository::class,
     )
+    single<RatingHistoryRepository> { FakeRatingHistories() }
 }

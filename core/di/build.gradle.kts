@@ -11,6 +11,7 @@ kotlin {
         implementation(project(":core:xttv"))
         implementation(project(":domain:app"))
         implementation(project(":domain:club"))
+        implementation(project(":domain:rating"))
         implementation(project(":domain:user"))
     }
 }

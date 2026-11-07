@@ -36,4 +36,21 @@ enum PlayerDetailPreviewData {
         club: .loaded(PlayerClubUi(clubName: "Union Tischtennisclub St. Pölten Nord-West", associationName: "NÖTTV")),
         teams: .loaded(PlayerTeamsUi(teams: [PlayerTeamUi(id: "stpoelten-1", name: "Union Tischtennisclub St. Pölten Nord-West 1")]))
     )
+
+    /// Ten weekly Rating updates, as a new Player's first season reads.
+    static let ratingHistory = RatingHistoryUi(updates: [331, 381, 400, 447, 519, 498, 540, 562, 551, 590].enumerated().map { index, points in
+        RatingUpdateUi(
+            date: Date(timeIntervalSince1970: 1_757_116_800 + Double(index) * 7 * 86_400),
+            name: "OÖTTV Meisterschaft 2026/27",
+            points: points,
+            deviation: max(162 - index * 12, 70),
+            pointChange: index == 0 ? points - 1450 : 0
+        )
+    })
+
+    static var withRatingHistory: PlayerDetailUi {
+        var detail = loaded
+        detail.ratingHistory = RatingHistorySectionUi(isExpanded: true, history: .loaded(ratingHistory))
+        return detail
+    }
 }

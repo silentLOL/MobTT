@@ -26,6 +26,28 @@ struct PlayerDetailUi: Equatable {
     var isFavorite = false
     var club = SectionUiState<PlayerClubUi?>.loading
     var teams = SectionUiState<PlayerTeamsUi>.loading
+    /// Nil while hidden: until the Teams name the Player's Ratings Central entry, for good without one, and in builds that may not show Rating histories.
+    var ratingHistory: RatingHistorySectionUi?
+}
+
+/// The Rating after one Rating update, so Ratings Central's unrated default before the first one never appears.
+struct RatingUpdateUi: Equatable {
+    let date: Date
+    let name: String
+    let points: Int
+    let deviation: Int
+    let pointChange: Int
+}
+
+/// A Player's Rating updates, oldest first.
+struct RatingHistoryUi: Equatable {
+    let updates: [RatingUpdateUi]
+}
+
+/// The collapsed Rating history section. `history` loads the first time the section is opened.
+struct RatingHistorySectionUi: Equatable {
+    var isExpanded = false
+    var history = SectionUiState<RatingHistoryUi>.loading
 }
 
 enum PlayerDetailUiState: Equatable {

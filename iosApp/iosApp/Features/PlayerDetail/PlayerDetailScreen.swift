@@ -84,6 +84,13 @@ private struct ContentView: View {
                 }
                 ClubSectionView(club: detail.club, onAction: onAction)
                 TeamsSectionView(teams: detail.teams, onAction: onAction)
+                if let ratingHistory = detail.ratingHistory {
+                    RatingHistorySectionView(
+                        section: ratingHistory,
+                        onToggle: { onAction(.ratingHistoryToggled) },
+                        onRetry: { onAction(.ratingHistoryRetryClicked) }
+                    )
+                }
             }
             .padding(BatSpacing.lg)
         }
@@ -205,6 +212,12 @@ private struct LinkRowView: View {
 #Preview("Favorite") {
     BatPreviewMatrix {
         PlayerDetailScreen(state: .content(PlayerDetailPreviewData.favorite), onAction: { _ in })
+    }
+}
+
+#Preview("Rating history") {
+    BatPreviewMatrix {
+        PlayerDetailScreen(state: .content(PlayerDetailPreviewData.withRatingHistory), onAction: { _ in })
     }
 }
 

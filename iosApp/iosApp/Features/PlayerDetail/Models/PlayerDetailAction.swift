@@ -4,6 +4,8 @@ enum PlayerDetailAction {
     case teamClicked(id: String)
     case clubRetryClicked
     case teamsRetryClicked
+    case ratingHistoryToggled
+    case ratingHistoryRetryClicked
 }
 
 enum PlayerDetailEvent: Equatable {

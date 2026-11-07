@@ -364,7 +364,8 @@ struct LeagueDetailViewModelTests {
             teamId: "t1",
             gamesPlayed: 4,
             matchesWon: 6,
-            matchesLost: 2
+            matchesLost: 2,
+            ratingsCentralId: nil
         )
     }
 

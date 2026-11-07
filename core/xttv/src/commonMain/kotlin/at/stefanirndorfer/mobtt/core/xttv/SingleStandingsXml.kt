@@ -27,6 +27,7 @@ internal data class SinglePlayerXml(
     @XmlSerialName("games_played") @XmlElement(true) val gamesPlayed: Int = 0,
     @XmlSerialName("matches_won") @XmlElement(true) val matchesWon: Int = 0,
     @XmlSerialName("matches_lost") @XmlElement(true) val matchesLost: Int = 0,
+    @XmlSerialName("player_rc_id") @XmlElement(true) val ratingsCentralId: String = "",
 ) {
     fun toDomain() = Player(
         id = playerId,
@@ -42,5 +43,6 @@ internal data class SinglePlayerXml(
         gamesPlayed = gamesPlayed,
         matchesWon = matchesWon,
         matchesLost = matchesLost,
+        ratingsCentralId = ratingsCentralId.trim().takeIf { it.isNotEmpty() },
     )
 }

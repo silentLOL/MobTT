@@ -9,4 +9,7 @@ data class AppConfig(val environment: Environment, val appVersion: String, val x
 
     /** Every environment that talks to XTTV reads production; XTTV has no staging server (ADR-0007). */
     val xttvHost: String = "https://oettv.xttv.at"
+
+    /** Off for `beta` and `prod` until Ratings Central agrees to the app reading its history export (ADR-0010). */
+    val ratingHistoryEnabled: Boolean = environment == Environment.Deb || environment == Environment.Dev
 }

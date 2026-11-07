@@ -25,6 +25,9 @@ import at.stefanirndorfer.mobtt.domain.club.ListLeaguesUseCase
 import at.stefanirndorfer.mobtt.domain.club.SearchClubsUseCase
 import at.stefanirndorfer.mobtt.domain.club.TeamDetail
 import at.stefanirndorfer.mobtt.domain.player.Player
+import at.stefanirndorfer.mobtt.domain.rating.GetRatingHistoryUseCase
+import at.stefanirndorfer.mobtt.domain.rating.GetRatingsCentralIdUseCase
+import at.stefanirndorfer.mobtt.domain.rating.RatingHistory
 import at.stefanirndorfer.mobtt.domain.user.AddFavoriteUseCase
 import at.stefanirndorfer.mobtt.domain.user.GetPlayerClubUseCase
 import at.stefanirndorfer.mobtt.domain.user.GetPlayerRankingUseCase
@@ -101,6 +104,14 @@ object KoinHelper : KoinComponent {
     suspend fun loadPlayerClub(player: Player): DataResult<PlayerClub?> = dataResult { get<GetPlayerClubUseCase>().invoke(player) }
 
     suspend fun loadPlayerTeams(player: Player): DataResult<PlayerTeams> = dataResult { get<GetPlayerTeamsUseCase>().invoke(player) }
+
+    /** False in builds that may not show Rating histories (ADR-0010); the Player screen then never asks for one. */
+    fun isRatingHistoryEnabled(): Boolean = get<GetRatingHistoryUseCase>().isEnabled
+
+    /** Success with nil when the Player has no Ratings Central entry. */
+    suspend fun loadRatingsCentralId(playerId: String, leagueIds: List<String>): DataResult<String?> = dataResult { get<GetRatingsCentralIdUseCase>().invoke(playerId, leagueIds) }
+
+    suspend fun loadRatingHistory(ratingsCentralId: String): DataResult<RatingHistory> = dataResult { get<GetRatingHistoryUseCase>().invoke(ratingsCentralId) }
 
     suspend fun loadPlayerRanking(leagueId: String): DataResult<List<PlayerRankingRow>> = dataResult { getGetPlayerRankingUseCase().invoke(leagueId) }
 

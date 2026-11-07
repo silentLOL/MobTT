@@ -48,6 +48,8 @@ import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.p
 import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.preview.playerDetailPreview
 import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.preview.playerDetailSectionsLoadingPreview
 import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.preview.playerDetailSectionsUnavailablePreview
+import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.preview.playerDetailWithRatingHistoryPreview
+import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.views.RatingHistorySectionView
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -131,6 +133,13 @@ private fun ContentView(
         (state.teams as? SectionUi.Loaded)?.value?.let { StatRowView(it) }
         ClubSectionView(club = state.club, onAction = onAction)
         TeamsSectionView(teams = state.teams, onAction = onAction)
+        state.ratingHistory?.let { section ->
+            RatingHistorySectionView(
+                section = section,
+                onToggle = { onAction(PlayerDetailAction.RatingHistoryToggled) },
+                onRetry = { onAction(PlayerDetailAction.RatingHistoryRetryClicked) },
+            )
+        }
     }
 }
 
@@ -272,6 +281,14 @@ private fun PlayerDetailScreenLoadedPreview() {
 private fun PlayerDetailScreenFavoritePreview() {
     BatPreviewSurface {
         PlayerDetailScreen(state = playerDetailPreview.copy(isFavorite = true), onAction = {})
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun PlayerDetailScreenRatingHistoryPreview() {
+    BatPreviewSurface {
+        PlayerDetailScreen(state = playerDetailWithRatingHistoryPreview, onAction = {})
     }
 }
 

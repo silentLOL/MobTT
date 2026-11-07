@@ -10,6 +10,7 @@ object AnalyticsEvent {
     const val SEARCH_PERFORMED = "search_performed"
     const val CONSENT_CHANGED = "consent_changed"
     const val SETTING_CHANGED = "setting_changed"
+    const val RATING_HISTORY_OPENED = "rating_history_opened"
 }
 
 object AnalyticsParam {
@@ -71,6 +72,8 @@ fun AnalyticsTracker.detailOpened(kind: String, id: String, from: String) = logE
     AnalyticsEvent.DETAIL_OPENED,
     mapOf(AnalyticsParam.KIND to kind, AnalyticsParam.ID to id, AnalyticsParam.FROM to from),
 )
+
+fun AnalyticsTracker.ratingHistoryOpened() = logEvent(AnalyticsEvent.RATING_HISTORY_OPENED, emptyMap())
 
 /** Sends the length of [query], never the text. */
 fun AnalyticsTracker.searchPerformed(screen: String, query: String) = logEvent(

@@ -177,6 +177,12 @@
     <string name="player_detail_club_unavailable_body">Der Verein kann gerade nicht geladen werden.</string>
     <string name="player_detail_teams_loading_cd">Mannschaften werden geladen</string>
     <string name="player_detail_teams_unavailable_body">Die Mannschaften können gerade nicht geladen werden.</string>
+    <string name="player_detail_rating_history_title">Ratingverlauf</string>
+    <string name="player_detail_rating_history_loading_cd">Ratingverlauf wird geladen</string>
+    <string name="player_detail_rating_history_unavailable_body">Der Ratingverlauf kann gerade nicht geladen werden.</string>
+    <string name="player_detail_rating_history_empty_body">Noch kein Ratingverlauf.</string>
+    <string name="player_detail_rating_history_chart_cd">Ratingverlauf, %1$d ±%2$d nach der letzten Auswertung</string>
+    <string name="player_detail_rating_history_single_body">%1$d ±%2$d nach der ersten Auswertung am %3$s.</string>
     <string name="player_detail_loading_cd">Spieler wird geladen</string>
     <string name="player_detail_unavailable_title">Dieser Spieler ist nicht verfügbar</string>
     <string name="player_detail_unavailable_body">Wir konnten diesen Spieler nicht finden. Versuche es später erneut.</string>
