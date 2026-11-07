@@ -2755,6 +2755,23 @@
         }
       }
     },
+    "fixture_detail_share_image_get_app": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hol dir MobTT"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get MobTT"
+          }
+        }
+      }
+    },
     "league_detail_ranking_title": {
       "extractionState": "manual",
       "localizations": {

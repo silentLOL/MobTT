@@ -1,21 +1,23 @@
 import SwiftUI
 import UIKit
 
-/// The system share sheet for a text, presented as a sheet. Mail and other apps that take a subject get `subject`.
+/// The system share sheet for a text and an optional picture, presented as a sheet. Mail and other apps that take a subject get `subject`.
 struct ShareSheetView: UIViewControllerRepresentable {
     let content: ShareContent
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: [ShareTextItem(content: content)], applicationActivities: nil)
+        let items: [Any] = (content.image.map { [$0] } ?? []) + [ShareTextItem(content: content)]
+        return UIActivityViewController(activityItems: items, applicationActivities: nil)
     }
 
     func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
 }
 
-/// A text to share, with the subject for apps that use one, as a sheet's item.
+/// A text to share, with the subject for apps that use one and an optional picture, as a sheet's item.
 struct ShareContent: Identifiable, Equatable {
     let subject: String
     let text: String
+    var image: UIImage?
     var id: String { subject + "\n" + text }
 }
 

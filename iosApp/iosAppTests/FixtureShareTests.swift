@@ -109,4 +109,18 @@ struct FixtureShareTests {
             https://links.mobtt.example/f/464821
             """)
     }
+
+    @Test func theCaptionNextToTheImageIsThePairingTheResultTheKickoffAndTheLink() {
+        let german = Locale(identifier: "de")
+
+        let caption = FixtureShare.caption(detail: finished, link: link, locale: german, timeZone: vienna)
+
+        #expect(caption.subject == "Hagenberg 3 – Freistadt 6")
+        #expect(caption.text == """
+            Hagenberg 3 – Freistadt 6  6 : 4
+            \(kickoff(german))
+
+            https://links.mobtt.example/f/464821
+            """)
+    }
 }

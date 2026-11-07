@@ -3,6 +3,7 @@ import SwiftUI
 struct FixtureDetailRoute: View {
     @State private var viewModel: FixtureDetailViewModel
     @State private var share: ShareContent?
+    @Environment(\.displayScale) private var displayScale
 
     let onOpenTeam: (_ teamId: String) -> Void
 
@@ -19,7 +20,7 @@ struct FixtureDetailRoute: View {
                 for await event in viewModel.events {
                     switch event {
                     case .openTeam(let teamId): onOpenTeam(teamId)
-                    case .share(let detail, let link): share = FixtureShare.content(detail: detail, link: link)
+                    case .share(let detail, let link): share = shareContent(detail: detail, link: link)
                     }
                 }
             }
@@ -27,6 +28,18 @@ struct FixtureDetailRoute: View {
                 ShareSheetView(content: content)
                     .presentationDetents([.medium, .large])
             }
+    }
+}
+
+extension FixtureDetailRoute {
+    /// The picture with a short caption; the full text alone when the picture cannot be drawn.
+    private func shareContent(detail: FixtureDetailUi, link: String) -> ShareContent {
+        guard let image = FixtureShareImageView.render(detail: detail, link: link, scale: displayScale) else {
+            return FixtureShare.content(detail: detail, link: link)
+        }
+        var caption = FixtureShare.caption(detail: detail, link: link)
+        caption.image = image
+        return caption
     }
 }
 
