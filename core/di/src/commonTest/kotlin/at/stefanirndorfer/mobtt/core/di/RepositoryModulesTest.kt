@@ -1,10 +1,13 @@
 package at.stefanirndorfer.mobtt.core.di
 
+import at.stefanirndorfer.mobtt.core.fakedirectory.FakeRatingHistories
 import at.stefanirndorfer.mobtt.core.network.AppConfig
 import at.stefanirndorfer.mobtt.core.network.Environment
+import at.stefanirndorfer.mobtt.core.ratingscentral.RatingsCentralHistories
 import at.stefanirndorfer.mobtt.core.xttv.XttvAssociationRepository
 import at.stefanirndorfer.mobtt.domain.club.Association
 import at.stefanirndorfer.mobtt.domain.club.AssociationRepository
+import at.stefanirndorfer.mobtt.domain.rating.RatingHistoryRepository
 import org.koin.core.module.Module
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
@@ -24,7 +27,7 @@ class RepositoryModulesTest {
         val koin = koinApplication {
             modules(module { single { config } })
             modules(appModules.toList())
-            modules(repositoryModules())
+            modules(repositoryModules(environment))
         }.koin
         return koin.getOrNull<AssociationRepository>().also { koin.close() }
     }
@@ -43,5 +46,27 @@ class RepositoryModulesTest {
         Environment.entries.forEach { environment ->
             assertIs<XttvAssociationRepository>(associationRepository(environment, fake), environment.key)
         }
+    }
+
+    private fun ratingHistories(environment: Environment): RatingHistoryRepository? {
+        val config = AppConfig(environment, appVersion = "1.0")
+        val koin = koinApplication {
+            modules(module { single { config } })
+            modules(module { single<RatingHistoryRepository> { FakeRatingHistories() } })
+            modules(repositoryModules(environment))
+        }.koin
+        return koin.getOrNull<RatingHistoryRepository>().also { koin.close() }
+    }
+
+    @Test
+    fun everyEnvironmentButDebReadsRatingsCentral() {
+        Environment.entries.filter { it != Environment.Deb }.forEach { environment ->
+            assertIs<RatingsCentralHistories>(ratingHistories(environment), environment.key)
+        }
+    }
+
+    @Test
+    fun debKeepsTheFakeRatingHistories() {
+        assertIs<FakeRatingHistories>(ratingHistories(Environment.Deb))
     }
 }

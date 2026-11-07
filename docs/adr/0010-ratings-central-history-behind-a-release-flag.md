@@ -15,7 +15,7 @@ Forces:
 - The feature is wanted before an answer from Ratings Central can be expected.
 
 ## Decision
-We will read Ratings Central's CSV history export in a new `:core:ratings-central` module, only when a user opens the Rating history section for one Player, hold each history in memory for 24 hours, and identify the app in the `User-Agent`. The app draws the chart natively. We will ask Ratings Central's maintainers for permission, and an `AppConfig` flag keeps the section on only for `deb` and `dev` until they agree. If they refuse, we drop the in-app history and link to the Player's graph page instead.
+We will read Ratings Central's CSV history export in a new `:core:ratings-central` module, only when a user opens the Rating history section for one Player, hold each history in memory for 24 hours, and identify the app in the `User-Agent`. The app draws the chart natively. `deb` keeps a fake source so the section works offline. We will ask Ratings Central's maintainers for permission, and an `AppConfig` flag keeps the section on only for `deb` and `dev` until they agree. If they refuse, we drop the in-app history and link to the Player's graph page instead.
 
 ## Options Considered
 
@@ -60,7 +60,7 @@ We will read Ratings Central's CSV history export in a new `:core:ratings-centra
 Option A gives the experience the feature exists for, and the flag means building it costs nothing if the answer is no: the domain and chart stay, and only the data source is swapped for Option C's link. Option B saves a few weeks at the price of using a volunteer service against its stated wishes. Option D has the same permission problem as A with none of the benefits.
 
 ## Consequences
-- Easier: turning the feature on for release is one `AppConfig` value per platform once permission arrives.
+- Easier: turning the feature on for release is one shared change once permission arrives: `AppConfig` derives the flag from the environment.
 - Easier: the domain sees a `RatingHistoryRepository`, so another source (an official API, or a field from XTTV) can replace the CSV without touching the screens.
 - Harder: a second external format to watch. A non-CSV response is treated as unavailable and logged.
 - Revisit when Ratings Central answers: on yes, enable `beta` and `prod` and follow any request rate or credit they ask for; on no, replace the section with Option C and mark this ADR superseded.

@@ -8,10 +8,17 @@ kotlin {
         implementation(project(":core:network"))
         implementation(project(":core:platform"))
         implementation(project(":core:preferences"))
+        implementation(project(":core:ratings-central"))
         implementation(project(":core:xttv"))
         implementation(project(":domain:app"))
         implementation(project(":domain:club"))
         implementation(project(":domain:rating"))
         implementation(project(":domain:user"))
+    }
+}
+
+kotlin {
+    sourceSets.commonTest.dependencies {
+        implementation(project(":core:fake-directory"))
     }
 }

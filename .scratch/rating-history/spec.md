@@ -83,7 +83,7 @@ Android and iOS ship together.
 ### Release and measurement
 
 43. As the maintainer, I want the Rating history section enabled only in `deb` and `dev` builds until Ratings Central agrees, so that release builds do not use their data without permission
-44. As the maintainer, I want to turn the section on for `beta` and `prod` by changing one build setting per platform, so that the release after their answer is small
+44. As the maintainer, I want to turn the section on for `beta` and `prod` with one shared change, so that the release after their answer is small
 45. As the maintainer, I want requests to Ratings Central to identify the app, so that its maintainers can see and contact us
 46. As the maintainer, I want an analytics event when the Rating history section is opened, so that I know whether the feature is used
 47. As the maintainer, I want an analytics event when the info sheet is opened, so that I know whether the explanation is needed
@@ -146,7 +146,7 @@ Android and iOS ship together.
 
 ### Release toggle
 
-- `AppConfig` gains a flag for the Rating history, set per environment on each platform (ADR-0006): on for `deb` and `dev`, off for `beta` and `prod`.
+- `AppConfig` gains a flag for the Rating history, derived from the environment like `xttvHost`: on for `deb` and `dev`, off for `beta` and `prod`.
 - With the flag off, the section is never shown and Ratings Central is never called.
 - `deb` binds a fake `RatingHistoryRepository` from `:core:fake-directory` with a few Players' histories, including one with a single Rating update and one with none.
 

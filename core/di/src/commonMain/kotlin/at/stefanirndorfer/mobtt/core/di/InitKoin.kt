@@ -1,9 +1,11 @@
 package at.stefanirndorfer.mobtt.core.di
 
 import at.stefanirndorfer.mobtt.core.network.AppConfig
+import at.stefanirndorfer.mobtt.core.network.Environment
 import at.stefanirndorfer.mobtt.core.network.networkModule
 import at.stefanirndorfer.mobtt.core.platform.platformModule
 import at.stefanirndorfer.mobtt.core.preferences.preferencesModule
+import at.stefanirndorfer.mobtt.core.ratingscentral.ratingsCentralModule
 import at.stefanirndorfer.mobtt.core.xttv.xttvModule
 import at.stefanirndorfer.mobtt.domain.app.di.appDomainModule
 import at.stefanirndorfer.mobtt.domain.club.DataUnavailable
@@ -46,13 +48,16 @@ private object NoRatingHistories : RatingHistoryRepository {
 }
 
 /**
- * The repositories that read XTTV, in every environment. Bound after the app's own modules so XTTV wins over any
- * fake the app still binds for data XTTV does not serve yet.
+ * The repositories that read XTTV, in every environment, and Ratings Central, in every environment but `deb`, which
+ * keeps its fake Rating histories. Bound after the app's own modules so these win over any fake the app binds.
  */
-internal fun repositoryModules(): List<Module> = listOf(xttvModule)
+internal fun repositoryModules(environment: Environment): List<Module> = listOfNotNull(
+    xttvModule,
+    ratingsCentralModule.takeIf { environment != Environment.Deb },
+)
 
 fun initKoin(config: AppConfig, appDeclaration: KoinAppDeclaration = {}): KoinApplication = startKoin {
     modules(fallbackModule)
     appDeclaration()
-    modules(sharedModules + configModule(config) + networkModule(config) + repositoryModules())
+    modules(sharedModules + configModule(config) + networkModule(config) + repositoryModules(config.environment))
 }
