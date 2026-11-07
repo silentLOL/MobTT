@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import at.stefanirndorfer.mobtt.designsystem.icon.BatIcon
 import at.stefanirndorfer.mobtt.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.mobtt.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.mobtt.designsystem.theme.BatDesign
@@ -51,14 +53,27 @@ fun BatHeroPill(text: String, modifier: Modifier = Modifier) {
     )
 }
 
-/** The pill on a row as tall as a touch target, so a trailing action overlaid at the top end never covers the text below. */
+/**
+ * The pill on a row as tall as a touch target, so a trailing action overlaid at the top end never covers the text below.
+ * A [trailing] action sits at the row's end instead, for a card whose content below is not merged for accessibility.
+ */
 @Composable
-fun BatHeroPillRow(text: String, modifier: Modifier = Modifier) {
+fun BatHeroPillRow(
+    text: String,
+    modifier: Modifier = Modifier,
+    trailing: (@Composable () -> Unit)? = null,
+) {
     Row(
-        modifier = modifier.heightIn(min = BatDesign.sizing.minTouchTarget),
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = BatDesign.sizing.minTouchTarget),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         BatHeroPill(text = text)
+        if (trailing != null) {
+            Spacer(modifier = Modifier.weight(1f))
+            trailing()
+        }
     }
 }
 
@@ -102,6 +117,19 @@ private fun BatHeroCardPreview() {
                 BatStatView(label = "ÖTTV rank", value = "#45", onHero = true, modifier = Modifier.weight(1f))
                 BatStatView(label = "Singles", value = "34:12", onHero = true, modifier = Modifier.weight(1f))
             }
+        }
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun BatHeroCardTrailingActionPreview() {
+    BatPreviewSurface {
+        BatHeroCard(modifier = Modifier.fillMaxWidth()) {
+            BatHeroPillRow(text = "Fixture") {
+                BatIconButton(icon = BatIcon.Share, contentDescription = "Share Fixture", onClick = {})
+            }
+            Text(text = "6 : 4", color = BatDesign.colors.onHero, style = BatDesign.typography.display)
         }
     }
 }

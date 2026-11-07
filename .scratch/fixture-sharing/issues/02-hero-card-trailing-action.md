@@ -1,5 +1,5 @@
 ---
-status: ready-for-agent
+status: resolved
 blocked_by: []
 ---
 
@@ -9,8 +9,12 @@ blocked_by: []
 
 **Blocked by:** None (can start immediately)
 
-- [ ] Android: the hero card's pill row takes an optional trailing slot, aligned to the end, with the pill keeping its place on the start side
-- [ ] iOS: `BatHeroCardView` takes the same optional trailing content
-- [ ] Without the slot, every existing hero card looks exactly as before
-- [ ] Previews show the card with an icon action in light, dark and large text on both platforms; Roborazzi screenshots record them on Android
-- [ ] `./gradlew check` and the iOS build pass
+- [x] Android: the hero card's pill row takes an optional trailing slot, aligned to the end, with the pill keeping its place on the start side
+- [x] iOS: `BatHeroCardView` takes the same optional trailing content
+- [x] Without the slot, every existing hero card looks exactly as before
+- [x] Previews show the card with an icon action in light, dark and large text on both platforms; Roborazzi screenshots record them on Android
+- [x] `./gradlew check` and the iOS build pass
+
+## Comments
+
+- 2026-11-07: The slot lives on the pill row (`BatHeroPillRow` / `BatHeroPillRowView`), not the card, so the action lines up with the pill. Screens whose hero content is merged for accessibility (Team, Club) keep overlaying their Favorite star. Added `BatIcon.Share` on both platforms. The action uses `BatIconButton`'s usual round surface, like the Favorite star, not a bare `onHero` icon.
