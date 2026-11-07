@@ -110,7 +110,7 @@ private struct ContentView: View {
             VStack(alignment: .leading, spacing: BatSpacing.sm) {
                 BatHeroPillRowView(text: String(localized: "fixture_detail_hero_overline")) {
                     if detail.canShare {
-                        BatIconButtonView(icon: .share, accessibilityText: String(localized: "fixture_detail_share")) {
+                        BatIconButtonView(icon: .share, accessibilityText: String(localized: "fixture_detail_share_button_cd")) {
                             onAction(.shareClicked)
                         }
                     }

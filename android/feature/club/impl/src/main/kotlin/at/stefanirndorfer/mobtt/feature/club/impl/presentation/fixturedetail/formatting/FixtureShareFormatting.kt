@@ -1,4 +1,4 @@
-package at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail
+package at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.formatting
 
 import android.content.Context
 import at.stefanirndorfer.mobtt.core.localization.R
@@ -8,9 +8,7 @@ import at.stefanirndorfer.mobtt.domain.club.FixtureStatus
 import at.stefanirndorfer.mobtt.domain.club.Match
 import at.stefanirndorfer.mobtt.domain.club.MatchKind
 import at.stefanirndorfer.mobtt.domain.club.VenueAddress
-
-/** What the share sheet sends for a Fixture: [subject] for apps that use one (mail), and plain [text]. */
-data class FixtureShare(val subject: String, val text: String)
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureShare
 
 /**
  * Everything the Fixture screen shows, one item per line and without markup so it reads the same in any app, ending

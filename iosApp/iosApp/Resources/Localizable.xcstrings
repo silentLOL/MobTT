@@ -2687,7 +2687,7 @@
         }
       }
     },
-    "fixture_detail_share": {
+    "fixture_detail_share_button_cd": {
       "extractionState": "manual",
       "localizations": {
         "de": {

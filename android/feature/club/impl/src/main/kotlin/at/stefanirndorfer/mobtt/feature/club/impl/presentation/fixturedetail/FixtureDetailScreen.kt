@@ -58,6 +58,9 @@ import at.stefanirndorfer.mobtt.designsystem.ui.components.BatPrimaryButton
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.mobtt.domain.club.FixtureDetail
 import at.stefanirndorfer.mobtt.domain.club.FixtureStatus
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.formatting.fixtureShare
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.formatting.fixtureShareCaption
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.formatting.formatted
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureDetailAction
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureDetailEvent
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureDetailUiState
@@ -245,7 +248,7 @@ private fun HeaderView(detail: FixtureDetail, onTeamClick: (String) -> Unit, onS
         BatHeroPillRow(
             text = stringResource(R.string.fixture_detail_hero_overline),
             trailing = onShare?.let { share ->
-                { BatIconButton(icon = BatIcon.Share, contentDescription = stringResource(R.string.fixture_detail_share), onClick = share) }
+                { BatIconButton(icon = BatIcon.Share, contentDescription = stringResource(R.string.fixture_detail_share_button_cd), onClick = share) }
             },
         )
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.xs)) {
@@ -298,7 +301,7 @@ private suspend fun Context.shareFixture(detail: FixtureDetail, link: String, im
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         send.clipData = ClipData.newRawUri(null, imageUri)
     }
-    startActivity(Intent.createChooser(send, getString(R.string.fixture_detail_share)))
+    startActivity(Intent.createChooser(send, getString(R.string.fixture_detail_share_button_cd)))
 }
 
 /** One file, replaced by every share, in the cache folder the share FileProvider serves. */

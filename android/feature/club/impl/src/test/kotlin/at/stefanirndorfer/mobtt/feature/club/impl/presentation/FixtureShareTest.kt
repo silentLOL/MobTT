@@ -9,9 +9,9 @@ import at.stefanirndorfer.mobtt.domain.club.Match
 import at.stefanirndorfer.mobtt.domain.club.MatchKind
 import at.stefanirndorfer.mobtt.domain.club.MatchScore
 import at.stefanirndorfer.mobtt.domain.club.VenueAddress
-import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.FixtureShare
-import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.fixtureShare
-import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.fixtureShareCaption
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.formatting.fixtureShare
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.formatting.fixtureShareCaption
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureShare
 import org.junit.After
 import org.junit.Before
 import org.junit.Test

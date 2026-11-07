@@ -169,7 +169,7 @@
     <string name="fixture_detail_error_title">Couldn\'t load this Fixture</string>
     <string name="fixture_detail_error_body">Check your connection and try again.</string>
     <string name="fixture_detail_error_retry_button">Try again</string>
-    <string name="fixture_detail_share">Share Fixture</string>
+    <string name="fixture_detail_share_button_cd">Share Fixture</string>
     <string name="fixture_detail_share_pairing">%1$s – %2$s</string>
     <string name="fixture_detail_share_with_result">"%1$s  %2$s"</string>
     <string name="fixture_detail_share_match">%1$d %2$s: %3$s – %4$s</string>

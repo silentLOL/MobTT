@@ -34,6 +34,7 @@ class FixtureLinksTest {
             "https://links.mobtt.example/f/",
             "https://links.mobtt.example/f",
             "https://links.mobtt.example/f/464821/matches",
+            "https://links.mobtt.example/F/464821",
             "https://links.mobtt.example/",
             "mobtt://f/464821",
             "",

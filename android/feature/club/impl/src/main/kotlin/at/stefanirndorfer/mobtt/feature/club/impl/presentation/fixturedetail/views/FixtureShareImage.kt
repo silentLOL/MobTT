@@ -29,7 +29,7 @@ import at.stefanirndorfer.mobtt.designsystem.ui.components.BatLogoMark
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.mobtt.domain.club.FixtureDetail
 import at.stefanirndorfer.mobtt.domain.club.FixtureStatus
-import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.formatted
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.formatting.formatted
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.preview.fixtureDetailNoMatchesPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.preview.fixtureDetailPlayedPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.preview.fixtureDetailScheduledPreview

@@ -5,13 +5,17 @@ package at.stefanirndorfer.mobtt.domain.club
  * scheme. [sharingEnabled] says whether Fixtures may be shared yet; reading a link works either way.
  */
 class FixtureLinks(private val host: String, val sharingEnabled: Boolean) {
-    private val fixtureLink = Regex(
-        """^https://${Regex.escape(host)}/f/([A-Za-z0-9_-]+)/?(?:[?#].*)?$""",
-        RegexOption.IGNORE_CASE,
-    )
+    // Scheme and host ignore case, as URLs do; the path is case-sensitive, like the app's link filters.
+    private val origin = "https://$host/"
+    private val fixturePath = Regex("""^f/([A-Za-z0-9_-]+)/?(?:[?#].*)?$""")
 
     fun linkTo(fixtureId: String): String = "https://$host/f/$fixtureId"
 
     /** The Fixture id in [url], or null when it is not a Fixture link. A trailing slash, query or fragment is ignored. */
-    fun fixtureIdOf(url: String): String? = fixtureLink.matchEntire(url)?.groupValues?.get(1)
+    fun fixtureIdOf(url: String): String? {
+        if (!url.startsWith(origin, ignoreCase = true)) {
+            return null
+        }
+        return fixturePath.matchEntire(url.substring(origin.length))?.groupValues?.get(1)
+    }
 }
