@@ -1,4 +1,5 @@
 ---
+status: resolved
 ---
 
 # League tab and League screen links
