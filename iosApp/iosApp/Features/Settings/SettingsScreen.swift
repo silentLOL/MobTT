@@ -2,21 +2,17 @@ import SwiftUI
 
 struct SettingsRoute: View {
     @Binding var appearance: AppearanceChoice
-    let onDismiss: () -> Void
 
     @State private var viewModel = SettingsViewModel()
 
     var body: some View {
-        SettingsScreen(state: viewModel.uiState, appearance: $appearance, onAction: viewModel.onAction)
+        let state = viewModel.uiState
+        SettingsScreen(state: state, appearance: $appearance, onAction: viewModel.onAction)
+            // Inside a picker the screen's own back arrow, the left-edge swipe and the VoiceOver escape step back first,
+            // so the system's back button (and its swipe) stays hidden until the picker is closed.
+            .navigationBarBackButtonHidden(state.picker != nil)
             .onAppear { viewModel.screenShown() }
             .task { await viewModel.observe() }
-            .task {
-                for await event in viewModel.events {
-                    switch event {
-                    case .dismiss: onDismiss()
-                    }
-                }
-            }
     }
 }
 
@@ -40,11 +36,29 @@ struct SettingsScreen: View {
             .frame(maxWidth: .infinity)
         }
         .batBackground()
+        .overlay(alignment: .leading) { pickerBackSwipeStrip }
+        .modifier(PickerEscapeModifier(isActive: state.picker != nil) { onAction(.pickerBackClicked) })
     }
+
+    /// A thin strip at the left edge that stands in for the system's back swipe while a picker is open.
+    @ViewBuilder
+    private var pickerBackSwipeStrip: some View {
+        if state.picker != nil {
+            Color.clear
+                .frame(width: BatSpacing.lg)
+                .contentShape(Rectangle())
+                .gesture(
+                    DragGesture(minimumDistance: BatSpacing.md).onEnded { drag in
+                        if drag.translation.width > Self.backSwipeDistance { onAction(.pickerBackClicked) }
+                    }
+                )
+        }
+    }
+
+    private static let backSwipeDistance: CGFloat = 60
 
     @ViewBuilder
     private var mainContent: some View {
-        header(title: "settings_title", icon: .close, accessibilityLabel: "core_close_button_cd") { onAction(.doneClicked) }
         SettingsChoiceRowView(
             title: String(localized: "settings_my_player_title"),
             value: state.myPlayerName,
@@ -82,7 +96,6 @@ struct SettingsScreen: View {
                 set: { onAction(.usageConsentToggled($0)) }
             )
         )
-        BatPrimaryButtonView(title: String(localized: "settings_done_button")) { onAction(.doneClicked) }
         dataSourceCredit
     }
 
@@ -130,6 +143,21 @@ struct SettingsScreen: View {
                 .accessibilityAddTraits(.isHeader)
             Spacer(minLength: BatSpacing.sm)
             BatIconButtonView(icon: icon, accessibilityText: String(localized: accessibilityLabel), action: onTap)
+        }
+    }
+}
+
+/// VoiceOver's two-finger scrub steps back inside a picker, and only there: elsewhere it still goes back a screen.
+private struct PickerEscapeModifier: ViewModifier {
+    let isActive: Bool
+    let action: () -> Void
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if isActive {
+            content.accessibilityAction(.escape, action)
+        } else {
+            content
         }
     }
 }

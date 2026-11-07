@@ -23,9 +23,6 @@ final class SettingsViewModel {
     @ObservationIgnored private let analytics: any AnalyticsTracker
     @ObservationIgnored private let screenViews: ScreenViewReporter
     @ObservationIgnored private let searchEvents: SearchEvents
-    @ObservationIgnored private let eventStream = AsyncStream<SettingsEvent>.makeStream()
-
-    var events: AsyncStream<SettingsEvent> { eventStream.stream }
 
     init(
         observeUserContext: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeUserContext(),
@@ -128,8 +125,6 @@ final class SettingsViewModel {
                 guard (try? await setUsageConsent(allowed)) != nil else { return }
                 analytics.consentChanged(enabled: allowed, source: AnalyticsSource.settings)
             }
-        case .doneClicked:
-            eventStream.continuation.yield(.dismiss)
         }
     }
 

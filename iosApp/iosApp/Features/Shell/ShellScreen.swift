@@ -21,6 +21,24 @@ private struct FixtureDestination: Hashable {
     let fixtureId: String
 }
 
+private struct SettingsDestination: Hashable {}
+
+/// Settings with its title, reporting to the shell while it is showing so the shell can hide its gear.
+private struct SettingsDestinationView: View {
+    @Binding var appearance: AppearanceChoice
+    @Binding var openSettingsIds: Set<UUID>
+    @State private var id = UUID()
+
+    var body: some View {
+        SettingsRoute(appearance: $appearance)
+            .navigationTitle(String(localized: "settings_title"))
+            .navigationBarTitleDisplayMode(.inline)
+            .batBackground()
+            .onAppear { openSettingsIds.insert(id) }
+            .onDisappear { openSettingsIds.remove(id) }
+    }
+}
+
 private struct LeagueDestination: Hashable {
     let leagueId: String
     /// The Team to highlight in the table and the Fixtures.
@@ -32,7 +50,9 @@ private struct LeagueDestination: Hashable {
 struct ShellScreen: View {
     @Binding var appearance: AppearanceChoice
     @State private var selectedTab = ShellTab.home
-    @State private var isSettingsPresented = false
+    /// The Settings screens showing, each by its own id: a late disappear from a screen on another tab removes only that
+    /// screen, never one opened since.
+    @State private var openSettingsIds: Set<UUID> = []
     @State private var consentViewModel = UsageConsentViewModel()
     @State private var homePath = NavigationPath()
     @State private var leaguePath = NavigationPath()
@@ -45,8 +65,8 @@ struct ShellScreen: View {
     var body: some View {
         BatScreenScaffoldView {
             BatTopBarView(title: String(localized: "core_app_title")) {
-                BatIconButtonView(icon: .settings, accessibilityText: String(localized: "core_settings_button_cd")) {
-                    isSettingsPresented = true
+                if !isSettingsOpen {
+                    BatIconButtonView(icon: .settings, accessibilityText: String(localized: "core_settings_button_cd"), action: openSettings)
                 }
             }
         } bottomBar: {
@@ -58,6 +78,7 @@ struct ShellScreen: View {
                         isSelected: tab == selectedTab
                     ) {
                         selectedTab = tab
+                        openSettingsIds = []
                         homePath = NavigationPath()
                         leaguePath = NavigationPath()
                         clubPath = NavigationPath()
@@ -77,10 +98,11 @@ struct ShellScreen: View {
                         onOpenPlayer: { homePath.append(PlayerDestination(playerId: $0)) }
                     )
                     .toolbar(.hidden, for: .navigationBar)
+                    .navigationDestination(for: SettingsDestination.self) { _ in settingsDetail() }
                     .navigationDestination(for: ClubDetailRoute.self) { route in
                         ClubRoute(
                             source: .specific(clubId: route.clubId),
-                            onOpenSettings: { isSettingsPresented = true },
+                            onOpenSettings: openSettings,
                             onOpenTeam: { homePath.append(TeamDestination(teamId: $0)) },
                             onOpenPlayer: { homePath.append(PlayerDestination(playerId: $0)) }
                         )
@@ -117,6 +139,7 @@ struct ShellScreen: View {
                         onOpenLeague: { leaguePath.append(LeagueDestination(leagueId: $0, highlightTeamId: $1)) }
                     )
                     .toolbar(.hidden, for: .navigationBar)
+                    .navigationDestination(for: SettingsDestination.self) { _ in settingsDetail() }
                     .navigationDestination(for: ChooseHeroDestination.self) { route in
                         PlayersRoute(mode: route.mode, onDone: { leaguePath = NavigationPath() })
                             .navigationTitle(String(localized: "home_choose_player_title"))
@@ -126,7 +149,7 @@ struct ShellScreen: View {
                     .navigationDestination(for: ClubDetailRoute.self) { route in
                         ClubRoute(
                             source: .specific(clubId: route.clubId),
-                            onOpenSettings: { isSettingsPresented = true },
+                            onOpenSettings: openSettings,
                             onOpenTeam: { leaguePath.append(TeamDestination(teamId: $0)) },
                             onOpenPlayer: { leaguePath.append(PlayerDestination(playerId: $0)) }
                         )
@@ -154,13 +177,14 @@ struct ShellScreen: View {
                         onOpenPlayer: { clubPath.append(PlayerDestination(playerId: $0)) }
                     )
                     .toolbar(.hidden, for: .navigationBar)
+                    .navigationDestination(for: SettingsDestination.self) { _ in settingsDetail() }
                     .navigationDestination(for: PlayerDestination.self) { route in
                         playerDetail(route, path: $clubPath)
                     }
                     .navigationDestination(for: ClubDetailRoute.self) { route in
                         ClubRoute(
                             source: .specific(clubId: route.clubId),
-                            onOpenSettings: { isSettingsPresented = true },
+                            onOpenSettings: openSettings,
                             onOpenTeam: { clubPath.append(TeamDestination(teamId: $0)) },
                             onOpenPlayer: { clubPath.append(PlayerDestination(playerId: $0)) }
                         )
@@ -182,13 +206,14 @@ struct ShellScreen: View {
                 NavigationStack(path: $playersPath) {
                     PlayersRoute(onOpenPlayer: { playersPath.append(PlayerDestination(playerId: $0)) })
                         .toolbar(.hidden, for: .navigationBar)
+                        .navigationDestination(for: SettingsDestination.self) { _ in settingsDetail() }
                         .navigationDestination(for: PlayerDestination.self) { route in
                             playerDetail(route, path: $playersPath)
                         }
                         .navigationDestination(for: ClubDetailRoute.self) { route in
                             ClubRoute(
                                 source: .specific(clubId: route.clubId),
-                                onOpenSettings: { isSettingsPresented = true },
+                                onOpenSettings: openSettings,
                                 onOpenTeam: { playersPath.append(TeamDestination(teamId: $0)) },
                                 onOpenPlayer: { playersPath.append(PlayerDestination(playerId: $0)) }
                             )
@@ -211,12 +236,6 @@ struct ShellScreen: View {
             .tabViewStyle(.page(indexDisplayMode: .never))
             .scrollDisabled(true)
         }
-        .sheet(isPresented: $isSettingsPresented) {
-            SettingsRoute(appearance: $appearance) { isSettingsPresented = false }
-                .presentationDetents([.fraction(0.75), .large])
-                .presentationDragIndicator(.visible)
-                .presentationBackground(BatColor.background)
-        }
         .task { await consentViewModel.observe() }
         .onAppear { appearedAt = appearedAt ?? .now }
         .onOpenURL { url in
@@ -230,9 +249,9 @@ struct ShellScreen: View {
                 }
             }
         }
-        // Never over the Settings sheet: the prompt waits until it closes.
+        // Never over Settings: the prompt waits until Settings closes.
         .sheet(isPresented: Binding(
-            get: { consentViewModel.isPromptVisible && !isSettingsPresented },
+            get: { consentViewModel.isPromptVisible && !isSettingsOpen },
             set: { if !$0 { consentViewModel.onAction(.notNowClicked) } }
         )) {
             UsageConsentSheetView(onAction: consentViewModel.onAction)
@@ -246,9 +265,25 @@ extension ShellScreen {
     /// How long after the shell appears a link still counts as the one that launched the app.
     private static let coldStartWindow: TimeInterval = 3
 
+    private var isSettingsOpen: Bool { !openSettingsIds.isEmpty }
+
+    private func openSettings() {
+        guard !isSettingsOpen else { return }
+        switch selectedTab {
+        case .home: homePath.append(SettingsDestination())
+        case .league: leaguePath.append(SettingsDestination())
+        case .club: clubPath.append(SettingsDestination())
+        case .players: playersPath.append(SettingsDestination())
+        }
+    }
+
+    fileprivate func settingsDetail() -> some View {
+        SettingsDestinationView(appearance: $appearance, openSettingsIds: $openSettingsIds)
+    }
+
     /// Shows `destination` on the Home tab with Home under it, whatever was open before.
     private func openFromLink(_ destination: FixtureDestination) {
-        isSettingsPresented = false
+        openSettingsIds = []
         selectedTab = .home
         leaguePath = NavigationPath()
         clubPath = NavigationPath()

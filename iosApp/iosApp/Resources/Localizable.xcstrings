@@ -1769,23 +1769,6 @@
         }
       }
     },
-    "settings_done_button": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fertig"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Done"
-          }
-        }
-      }
-    },
     "settings_my_club_title": {
       "extractionState": "manual",
       "localizations": {

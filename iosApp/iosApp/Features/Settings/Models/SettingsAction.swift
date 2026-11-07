@@ -6,9 +6,4 @@ enum SettingsAction {
     case pickerBackClicked
     case appearanceSelected(AppearanceChoice)
     case usageConsentToggled(Bool)
-    case doneClicked
-}
-
-enum SettingsEvent {
-    case dismiss
 }

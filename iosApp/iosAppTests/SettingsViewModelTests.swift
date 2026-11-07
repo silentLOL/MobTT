@@ -221,15 +221,6 @@ struct SettingsViewModelTests {
         #expect(viewModel.uiState.picker?.playerDrillDown?.entries.map(\.selected) == [true, false])
     }
 
-    @Test func doneAsksTheSheetToDismiss() async {
-        let viewModel = makeViewModel(emitting: [])
-        var events = viewModel.events.makeAsyncIterator()
-
-        viewModel.onAction(.doneClicked)
-
-        #expect(await events.next() == .dismiss)
-    }
-
     /// A Player picker already at the Player step of the first Verband's first League.
     private func playerStep(
         fixtures: PlayerDrillDownFixtures = PlayerDrillDownFixtures(),
