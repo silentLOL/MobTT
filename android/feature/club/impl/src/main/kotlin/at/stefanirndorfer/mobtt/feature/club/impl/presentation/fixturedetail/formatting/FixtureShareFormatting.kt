@@ -12,9 +12,9 @@ import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.mod
 
 /**
  * Everything the Fixture screen shows, one item per line and without markup so it reads the same in any app, ending
- * with the Fixture [link].
+ * with the Fixture [link] when there is one.
  */
-fun Context.fixtureShare(detail: FixtureDetail, link: String): FixtureShare {
+fun Context.fixtureShare(detail: FixtureDetail, link: String?): FixtureShare {
     val status = detail.fixture.status
     val header = resultAndKickoff(detail) + listOfNotNull(detail.fixture.venue, detail.address?.formatted())
     val matches = if (status is FixtureStatus.Finished) {
@@ -23,11 +23,11 @@ fun Context.fixtureShare(detail: FixtureDetail, link: String): FixtureShare {
     } else {
         null
     }
-    return share(detail, listOfNotNull(header, matches, listOf(link)))
+    return share(detail, listOfNotNull(header, matches, link?.let(::listOf)))
 }
 
-/** The short text next to the share image, which carries the rest: the result, the kickoff and the Fixture [link]. */
-fun Context.fixtureShareCaption(detail: FixtureDetail, link: String): FixtureShare = share(detail, listOf(resultAndKickoff(detail), listOf(link)))
+/** The short text next to the share image, which carries the rest: the result, the kickoff and any Fixture [link]. */
+fun Context.fixtureShareCaption(detail: FixtureDetail, link: String?): FixtureShare = share(detail, listOfNotNull(resultAndKickoff(detail), link?.let(::listOf)))
 
 private fun Context.pairing(detail: FixtureDetail): String = getString(R.string.fixture_detail_share_pairing, detail.fixture.homeTeamName, detail.fixture.awayTeamName)
 

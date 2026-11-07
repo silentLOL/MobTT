@@ -123,4 +123,22 @@ struct FixtureShareTests {
             https://links.mobtt.example/f/464821
             """)
     }
+
+    @Test func withoutALinkTheTextAndCaptionEndAfterTheirLastDetail() {
+        let english = Locale(identifier: "en")
+
+        let content = FixtureShare.content(detail: scheduled, link: nil, locale: english, timeZone: vienna)
+        let caption = FixtureShare.caption(detail: scheduled, link: nil, locale: english, timeZone: vienna)
+
+        #expect(content.text == """
+            Hagenberg 3 – Freistadt 6  Not played yet
+            \(kickoff(english))
+            Sporthalle Hagenberg
+            Hauptstraße 1, 4232 Hagenberg
+            """)
+        #expect(caption.text == """
+            Hagenberg 3 – Freistadt 6  Not played yet
+            \(kickoff(english))
+            """)
+    }
 }

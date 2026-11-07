@@ -177,6 +177,23 @@ struct FixtureDetailViewModelTests {
         #expect(analytics.events.last == LoggedEvent("fixture_share_tapped", ["status": "scheduled"]))
     }
 
+    @Test func withoutALinksDomainTheFixtureIsSharedWithoutALink() async {
+        let viewModel = makeViewModel(sharingEnabled: true, linkTo: { _ in nil }) { _ in
+            DataResultSuccess(value: FixtureDetail(fixture: fixture(status: FixtureStatusScheduled.shared), address: nil, matches: []))
+        }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+        var iterator = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.shareClicked)
+
+        guard case .share(_, let link) = await iterator.next() else {
+            Issue.record("Expected a share event")
+            return
+        }
+        #expect(link == nil)
+    }
+
     private func fixture(status: FixtureStatus) -> Fixture {
         Fixture(
             id: "f1",
@@ -193,13 +210,14 @@ struct FixtureDetailViewModelTests {
     private func makeViewModel(
         analytics: any AnalyticsTracker = NoOpAnalyticsTracker(),
         sharingEnabled: Bool = false,
+        linkTo: @escaping (String) -> String? = { "https://links.mobtt.example/f/\($0)" },
         loadDetail: @escaping (String) async throws -> DataResult
     ) -> FixtureDetailViewModel {
         FixtureDetailViewModel(
             fixtureId: "f1",
             loadDetail: loadDetail,
             sharingEnabled: sharingEnabled,
-            linkTo: { "https://links.mobtt.example/f/\($0)" },
+            linkTo: linkTo,
             analytics: analytics
         )
     }

@@ -22,8 +22,11 @@ data class AppConfig(val environment: Environment, val appVersion: String, val x
      */
     val ratingHistoryEnabled: Boolean = true
 
-    /** The domain serving Fixture links (ADR-0011). A placeholder until the domain is registered. */
-    val linksHost: String = "links.mobtt.example"
+    /**
+     * The domain serving Fixture links (ADR-0011), or null until it is registered: Fixtures are then shared without a
+     * link or QR code. Set it together with the Android `linksHost` placeholder and the iOS `LINKS_HOST`.
+     */
+    val linksHost: String? = null
 
     /** Sharing a Fixture is on where it can be tried, and off for `beta` and `prod` until MobTT is in both stores. */
     val fixtureSharingEnabled: Boolean = environment == Environment.Deb || environment == Environment.Dev

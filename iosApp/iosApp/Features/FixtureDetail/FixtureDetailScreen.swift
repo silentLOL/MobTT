@@ -33,7 +33,7 @@ struct FixtureDetailRoute: View {
 
 extension FixtureDetailRoute {
     /// The picture with a short caption; the full text alone when the picture cannot be drawn.
-    private func shareContent(detail: FixtureDetailUi, link: String) -> ShareContent {
+    private func shareContent(detail: FixtureDetailUi, link: String?) -> ShareContent {
         guard let image = FixtureShareImageView.render(detail: detail, link: link, scale: displayScale) else {
             return FixtureShare.content(detail: detail, link: link)
         }

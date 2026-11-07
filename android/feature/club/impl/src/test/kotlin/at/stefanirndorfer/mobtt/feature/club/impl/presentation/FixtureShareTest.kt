@@ -141,4 +141,27 @@ class FixtureShareTest {
             RuntimeEnvironment.getApplication().fixtureShareCaption(finished, link),
         )
     }
+
+    @Test
+    @Config(qualifiers = "en")
+    fun withoutALinkTheTextAndCaptionEndAfterTheirLastDetail() {
+        val context = RuntimeEnvironment.getApplication()
+
+        assertEquals(
+            """
+                Hagenberg 3 – Freistadt 6  Not played yet
+                ${formatKickoff(startsAt, Locale.ENGLISH)}
+                Sporthalle Hagenberg
+                Hauptstraße 1, 4232 Hagenberg
+            """.trimIndent(),
+            context.fixtureShare(scheduled, link = null).text,
+        )
+        assertEquals(
+            """
+                Hagenberg 3 – Freistadt 6  Not played yet
+                ${formatKickoff(startsAt, Locale.ENGLISH)}
+            """.trimIndent(),
+            context.fixtureShareCaption(scheduled, link = null).text,
+        )
+    }
 }

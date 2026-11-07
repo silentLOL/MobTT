@@ -52,8 +52,8 @@ class FixtureDetailViewModelTest {
     @After
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun TestScope.viewModel(sharingEnabled: Boolean = true): FixtureDetailViewModel {
-        val links = FixtureLinks(host = "links.mobtt.example", sharingEnabled = sharingEnabled)
+    private fun TestScope.viewModel(sharingEnabled: Boolean = true, linksHost: String? = "links.mobtt.example"): FixtureDetailViewModel {
+        val links = FixtureLinks(host = linksHost, sharingEnabled = sharingEnabled)
         val viewModel = FixtureDetailViewModel("f1", GetFixtureDetailUseCase(data), links, analytics)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel
@@ -139,5 +139,17 @@ class FixtureDetailViewModelTest {
         viewModel.onAction(FixtureDetailAction.ShareClicked)
 
         assertEquals(LoggedEvent("fixture_share_tapped", mapOf("status" to "scheduled")), analytics.events.last())
+    }
+
+    @Test
+    fun withoutALinksDomainTheFixtureIsSharedWithoutALink() = runTest {
+        data.fixtureDetail = detail
+        val viewModel = viewModel(linksHost = null)
+        val events = mutableListOf<FixtureDetailEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect(events::add) }
+
+        viewModel.onAction(FixtureDetailAction.ShareClicked)
+
+        assertEquals(listOf<FixtureDetailEvent>(FixtureDetailEvent.Share(detail, link = null)), events)
     }
 }

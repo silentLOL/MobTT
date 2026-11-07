@@ -88,7 +88,7 @@ Android and iOS ship each part together.
 
 ### Fixture link (shared)
 
-- A Fixture link is `https://<links-domain>/f/<Fixture id>`, using the plain XTTV Fixture id (ADR-0008). `/t/`, `/p/`, `/c/` and `/l/` are reserved for Team, Player, Club and League links but are not built. The domain, self-hosting and URL shape are recorded in ADR-0011. The domain's name is not chosen yet; until it is, the app uses the placeholder host `links.mobtt.example`.
+- A Fixture link is `https://<links-domain>/f/<Fixture id>`, using the plain XTTV Fixture id (ADR-0008). `/t/`, `/p/`, `/c/` and `/l/` are reserved for Team, Player, Club and League links but are not built. The domain, self-hosting and URL shape are recorded in ADR-0011. The domain's name is not chosen yet. Until it is, `AppConfig.linksHost` is null: Fixtures are shared without a link (the text and caption end after their last detail, and the image has no QR code), and nothing reads as a Fixture link. The Android intent filter and the iOS Associated Domain carry the placeholder `links.mobtt.example`, which never verifies, so no link reaches the app. Registering the domain means setting the real host in those three places, with no code change.
 - Building a Fixture link from a Fixture id, and reading a Fixture id back from a URL, is one piece of shared Kotlin in the club domain. Both platforms use it so the shape can't drift apart. Reading returns nothing for another host, a reserved prefix, a missing or empty id, or extra path segments.
 - `AppConfig` gains the links host (the same in every environment, like `xttvHost`) and a `fixtureSharingEnabled` switch. The switch is on for `deb` and `dev` so the feature can be tried on a device, and off for `beta` and `prod` until both store listings are public, then turned on in one place, like `ratingHistoryEnabled`. It only hides the Share button; opening Fixture links isn't switched.
 
@@ -192,7 +192,7 @@ The seams:
 
 ## Further Notes
 
-- **Blocked on the domain:** the links domain has to be chosen and registered before part 1 can ship; ADR-0011 stays Proposed until it's named there. The store listings are needed before `fixtureSharingEnabled` is switched on.
+- **Domain later:** the links domain may come after the store launch. Sharing ships without links until then (see Fixture link (shared)); ADR-0011 stays Proposed until the domain is named there. The store listings are needed before `fixtureSharingEnabled` is switched on, the domain is not.
 - **Glossary:** "Fixture link" is defined in `GLOSSARY.md` under Sharing. Avoid "deep link", "share link" and "dynamic link" in code and tickets.
 - **XTTV page:** the XTTV Fixture page `https://oettv.xttv.at/ed/index.php?meid=<id>` was checked against a recorded played Fixture (`meid=464821`, Hagenberg 3 – Kefermarkt 4). It takes the API's Fixture id, needs no other parameters, and serves every Association from one host. It isn't built for phones and shows a cookie banner. Only played Fixtures have a report.
 - **Signing keys:** each new signing key or bundle ID must be added to the association files before that build can open Fixture links.

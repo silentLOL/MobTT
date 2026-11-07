@@ -15,7 +15,7 @@ final class FixtureDetailViewModel {
 
     private let loadDetail: (String) async throws -> DataResult
     @ObservationIgnored private let sharingEnabled: Bool
-    @ObservationIgnored private let linkTo: (String) -> String
+    @ObservationIgnored private let linkTo: (String) -> String?
     @ObservationIgnored private let analytics: any AnalyticsTracker
     @ObservationIgnored private let screenViews: ScreenViewReporter
 
@@ -23,7 +23,7 @@ final class FixtureDetailViewModel {
         fixtureId: String,
         loadDetail: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadFixtureDetail(fixtureId: $0) },
         sharingEnabled: Bool = KoinHelper.shared.isFixtureSharingEnabled(),
-        linkTo: @escaping (String) -> String = { KoinHelper.shared.fixtureLink(fixtureId: $0) },
+        linkTo: @escaping (String) -> String? = { KoinHelper.shared.fixtureLink(fixtureId: $0) },
         analytics: any AnalyticsTracker = AppAnalytics.tracker
     ) {
         self.fixtureId = fixtureId

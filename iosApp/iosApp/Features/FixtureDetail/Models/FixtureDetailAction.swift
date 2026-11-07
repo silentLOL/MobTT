@@ -6,6 +6,6 @@ enum FixtureDetailAction {
 
 enum FixtureDetailEvent {
     case openTeam(teamId: String)
-    /// Opens the share sheet for `detail`, ending with its Fixture `link`.
-    case share(detail: FixtureDetailUi, link: String)
+    /// Opens the share sheet for `detail`, ending with its Fixture `link`, or without one while there is no links domain.
+    case share(detail: FixtureDetailUi, link: String?)
 }

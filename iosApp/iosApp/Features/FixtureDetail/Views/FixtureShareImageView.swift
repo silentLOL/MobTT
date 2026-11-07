@@ -2,13 +2,13 @@ import CoreImage.CIFilterBuiltins
 import SwiftUI
 import UIKit
 
-/// A Fixture as a picture to share: the red card, every Match, and a footer with the MobTT logo, "Get MobTT" and a QR
-/// code of the Fixture link, so a forwarded picture still leads to the Fixture. Rendered in the light appearance.
+/// A Fixture as a picture to share: the red card, every Match, and a footer with the MobTT logo, "Get MobTT" and, when
+/// there is a Fixture link, its QR code, so a forwarded picture still leads to the Fixture. Rendered in the light appearance.
 struct FixtureShareImageView: View {
     static let width: CGFloat = 360
 
     let detail: FixtureDetailUi
-    let qrCode: UIImage
+    let qrCode: UIImage?
 
     var body: some View {
         VStack(alignment: .leading, spacing: BatSpacing.lg) {
@@ -64,10 +64,12 @@ struct FixtureShareImageView: View {
                         .foregroundStyle(BatColor.textSecondary)
                 }
                 Spacer(minLength: 0)
-                Image(uiImage: qrCode)
-                    .interpolation(.none)
-                    .resizable()
-                    .frame(width: 96, height: 96)
+                if let qrCode {
+                    Image(uiImage: qrCode)
+                        .interpolation(.none)
+                        .resizable()
+                        .frame(width: 96, height: 96)
+                }
             }
         }
         .padding(BatSpacing.lg)
@@ -78,9 +80,8 @@ struct FixtureShareImageView: View {
 
     /// The picture of `detail`, or nil when it cannot be drawn.
     @MainActor
-    static func render(detail: FixtureDetailUi, link: String, scale: CGFloat) -> UIImage? {
-        guard let qrCode = qrCode(for: link) else { return nil }
-        let renderer = ImageRenderer(content: FixtureShareImageView(detail: detail, qrCode: qrCode))
+    static func render(detail: FixtureDetailUi, link: String?, scale: CGFloat) -> UIImage? {
+        let renderer = ImageRenderer(content: FixtureShareImageView(detail: detail, qrCode: link.flatMap(qrCode(for:))))
         renderer.proposedSize = ProposedViewSize(width: width, height: nil)
         renderer.scale = scale
         return renderer.uiImage

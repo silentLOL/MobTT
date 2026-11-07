@@ -109,8 +109,8 @@ object KoinHelper : KoinComponent {
     /** False until sharing Fixtures is switched on for this build; the Fixture screen then shows no Share button. */
     fun isFixtureSharingEnabled(): Boolean = get<FixtureLinks>().sharingEnabled
 
-    /** The Fixture link that opens [fixtureId] in MobTT (ADR-0011). */
-    fun fixtureLink(fixtureId: String): String = get<FixtureLinks>().linkTo(fixtureId)
+    /** The Fixture link that opens [fixtureId] in MobTT (ADR-0011), or null while there is no links domain. */
+    fun fixtureLink(fixtureId: String): String? = get<FixtureLinks>().linkTo(fixtureId)
 
     /** The Fixture id in [url], or null when [url] is not a Fixture link. */
     fun fixtureIdOfLink(url: String): String? = get<FixtureLinks>().fixtureIdOf(url)

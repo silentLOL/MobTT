@@ -54,5 +54,9 @@ The point of the links is to bring people into MobTT. Option A does that for any
 - The domain must stay registered for as long as shared links should work. Losing it breaks every link ever sent and could hand the URLs to someone else.
 - The URL shape is fixed: `/f/<Fixture id>` with plain XTTV IDs (ADR-0008). Changing it later means keeping the old shape working on the site and in the app.
 - Each new signing key or bundle ID must be added to the association files before its build can open links. `deb` builds are verified by hand on a developer's device.
-- Sharing stays switched off by an `AppConfig` flag until the store listings are public, so no shared link leads nowhere.
+- Sharing stays switched off by an `AppConfig` flag until the store listings are public.
 - Revisit Option B if install attribution or deferred deep links become a requirement.
+
+## Update 2026-11-07: links wait for the domain
+The domain cannot be registered yet, and sharing should not wait for it. `AppConfig.linksHost` is null until it is: Fixtures are then shared without a link or QR code, and nothing reads as a Fixture link. The Android intent filter and the iOS Associated Domain keep the `.example` placeholder, which never verifies. Registering the domain is a configuration change in those three places; this ADR is accepted once the domain is named here.
+

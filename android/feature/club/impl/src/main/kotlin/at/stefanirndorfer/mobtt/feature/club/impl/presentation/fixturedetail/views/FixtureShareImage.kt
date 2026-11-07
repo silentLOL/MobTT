@@ -38,11 +38,12 @@ import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.pre
 val FixtureShareImageWidth = 360.dp
 
 /**
- * A Fixture as a picture to share: the red card, every Match, and a footer with the MobTT logo, "Get MobTT" and a QR
- * code of the Fixture link, so a forwarded picture still leads to the Fixture. Callers draw it in the light theme.
+ * A Fixture as a picture to share: the red card, every Match, and a footer with the MobTT logo, "Get MobTT" and, when
+ * there is a Fixture link, its [qrCode], so a forwarded picture still leads to the Fixture. Callers draw it in the
+ * light theme.
  */
 @Composable
-fun FixtureShareImage(detail: FixtureDetail, qrCode: ImageBitmap, modifier: Modifier = Modifier) {
+fun FixtureShareImage(detail: FixtureDetail, qrCode: ImageBitmap?, modifier: Modifier = Modifier) {
     val fixture = detail.fixture
     val status = fixture.status
     Column(
@@ -92,7 +93,7 @@ fun FixtureShareImage(detail: FixtureDetail, qrCode: ImageBitmap, modifier: Modi
 }
 
 @Composable
-private fun Footer(qrCode: ImageBitmap) {
+private fun Footer(qrCode: ImageBitmap?) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -103,7 +104,9 @@ private fun Footer(qrCode: ImageBitmap) {
             Text(text = stringResource(R.string.core_app_title), color = BatDesign.colors.textPrimary, style = BatDesign.typography.title)
             Text(text = stringResource(R.string.fixture_detail_share_image_get_app), color = BatDesign.colors.textSecondary, style = BatDesign.typography.body)
         }
-        Image(bitmap = qrCode, contentDescription = null, modifier = Modifier.size(QrCodeSize))
+        if (qrCode != null) {
+            Image(bitmap = qrCode, contentDescription = null, modifier = Modifier.size(QrCodeSize))
+        }
     }
 }
 
@@ -127,6 +130,12 @@ private fun FixtureShareImageScheduledPreview() {
 @Composable
 private fun FixtureShareImageNoMatchesPreview() {
     BatPreviewSurface { FixtureShareImage(fixtureDetailNoMatchesPreview, remember { qrCode(PREVIEW_LINK, 256) }) }
+}
+
+@BatScreenPreview
+@Composable
+private fun FixtureShareImageWithoutLinkPreview() {
+    BatPreviewSurface { FixtureShareImage(fixtureDetailScheduledPreview, qrCode = null) }
 }
 
 @BatScreenPreview

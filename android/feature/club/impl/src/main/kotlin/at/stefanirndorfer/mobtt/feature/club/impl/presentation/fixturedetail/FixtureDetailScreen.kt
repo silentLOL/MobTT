@@ -115,9 +115,9 @@ fun FixtureDetailRoute(
  * picture to [onCaptured]; null when it could not be drawn. Hidden from accessibility services.
  */
 @Composable
-private fun ShareImageCapture(detail: FixtureDetail, link: String, modifier: Modifier = Modifier, onCaptured: suspend (ImageBitmap?) -> Unit) {
+private fun ShareImageCapture(detail: FixtureDetail, link: String?, modifier: Modifier = Modifier, onCaptured: suspend (ImageBitmap?) -> Unit) {
     val layer = rememberGraphicsLayer()
-    val qr = remember(link) { qrCode(link, QR_CODE_PIXELS) }
+    val qr = remember(link) { link?.let { qrCode(it, QR_CODE_PIXELS) } }
     var recorded by remember { mutableStateOf(false) }
     Box(modifier = modifier.clearAndSetSemantics {}) {
         BatTheme(darkTheme = false) {
@@ -274,7 +274,7 @@ private fun HeaderView(detail: FixtureDetail, onTeamClick: (String) -> Unit, onS
 }
 
 /** The image with a short caption; the full text alone when there is no [image] or it cannot be saved. */
-private suspend fun Context.shareFixture(detail: FixtureDetail, link: String, image: ImageBitmap?) {
+private suspend fun Context.shareFixture(detail: FixtureDetail, link: String?, image: ImageBitmap?) {
     val imageUri = image?.let {
         try {
             saveShareImage(it)

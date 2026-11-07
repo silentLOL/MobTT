@@ -66,7 +66,8 @@ android {
         versionCode = 1
         versionName = "1.0"
         buildConfigField("String", "XTTV_API_KEY", "\"$xttvApiKey\"")
-        // The Fixture link host (ADR-0011); keep in step with AppConfig.linksHost and the iOS Associated Domains.
+        // The Fixture link host (ADR-0011). A .example placeholder until the domain is registered: it never verifies, so no
+        // link reaches the app. Replace it together with AppConfig.linksHost and the iOS LINKS_HOST.
         manifestPlaceholders["linksHost"] = "links.mobtt.example"
     }
     flavorDimensions += "environment"

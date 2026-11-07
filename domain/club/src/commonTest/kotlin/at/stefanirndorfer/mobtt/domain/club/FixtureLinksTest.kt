@@ -40,4 +40,12 @@ class FixtureLinksTest {
             "",
         ).forEach { assertNull(links.fixtureIdOf(it), it) }
     }
+
+    @Test
+    fun withoutALinksDomainThereIsNoLinkAndNothingReadsAsOne() {
+        val unregistered = FixtureLinks(host = null, sharingEnabled = true)
+
+        assertNull(unregistered.linkTo("464821"))
+        assertNull(unregistered.fixtureIdOf("https://links.mobtt.example/f/464821"))
+    }
 }

@@ -3,10 +3,10 @@ import Foundation
 /// What the share sheet sends for a Fixture.
 enum FixtureShare {
     /// Everything the Fixture screen shows, one item per line and without markup so it reads the same in any app,
-    /// ending with the Fixture `link`. The subject is the pairing. `locale` picks the language and the date format.
+    /// ending with the Fixture `link` when there is one. The subject is the pairing. `locale` picks the language and the date format.
     static func content(
         detail: FixtureDetailUi,
-        link: String,
+        link: String?,
         locale: Locale = .current,
         timeZone: TimeZone = .current
     ) -> ShareContent {
@@ -21,19 +21,21 @@ enum FixtureShare {
             }
             blocks.append([text("fixture_detail_matches_title")] + (lines.isEmpty ? [text("fixture_detail_matches_empty_body")] : lines))
         }
-        blocks.append([link])
+        if let link {
+            blocks.append([link])
+        }
         return share(detail, blocks, text)
     }
 
-    /// The short text next to the share image, which carries the rest: the result, the kickoff and the Fixture `link`.
+    /// The short text next to the share image, which carries the rest: the result, the kickoff and any Fixture `link`.
     static func caption(
         detail: FixtureDetailUi,
-        link: String,
+        link: String?,
         locale: Locale = .current,
         timeZone: TimeZone = .current
     ) -> ShareContent {
         let text = Strings(locale: locale)
-        return share(detail, [resultAndKickoff(detail, text, timeZone), [link]], text)
+        return share(detail, [resultAndKickoff(detail, text, timeZone)] + (link.map { [[$0]] } ?? []), text)
     }
 
     private static func share(_ detail: FixtureDetailUi, _ blocks: [[String]], _ text: Strings) -> ShareContent {

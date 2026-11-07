@@ -16,4 +16,8 @@ struct FixtureShareImageTests {
         #expect(finishedImage.size.width == FixtureShareImageView.width)
         #expect(finishedImage.size.height > scheduledImage.size.height)
     }
+
+    @Test func withoutALinkTheImageIsStillDrawn() {
+        #expect(FixtureShareImageView.render(detail: FixtureDetailPreviewData.scheduled, link: nil, scale: 2) != nil)
+    }
 }
