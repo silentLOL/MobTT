@@ -36,6 +36,10 @@ _Avoid_: Begegnung, game, encounter, event
 A single game inside a Fixture, between individual Players or doubles pairs (German: Einzelspiel or Doppel). Its score counts Sets won, e.g. 3:1.
 _Avoid_: Spiel, game
 
+**Venue**:
+The place where a Fixture is played (German: Spiellokal), given by a name such as "Sporthalle Hagenberg" and a postal address. Either can be missing or partial, e.g. only a city.
+_Avoid_: Location, hall, place, Spielort
+
 **Player ranking**:
 A League's Players ordered by rank, with their Team and matches won and lost (German: Einzelrangliste). Players below the League's minimum number of games are listed without a rank.
 _Avoid_: Einzelrangliste, single standings, player table
@@ -104,3 +108,4 @@ XTTV, the source of our data, names some things differently. Our terms above sta
 | Game (`getClubGames`, `getLeagueGames`, `getGameDetails`) | Fixture |
 | Game result (`game_result` in `getGameDetails`) | Match |
 | Single standings (`getSingleStandings`) | Player ranking |
+| Location (`location` on a Game) and address (`address`, `getGameDetails` only) | Venue |
