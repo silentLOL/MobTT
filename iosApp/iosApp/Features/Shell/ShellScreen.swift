@@ -38,6 +38,9 @@ struct ShellScreen: View {
     @State private var leaguePath = NavigationPath()
     @State private var clubPath = NavigationPath()
     @State private var playersPath = NavigationPath()
+    @State private var fixtureLinkViewModel = FixtureLinkViewModel()
+    /// When the shell first appeared; a link soon after that is the one the app was launched with.
+    @State private var appearedAt: Date?
 
     var body: some View {
         BatScreenScaffoldView {
@@ -215,6 +218,18 @@ struct ShellScreen: View {
                 .presentationBackground(BatColor.background)
         }
         .task { await consentViewModel.observe() }
+        .onAppear { appearedAt = appearedAt ?? .now }
+        .onOpenURL { url in
+            let coldStart = appearedAt.map { Date.now.timeIntervalSince($0) < Self.coldStartWindow } ?? true
+            fixtureLinkViewModel.onAction(.linkReceived(url: url.absoluteString, coldStart: coldStart))
+        }
+        .task {
+            for await event in fixtureLinkViewModel.events {
+                switch event {
+                case .openFixture(let fixtureId): openFromLink(FixtureDestination(fixtureId: fixtureId))
+                }
+            }
+        }
         // Never over the Settings sheet: the prompt waits until it closes.
         .sheet(isPresented: Binding(
             get: { consentViewModel.isPromptVisible && !isSettingsPresented },
@@ -228,6 +243,21 @@ struct ShellScreen: View {
 }
 
 extension ShellScreen {
+    /// How long after the shell appears a link still counts as the one that launched the app.
+    private static let coldStartWindow: TimeInterval = 3
+
+    /// Shows `destination` on the Home tab with Home under it, whatever was open before.
+    private func openFromLink(_ destination: FixtureDestination) {
+        isSettingsPresented = false
+        selectedTab = .home
+        leaguePath = NavigationPath()
+        clubPath = NavigationPath()
+        playersPath = NavigationPath()
+        var path = NavigationPath()
+        path.append(destination)
+        homePath = path
+    }
+
     fileprivate func teamDetail(_ route: TeamDestination, path: Binding<NavigationPath>) -> some View {
         TeamDetailRoute(
             teamId: route.teamId,
