@@ -17,10 +17,11 @@ blocked_by: []
 - [x] ViewModel test: the action logs the event and hands over the search text
 - [x] Previews cover a Fixture with and without a Venue
 - [x] New `.xcstrings` keys are added in English and German
-- [ ] New strings pushed to Loco (wait for the go-ahead: `loco.sh push` overwrites Loco's text for every key)
+- [x] New strings pushed to Loco
 - [ ] Tapped in the simulator: Apple Maps opens on the Venue
 - [x] The iOS build passes (docs/DEVELOPMENT.md)
 
 ## Comments
 
 - 2026-11-07: `Formatting/VenueSearch.swift` holds `venueLines`, `venueSearchText` and `AppleMaps.search`, which also encodes `+`. VoiceOver reads the Venue lines as the label and "Open in Maps" as the hint (`fixture_detail_venue_open_cd`). Not done yet: the Loco push and tapping it in the simulator.
+- 2026-11-07: The `.xcstrings` key was pushed to Loco with 01's.
