@@ -25,6 +25,7 @@ kotlinx-serialization = "1.11.0"
 xmlutil = "1.0.2"
 kotlinx-datetime = "0.7.1"
 ktlint = "14.2.0"
+aboutlibraries = "15.3.0"
 firebase-bom = "35.1.0"
 google-services = "4.5.0"
 firebase-crashlytics-plugin = "3.0.6"
@@ -99,12 +100,15 @@ composablePreviewScanner = { module = "io.github.sergio-sastre.ComposablePreview
 androidx-compose-uiTestJunit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 androidx-compose-uiTestManifest = { module = "androidx.compose.ui:ui-test-manifest" }
 
+aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
+
 # build-logic
 android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 compose-compilerGradlePlugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 
 [plugins]
+aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "aboutlibraries" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }

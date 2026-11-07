@@ -104,4 +104,12 @@ for file in $(find android androidApp iosApp -name '*.kt' -o -name '*.swift' | g
   done
 done
 
+# licenses/libraries holds the fonts and assets listed by hand (docs/LICENSES.md); the Gradle plugin's strict mode only
+# checks the dependencies it finds, so an entry without a license would otherwise ship unlisted.
+for file in $(find licenses/libraries -name '*.json' 2>/dev/null); do
+  if ! tr -d ' \n' < "$file" | grep -q '"licenses":\["'; then
+    fail "$file: lists no license (docs/LICENSES.md)"
+  fi
+done
+
 exit "$status"

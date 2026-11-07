@@ -33,6 +33,7 @@ import at.stefanirndorfer.mobtt.feature.home.api.HomeDestination
 import at.stefanirndorfer.mobtt.feature.home.impl.navigation.homeGraph
 import at.stefanirndorfer.mobtt.feature.navigation.BackStackGlobalNavigator
 import at.stefanirndorfer.mobtt.feature.players.impl.navigation.playersGraph
+import at.stefanirndorfer.mobtt.feature.settings.api.LicensesDestination
 import at.stefanirndorfer.mobtt.feature.settings.api.SettingsDestination
 import at.stefanirndorfer.mobtt.feature.settings.api.navigateToSettings
 import at.stefanirndorfer.mobtt.feature.settings.impl.navigation.settingsGraph
@@ -75,7 +76,7 @@ fun MobTTApp(
                     null
                 },
                 actions = {
-                    if (navigator.backStack.lastOrNull() != SettingsDestination) {
+                    if (navigator.backStack.lastOrNull().let { it != SettingsDestination && it != LicensesDestination }) {
                         BatIconButton(
                             icon = BatIcon.Settings,
                             contentDescription = stringResource(R.string.core_settings_button_cd),

@@ -15,7 +15,7 @@ The single source of truth for the events both apps send to Firebase Analytics (
 
 | Parameter | Values |
 |---|---|
-| `screen` | `home`, `league`, `players`, `choose_player`, `choose_club`, `club`, `player_detail`, `team_detail`, `league_detail`, `fixture_detail`, `settings` |
+| `screen` | `home`, `league`, `players`, `choose_player`, `choose_club`, `club`, `player_detail`, `team_detail`, `league_detail`, `fixture_detail`, `settings`, `licenses` |
 | `kind` | `player`, `club`, `team`, `league`, `fixture` |
 | `source` | `home`, `settings`, `prompt` |
 | `from` | a `screen` value |

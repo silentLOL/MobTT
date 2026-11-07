@@ -8,4 +8,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object SettingsDestination : GlobalAppDestination
 
+/** The open source licenses, pushed from Settings. */
+@Serializable
+data object LicensesDestination : GlobalAppDestination
+
 fun GlobalNavigator.navigateToSettings() = navigate(SettingsDestination)
+
+fun GlobalNavigator.navigateToLicenses() = navigate(LicensesDestination)

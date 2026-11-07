@@ -363,6 +363,17 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun tappingTheLicensesRowOpensTheLicenses() = runTest {
+        val viewModel = viewModel()
+        val events = mutableListOf<SettingsEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.toList(events) }
+
+        viewModel.onAction(SettingsAction.LicensesClicked)
+
+        assertEquals(listOf<SettingsEvent>(SettingsEvent.OpenLicenses), events)
+    }
+
+    @Test
     fun tappingTheCoffeeRowOpensTheTipPageAndLogsIt() = runTest {
         val viewModel = viewModel(supportUrl = "https://example.org/coffee")
         val events = mutableListOf<SettingsEvent>()

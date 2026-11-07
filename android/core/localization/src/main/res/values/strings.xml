@@ -218,4 +218,17 @@
     <string name="settings_about_title">About</string>
     <string name="settings_support_title">Buy me a coffee</string>
     <string name="settings_support_open_cd">Open the tip page in your browser</string>
+    <string name="settings_licenses_title">Open source licenses</string>
+    <string name="licenses_title">Open source licenses</string>
+    <string name="licenses_libraries_title">Libraries</string>
+    <string name="licenses_fonts_title">Fonts</string>
+    <string name="licenses_assets_title">Other credits</string>
+    <string name="licenses_entry_expand_cd">Show license text</string>
+    <string name="licenses_entry_collapse_cd">Hide license text</string>
+    <string name="licenses_entry_expanded_state">Expanded</string>
+    <string name="licenses_entry_collapsed_state">Collapsed</string>
+    <string name="licenses_text_unavailable">No license text is bundled. Read it online:</string>
+    <string name="licenses_loading_cd">Loading licenses</string>
+    <string name="licenses_empty_title">Couldn\'t load the licenses</string>
+    <string name="licenses_empty_body">Close this screen and try again.</string>
 </resources>

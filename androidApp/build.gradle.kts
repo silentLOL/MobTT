@@ -4,6 +4,19 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.aboutLibraries)
+}
+
+// The open source licenses screen reads what this generates. Fonts and other assets are added by hand in `licenses/`.
+aboutLibraries {
+    collect {
+        configPath = rootProject.file("licenses")
+    }
+    // A dependency under any other license, or under none, fails the build until it is looked at and listed here.
+    license {
+        strictMode = com.mikepenz.aboutlibraries.plugin.StrictMode.FAIL
+        allowedLicenses.addAll("Apache-2.0", "MIT", "BSD-3-Clause", "OFL-1.1", "ASDKL")
+    }
 }
 
 // The XTTV API key is a secret: `xttv.apiKey` in the untracked `local.properties`, or `XTTV_API_KEY` in CI.

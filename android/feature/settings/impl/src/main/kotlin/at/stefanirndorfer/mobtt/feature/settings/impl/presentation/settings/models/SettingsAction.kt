@@ -17,5 +17,7 @@ sealed interface SettingsAction {
 
     data class UsageConsentToggled(val allowed: Boolean) : SettingsAction
 
+    data object LicensesClicked : SettingsAction
+
     data object SupportClicked : SettingsAction
 }

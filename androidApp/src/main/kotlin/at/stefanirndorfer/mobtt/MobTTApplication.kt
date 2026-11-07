@@ -37,6 +37,7 @@ class MobTTApplication : Application() {
                     homeModule,
                     playersModule,
                     settingsModule,
+                    licensesSourceModule,
                 ),
             )
         }

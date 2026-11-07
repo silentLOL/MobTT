@@ -43,6 +43,7 @@ object AnalyticsScreen {
     const val LEAGUE_DETAIL = "league_detail"
     const val FIXTURE_DETAIL = "fixture_detail"
     const val SETTINGS = "settings"
+    const val LICENSES = "licenses"
 }
 
 object AnalyticsSetting {

@@ -218,4 +218,17 @@
     <string name="settings_about_title">Über die App</string>
     <string name="settings_support_title">Spendier mir einen Kaffee</string>
     <string name="settings_support_open_cd">Spendenseite im Browser öffnen</string>
+    <string name="settings_licenses_title">Open-Source-Lizenzen</string>
+    <string name="licenses_title">Open-Source-Lizenzen</string>
+    <string name="licenses_libraries_title">Bibliotheken</string>
+    <string name="licenses_fonts_title">Schriften</string>
+    <string name="licenses_assets_title">Weitere Quellen</string>
+    <string name="licenses_entry_expand_cd">Lizenztext anzeigen</string>
+    <string name="licenses_entry_collapse_cd">Lizenztext ausblenden</string>
+    <string name="licenses_entry_expanded_state">Ausgeklappt</string>
+    <string name="licenses_entry_collapsed_state">Eingeklappt</string>
+    <string name="licenses_text_unavailable">Kein Lizenztext enthalten. Online nachlesen:</string>
+    <string name="licenses_loading_cd">Lizenzen werden geladen</string>
+    <string name="licenses_empty_title">Lizenzen konnten nicht geladen werden</string>
+    <string name="licenses_empty_body">Schließe diese Seite und versuche es erneut.</string>
 </resources>

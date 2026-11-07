@@ -54,13 +54,14 @@ import co.touchlab.kermit.Logger
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun SettingsRoute(viewModel: SettingsViewModel = koinViewModel()) {
+fun SettingsRoute(onOpenLicenses: () -> Unit, viewModel: SettingsViewModel = koinViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     // Back, from the system or the shell's chevron, steps out of an open picker before it leaves Settings.
     BackHandler(enabled = uiState.picker != null) { viewModel.onAction(SettingsAction.PickerBackClicked) }
     val context = LocalContext.current
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
+            SettingsEvent.OpenLicenses -> onOpenLicenses()
             is SettingsEvent.OpenSupportLink -> context.openInBrowser(event.url)
         }
     }
@@ -145,29 +146,30 @@ private fun MainContent(state: SettingsUiState, onAction: (SettingsAction) -> Un
 private fun AboutSection(showSupportLink: Boolean, onAction: (SettingsAction) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
         BatSectionHeader(title = stringResource(R.string.settings_about_title))
+        AboutRow(title = stringResource(R.string.settings_licenses_title), onClick = { onAction(SettingsAction.LicensesClicked) })
         if (showSupportLink) {
-            SupportRow(onClick = { onAction(SettingsAction.SupportClicked) })
+            AboutRow(
+                title = stringResource(R.string.settings_support_title),
+                onClick = { onAction(SettingsAction.SupportClicked) },
+                onClickLabel = stringResource(R.string.settings_support_open_cd),
+            )
         }
         DataSourceCredit()
     }
 }
 
 @Composable
-private fun SupportRow(onClick: () -> Unit) {
+private fun AboutRow(title: String, onClick: () -> Unit, onClickLabel: String? = null) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = BatDesign.sizing.minTouchTarget)
-            .clickable(
-                onClickLabel = stringResource(R.string.settings_support_open_cd),
-                role = Role.Button,
-                onClick = onClick,
-            ),
+            .clickable(onClickLabel = onClickLabel, role = Role.Button, onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.md),
     ) {
         Text(
-            text = stringResource(R.string.settings_support_title),
+            text = title,
             modifier = Modifier.weight(1f),
             color = BatDesign.colors.textPrimary,
             style = BatDesign.typography.bodyStrong,

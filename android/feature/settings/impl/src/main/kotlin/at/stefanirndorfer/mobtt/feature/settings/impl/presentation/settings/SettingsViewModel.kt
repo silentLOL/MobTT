@@ -127,6 +127,7 @@ class SettingsViewModel(
                 setUsageConsent(action.allowed)
                 analytics.consentChanged(action.allowed, AnalyticsSource.SETTINGS)
             }
+            SettingsAction.LicensesClicked -> viewModelScope.launch { eventChannel.send(SettingsEvent.OpenLicenses) }
             SettingsAction.SupportClicked -> supportLink.url?.let { url ->
                 analytics.supportLinkOpened()
                 viewModelScope.launch { eventChannel.send(SettingsEvent.OpenSupportLink(url)) }
