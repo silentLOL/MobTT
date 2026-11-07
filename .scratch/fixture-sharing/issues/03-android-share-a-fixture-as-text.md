@@ -16,9 +16,10 @@ blocked_by: [2]
 - [x] The Screen opens an `ACTION_SEND` chooser through a private `Context` extension, with the pairing as `EXTRA_SUBJECT` and the share text as `EXTRA_TEXT`
 - [x] The share text matches the spec's layout in English and German: Scheduled, Finished with Singles and Doubles, a Match without a result, Finished without Matches, with and without venue and address (Robolectric test against real string resources)
 - [x] New strings are added in English and German
-- [ ] New strings pushed to Loco (waiting for the go-ahead: `loco.sh push` overwrites Loco's text for every key)
+- [x] New strings pushed to Loco
 - [x] `./gradlew check` passes
 
 ## Comments
 
 - 2026-11-07: `FixtureLinks` (club domain) builds and reads links and carries `sharingEnabled`; `:core:di` binds it from `AppConfig.linksHost` and `fixtureSharingEnabled`. The share text lives in `FixtureShare.kt` as a `Context` extension, tested with Robolectric at SDK 33 (the compile SDK does not start on this JDK). `fixture_detail_share_with_result` is quoted in `strings.xml` so its two spaces survive; check it after the next Loco pull. The Share button uses `BatIconButton`, like the Favorite star.
+- 2026-11-07: Pushed to Loco (Android and iOS, en and de-AT); all five new keys read back in both languages. Loco exports the two spaces of `fixture_detail_share_with_result` as `\u0020\u0020`, which Android reads the same, so a pull keeps the format.

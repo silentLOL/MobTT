@@ -17,4 +17,4 @@ blocked_by: [2, 3]
 
 ## Comments
 
-- 2026-11-07: `FixtureShare.content` builds the text from `FixtureDetailUi`, looking strings up in the locale's `.lproj` so tests can check German; `ShareSheetView` (Common/Share) wraps `UIActivityViewController` with the pairing as subject. `KoinHelper` also gained `fixtureIdOfLink` for 06. The new `.xcstrings` keys still need the Loco push (see 03).
+- 2026-11-07: `FixtureShare.content` builds the text from `FixtureDetailUi`, looking strings up in the locale's `.lproj` so tests can check German; `ShareSheetView` (Common/Share) wraps `UIActivityViewController` with the pairing as subject. `KoinHelper` also gained `fixtureIdOfLink` for 06. The new `.xcstrings` keys were pushed to Loco with 03's.
