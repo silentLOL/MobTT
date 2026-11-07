@@ -5,7 +5,7 @@ package at.stefanirndorfer.mobtt.domain.club
  * the real API (ticket 13).
  *
  * [league] and [standing] are null when the Team has no League or no table row. The full table and the League's
- * Fixtures live in [LeagueDetail]. [lineup] is empty when XTTV lists no Players for the Team.
+ * Fixtures come from [GetLeagueFixturesUseCase]. [lineup] is empty when XTTV lists no Players for the Team.
  */
 data class TeamDetail(
     val team: Team,

@@ -12,15 +12,20 @@ final class LeagueDetailViewModel {
     private let openedFromTeamId: String?
     private var onlyTeamFixtures = false
     private var loadTask: Task<Void, Never>?
+    private var fixturesTask: Task<Void, Never>?
     private var rankingTask: Task<Void, Never>?
     private var contextTask: Task<Void, Never>?
-    private var ranking = PlayerRankingUiState.loading
+    private var fixtures = SectionUiState<[FixtureRowUi]>.loading
+    private var fixturesExpanded = false
+    private var ranking = SectionUiState<[PlayerRankingRowUi]>.loading
+    private var rankingExpanded = false
     private var myPlayerId: String?
     @ObservationIgnored private let eventStream = AsyncStream<LeagueDetailEvent>.makeStream()
 
     var events: AsyncStream<LeagueDetailEvent> { eventStream.stream }
 
     private let loadDetail: (String) async throws -> DataResult
+    private let loadFixtures: (String) async throws -> DataResult
     private let loadRanking: (String) async throws -> DataResult
     @ObservationIgnored private let observeUserContext: any AsyncSequence<DataResult, Never>
     @ObservationIgnored private let analytics: any AnalyticsTracker
@@ -32,6 +37,7 @@ final class LeagueDetailViewModel {
         highlightTeamId: String? = nil,
         openedFromTeamId: String? = nil,
         loadDetail: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadLeagueDetail(leagueId: $0) },
+        loadFixtures: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadLeagueFixtures(leagueId: $0) },
         loadRanking: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadPlayerRanking(leagueId: $0) },
         observeUserContext: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeUserContext(),
         analytics: any AnalyticsTracker = AppAnalytics.tracker,
@@ -42,6 +48,7 @@ final class LeagueDetailViewModel {
         self.highlightTeamId = highlightTeamId
         self.openedFromTeamId = openedFromTeamId
         self.loadDetail = loadDetail
+        self.loadFixtures = loadFixtures
         self.loadRanking = loadRanking
         self.observeUserContext = observeUserContext
         self.analytics = analytics
@@ -58,7 +65,6 @@ final class LeagueDetailViewModel {
     func loadIfNeeded() {
         guard loadTask == nil else { return }
         loadTask = Task { await load() }
-        rankingTask = Task { await loadPlayerRanking() }
         contextTask = Task { await observeMyPlayer() }
     }
 
@@ -67,8 +73,25 @@ final class LeagueDetailViewModel {
         case .retryClicked:
             loadTask?.cancel()
             loadTask = Task { await load() }
-            rankingTask?.cancel()
-            rankingTask = Task { await loadPlayerRanking() }
+            // Only the sections already opened load again; the others still wait for their first opening.
+            if fixturesTask != nil {
+                startFixtures()
+            }
+            if rankingTask != nil {
+                startRanking()
+            }
+        case .fixturesToggled:
+            fixturesExpanded.toggle()
+            if fixturesExpanded && fixturesTask == nil {
+                startFixtures()
+            }
+            applySections()
+        case .rankingToggled:
+            rankingExpanded.toggle()
+            if rankingExpanded && rankingTask == nil {
+                startRanking()
+            }
+            applySections()
         case .teamClicked(let teamId):
             analytics.detailOpened(kind: AnalyticsKind.team, id: teamId, from: AnalyticsScreen.leagueDetail)
             eventStream.continuation.yield(.openTeam(teamId: teamId))
@@ -92,7 +115,7 @@ final class LeagueDetailViewModel {
             let result = try await loadDetail(leagueId)
             guard !Task.isCancelled else { return }
             switch onEnum(of: result) {
-            case .success(let success): uiState = (success.value as? LeagueDetail).map { .content(withRanking($0.toUi(highlightTeamId: highlightTeamId, openedFromTeamId: openedFromTeamId, onlyTeamFixtures: onlyTeamFixtures))) } ?? .error
+            case .success(let success): uiState = (success.value as? LeagueDetail).map { .content(withSections($0.toUi(highlightTeamId: highlightTeamId, openedFromTeamId: openedFromTeamId, onlyTeamFixtures: onlyTeamFixtures))) } ?? .error
             case .unavailable: uiState = .error
             }
         } catch {
@@ -100,21 +123,48 @@ final class LeagueDetailViewModel {
         }
     }
 
-    private func loadPlayerRanking() async {
-        ranking = .loading
-        applyRanking()
+    private func startFixtures() {
+        fixturesTask?.cancel()
+        fixturesTask = Task {
+            fixtures = .loading
+            applySections()
+            let highlightTeamId = highlightTeamId
+            guard let loaded = await loadSection({ try await self.loadFixtures(self.leagueId) }, map: { (value: [Fixture]) in
+                value.map { $0.toUi(highlightTeamId: highlightTeamId) }
+            }) else { return }
+            fixtures = loaded
+            applySections()
+        }
+    }
+
+    private func startRanking() {
+        rankingTask?.cancel()
+        rankingTask = Task {
+            ranking = .loading
+            applySections()
+            guard let loaded = await loadSection({ try await self.loadRanking(self.leagueId) }, map: { (value: [PlayerRankingRow]) in
+                value.map { $0.toUi() }
+            }) else { return }
+            ranking = loaded
+            applySections()
+        }
+    }
+
+    /// Nil when the load was cancelled, so the load that replaced it owns the section.
+    private func loadSection<Item, Value: Equatable>(
+        _ load: () async throws -> DataResult,
+        map: ([Item]) -> Value
+    ) async -> SectionUiState<Value>? {
         do {
-            let result = try await loadRanking(leagueId)
-            guard !Task.isCancelled else { return }
+            let result = try await load()
+            guard !Task.isCancelled else { return nil }
             switch onEnum(of: result) {
-            case .success(let success):
-                ranking = (success.value as? [PlayerRankingRow]).map { .loaded($0.map { $0.toUi() }) } ?? .unavailable
-            case .unavailable:
-                ranking = .unavailable
+            case .success(let success): return (success.value as? [Item]).map { .loaded(map($0)) } ?? .unavailable
+            case .unavailable: return .unavailable
             }
-            applyRanking()
         } catch {
-            // Only cancellation can throw now, and the load that replaced this one owns the state.
+            // Only cancellation can throw now.
+            return nil
         }
     }
 
@@ -122,20 +172,23 @@ final class LeagueDetailViewModel {
         for await result in observeUserContext {
             guard case .success(let success) = onEnum(of: result) else { continue }
             myPlayerId = (success.value as? UserContextMyPlayer)?.player.id
-            applyRanking()
+            applySections()
         }
     }
 
-    private func withRanking(_ detail: LeagueDetailUi) -> LeagueDetailUi {
+    private func withSections(_ detail: LeagueDetailUi) -> LeagueDetailUi {
         var detail = detail
+        detail.fixtures = fixtures
+        detail.fixturesExpanded = fixturesExpanded
         detail.ranking = ranking
+        detail.rankingExpanded = rankingExpanded
         detail.myPlayerId = myPlayerId
         return detail
     }
 
-    private func applyRanking() {
+    private func applySections() {
         guard case .content(let detail) = uiState else { return }
-        uiState = .content(withRanking(detail))
+        uiState = .content(withSections(detail))
     }
 }
 
@@ -169,7 +222,6 @@ private extension LeagueDetail {
                     opensTeam: $0.teamId != openedFromTeamId
                 )
             },
-            fixtures: fixtures.map { $0.toUi(highlightTeamId: highlightTeamId) },
             canFilterToTeam: highlightTeamId != nil,
             highlightIsMyTeam: highlightTeamId != nil && openedFromTeamId == nil,
             onlyTeamFixtures: onlyTeamFixtures && highlightTeamId != nil

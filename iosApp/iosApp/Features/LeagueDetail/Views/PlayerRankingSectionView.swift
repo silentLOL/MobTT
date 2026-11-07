@@ -1,26 +1,25 @@
 import SwiftUI
 
-/// The League's Player ranking below the Fixtures. Each row opens its Player; My Player's row is marked.
+/// The League's Player ranking below the Fixtures, collapsed until opened. Each row opens its Player; My Player's row is marked.
 struct PlayerRankingSectionView: View {
-    let ranking: PlayerRankingUiState
+    let ranking: SectionUiState<[PlayerRankingRowUi]>
+    let isExpanded: Bool
+    let onToggle: () -> Void
     let isMyPlayer: (_ playerId: String) -> Bool
     let onPlayerTap: (_ playerId: String) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            BatSectionHeaderView(title: String(localized: "league_detail_ranking_title"))
-            switch ranking {
-            case .loading:
-                ProgressView()
-                    .tint(BatColor.brand)
-                    .accessibilityLabel(Text("league_detail_ranking_loading_cd"))
-                    .frame(maxWidth: .infinity)
-                    .padding(BatSpacing.md)
-            case .unavailable:
-                message("league_detail_ranking_unavailable_body")
-            case .loaded(let rows) where rows.isEmpty:
-                message("league_detail_ranking_empty_body")
-            case .loaded(let rows):
+        LazySectionView(
+            title: String(localized: "league_detail_ranking_title"),
+            isExpanded: isExpanded,
+            onToggle: onToggle,
+            section: ranking,
+            loadingLabel: String(localized: "league_detail_ranking_loading_cd"),
+            unavailableText: String(localized: "league_detail_ranking_unavailable_body")
+        ) { rows in
+            if rows.isEmpty {
+                SectionMessageView(key: "league_detail_ranking_empty_body")
+            } else {
                 BatListView {
                     ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
                         rankingRow(row, isMine: isMyPlayer(row.playerId), isStriped: !index.isMultiple(of: 2))
@@ -52,23 +51,17 @@ struct PlayerRankingSectionView: View {
             action: { onPlayerTap(row.playerId) }
         )
     }
-
-    private func message(_ key: LocalizedStringKey) -> some View {
-        Text(key)
-            .batTextStyle(BatTypography.body)
-            .foregroundStyle(BatColor.textSecondary)
-    }
 }
 
 #Preview {
     BatPreviewMatrix {
         ScrollView {
             VStack(spacing: BatSpacing.lg) {
-                PlayerRankingSectionView(ranking: .loaded(LeagueDetailPreviewData.ranking), isMyPlayer: { $0 == "gruber" }, onPlayerTap: { _ in })
-                PlayerRankingSectionView(ranking: .loaded(LeagueDetailPreviewData.longNamesRanking), isMyPlayer: { _ in false }, onPlayerTap: { _ in })
-                PlayerRankingSectionView(ranking: .loading, isMyPlayer: { _ in false }, onPlayerTap: { _ in })
-                PlayerRankingSectionView(ranking: .unavailable, isMyPlayer: { _ in false }, onPlayerTap: { _ in })
-                PlayerRankingSectionView(ranking: .loaded([]), isMyPlayer: { _ in false }, onPlayerTap: { _ in })
+                PlayerRankingSectionView(ranking: .loaded(LeagueDetailPreviewData.ranking), isExpanded: true, onToggle: {}, isMyPlayer: { $0 == "gruber" }, onPlayerTap: { _ in })
+                PlayerRankingSectionView(ranking: .loaded(LeagueDetailPreviewData.longNamesRanking), isExpanded: true, onToggle: {}, isMyPlayer: { _ in false }, onPlayerTap: { _ in })
+                PlayerRankingSectionView(ranking: .loading, isExpanded: false, onToggle: {}, isMyPlayer: { _ in false }, onPlayerTap: { _ in })
+                PlayerRankingSectionView(ranking: .unavailable, isExpanded: true, onToggle: {}, isMyPlayer: { _ in false }, onPlayerTap: { _ in })
+                PlayerRankingSectionView(ranking: .loaded([]), isExpanded: true, onToggle: {}, isMyPlayer: { _ in false }, onPlayerTap: { _ in })
             }
         }
     }

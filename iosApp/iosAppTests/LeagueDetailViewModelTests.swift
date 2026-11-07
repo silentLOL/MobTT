@@ -34,9 +34,9 @@ struct LeagueDetailViewModelTests {
         #expect(viewModel.uiState == .error)
     }
 
-    @Test func aLeagueWithoutTableOrFixturesIsContentNotAnError() async {
+    @Test func aLeagueWithoutATableIsContentNotAnError() async {
         let viewModel = makeViewModel { _ in
-            DataResultSuccess(value: LeagueDetail(league: League(id: "l1", name: "Liga"), standings: [], fixtures: []))
+            DataResultSuccess(value: LeagueDetail(league: League(id: "l1", name: "Liga"), standings: []))
         }
 
         viewModel.loadIfNeeded()
@@ -48,19 +48,85 @@ struct LeagueDetailViewModelTests {
         }
         #expect(detail.leagueName == "Liga")
         #expect(detail.standings.isEmpty)
-        #expect(detail.fixtures.isEmpty)
+    }
+
+    @Test func fixturesAndRankingStartCollapsedAndAreNotLoaded() async {
+        var fixtureLoads = 0
+        var rankingLoads = 0
+        let viewModel = makeViewModel(
+            loadRanking: { _ in
+                rankingLoads += 1
+                return DataResultSuccess(value: NSArray())
+            },
+            loadFixtures: { _ in
+                fixtureLoads += 1
+                return DataResultSuccess(value: NSArray())
+            }
+        ) { _ in self.twoTeamLeague() }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+
+        guard case .content(let detail) = viewModel.uiState else {
+            Issue.record("Expected content")
+            return
+        }
+        #expect(!detail.fixturesExpanded)
+        #expect(!detail.rankingExpanded)
+        #expect(fixtureLoads == 0)
+        #expect(rankingLoads == 0)
+    }
+
+    @Test func openingTheFixturesLoadsThemOnceAndKeepsThemWhenClosed() async {
+        var fixtureLoads = 0
+        let viewModel = makeViewModel(loadFixtures: { _ in
+            fixtureLoads += 1
+            return DataResultSuccess(value: [self.fixture("mine", home: "t1", away: "t2")] as NSArray)
+        }) { _ in self.twoTeamLeague() }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+
+        viewModel.onAction(.fixturesToggled)
+        await settleFixtures(viewModel)
+        viewModel.onAction(.fixturesToggled)
+        viewModel.onAction(.fixturesToggled)
+
+        guard case .content(let detail) = viewModel.uiState else {
+            Issue.record("Expected content")
+            return
+        }
+        #expect(detail.fixturesExpanded)
+        #expect(detail.visibleFixtures.map(\.id) == ["mine"])
+        #expect(fixtureLoads == 1)
+    }
+
+    @Test func fixturesXttvCannotAnswerForLeaveTheRestOfTheLeague() async {
+        let viewModel = makeViewModel(loadFixtures: { _ in
+            DataResultUnavailable(error: DataUnavailable(message: "down", cause: nil))
+        }) { _ in self.twoTeamLeague() }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+
+        viewModel.onAction(.fixturesToggled)
+        await settleFixtures(viewModel)
+
+        guard case .content(let detail) = viewModel.uiState else {
+            Issue.record("Expected content")
+            return
+        }
+        #expect(detail.fixtures == .unavailable)
+        #expect(detail.standings.count == 2)
     }
 
     @Test func theTeamFilterNarrowsTheFixturesToTheHighlightedTeam() async {
-        let viewModel = makeViewModel(highlightTeamId: "t1") { _ in
-            DataResultSuccess(value: LeagueDetail(
-                league: League(id: "l1", name: "Liga"),
-                standings: [],
-                fixtures: [fixture("mine", home: "t1", away: "t2"), fixture("other", home: "t2", away: "t3")]
-            ))
+        let viewModel = makeViewModel(highlightTeamId: "t1", loadFixtures: { _ in
+            DataResultSuccess(value: [self.fixture("mine", home: "t1", away: "t2"), self.fixture("other", home: "t2", away: "t3")] as NSArray)
+        }) { _ in
+            DataResultSuccess(value: LeagueDetail(league: League(id: "l1", name: "Liga"), standings: []))
         }
         viewModel.loadIfNeeded()
         await settle(viewModel)
+        viewModel.onAction(.fixturesToggled)
+        await settleFixtures(viewModel)
 
         viewModel.onAction(.onlyTeamFixturesToggled(true))
 
@@ -74,7 +140,7 @@ struct LeagueDetailViewModelTests {
 
     @Test func withoutAHighlightedTeamTheFilterIsNotOffered() async {
         let viewModel = makeViewModel { _ in
-            DataResultSuccess(value: LeagueDetail(league: League(id: "l1", name: "Liga"), standings: [], fixtures: []))
+            DataResultSuccess(value: LeagueDetail(league: League(id: "l1", name: "Liga"), standings: []))
         }
         viewModel.loadIfNeeded()
         await settle(viewModel)
@@ -119,6 +185,8 @@ struct LeagueDetailViewModelTests {
             ] as NSArray)
         }) { _ in self.twoTeamLeague() }
         viewModel.loadIfNeeded()
+        await settle(viewModel)
+        viewModel.onAction(.rankingToggled)
         await settleRanking(viewModel)
 
         guard case .content(let detail) = viewModel.uiState, case .loaded(let rows) = detail.ranking else {
@@ -135,6 +203,8 @@ struct LeagueDetailViewModelTests {
             DataResultUnavailable(error: DataUnavailable(message: "down", cause: nil))
         }) { _ in self.twoTeamLeague() }
         viewModel.loadIfNeeded()
+        await settle(viewModel)
+        viewModel.onAction(.rankingToggled)
         await settleRanking(viewModel)
 
         guard case .content(let detail) = viewModel.uiState else {
@@ -156,6 +226,8 @@ struct LeagueDetailViewModelTests {
             loadRanking: { _ in DataResultSuccess(value: [PlayerRankingRow(ranked: self.ranked("p1", "Anna", rank: 1), teamName: "One")] as NSArray) }
         ) { _ in self.twoTeamLeague() }
         viewModel.loadIfNeeded()
+        await settle(viewModel)
+        viewModel.onAction(.rankingToggled)
         await settleRanking(viewModel)
         for _ in 0..<100 {
             if case .content(let detail) = viewModel.uiState, detail.myPlayerId != nil { break }
@@ -219,7 +291,7 @@ struct LeagueDetailViewModelTests {
 
     @Test func tappingATeamSendsAnOpenTeamEvent() async {
         let viewModel = makeViewModel { _ in
-            DataResultSuccess(value: LeagueDetail(league: League(id: "l1", name: "Liga"), standings: [], fixtures: []))
+            DataResultSuccess(value: LeagueDetail(league: League(id: "l1", name: "Liga"), standings: []))
         }
         var iterator = viewModel.events.makeAsyncIterator()
 
@@ -235,7 +307,7 @@ struct LeagueDetailViewModelTests {
     @Test func tappingTheInfoButtonSendsAnOpenFixtureEventAndReportsIt() async {
         let analytics = RecordingAnalyticsTracker()
         let viewModel = makeViewModel(analytics: analytics) { _ in
-            DataResultSuccess(value: LeagueDetail(league: League(id: "l1", name: "Liga"), standings: [], fixtures: []))
+            DataResultSuccess(value: LeagueDetail(league: League(id: "l1", name: "Liga"), standings: []))
         }
         var iterator = viewModel.events.makeAsyncIterator()
 
@@ -281,8 +353,7 @@ struct LeagueDetailViewModelTests {
             standings: [
                 Standing(position: 1, teamId: "t1", teamName: "One", played: 2, points: 4),
                 Standing(position: 2, teamId: "t2", teamName: "Two", played: 2, points: 2),
-            ],
-            fixtures: []
+            ]
         ))
     }
 
@@ -304,6 +375,7 @@ struct LeagueDetailViewModelTests {
         reportsScreenView: Bool = true,
         observeUserContext: AsyncStream<DataResult> = AsyncStream { $0.finish() },
         loadRanking: @escaping (String) async throws -> DataResult = { _ in DataResultSuccess(value: NSArray()) },
+        loadFixtures: @escaping (String) async throws -> DataResult = { _ in DataResultSuccess(value: NSArray()) },
         loadDetail: @escaping (String) async throws -> DataResult
     ) -> LeagueDetailViewModel {
         LeagueDetailViewModel(
@@ -311,11 +383,19 @@ struct LeagueDetailViewModelTests {
             highlightTeamId: highlightTeamId,
             openedFromTeamId: openedFromTeamId,
             loadDetail: loadDetail,
+            loadFixtures: loadFixtures,
             loadRanking: loadRanking,
             observeUserContext: observeUserContext,
             analytics: analytics,
             reportsScreenView: reportsScreenView
         )
+    }
+
+    private func settleFixtures(_ viewModel: LeagueDetailViewModel) async {
+        for _ in 0..<200 {
+            if case .content(let detail) = viewModel.uiState, detail.fixtures != .loading { return }
+            await Task.yield()
+        }
     }
 
     private func settleRanking(_ viewModel: LeagueDetailViewModel) async {

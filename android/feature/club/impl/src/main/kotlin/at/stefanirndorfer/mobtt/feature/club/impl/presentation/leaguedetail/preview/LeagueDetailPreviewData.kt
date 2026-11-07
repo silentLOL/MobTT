@@ -29,14 +29,15 @@ val leagueDetailPreview = LeagueDetail(
         Standing(2, "olympic-1", "TTC Olympic 1", played = 6, points = 9),
         Standing(3, "nussdorf-1", "Nussdorf TTC 1", played = 6, points = 4),
     ),
-    fixtures = listOf(
-        fixture("f3", "Nussdorf TTC 1", "TTC Olympic 1", 1_799_000_000, score = FixtureScore(4, 6)),
-        fixture("f1", "TTC Olympic 1", "SK VÖEST Wien 1", 1_800_000_000, venue = "Sporthalle Olympic"),
-        fixture("f4", "Nussdorf TTC 1", "SK VÖEST Wien 1", 1_800_500_000),
-    ),
 )
 
-val leagueDetailEmptyPreview = leagueDetailPreview.copy(standings = emptyList(), fixtures = emptyList())
+val leagueFixturesPreview = listOf(
+    fixture("f3", "Nussdorf TTC 1", "TTC Olympic 1", 1_799_000_000, score = FixtureScore(4, 6)),
+    fixture("f1", "TTC Olympic 1", "SK VÖEST Wien 1", 1_800_000_000, venue = "Sporthalle Olympic"),
+    fixture("f4", "Nussdorf TTC 1", "SK VÖEST Wien 1", 1_800_500_000),
+)
+
+val leagueDetailEmptyPreview = leagueDetailPreview.copy(standings = emptyList())
 
 val leagueDetailLongNamesPreview = LeagueDetail(
     league = League("g", "Gebietsliga Nord Herren Oberes Playoff"),
@@ -44,14 +45,15 @@ val leagueDetailLongNamesPreview = LeagueDetail(
         Standing(1, "h1", "Sportunion Hollabrunn Tischtennis 1", played = 4, points = 8),
         Standing(2, "s1", "Union Tischtennisclub St. Pölten Nord-West 1", played = 4, points = 7),
     ),
-    fixtures = listOf(
-        fixture(
-            "f1",
-            "Union Tischtennisclub St. Pölten Nord-West 1",
-            "Sportunion Hollabrunn Tischtennis 1",
-            1_800_000_000,
-            venue = "Mehrzweckhalle der Marktgemeinde St. Pölten Nord-West",
-        ),
+)
+
+val leagueFixturesLongNamesPreview = listOf(
+    fixture(
+        "f1",
+        "Union Tischtennisclub St. Pölten Nord-West 1",
+        "Sportunion Hollabrunn Tischtennis 1",
+        1_800_000_000,
+        venue = "Mehrzweckhalle der Marktgemeinde St. Pölten Nord-West",
     ),
 )
 

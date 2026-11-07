@@ -22,6 +22,7 @@ val clubModule = module {
             get(),
             get(),
             get(),
+            get(),
             reportsScreenView = params.get<Boolean>(3),
         )
     }

@@ -15,6 +15,8 @@
     <string name="core_tab_players_label">Players</string>
     <string name="core_settings_button_cd">Settings</string>
     <string name="core_close_button_cd">Close</string>
+    <string name="core_section_expanded_cd">Expanded</string>
+    <string name="core_section_collapsed_cd">Collapsed</string>
     <string name="home_empty_title">Welcome to MobTT</string>
     <string name="home_empty_body">Your results, form and next Fixture will show up here.</string>
     <string name="club_empty_title">No Club yet</string>
@@ -113,6 +115,8 @@
     <string name="league_detail_standing_empty_body">No table available yet.</string>
     <string name="league_detail_fixtures_title">Fixtures</string>
     <string name="league_detail_fixtures_empty_body">No Fixtures scheduled yet.</string>
+    <string name="league_detail_fixtures_loading_cd">Loading Fixtures</string>
+    <string name="league_detail_fixtures_unavailable_body">The Fixtures can\'t be loaded right now.</string>
     <string name="league_detail_fixture_row_cd">%1$s against %2$s, %3$s</string>
     <string name="league_detail_fixture_result_row_cd">%1$s against %2$s, %3$s, result %4$d to %5$d</string>
     <string name="league_detail_fixture_score">%1$d : %2$d</string>

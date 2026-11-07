@@ -36,14 +36,18 @@ import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailAction
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailEvent
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailUiState
-import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.PlayerRankingUi
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.SectionUi
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.leagueDetailEmptyPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.leagueDetailLongNamesPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.leagueDetailPreview
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.leagueFixturesLongNamesPreview
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.leagueFixturesPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.playerRankingLongNamesPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.playerRankingPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.views.FixtureRowView
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.views.LazySectionView
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.views.PlayerRankingSectionView
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.views.SectionMessage
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.views.TeamFixturesToggleView
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -188,8 +192,14 @@ private fun ContentView(state: LeagueDetailUiState.Content, onAction: (LeagueDet
                 }
             }
         }
-        Column {
-            BatSectionHeader(title = stringResource(R.string.league_detail_fixtures_title))
+        LazySectionView(
+            title = stringResource(R.string.league_detail_fixtures_title),
+            expanded = state.fixturesExpanded,
+            onToggle = { onAction(LeagueDetailAction.FixturesToggled) },
+            section = state.fixtures,
+            loadingLabel = stringResource(R.string.league_detail_fixtures_loading_cd),
+            unavailableText = stringResource(R.string.league_detail_fixtures_unavailable_body),
+        ) {
             if (state.highlightTeamId != null) {
                 TeamFixturesToggleView(
                     label = onlyTeamFixturesLabel,
@@ -216,15 +226,12 @@ private fun ContentView(state: LeagueDetailUiState.Content, onAction: (LeagueDet
         }
         PlayerRankingSectionView(
             ranking = state.ranking,
+            expanded = state.rankingExpanded,
+            onToggle = { onAction(LeagueDetailAction.RankingToggled) },
             isMyPlayer = state::isMyPlayer,
             onPlayerClick = { onAction(LeagueDetailAction.PlayerClicked(it)) },
         )
     }
-}
-
-@Composable
-private fun SectionMessage(text: String) {
-    Text(text = text, color = BatDesign.colors.textSecondary, style = BatDesign.typography.body)
 }
 
 @BatScreenPreview
@@ -248,7 +255,14 @@ private fun LeagueDetailScreenErrorPreview() {
 private fun LeagueDetailScreenLoadedPreview() {
     BatPreviewSurface {
         LeagueDetailScreen(
-            state = LeagueDetailUiState.Content(leagueDetailPreview, ranking = PlayerRankingUi.Loaded(playerRankingPreview), myPlayerId = "gruber"),
+            state = LeagueDetailUiState.Content(
+                leagueDetailPreview,
+                fixtures = SectionUi.Loaded(leagueFixturesPreview),
+                fixturesExpanded = true,
+                ranking = SectionUi.Loaded(playerRankingPreview),
+                rankingExpanded = true,
+                myPlayerId = "gruber",
+            ),
             onAction = {},
         )
     }
@@ -258,7 +272,15 @@ private fun LeagueDetailScreenLoadedPreview() {
 @Composable
 private fun LeagueDetailScreenHighlightedPreview() {
     BatPreviewSurface {
-        LeagueDetailScreen(state = LeagueDetailUiState.Content(leagueDetailPreview, highlightTeamId = "olympic-1"), onAction = {})
+        LeagueDetailScreen(
+            state = LeagueDetailUiState.Content(
+                leagueDetailPreview,
+                highlightTeamId = "olympic-1",
+                fixtures = SectionUi.Loaded(leagueFixturesPreview),
+                fixturesExpanded = true,
+            ),
+            onAction = {},
+        )
     }
 }
 
@@ -267,7 +289,13 @@ private fun LeagueDetailScreenHighlightedPreview() {
 private fun LeagueDetailScreenMyTeamPreview() {
     BatPreviewSurface {
         LeagueDetailScreen(
-            state = LeagueDetailUiState.Content(leagueDetailPreview, highlightTeamId = "olympic-1", openedFromTeamId = null),
+            state = LeagueDetailUiState.Content(
+                leagueDetailPreview,
+                highlightTeamId = "olympic-1",
+                openedFromTeamId = null,
+                fixtures = SectionUi.Loaded(leagueFixturesPreview),
+                fixturesExpanded = true,
+            ),
             onAction = {},
         )
     }
@@ -278,7 +306,13 @@ private fun LeagueDetailScreenMyTeamPreview() {
 private fun LeagueDetailScreenOnlyTeamFixturesPreview() {
     BatPreviewSurface {
         LeagueDetailScreen(
-            state = LeagueDetailUiState.Content(leagueDetailPreview, highlightTeamId = "olympic-1", onlyTeamFixtures = true),
+            state = LeagueDetailUiState.Content(
+                leagueDetailPreview,
+                highlightTeamId = "olympic-1",
+                onlyTeamFixtures = true,
+                fixtures = SectionUi.Loaded(leagueFixturesPreview),
+                fixturesExpanded = true,
+            ),
             onAction = {},
         )
     }
@@ -297,7 +331,13 @@ private fun LeagueDetailScreenEmptyPreview() {
 private fun LeagueDetailScreenLongNamesPreview() {
     BatPreviewSurface {
         LeagueDetailScreen(
-            state = LeagueDetailUiState.Content(leagueDetailLongNamesPreview, ranking = PlayerRankingUi.Loaded(playerRankingLongNamesPreview)),
+            state = LeagueDetailUiState.Content(
+                leagueDetailLongNamesPreview,
+                fixtures = SectionUi.Loaded(leagueFixturesLongNamesPreview),
+                fixturesExpanded = true,
+                ranking = SectionUi.Loaded(playerRankingLongNamesPreview),
+                rankingExpanded = true,
+            ),
             onAction = {},
         )
     }

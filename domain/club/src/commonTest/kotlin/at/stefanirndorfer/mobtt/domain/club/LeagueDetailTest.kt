@@ -8,7 +8,8 @@ import kotlin.time.Instant
 
 class LeagueDetailTest {
     private val directory = FakeClubData()
-    private val getLeagueDetail = GetLeagueDetailUseCase(directory, directory)
+    private val getLeagueDetail = GetLeagueDetailUseCase(directory)
+    private val getLeagueFixtures = GetLeagueFixturesUseCase(directory)
 
     private fun fixture(id: String, startsAt: Long) = Fixture(
         id = id,
@@ -27,19 +28,25 @@ class LeagueDetailTest {
     }
 
     @Test
-    fun standingsAndFixturesAreOrderedWhateverTheRepositoryReturns() = runTest {
+    fun standingsAreOrderedWhateverTheRepositoryReturns() = runTest {
         directory.leagues += League("l1", "1. Landesliga Herren")
         directory.teams += Team("o1", "TTC Olympic 1", "olympic", "l1")
         directory.standings["l1"] = listOf(
             Standing(2, "o1", "TTC Olympic 1", played = 5, points = 7),
             Standing(1, "r1", "Rival 1", played = 5, points = 9),
         )
-        directory.fixtures += listOf(fixture("b", startsAt = 2_000), fixture("a", startsAt = 1_000))
 
         val detail = getLeagueDetail("l1")!!
 
         assertEquals("1. Landesliga Herren", detail.league.name)
         assertEquals(listOf(1, 2), detail.standings.map { it.position })
-        assertEquals(listOf("a", "b"), detail.fixtures.map { it.id })
+    }
+
+    @Test
+    fun fixturesAreOrderedByKickoffWhateverTheRepositoryReturns() = runTest {
+        directory.teams += Team("o1", "TTC Olympic 1", "olympic", "l1")
+        directory.fixtures += listOf(fixture("b", startsAt = 2_000), fixture("a", startsAt = 1_000))
+
+        assertEquals(listOf("a", "b"), getLeagueFixtures("l1").map { it.id })
     }
 }

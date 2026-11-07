@@ -61,10 +61,10 @@ struct FixtureRowView: View {
 #Preview {
     BatPreviewMatrix {
         BatListView {
-            ForEach(Array(LeagueDetailPreviewData.highlighted.fixtures.enumerated()), id: \.element.id) { index, row in
+            ForEach(Array(LeagueDetailPreviewData.highlightedFixtureRows.enumerated()), id: \.element.id) { index, row in
                 FixtureRowView(row: row, isStriped: !index.isMultiple(of: 2), onInfoTap: {})
             }
-            ForEach(Array(LeagueDetailPreviewData.longNames.fixtures.enumerated()), id: \.element.id) { index, row in
+            ForEach(Array(LeagueDetailPreviewData.longNamesFixtureRows.enumerated()), id: \.element.id) { index, row in
                 FixtureRowView(row: row, isStriped: !index.isMultiple(of: 2), onInfoTap: {})
             }
         }

@@ -21,8 +21,8 @@ import at.stefanirndorfer.mobtt.designsystem.ui.components.BatList
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatListItem
 import at.stefanirndorfer.mobtt.domain.club.Fixture
 import at.stefanirndorfer.mobtt.domain.club.FixtureStatus
-import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.leagueDetailLongNamesPreview
-import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.leagueDetailPreview
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.leagueFixturesLongNamesPreview
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.preview.leagueFixturesPreview
 
 /**
  * One Fixture of a League: the pairing, when and where it is played, and the score once finished. The info button
@@ -86,11 +86,11 @@ private fun TeamName(name: String, modifier: Modifier = Modifier) {
 private fun FixtureRowViewPreview() {
     BatPreviewSurface {
         BatList {
-            leagueDetailPreview.fixtures.forEachIndexed { index, fixture ->
+            leagueFixturesPreview.forEachIndexed { index, fixture ->
                 FixtureRowView(fixture, isThisTeam = false, striped = index % 2 == 1, highlightBadge = stringResource(R.string.team_detail_this_team_badge), onInfoClick = {})
             }
-            FixtureRowView(leagueDetailPreview.fixtures[1], isThisTeam = true, striped = false, highlightBadge = stringResource(R.string.league_detail_my_team_badge), onInfoClick = {})
-            leagueDetailLongNamesPreview.fixtures.forEach {
+            FixtureRowView(leagueFixturesPreview[1], isThisTeam = true, striped = false, highlightBadge = stringResource(R.string.league_detail_my_team_badge), onInfoClick = {})
+            leagueFixturesLongNamesPreview.forEach {
                 FixtureRowView(it, isThisTeam = true, striped = true, highlightBadge = stringResource(R.string.team_detail_this_team_badge), onInfoClick = {})
             }
         }

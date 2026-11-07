@@ -99,7 +99,7 @@ private struct ContentView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     BatSectionHeaderView(title: String(localized: "league_detail_standing_title"))
                     if detail.standings.isEmpty {
-                        SectionMessage(key: "league_detail_standing_empty_body")
+                        SectionMessageView(key: "league_detail_standing_empty_body")
                     } else {
                         BatListView {
                             ForEach(Array(detail.standings.enumerated()), id: \.element.id) { index, row in
@@ -121,8 +121,14 @@ private struct ContentView: View {
                         }
                     }
                 }
-                VStack(alignment: .leading, spacing: 0) {
-                    BatSectionHeaderView(title: String(localized: "league_detail_fixtures_title"))
+                LazySectionView(
+                    title: String(localized: "league_detail_fixtures_title"),
+                    isExpanded: detail.fixturesExpanded,
+                    onToggle: { onAction(.fixturesToggled) },
+                    section: detail.fixtures,
+                    loadingLabel: String(localized: "league_detail_fixtures_loading_cd"),
+                    unavailableText: String(localized: "league_detail_fixtures_unavailable_body")
+                ) { _ in
                     if detail.canFilterToTeam {
                         Toggle(
                             detail.highlightIsMyTeam
@@ -139,7 +145,7 @@ private struct ContentView: View {
                         .padding(.vertical, BatSpacing.sm)
                     }
                     if detail.visibleFixtures.isEmpty {
-                        SectionMessage(key: "league_detail_fixtures_empty_body")
+                        SectionMessageView(key: "league_detail_fixtures_empty_body")
                     } else {
                         BatListView {
                             ForEach(Array(detail.visibleFixtures.enumerated()), id: \.element.id) { index, fixture in
@@ -156,22 +162,14 @@ private struct ContentView: View {
                 }
                 PlayerRankingSectionView(
                     ranking: detail.ranking,
+                    isExpanded: detail.rankingExpanded,
+                    onToggle: { onAction(.rankingToggled) },
                     isMyPlayer: detail.isMyPlayer,
                     onPlayerTap: { onAction(.playerClicked(playerId: $0)) }
                 )
             }
             .padding(BatSpacing.lg)
         }
-    }
-}
-
-private struct SectionMessage: View {
-    let key: LocalizedStringKey
-
-    var body: some View {
-        Text(key)
-            .batTextStyle(BatTypography.body)
-            .foregroundStyle(BatColor.textSecondary)
     }
 }
 
@@ -190,6 +188,12 @@ private struct SectionMessage: View {
 #Preview("Loaded") {
     BatPreviewMatrix {
         LeagueDetailScreen(state: .content(LeagueDetailPreviewData.loaded), onAction: { _ in })
+    }
+}
+
+#Preview("Collapsed") {
+    BatPreviewMatrix {
+        LeagueDetailScreen(state: .content(LeagueDetailPreviewData.collapsed), onAction: { _ in })
     }
 }
 

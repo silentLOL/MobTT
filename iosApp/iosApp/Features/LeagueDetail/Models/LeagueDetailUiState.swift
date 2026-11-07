@@ -34,30 +34,35 @@ struct PlayerRankingRowUi: Identifiable, Equatable {
     let gamesPlayed: Int
 }
 
-/// The League's Player ranking, loaded on its own so the table and the Fixtures never wait for it.
-enum PlayerRankingUiState: Equatable {
+/// A League section loaded on its own the first time the user opens it, so the League never waits for it.
+enum SectionUiState<Value: Equatable>: Equatable {
     case loading
     case unavailable
-    case loaded([PlayerRankingRowUi])
+    case loaded(Value)
 }
 
 struct LeagueDetailUi: Equatable {
     let leagueName: String
     let standings: [StandingRowUi]
-    let fixtures: [FixtureRowUi]
+    /// Fixtures and ranking start collapsed and load the first time they are opened.
+    var fixtures = SectionUiState<[FixtureRowUi]>.loading
+    var fixturesExpanded = false
     /// The Fixtures can only be narrowed to a Team when one is highlighted.
     var canFilterToTeam = false
     /// A Team highlighted without coming from its own screen is one of My Teams: only the League tab opens a League that way. It is then called "my Team" rather than "this Team".
     var highlightIsMyTeam = false
     var onlyTeamFixtures = false
-    var ranking = PlayerRankingUiState.loading
+    var ranking = SectionUiState<[PlayerRankingRowUi]>.loading
+    var rankingExpanded = false
     /// Marks My Player in the ranking.
     var myPlayerId: String?
 
     func isMyPlayer(_ playerId: String) -> Bool { playerId == myPlayerId }
 
+    /// Empty until the Fixtures are loaded.
     var visibleFixtures: [FixtureRowUi] {
-        onlyTeamFixtures ? fixtures.filter(\.isThisTeam) : fixtures
+        guard case .loaded(let loaded) = fixtures else { return [] }
+        return onlyTeamFixtures ? loaded.filter(\.isThisTeam) : loaded
     }
 }
 

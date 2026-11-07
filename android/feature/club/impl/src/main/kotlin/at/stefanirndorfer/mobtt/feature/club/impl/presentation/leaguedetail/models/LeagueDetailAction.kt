@@ -10,4 +10,8 @@ sealed interface LeagueDetailAction {
     data class FixtureInfoClicked(val fixtureId: String) : LeagueDetailAction
 
     data class PlayerClicked(val playerId: String) : LeagueDetailAction
+
+    data object FixturesToggled : LeagueDetailAction
+
+    data object RankingToggled : LeagueDetailAction
 }
