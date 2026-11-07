@@ -1,5 +1,9 @@
 package at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
@@ -7,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -15,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -22,6 +28,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.stefanirndorfer.mobtt.core.localization.R
+import at.stefanirndorfer.mobtt.core.ui.ObserveAsEvents
 import at.stefanirndorfer.mobtt.core.ui.directory.DirectoryPickerView
 import at.stefanirndorfer.mobtt.core.ui.directory.models.DirectoryEntryUi
 import at.stefanirndorfer.mobtt.core.ui.directory.models.DirectorySectionUi
@@ -31,6 +38,7 @@ import at.stefanirndorfer.mobtt.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.mobtt.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.mobtt.designsystem.theme.BatDesign
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatIconButton
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatIconView
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSecondaryButton
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSelectableRow
@@ -39,8 +47,10 @@ import at.stefanirndorfer.mobtt.feature.settings.api.Appearance
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.DerivedFrom
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.PickerKind
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsAction
+import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsEvent
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsPickerUi
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsUiState
+import co.touchlab.kermit.Logger
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -48,7 +58,22 @@ fun SettingsRoute(viewModel: SettingsViewModel = koinViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     // Back, from the system or the shell's chevron, steps out of an open picker before it leaves Settings.
     BackHandler(enabled = uiState.picker != null) { viewModel.onAction(SettingsAction.PickerBackClicked) }
+    val context = LocalContext.current
+    ObserveAsEvents(viewModel.events) { event ->
+        when (event) {
+            is SettingsEvent.OpenSupportLink -> context.openInBrowser(event.url)
+        }
+    }
     SettingsScreen(state = uiState, onAction = viewModel::onAction)
+}
+
+/** Opens [url] in the user's browser; does nothing, apart from a log line, on a device with none. */
+private fun Context.openInBrowser(url: String) {
+    try {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+    } catch (e: ActivityNotFoundException) {
+        Logger.withTag("Settings").w(e) { "No app opens https links" }
+    }
 }
 
 @Composable
@@ -113,7 +138,42 @@ private fun MainContent(state: SettingsUiState, onAction: (SettingsAction) -> Un
         checked = state.usageConsentAllowed,
         onCheckedChange = { onAction(SettingsAction.UsageConsentToggled(it)) },
     )
-    DataSourceCredit()
+    AboutSection(showSupportLink = state.showSupportLink, onAction = onAction)
+}
+
+@Composable
+private fun AboutSection(showSupportLink: Boolean, onAction: (SettingsAction) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
+        BatSectionHeader(title = stringResource(R.string.settings_about_title))
+        if (showSupportLink) {
+            SupportRow(onClick = { onAction(SettingsAction.SupportClicked) })
+        }
+        DataSourceCredit()
+    }
+}
+
+@Composable
+private fun SupportRow(onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = BatDesign.sizing.minTouchTarget)
+            .clickable(
+                onClickLabel = stringResource(R.string.settings_support_open_cd),
+                role = Role.Button,
+                onClick = onClick,
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.md),
+    ) {
+        Text(
+            text = stringResource(R.string.settings_support_title),
+            modifier = Modifier.weight(1f),
+            color = BatDesign.colors.textPrimary,
+            style = BatDesign.typography.bodyStrong,
+        )
+        BatIconView(icon = BatIcon.ArrowForward, contentDescription = null, size = BatDesign.sizing.iconSmall, tint = BatDesign.colors.textSecondary)
+    }
 }
 
 @Composable
@@ -260,6 +320,14 @@ private fun SettingsScreenEmptyPreview() {
 private fun SettingsScreenLoadedPreview() {
     BatPreviewSurface {
         SettingsScreen(state = chosenPlayerState.copy(appearance = Appearance.DARK), onAction = {})
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun SettingsScreenWithSupportLinkPreview() {
+    BatPreviewSurface {
+        SettingsScreen(state = chosenPlayerState.copy(showSupportLink = true), onAction = {})
     }
 }
 

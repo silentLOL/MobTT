@@ -14,6 +14,7 @@ object AnalyticsEvent {
     const val FIXTURE_SHARE_TAPPED = "fixture_share_tapped"
     const val FIXTURE_LINK_OPENED = "fixture_link_opened"
     const val FIXTURE_VENUE_TAPPED = "fixture_venue_tapped"
+    const val SUPPORT_LINK_OPENED = "support_link_opened"
 }
 
 object AnalyticsParam {
@@ -95,6 +96,8 @@ fun AnalyticsTracker.fixtureLinkOpened(start: String) = logEvent(AnalyticsEvent.
 fun AnalyticsTracker.fixtureShareTapped(status: String) = logEvent(AnalyticsEvent.FIXTURE_SHARE_TAPPED, mapOf(AnalyticsParam.STATUS to status))
 
 fun AnalyticsTracker.fixtureVenueTapped(status: String) = logEvent(AnalyticsEvent.FIXTURE_VENUE_TAPPED, mapOf(AnalyticsParam.STATUS to status))
+
+fun AnalyticsTracker.supportLinkOpened() = logEvent(AnalyticsEvent.SUPPORT_LINK_OPENED, emptyMap())
 
 /** Sends the length of [query], never the text. */
 fun AnalyticsTracker.searchPerformed(screen: String, query: String) = logEvent(

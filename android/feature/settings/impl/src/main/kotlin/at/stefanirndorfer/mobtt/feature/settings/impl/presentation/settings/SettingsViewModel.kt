@@ -13,6 +13,7 @@ import at.stefanirndorfer.mobtt.core.analytics.myClubSelected
 import at.stefanirndorfer.mobtt.core.analytics.myPlayerSelected
 import at.stefanirndorfer.mobtt.core.analytics.screenView
 import at.stefanirndorfer.mobtt.core.analytics.settingChanged
+import at.stefanirndorfer.mobtt.core.analytics.supportLinkOpened
 import at.stefanirndorfer.mobtt.core.ui.catchUnavailable
 import at.stefanirndorfer.mobtt.core.ui.directory.PlayerDrillDown
 import at.stefanirndorfer.mobtt.core.ui.directory.filteredBy
@@ -29,6 +30,7 @@ import at.stefanirndorfer.mobtt.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.mobtt.domain.user.SetMyClubUseCase
 import at.stefanirndorfer.mobtt.domain.user.SetMyPlayerUseCase
 import at.stefanirndorfer.mobtt.domain.user.SetUsageConsentUseCase
+import at.stefanirndorfer.mobtt.domain.user.SupportLink
 import at.stefanirndorfer.mobtt.domain.user.UsageConsent
 import at.stefanirndorfer.mobtt.domain.user.UserContext
 import at.stefanirndorfer.mobtt.feature.settings.api.Appearance
@@ -36,10 +38,12 @@ import at.stefanirndorfer.mobtt.feature.settings.api.AppearanceRepository
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.DerivedFrom
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.PickerKind
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsAction
+import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsEvent
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsPickerUi
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsUiState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -50,6 +54,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -74,6 +79,7 @@ class SettingsViewModel(
     listAssociations: ListAssociationsUseCase,
     listLeagues: ListLeaguesUseCase,
     listLeaguePlayers: ListLeaguePlayersUseCase,
+    private val supportLink: SupportLink,
     private val analytics: AnalyticsTracker = NoOpAnalyticsTracker,
 ) : ViewModel() {
     init {
@@ -104,8 +110,12 @@ class SettingsViewModel(
         userContext.toUiState(appearance).copy(
             usageConsentAllowed = consent == UsageConsent.ALLOWED,
             picker = input?.toPicker(result, userContext),
+            showSupportLink = supportLink.url != null,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), SettingsUiState())
+
+    private val eventChannel = Channel<SettingsEvent>()
+    val events: Flow<SettingsEvent> = eventChannel.receiveAsFlow()
 
     fun onAction(action: SettingsAction) {
         when (action) {
@@ -116,6 +126,10 @@ class SettingsViewModel(
             is SettingsAction.UsageConsentToggled -> viewModelScope.launch {
                 setUsageConsent(action.allowed)
                 analytics.consentChanged(action.allowed, AnalyticsSource.SETTINGS)
+            }
+            SettingsAction.SupportClicked -> supportLink.url?.let { url ->
+                analytics.supportLinkOpened()
+                viewModelScope.launch { eventChannel.send(SettingsEvent.OpenSupportLink(url)) }
             }
             SettingsAction.ChoosePlayerClicked -> pickerInput.value = PickerInput(PickerKind.PLAYER)
             SettingsAction.ChooseClubClicked -> pickerInput.value = PickerInput(PickerKind.CLUB)

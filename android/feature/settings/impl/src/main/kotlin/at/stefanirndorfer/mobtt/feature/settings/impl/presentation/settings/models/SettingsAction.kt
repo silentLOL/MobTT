@@ -16,4 +16,6 @@ sealed interface SettingsAction {
     data object PickerBackClicked : SettingsAction
 
     data class UsageConsentToggled(val allowed: Boolean) : SettingsAction
+
+    data object SupportClicked : SettingsAction
 }

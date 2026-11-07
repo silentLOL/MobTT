@@ -25,6 +25,7 @@ class MobTTApplication : Application() {
             Environment.fromKey(BuildConfig.ENVIRONMENT),
             BuildConfig.VERSION_NAME,
             BuildConfig.XTTV_API_KEY,
+            BuildConfig.SUPPORT_URL.takeIf { it.isNotBlank() },
         )
         val koin = initKoin(config) {
             androidContext(this@MobTTApplication)

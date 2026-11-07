@@ -13,6 +13,14 @@ val xttvApiKey: String = Properties()
     ?: System.getenv("XTTV_API_KEY")
     ?: ""
 
+// The developer's tip page behind Settings' "Buy me a coffee" row: `support.url` in `local.properties`, or `SUPPORT_URL`
+// in CI. Unset hides the row.
+val supportUrl: String = Properties()
+    .apply { rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use(::load) }
+    .getProperty("support.url")
+    ?: System.getenv("SUPPORT_URL")
+    ?: ""
+
 // Firebase config is untracked, one `google-services.json` per flavor in `src/<flavor>/` (copy the `.example`).
 // Without any of them the plugins stay off and the SDK is never initialised; the app builds and runs without it.
 val firebaseConfigured = listOf("deb", "dev", "beta", "prod").associateWith { file("src/$it/google-services.json").exists() }
@@ -66,6 +74,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         buildConfigField("String", "XTTV_API_KEY", "\"$xttvApiKey\"")
+        buildConfigField("String", "SUPPORT_URL", "\"${supportUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
         // The Fixture link host (ADR-0011). A .example placeholder until the domain is registered: it never verifies, so no
         // link reaches the app. Replace it together with AppConfig.linksHost and the iOS LINKS_HOST.
         manifestPlaceholders["linksHost"] = "links.mobtt.example"

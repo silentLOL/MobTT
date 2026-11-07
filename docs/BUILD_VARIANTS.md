@@ -48,6 +48,13 @@ The key is a secret and never enters git. It reaches shared code as `AppConfig.x
 - Android: `xttv.apiKey=…` in the untracked `local.properties`, or the `XTTV_API_KEY` environment variable (CI). `androidApp/build.gradle.kts` turns it into `BuildConfig.XTTV_API_KEY`.
 - iOS: `XTTV_API_KEY=…` in `iosApp/Configuration/Secrets.xcconfig` (untracked; copy `Secrets.xcconfig.example`), included by `Config.xcconfig` and exposed as the `BatXttvApiKey` Info.plist key. CI must write that file.
 
+## Support link ("Buy me a coffee")
+
+The developer's tip page reaches shared code as `AppConfig.supportUrl`, null when unset. Settings hides its "Buy me a coffee" row while it is null, so a build without the setting shows no row.
+
+- Android: `support.url=https://…` in the untracked `local.properties`, or the `SUPPORT_URL` environment variable (CI). `androidApp/build.gradle.kts` turns it into `BuildConfig.SUPPORT_URL`.
+- iOS: set on its own, so App Review rejecting an external tip link hides the row on iOS alone (see the Settings spec).
+
 ## Firebase (Android)
 
 Crashlytics and Analytics follow [ADR-0009](adr/0009-native-firebase-behind-interfaces-opt-in-consent.md). One Firebase project holds one Android app per environment, using the application IDs above.

@@ -22,6 +22,7 @@ import at.stefanirndorfer.mobtt.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.mobtt.domain.user.SetMyClubUseCase
 import at.stefanirndorfer.mobtt.domain.user.SetMyPlayerUseCase
 import at.stefanirndorfer.mobtt.domain.user.SetUsageConsentUseCase
+import at.stefanirndorfer.mobtt.domain.user.SupportLink
 import at.stefanirndorfer.mobtt.domain.user.UsageConsent
 import at.stefanirndorfer.mobtt.domain.user.UsageConsentRepository
 import at.stefanirndorfer.mobtt.domain.user.UserSelection
@@ -31,11 +32,13 @@ import at.stefanirndorfer.mobtt.feature.settings.api.AppearanceRepository
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.DerivedFrom
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.PickerKind
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsAction
+import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -46,8 +49,10 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 private class FakeData :
     ClubRepository,
@@ -142,7 +147,7 @@ class SettingsViewModelTest {
     @After
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun TestScope.viewModel(): SettingsViewModel {
+    private fun TestScope.viewModel(supportUrl: String? = null): SettingsViewModel {
         val viewModel = SettingsViewModel(
             appearanceRepository = data,
             observeUserContext = ObserveUserContextUseCase(data, data, data, data),
@@ -154,6 +159,7 @@ class SettingsViewModelTest {
             listAssociations = ListAssociationsUseCase(data),
             listLeagues = ListLeaguesUseCase(data),
             listLeaguePlayers = ListLeaguePlayersUseCase(data, data),
+            supportLink = SupportLink(supportUrl),
             analytics = analytics,
         )
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
@@ -341,6 +347,43 @@ class SettingsViewModelTest {
 
         assertEquals(Appearance.DARK, viewModel.uiState.value.appearance)
         assertEquals(Appearance.DARK, data.observeAppearance().first())
+    }
+
+    @Test
+    fun theCoffeeRowShowsOnlyWhenATipPageIsSet() = runTest {
+        assertFalse(viewModel().uiState.value.showSupportLink)
+        assertTrue(viewModel(supportUrl = "https://example.org/coffee").uiState.value.showSupportLink)
+    }
+
+    @Test
+    fun aTipPageThatIsNotHttpsIsTreatedAsUnset() = runTest {
+        listOf("javascript:alert(1)", "file:///sdcard/x", "intent://x#Intent;end", "http://example.org", "").forEach { url ->
+            assertFalse(viewModel(supportUrl = url).uiState.value.showSupportLink, url)
+        }
+    }
+
+    @Test
+    fun tappingTheCoffeeRowOpensTheTipPageAndLogsIt() = runTest {
+        val viewModel = viewModel(supportUrl = "https://example.org/coffee")
+        val events = mutableListOf<SettingsEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.toList(events) }
+
+        viewModel.onAction(SettingsAction.SupportClicked)
+
+        assertEquals(listOf<SettingsEvent>(SettingsEvent.OpenSupportLink("https://example.org/coffee")), events)
+        assertEquals(listOf(LoggedEvent("support_link_opened", emptyMap())), analytics.events.drop(1))
+    }
+
+    @Test
+    fun tappingTheCoffeeRowWithoutATipPageDoesNothing() = runTest {
+        val viewModel = viewModel()
+        val events = mutableListOf<SettingsEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.toList(events) }
+
+        viewModel.onAction(SettingsAction.SupportClicked)
+
+        assertEquals(emptyList(), events)
+        assertEquals(1, analytics.events.size)
     }
 
     @Test

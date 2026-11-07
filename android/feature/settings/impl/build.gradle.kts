@@ -33,6 +33,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.compose.runtime)
     implementation(libs.androidx.lifecycle.compose.viewmodel)
     implementation(libs.koin.androidx.compose)
+    implementation(libs.kermit)
     implementation(libs.kotlinx.coroutines.core)
     testImplementation(project(":domain:player"))
     testImplementation(libs.junit)

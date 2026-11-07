@@ -215,4 +215,7 @@
     <string name="settings_usage_consent_supporting">Anonym. Enthält nie Namen oder Eingaben.</string>
     <string name="settings_data_source_credit">Ergebnisse bereitgestellt vom XTTV Ergebnisdienst</string>
     <string name="settings_data_source_link_label">Website des XTTV Ergebnisdienstes öffnen</string>
+    <string name="settings_about_title">Über die App</string>
+    <string name="settings_support_title">Spendier mir einen Kaffee</string>
+    <string name="settings_support_open_cd">Spendenseite im Browser öffnen</string>
 </resources>

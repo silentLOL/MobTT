@@ -215,4 +215,7 @@
     <string name="settings_usage_consent_supporting">Anonymous. Never includes names or what you type.</string>
     <string name="settings_data_source_credit">Results powered by XTTV Ergebnisdienst</string>
     <string name="settings_data_source_link_label">Open the XTTV Ergebnisdienst website</string>
+    <string name="settings_about_title">About</string>
+    <string name="settings_support_title">Buy me a coffee</string>
+    <string name="settings_support_open_cd">Open the tip page in your browser</string>
 </resources>

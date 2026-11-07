@@ -24,7 +24,10 @@ data class SettingsPickerUi(
     val breadcrumb: String? = null,
 )
 
-/** [myPlayerName] and [myClubName] are the user's choice; the Club and Association are derived and never edited. */
+/**
+ * [myPlayerName] and [myClubName] are the user's choice; the Club and Association are derived and never edited.
+ * [showSupportLink] is whether a tip page is set: without one there is no "Buy me a coffee" row.
+ */
 data class SettingsUiState(
     val appearance: Appearance = Appearance.SYSTEM,
     val usageConsentAllowed: Boolean = false,
@@ -34,4 +37,5 @@ data class SettingsUiState(
     val derivedClubName: String? = null,
     val derivedAssociationName: String? = null,
     val picker: SettingsPickerUi? = null,
+    val showSupportLink: Boolean = false,
 )

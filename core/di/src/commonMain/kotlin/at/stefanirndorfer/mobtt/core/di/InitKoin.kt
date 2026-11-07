@@ -16,6 +16,7 @@ import at.stefanirndorfer.mobtt.domain.rating.RatingHistoryAvailability
 import at.stefanirndorfer.mobtt.domain.rating.RatingHistoryExplanation
 import at.stefanirndorfer.mobtt.domain.rating.RatingHistoryRepository
 import at.stefanirndorfer.mobtt.domain.rating.di.ratingDomainModule
+import at.stefanirndorfer.mobtt.domain.user.SupportLink
 import at.stefanirndorfer.mobtt.domain.user.di.userDomainModule
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
@@ -37,6 +38,7 @@ private fun configModule(config: AppConfig): Module = module {
     single { RatingHistoryAvailability(config.ratingHistoryEnabled) }
     single { RatingHistoryExplanation(config.ratingsCentralExplanationUrl) }
     single { FixtureLinks(config.linksHost, config.fixtureSharingEnabled) }
+    single { SupportLink(config.supportUrl) }
 }
 
 /**
