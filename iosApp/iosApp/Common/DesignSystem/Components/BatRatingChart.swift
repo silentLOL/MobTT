@@ -12,13 +12,18 @@ struct BatChartPoint: Equatable {
 /// Most points that still get a dot each; above it, only the line and band are drawn.
 let batChartMaxDots = 40
 
-/// A line through `points` with a shaded band from each point's low to high, ordered by date. The vertical scale fits the band with some room above and below. With `showDots`, each point gets a dot. Tapping or dragging reports the nearest point's index to `onSelect`, and `selectedIndex` is marked with a rule. The chart is read as one element, `accessibilityText`.
+/// A line through `points` with a shaded band from each point's low to high, ordered by date. The vertical scale fits the band with some room above and below. With `showDots`, each point gets a dot. Tapping or dragging reports the nearest point's index to `onSelect`, and `selectedIndex` is marked with a rule.
+///
+/// The chart is read as one element, `accessibilityText`. VoiceOver users step through the points by swiping up and down, which reports to `onSelect` and reads `selectedDescription`, and can play the chart as an audio graph titled `audioGraphTitle`, its values called `valueName`.
 struct BatRatingChart: View {
     let points: [BatChartPoint]
     let accessibilityText: String
     var showDots: Bool?
     var selectedIndex: Int?
     var onSelect: ((Int) -> Void)?
+    var selectedDescription: String?
+    var audioGraphTitle = ""
+    var valueName = ""
 
     @State private var touchedDate: Date?
 
@@ -84,6 +89,17 @@ struct BatRatingChart: View {
         .frame(height: BatSizing.chartHeight)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(accessibilityText))
+        .accessibilityValue(Text(selectedDescription ?? ""))
+        .accessibilityAdjustableAction { direction in
+            guard let onSelect, !points.isEmpty else { return }
+            // Without a selection, both directions start from the latest point.
+            switch direction {
+            case .increment: onSelect(min((selectedIndex ?? points.count - 2) + 1, points.count - 1))
+            case .decrement: onSelect(max((selectedIndex ?? points.count) - 1, 0))
+            @unknown default: break
+            }
+        }
+        .accessibilityChartDescriptor(BatRatingChartDescriptor(points: points, title: audioGraphTitle, summary: accessibilityText, valueName: valueName))
     }
 
     private func nearestIndex(to date: Date) -> Int? {
@@ -96,6 +112,35 @@ struct BatRatingChart: View {
         let high = points.map(\.high).max() ?? 1
         let padding = max((high - low) * 0.1, 10)
         return (low - padding)...(high + padding)
+    }
+}
+
+/// The audio graph of a `BatRatingChart`: its values over time.
+private struct BatRatingChartDescriptor: AXChartDescriptorRepresentable {
+    let points: [BatChartPoint]
+    let title: String
+    let summary: String
+    let valueName: String
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let dates = points.map(\.date.timeIntervalSince1970)
+        let values = points.map(\.value)
+        let xAxis = AXNumericDataAxisDescriptor(
+            title: "",
+            range: (dates.min() ?? 0)...(dates.max() ?? 1),
+            gridlinePositions: []
+        ) { Date(timeIntervalSince1970: $0).formatted(date: .abbreviated, time: .omitted) }
+        let yAxis = AXNumericDataAxisDescriptor(
+            title: valueName,
+            range: (values.min() ?? 0)...(values.max() ?? 1),
+            gridlinePositions: []
+        ) { String(Int($0)) }
+        let series = AXDataSeriesDescriptor(
+            name: valueName,
+            isContinuous: true,
+            dataPoints: points.map { AXDataPoint(x: $0.date.timeIntervalSince1970, y: $0.value) }
+        )
+        return AXChartDescriptor(title: title, summary: summary, xAxis: xAxis, yAxis: yAxis, additionalAxes: [], series: [series])
     }
 }
 

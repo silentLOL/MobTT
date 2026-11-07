@@ -92,10 +92,19 @@ private fun RatingHistoryView(
         BatRatingChart(
             points = updates.map { it.toChartPoint() },
             xLabel = ::monthLabel,
-            contentDescription = stringResource(R.string.player_detail_rating_history_chart_cd, latest.after.points, latest.after.deviation),
+            contentDescription = stringResource(
+                R.string.player_detail_rating_history_chart_cd,
+                latest.after.points,
+                latest.after.deviation,
+                signed(latest.pointChange),
+                updates.size,
+                dayLabel(updates.first().date),
+            ),
             showDots = section.showsDots,
             selectedIndex = selected,
             onSelect = { selected = it },
+            previousLabel = stringResource(R.string.player_detail_rating_history_previous_cd),
+            nextLabel = stringResource(R.string.player_detail_rating_history_next_cd),
         )
         val shown = selected?.let(updates::getOrNull)
         when {

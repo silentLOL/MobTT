@@ -3333,23 +3333,6 @@
         }
       }
     },
-    "player_detail_rating_history_chart_cd %lld %lld": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ratingverlauf, %1$lld ±%2$lld nach der letzten Auswertung"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rating history, %1$lld ±%2$lld after the last Rating update"
-          }
-        }
-      }
-    },
     "player_detail_rating_history_single_body %lld %lld %@": {
       "extractionState": "manual",
       "localizations": {
@@ -3499,6 +3482,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Learn more at Ratings Central"
+          }
+        }
+      }
+    },
+    "player_detail_rating_history_chart_cd %lld %lld %@ %lld %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ratingverlauf: %1$lld ±%2$lld, %3$@ bei der letzten Auswertung. Angezeigte Auswertungen: %4$lld, seit %5$@."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rating history: %1$lld ±%2$lld, %3$@ at the last Rating update. Rating updates shown: %4$lld, since %5$@."
+          }
+        }
+      }
+    },
+    "player_detail_rating_history_value_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rating"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rating"
           }
         }
       }

@@ -181,7 +181,9 @@
     <string name="player_detail_rating_history_loading_cd">Ratingverlauf wird geladen</string>
     <string name="player_detail_rating_history_unavailable_body">Der Ratingverlauf kann gerade nicht geladen werden.</string>
     <string name="player_detail_rating_history_empty_body">Noch kein Ratingverlauf.</string>
-    <string name="player_detail_rating_history_chart_cd">Ratingverlauf, %1$d ±%2$d nach der letzten Auswertung</string>
+    <string name="player_detail_rating_history_chart_cd">Ratingverlauf: %1$d ±%2$d, %3$s bei der letzten Auswertung. Angezeigte Auswertungen: %4$d, seit %5$s.</string>
+    <string name="player_detail_rating_history_previous_cd">Vorherige Auswertung</string>
+    <string name="player_detail_rating_history_next_cd">Nächste Auswertung</string>
     <string name="player_detail_rating_history_single_body">%1$d ±%2$d nach der ersten Auswertung am %3$s.</string>
     <string name="player_detail_rating_history_span_year">12 Monate</string>
     <string name="player_detail_rating_history_span_all">Alle</string>

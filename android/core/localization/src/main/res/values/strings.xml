@@ -181,7 +181,9 @@
     <string name="player_detail_rating_history_loading_cd">Loading Rating history</string>
     <string name="player_detail_rating_history_unavailable_body">The Rating history can\'t be loaded right now.</string>
     <string name="player_detail_rating_history_empty_body">No Rating history yet.</string>
-    <string name="player_detail_rating_history_chart_cd">Rating history, %1$d ±%2$d after the last Rating update</string>
+    <string name="player_detail_rating_history_chart_cd">Rating history: %1$d ±%2$d, %3$s at the last Rating update. Rating updates shown: %4$d, since %5$s.</string>
+    <string name="player_detail_rating_history_previous_cd">Previous Rating update</string>
+    <string name="player_detail_rating_history_next_cd">Next Rating update</string>
     <string name="player_detail_rating_history_single_body">%1$d ±%2$d after the first Rating update on %3$s.</string>
     <string name="player_detail_rating_history_span_year">12 months</string>
     <string name="player_detail_rating_history_span_all">All</string>

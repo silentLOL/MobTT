@@ -51,10 +51,15 @@ private struct RatingHistoryView: View {
                 if let latest = updates.last {
                     BatRatingChart(
                         points: updates.map { BatChartPoint(date: $0.date, value: Double($0.points), low: Double($0.points - $0.deviation), high: Double($0.points + $0.deviation)) },
-                        accessibilityText: String(localized: "player_detail_rating_history_chart_cd \(latest.points) \(latest.deviation)"),
+                        accessibilityText: String(
+                            localized: "player_detail_rating_history_chart_cd \(latest.points) \(latest.deviation) \(signed(latest.pointChange)) \(updates.count) \(updates[0].date.dayLabel)"
+                        ),
                         showDots: section.showsDots,
                         selectedIndex: selected,
-                        onSelect: { selected = $0 }
+                        onSelect: { selected = $0 },
+                        selectedDescription: selected.flatMap { updates.indices.contains($0) ? updates[$0].spoken : nil },
+                        audioGraphTitle: String(localized: "player_detail_rating_history_title"),
+                        valueName: String(localized: "player_detail_rating_history_value_name")
                     )
                     if let selected, updates.indices.contains(selected) {
                         RatingUpdateCalloutView(update: updates[selected])
@@ -90,9 +95,17 @@ private struct RatingUpdateCalloutView: View {
         .accessibilityElement(children: .combine)
     }
 
-    /// A point change with its sign, e.g. +72 or −1119.
-    private func signed(_ change: Int) -> String {
-        change > 0 ? "+\(change)" : change < 0 ? "\u{2212}\(-change)" : "0"
+}
+
+/// A point change with its sign, e.g. +72 or −1119.
+private func signed(_ change: Int) -> String {
+    change > 0 ? "+\(change)" : change < 0 ? "\u{2212}\(-change)" : "0"
+}
+
+private extension RatingUpdateUi {
+    /// What VoiceOver reads for a selected Rating update: the same values as the callout.
+    var spoken: String {
+        "\(date.dayLabel), \(name), " + String(localized: "player_detail_rating_history_callout_value \(points) \(deviation) \(signed(pointChange))")
     }
 }
 

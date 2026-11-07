@@ -19,7 +19,9 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.drawText
@@ -45,7 +47,8 @@ const val BAT_CHART_MAX_DOTS = 40
  * A line through [points] with a shaded band from each point's low to high, ordered by x. The vertical scale fits the
  * band with some room above and below; [xLabel] names the first and last x. With [showDots], each point gets a dot.
  * Tapping or dragging reports the nearest point's index to [onSelect], and [selectedIndex] is marked with a rule. The
- * chart is read as one element, [contentDescription].
+ * chart is read as one element, [contentDescription]; with [previousLabel] and [nextLabel], screen readers step through
+ * the points with custom actions, which report to [onSelect] too.
  */
 @Composable
 fun BatRatingChart(
@@ -56,6 +59,8 @@ fun BatRatingChart(
     showDots: Boolean = points.size <= BAT_CHART_MAX_DOTS,
     selectedIndex: Int? = null,
     onSelect: ((Int) -> Unit)? = null,
+    previousLabel: String? = null,
+    nextLabel: String? = null,
 ) {
     val colors = BatDesign.colors
     val sizing = BatDesign.sizing
@@ -85,7 +90,22 @@ fun BatRatingChart(
         modifier = modifier
             .fillMaxWidth()
             .height(sizing.chartHeight)
-            .semantics { this.contentDescription = contentDescription }
+            .semantics {
+                this.contentDescription = contentDescription
+                if (onSelect != null && previousLabel != null && nextLabel != null && points.isNotEmpty()) {
+                    // Without a selection, both start from the latest point.
+                    val current = selectedIndex ?: points.size
+                    customActions = listOf(
+                        CustomAccessibilityAction(previousLabel) {
+                            (current - 1).takeIf { it >= 0 }?.let { onSelect(it) } != null
+                        },
+                        CustomAccessibilityAction(nextLabel) {
+                            val next = selectedIndex?.plus(1) ?: points.lastIndex
+                            next.takeIf { it <= points.lastIndex }?.let { onSelect(it) } != null
+                        },
+                    )
+                }
+            }
             .pointerInput(points) {
                 detectTapGestures { offset -> nearest(offset.x)?.let { currentOnSelect?.invoke(it) } }
             }
