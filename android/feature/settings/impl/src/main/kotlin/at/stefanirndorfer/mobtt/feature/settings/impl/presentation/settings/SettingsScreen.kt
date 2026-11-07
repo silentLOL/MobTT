@@ -1,5 +1,6 @@
 package at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings
 
+import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,18 +22,15 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.stefanirndorfer.mobtt.core.localization.R
-import at.stefanirndorfer.mobtt.core.ui.ObserveAsEvents
 import at.stefanirndorfer.mobtt.core.ui.directory.DirectoryPickerView
 import at.stefanirndorfer.mobtt.core.ui.directory.models.DirectoryEntryUi
 import at.stefanirndorfer.mobtt.core.ui.directory.models.DirectorySectionUi
 import at.stefanirndorfer.mobtt.core.ui.directory.models.PlayerStep
-import at.stefanirndorfer.mobtt.core.ui.sheetMinHeight
 import at.stefanirndorfer.mobtt.designsystem.icon.BatIcon
 import at.stefanirndorfer.mobtt.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.mobtt.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.mobtt.designsystem.theme.BatDesign
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatIconButton
-import at.stefanirndorfer.mobtt.designsystem.ui.components.BatPrimaryButton
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSecondaryButton
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSelectableRow
@@ -42,28 +39,16 @@ import at.stefanirndorfer.mobtt.feature.settings.api.Appearance
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.DerivedFrom
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.PickerKind
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsAction
-import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsEvent
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsPickerUi
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsUiState
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun SettingsSheet(
-    onDismiss: () -> Unit,
-    viewModel: SettingsViewModel = koinViewModel(),
-) {
+fun SettingsRoute(viewModel: SettingsViewModel = koinViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    ObserveAsEvents(viewModel.events) { event ->
-        when (event) {
-            SettingsEvent.Dismiss -> onDismiss()
-        }
-    }
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        containerColor = BatDesign.colors.background,
-    ) {
-        SettingsScreen(state = uiState, onAction = viewModel::onAction, modifier = Modifier.sheetMinHeight())
-    }
+    // Back, from the system or the shell's chevron, steps out of an open picker before it leaves Settings.
+    BackHandler(enabled = uiState.picker != null) { viewModel.onAction(SettingsAction.PickerBackClicked) }
+    SettingsScreen(state = uiState, onAction = viewModel::onAction)
 }
 
 @Composable
@@ -77,7 +62,7 @@ fun SettingsScreen(
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = BatDesign.spacing.lg)
-            .padding(bottom = BatDesign.spacing.lg),
+            .padding(vertical = BatDesign.spacing.lg),
         verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.lg),
     ) {
         if (state.picker != null) {
@@ -90,11 +75,11 @@ fun SettingsScreen(
 
 @Composable
 private fun MainContent(state: SettingsUiState, onAction: (SettingsAction) -> Unit) {
-    SheetHeader(
-        title = stringResource(R.string.settings_title),
-        icon = BatIcon.Close,
-        iconContentDescription = stringResource(R.string.core_close_button_cd),
-        onIconClick = { onAction(SettingsAction.DoneClicked) },
+    Text(
+        text = stringResource(R.string.settings_title),
+        modifier = Modifier.semantics { heading() },
+        color = BatDesign.colors.textPrimary,
+        style = BatDesign.typography.headline,
     )
     ChoiceRow(
         title = stringResource(R.string.settings_my_player_title),
@@ -127,11 +112,6 @@ private fun MainContent(state: SettingsUiState, onAction: (SettingsAction) -> Un
         supportingText = stringResource(R.string.settings_usage_consent_supporting),
         checked = state.usageConsentAllowed,
         onCheckedChange = { onAction(SettingsAction.UsageConsentToggled(it)) },
-    )
-    BatPrimaryButton(
-        text = stringResource(R.string.settings_done_button),
-        onClick = { onAction(SettingsAction.DoneClicked) },
-        modifier = Modifier.fillMaxWidth(),
     )
     DataSourceCredit()
 }
@@ -168,7 +148,7 @@ private fun PickerContent(picker: SettingsPickerUi, onAction: (SettingsAction) -
     } else {
         stringResource(R.string.settings_picker_back_cd)
     }
-    SheetHeader(
+    PickerHeader(
         title = title,
         icon = BatIcon.ArrowBack,
         iconContentDescription = backDescription,
@@ -187,7 +167,7 @@ private fun PickerContent(picker: SettingsPickerUi, onAction: (SettingsAction) -
 }
 
 @Composable
-private fun SheetHeader(
+private fun PickerHeader(
     title: String,
     icon: Int,
     iconContentDescription: String,

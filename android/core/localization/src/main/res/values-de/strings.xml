@@ -39,7 +39,6 @@
     <string name="settings_appearance_system_option">System folgen</string>
     <string name="settings_appearance_light_option">Hell</string>
     <string name="settings_appearance_dark_option">Dunkel</string>
-    <string name="settings_done_button">Fertig</string>
     <string name="core_search_label">Suche</string>
     <string name="core_search_placeholder">Name oder Verein</string>
     <string name="core_search_empty_body">Keine Treffer</string>

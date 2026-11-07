@@ -1,5 +1,6 @@
 package at.stefanirndorfer.mobtt
 
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,8 +32,10 @@ import at.stefanirndorfer.mobtt.feature.home.api.HomeDestination
 import at.stefanirndorfer.mobtt.feature.home.impl.navigation.homeGraph
 import at.stefanirndorfer.mobtt.feature.navigation.BackStackGlobalNavigator
 import at.stefanirndorfer.mobtt.feature.players.impl.navigation.playersGraph
+import at.stefanirndorfer.mobtt.feature.settings.api.SettingsDestination
+import at.stefanirndorfer.mobtt.feature.settings.api.navigateToSettings
+import at.stefanirndorfer.mobtt.feature.settings.impl.navigation.settingsGraph
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.consent.UsageConsentSheet
-import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.SettingsSheet
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import org.koin.androidx.compose.koinViewModel
@@ -53,22 +56,30 @@ fun MobTTApp(
             is FixtureLinkEvent.OpenFixture -> navigator.navigateToFixtureFromLink(event.fixtureId)
         }
     }
+    // The chevron goes through the back dispatcher, like the system Back, so a screen can handle it first (Settings'
+    // picker steps back before Settings closes). With no screen handling it, the NavDisplay below pops the back stack.
+    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     BatScreenScaffold(
         modifier = modifier,
         topBar = {
             BatTopBar(
                 title = stringResource(R.string.core_app_title),
                 back = if (navigator.backStack.size > 1) {
-                    BatTopBarBack(stringResource(R.string.core_topbar_back_cd), onClick = navigator::goBack)
+                    BatTopBarBack(
+                        stringResource(R.string.core_topbar_back_cd),
+                        onClick = { backDispatcher?.onBackPressed() ?: navigator.goBack() },
+                    )
                 } else {
                     null
                 },
                 actions = {
-                    BatIconButton(
-                        icon = BatIcon.Settings,
-                        contentDescription = stringResource(R.string.core_settings_button_cd),
-                        onClick = navigator::openSettings,
-                    )
+                    if (navigator.backStack.lastOrNull() != SettingsDestination) {
+                        BatIconButton(
+                            icon = BatIcon.Settings,
+                            contentDescription = stringResource(R.string.core_settings_button_cd),
+                            onClick = navigator::navigateToSettings,
+                        )
+                    }
                 },
             )
         },
@@ -97,11 +108,9 @@ fun MobTTApp(
                 homeGraph(navigator)
                 clubGraph(navigator)
                 playersGraph(navigator)
+                settingsGraph(navigator)
             },
         )
-    }
-    if (navigator.isSettingsOpen) {
-        SettingsSheet(onDismiss = navigator::closeSettings)
     }
     UsageConsentSheet()
 }

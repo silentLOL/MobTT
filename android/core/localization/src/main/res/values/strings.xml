@@ -39,7 +39,6 @@
     <string name="settings_appearance_system_option">Follow system</string>
     <string name="settings_appearance_light_option">Light</string>
     <string name="settings_appearance_dark_option">Dark</string>
-    <string name="settings_done_button">Done</string>
     <string name="core_search_label">Search</string>
     <string name="core_search_placeholder">Name or Club</string>
     <string name="core_search_empty_body">No matches</string>

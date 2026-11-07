@@ -14,8 +14,4 @@ interface GlobalNavigator {
     fun navigateFromStart(destination: GlobalAppDestination)
 
     fun goBack()
-
-    fun openSettings()
-
-    fun closeSettings()
 }

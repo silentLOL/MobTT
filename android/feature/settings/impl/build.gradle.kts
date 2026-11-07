@@ -28,6 +28,7 @@ dependencies {
     implementation(project(":core:preferences"))
     implementation(project(":domain:club"))
     implementation(project(":domain:user"))
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.lifecycle.compose.runtime)
     implementation(libs.androidx.lifecycle.compose.viewmodel)

@@ -31,13 +31,11 @@ import at.stefanirndorfer.mobtt.feature.settings.api.AppearanceRepository
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.DerivedFrom
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.PickerKind
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsAction
-import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -343,17 +341,6 @@ class SettingsViewModelTest {
 
         assertEquals(Appearance.DARK, viewModel.uiState.value.appearance)
         assertEquals(Appearance.DARK, data.observeAppearance().first())
-    }
-
-    @Test
-    fun doneAsksTheSheetToDismiss() = runTest {
-        val viewModel = viewModel()
-        val events = mutableListOf<SettingsEvent>()
-        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.toList(events) }
-
-        viewModel.onAction(SettingsAction.DoneClicked)
-
-        assertEquals(listOf<SettingsEvent>(SettingsEvent.Dismiss), events)
     }
 
     @Test

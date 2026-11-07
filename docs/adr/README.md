@@ -22,3 +22,4 @@ should link here instead of duplicating the rationale.
 | [0009](0009-native-firebase-behind-interfaces-with-opt-in-consent.md) | Native Firebase behind interfaces, opt-in consent, no advertising IDs | Proposed |
 | [0010](0010-ratings-central-history-behind-a-release-flag.md) | Ratings Central history export as a second data source, off in release builds until permitted | Accepted |
 | [0011](0011-fixture-links-on-our-own-self-hosted-domain.md) | Fixture links on our own domain, self-hosted | Proposed |
+| [0012](0012-settings-as-a-pushed-destination.md) | Settings as a pushed destination on Android | Accepted |

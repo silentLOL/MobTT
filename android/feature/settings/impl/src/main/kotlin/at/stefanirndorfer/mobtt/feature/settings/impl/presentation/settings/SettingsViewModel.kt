@@ -36,12 +36,10 @@ import at.stefanirndorfer.mobtt.feature.settings.api.AppearanceRepository
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.DerivedFrom
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.PickerKind
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsAction
-import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsEvent
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsPickerUi
 import at.stefanirndorfer.mobtt.feature.settings.impl.presentation.settings.models.SettingsUiState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -52,7 +50,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -110,9 +107,6 @@ class SettingsViewModel(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), SettingsUiState())
 
-    private val eventChannel = Channel<SettingsEvent>()
-    val events: Flow<SettingsEvent> = eventChannel.receiveAsFlow()
-
     fun onAction(action: SettingsAction) {
         when (action) {
             is SettingsAction.AppearanceSelected -> viewModelScope.launch {
@@ -131,9 +125,6 @@ class SettingsViewModel(
             }
             is SettingsAction.PickerEntryClicked -> choose(action.id)
             SettingsAction.PickerBackClicked -> pickerInput.update { goBack(it) }
-            SettingsAction.DoneClicked -> viewModelScope.launch {
-                eventChannel.send(SettingsEvent.Dismiss)
-            }
         }
     }
 
