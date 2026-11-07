@@ -104,6 +104,13 @@ class FakeClubData :
 
     override suspend fun getPlayer(id: String): Player? = players.firstOrNull { it.id == id }
 
+    /** Players saved so their screen can resolve them, in order. */
+    val remembered = mutableListOf<Player>()
+
+    override suspend fun remember(player: Player) {
+        remembered += player
+    }
+
     override suspend fun getLeaguePlayers(leagueId: String): List<Player> = emptyList()
 
     override suspend fun getPlayerRanking(leagueId: String): List<RankedPlayer> {

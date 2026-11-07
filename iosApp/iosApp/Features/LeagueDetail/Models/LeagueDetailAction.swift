@@ -8,7 +8,7 @@ enum LeagueDetailAction {
     case rankingToggled
 }
 
-enum LeagueDetailEvent {
+enum LeagueDetailEvent: Equatable {
     case openTeam(teamId: String)
     case openFixture(fixtureId: String)
     case openPlayer(playerId: String)

@@ -13,6 +13,7 @@ import at.stefanirndorfer.mobtt.domain.player.RankedPlayer
 import at.stefanirndorfer.mobtt.domain.user.GetPlayerRankingUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveUserContextUseCase
 import at.stefanirndorfer.mobtt.domain.user.PlayerRankingRow
+import at.stefanirndorfer.mobtt.domain.user.RememberPlayerUseCase
 import at.stefanirndorfer.mobtt.domain.user.UserSelection
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.FakeClubData
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailAction
@@ -60,6 +61,7 @@ class LeagueDetailViewModelTest {
             GetLeagueFixturesUseCase(data),
             GetPlayerRankingUseCase(data, data),
             ObserveUserContextUseCase(data, data, data, data),
+            RememberPlayerUseCase(data),
             analytics,
             reportsScreenView = reportsScreenView,
         )
@@ -296,5 +298,24 @@ class LeagueDetailViewModelTest {
             LoggedEvent("detail_opened", mapOf("kind" to "player", "id" to "p1", "from" to "league_detail")),
             analytics.events.last(),
         )
+    }
+
+    @Test
+    fun aPlayerTappedInTheRankingIsSavedBeforeTheirScreenOpens() = runTest {
+        data.ranking = listOf(ranked("p1", "Anna", 1), ranked("p2", "Bea", 2))
+        val viewModel = viewModel()
+        viewModel.onAction(LeagueDetailAction.RankingToggled)
+        val events = mutableListOf<LeagueDetailEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.events.collect {
+                // The Player screen resolves the Player as soon as it opens, so they must be saved by then.
+                assertEquals(listOf(Player("p2", "Bea", clubId = "c1")), data.remembered)
+                events += it
+            }
+        }
+
+        viewModel.onAction(LeagueDetailAction.PlayerClicked("p2"))
+
+        assertEquals(listOf<LeagueDetailEvent>(LeagueDetailEvent.OpenPlayer("p2")), events)
     }
 }

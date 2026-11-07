@@ -256,6 +256,32 @@ struct LeagueDetailViewModelTests {
         #expect(analytics.events == [LoggedEvent("detail_opened", ["kind": "player", "id": "p1", "from": "league_detail"])])
     }
 
+    @Test func aPlayerTappedInTheRankingIsSavedBeforeTheirScreenOpens() async {
+        var saved: [Player] = []
+        let viewModel = makeViewModel(
+            rememberPlayer: { saved.append($0) },
+            loadRanking: { _ in
+                DataResultSuccess(value: [
+                    PlayerRankingRow(ranked: self.ranked("p1", "Anna", rank: 1), teamName: "One"),
+                    PlayerRankingRow(ranked: self.ranked("p2", "Bea", rank: 2), teamName: "One"),
+                ] as NSArray)
+            }
+        ) { _ in self.twoTeamLeague() }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+        viewModel.onAction(.rankingToggled)
+        await settleRanking(viewModel)
+        var iterator = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.playerClicked(playerId: "p2"))
+        let event = await iterator.next()
+
+        // The Player screen resolves the Player as soon as it opens, so they must be saved by then.
+        #expect(saved.map(\.id) == ["p2"])
+        #expect(saved.first?.clubId == "c1")
+        #expect(event == .openPlayer(playerId: "p2"))
+    }
+
     @Test func aTeamHighlightedFromTheLeagueTabIsMyTeam() async {
         let viewModel = makeViewModel(highlightTeamId: "t1", openedFromTeamId: nil) { _ in self.twoTeamLeague() }
         viewModel.loadIfNeeded()
@@ -375,6 +401,7 @@ struct LeagueDetailViewModelTests {
         analytics: any AnalyticsTracker = NoOpAnalyticsTracker(),
         reportsScreenView: Bool = true,
         observeUserContext: AsyncStream<DataResult> = AsyncStream { $0.finish() },
+        rememberPlayer: @escaping (Player) async throws -> Void = { _ in },
         loadRanking: @escaping (String) async throws -> DataResult = { _ in DataResultSuccess(value: NSArray()) },
         loadFixtures: @escaping (String) async throws -> DataResult = { _ in DataResultSuccess(value: NSArray()) },
         loadDetail: @escaping (String) async throws -> DataResult
@@ -387,6 +414,7 @@ struct LeagueDetailViewModelTests {
             loadFixtures: loadFixtures,
             loadRanking: loadRanking,
             observeUserContext: observeUserContext,
+            rememberPlayer: rememberPlayer,
             analytics: analytics,
             reportsScreenView: reportsScreenView
         )

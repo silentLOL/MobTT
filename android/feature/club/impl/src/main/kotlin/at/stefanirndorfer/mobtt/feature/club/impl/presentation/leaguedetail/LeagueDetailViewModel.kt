@@ -9,11 +9,13 @@ import at.stefanirndorfer.mobtt.core.analytics.NoOpAnalyticsTracker
 import at.stefanirndorfer.mobtt.core.analytics.detailOpened
 import at.stefanirndorfer.mobtt.core.analytics.screenView
 import at.stefanirndorfer.mobtt.core.ui.RetryTrigger
+import at.stefanirndorfer.mobtt.core.ui.section.SectionUi
 import at.stefanirndorfer.mobtt.core.ui.section.lazySection
 import at.stefanirndorfer.mobtt.domain.club.GetLeagueDetailUseCase
 import at.stefanirndorfer.mobtt.domain.club.GetLeagueFixturesUseCase
 import at.stefanirndorfer.mobtt.domain.user.GetPlayerRankingUseCase
 import at.stefanirndorfer.mobtt.domain.user.ObserveUserContextUseCase
+import at.stefanirndorfer.mobtt.domain.user.RememberPlayerUseCase
 import at.stefanirndorfer.mobtt.domain.user.UserContext
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailAction
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.leaguedetail.models.LeagueDetailEvent
@@ -42,6 +44,7 @@ class LeagueDetailViewModel(
     private val getLeagueFixtures: GetLeagueFixturesUseCase,
     private val getPlayerRanking: GetPlayerRankingUseCase,
     observeUserContext: ObserveUserContextUseCase,
+    private val rememberPlayer: RememberPlayerUseCase,
     private val analytics: AnalyticsTracker = NoOpAnalyticsTracker,
     reportsScreenView: Boolean = true,
 ) : ViewModel() {
@@ -119,9 +122,20 @@ class LeagueDetailViewModel(
         viewModelScope.launch { eventChannel.send(LeagueDetailEvent.OpenFixture(fixtureId)) }
     }
 
+    /**
+     * XTTV cannot look a Player up by ID, so the ranked Player is saved before their screen opens, as the Team and Club
+     * screens do; otherwise the Player screen would find nothing.
+     */
     private fun openPlayer(playerId: String) {
         analytics.detailOpened(AnalyticsKind.PLAYER, playerId, from = AnalyticsScreen.LEAGUE_DETAIL)
-        viewModelScope.launch { eventChannel.send(LeagueDetailEvent.OpenPlayer(playerId)) }
+        val ranked = ((uiState.value as? LeagueDetailUiState.Content)?.ranking as? SectionUi.Loaded)?.value
+            ?.firstOrNull { it.ranked.player.id == playerId }
+            ?.ranked
+            ?.player
+        viewModelScope.launch {
+            ranked?.let { rememberPlayer(it) }
+            eventChannel.send(LeagueDetailEvent.OpenPlayer(playerId))
+        }
     }
 
     private suspend fun load(): LeagueDetailUiState = try {
