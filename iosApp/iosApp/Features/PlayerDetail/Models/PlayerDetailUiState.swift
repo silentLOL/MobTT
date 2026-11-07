@@ -44,10 +44,34 @@ struct RatingHistoryUi: Equatable {
     let updates: [RatingUpdateUi]
 }
 
-/// The collapsed Rating history section. `history` loads the first time the section is opened.
+/// How much of the Rating history the chart shows.
+enum RatingHistorySpan: CaseIterable {
+    case lastYear
+    case all
+}
+
+/// The collapsed Rating history section. `history` loads the first time the section is opened. `since` is the first day (midnight UTC) the chosen `span` covers, nil for the whole history.
 struct RatingHistorySectionUi: Equatable {
     var isExpanded = false
     var history = SectionUiState<RatingHistoryUi>.loading
+    var span = RatingHistorySpan.lastYear
+    var since: Date?
+
+    /// The loaded Rating updates within `span`, oldest first.
+    var visibleUpdates: [RatingUpdateUi] {
+        guard case .loaded(let loaded) = history else { return [] }
+        guard let since else { return loaded.updates }
+        return loaded.updates.filter { $0.date >= since }
+    }
+
+    /// The Player has Rating updates, just none in the chosen span.
+    var hasNoRecentUpdate: Bool {
+        guard case .loaded(let loaded) = history else { return false }
+        return !loaded.updates.isEmpty && visibleUpdates.isEmpty
+    }
+
+    /// A dot per Rating update only while there are few enough to tell apart.
+    var showsDots: Bool { visibleUpdates.count <= batChartMaxDots }
 }
 
 enum PlayerDetailUiState: Equatable {

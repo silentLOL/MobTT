@@ -6,6 +6,7 @@ enum PlayerDetailAction {
     case teamsRetryClicked
     case ratingHistoryToggled
     case ratingHistoryRetryClicked
+    case ratingHistorySpanChosen(RatingHistorySpan)
 }
 
 enum PlayerDetailEvent: Equatable {

@@ -37,6 +37,7 @@ import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.m
 import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.models.PlayerDetailEvent
 import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.models.PlayerDetailUiState
 import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.models.RatingHistorySectionUi
+import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.models.RatingHistorySpan
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -60,6 +61,8 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 /**
  * XTTV stand-in: every read throws [DataUnavailable] while [unavailable] is set; [clubUnavailable] and
@@ -145,7 +148,7 @@ private class FakePlayerData :
 private class FakeRatingHistories : RatingHistoryRepository {
     var unavailable = false
     val reads = mutableListOf<String>()
-    val history = RatingHistory(listOf(RatingUpdate(LocalDate(2026, 10, 25), "OÖTTV KW 43", Rating(447, 66), Rating(519, 86), 72)))
+    var history = RatingHistory(listOf(RatingUpdate(LocalDate(2026, 10, 25), "OÖTTV KW 43", Rating(447, 66), Rating(519, 86), 72)))
 
     override suspend fun getRatingHistory(ratingsCentralId: String): RatingHistory {
         reads += ratingsCentralId
@@ -181,6 +184,9 @@ class PlayerDetailViewModelTest {
             addFavorite = AddFavoriteUseCase(data, data),
             removeFavorite = RemoveFavoriteUseCase(data),
             analytics = analytics,
+            clock = object : Clock {
+                override fun now() = Instant.parse("2026-11-07T10:00:00Z")
+            },
         )
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel
@@ -364,7 +370,7 @@ class PlayerDetailViewModelTest {
     fun aPlayerWithARatingsCentralEntryShowsTheRatingHistoryCollapsedWithoutAskingForIt() = runTest {
         val viewModel = viewModel()
 
-        assertEquals(RatingHistorySectionUi(), viewModel.content().ratingHistory)
+        assertEquals(RatingHistorySectionUi(since = LocalDate(2025, 11, 7)), viewModel.content().ratingHistory)
         assertEquals(emptyList(), histories.reads)
     }
 
@@ -381,7 +387,10 @@ class PlayerDetailViewModelTest {
 
         viewModel.onAction(PlayerDetailAction.RatingHistoryToggled)
 
-        assertEquals(RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(histories.history)), viewModel.content().ratingHistory)
+        assertEquals(
+            RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(histories.history), since = LocalDate(2025, 11, 7)),
+            viewModel.content().ratingHistory,
+        )
         assertEquals(listOf("163468"), histories.reads)
     }
 
@@ -446,5 +455,77 @@ class PlayerDetailViewModelTest {
         repeat(3) { viewModel.onAction(PlayerDetailAction.RatingHistoryToggled) }
 
         assertEquals(listOf(LoggedEvent("rating_history_opened", emptyMap()), LoggedEvent("rating_history_opened", emptyMap())), analytics.events.drop(1))
+    }
+
+    private fun update(date: LocalDate, points: Int) = RatingUpdate(date, "Week", Rating(points - 10, 70), Rating(points, 70), 10)
+
+    private fun PlayerDetailViewModel.openedRatingHistory(): RatingHistorySectionUi {
+        onAction(PlayerDetailAction.RatingHistoryToggled)
+        return assertIs<PlayerDetailUiState.Content>(uiState.value).ratingHistory!!
+    }
+
+    @Test
+    fun theRatingHistoryStartsOnTheLast12Months() = runTest {
+        val old = update(LocalDate(2025, 10, 19), 331)
+        val recent = update(LocalDate(2026, 10, 25), 519)
+        histories.history = RatingHistory(listOf(old, recent))
+
+        val section = viewModel().openedRatingHistory()
+
+        assertEquals(RatingHistorySpan.LastYear, section.span)
+        assertEquals(listOf(recent), section.visibleUpdates)
+    }
+
+    @Test
+    fun choosingAllShowsTheWholeRatingHistory() = runTest {
+        val old = update(LocalDate(2025, 10, 19), 331)
+        val recent = update(LocalDate(2026, 10, 25), 519)
+        histories.history = RatingHistory(listOf(old, recent))
+        val viewModel = viewModel()
+        viewModel.openedRatingHistory()
+
+        viewModel.onAction(PlayerDetailAction.RatingHistorySpanChosen(RatingHistorySpan.All))
+
+        assertEquals(listOf(old, recent), viewModel.content().ratingHistory?.visibleUpdates)
+    }
+
+    @Test
+    fun aRatingUpdateExactly12MonthsAgoStillCounts() = runTest {
+        val edge = update(LocalDate(2025, 11, 7), 400)
+        histories.history = RatingHistory(listOf(edge))
+
+        assertEquals(listOf(edge), viewModel().openedRatingHistory().visibleUpdates)
+    }
+
+    @Test
+    fun aPlayerWithoutARecentRatingUpdateIsToldSoInTheLast12Months() = runTest {
+        histories.history = RatingHistory(listOf(update(LocalDate(2024, 3, 1), 331)))
+
+        val section = viewModel().openedRatingHistory()
+
+        assertTrue(section.hasNoRecentUpdate)
+        assertEquals(emptyList(), section.visibleUpdates)
+    }
+
+    @Test
+    fun anEmptyRatingHistoryIsNotMistakenForAnOldOne() = runTest {
+        histories.history = RatingHistory(emptyList())
+
+        assertFalse(viewModel().openedRatingHistory().hasNoRecentUpdate)
+    }
+
+    @Test
+    fun dotsAreDrawnUpTo40RatingUpdatesInTheVisibleSpan() = runTest {
+        val start = LocalDate(2025, 9, 14)
+        histories.history = RatingHistory(List(60) { update(LocalDate.fromEpochDays(start.toEpochDays() + it * 7L), 500 + it) })
+        val viewModel = viewModel()
+
+        val lastYear = viewModel.openedRatingHistory()
+        assertEquals(52, lastYear.visibleUpdates.size)
+        assertFalse(lastYear.showsDots)
+
+        histories.history = RatingHistory(histories.history.updates.takeLast(40))
+        val fewer = viewModel()
+        assertTrue(fewer.openedRatingHistory().showsDots)
     }
 }

@@ -24,6 +24,7 @@ final class PlayerDetailViewModel {
     @ObservationIgnored private let ratingHistoryEnabled: Bool
     @ObservationIgnored private let loadRatingsCentralId: (String, [String]) async throws -> DataResult
     @ObservationIgnored private let loadRatingHistory: (String) async throws -> DataResult
+    @ObservationIgnored private let now: () -> Date
     @ObservationIgnored private let observeFavorites: any AsyncSequence<Set<AnyHashable>, Never>
     @ObservationIgnored private let addFavorite: (Favorite) async throws -> Void
     @ObservationIgnored private let removeFavorite: (Favorite) async throws -> Void
@@ -38,6 +39,7 @@ final class PlayerDetailViewModel {
         ratingHistoryEnabled: Bool = KoinHelper.shared.isRatingHistoryEnabled(),
         loadRatingsCentralId: @escaping (String, [String]) async throws -> DataResult = { try await KoinHelper.shared.loadRatingsCentralId(playerId: $0, leagueIds: $1) },
         loadRatingHistory: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadRatingHistory(ratingsCentralId: $0) },
+        now: @escaping () -> Date = Date.init,
         observeFavorites: any AsyncSequence<Set<AnyHashable>, Never> = KoinHelper.shared.getObserveFavoritesUseCase().invoke(),
         addFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getAddFavoriteUseCase().invoke(favorite: $0) },
         removeFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getRemoveFavoriteUseCase().invoke(favorite: $0) },
@@ -50,6 +52,7 @@ final class PlayerDetailViewModel {
         self.ratingHistoryEnabled = ratingHistoryEnabled
         self.loadRatingsCentralId = loadRatingsCentralId
         self.loadRatingHistory = loadRatingHistory
+        self.now = now
         self.observeFavorites = observeFavorites
         self.addFavorite = addFavorite
         self.removeFavorite = removeFavorite
@@ -97,6 +100,11 @@ final class PlayerDetailViewModel {
             toggleRatingHistory()
         case .ratingHistoryRetryClicked:
             startRatingHistory()
+        case .ratingHistorySpanChosen(let span):
+            updateContent {
+                $0.ratingHistory?.span = span
+                $0.ratingHistory?.since = firstDay(of: span)
+            }
         }
     }
 
@@ -175,7 +183,21 @@ final class PlayerDetailViewModel {
             guard let result = try? await loadRatingsCentralId(player.id, leagueIds), !Task.isCancelled else { return }
             guard case .success(let success) = onEnum(of: result), let id = success.value as? String else { return }
             ratingsCentralId = id
-            updateContent { $0.ratingHistory = RatingHistorySectionUi() }
+            updateContent { $0.ratingHistory = RatingHistorySectionUi(since: firstDay(of: .lastYear)) }
+        }
+    }
+
+    /// The last 12 months run from this day a year ago, so a Rating update on that day still counts. Rating update dates are midnight UTC.
+    private func firstDay(of span: RatingHistorySpan) -> Date? {
+        switch span {
+        case .all:
+            return nil
+        case .lastYear:
+            var day = Calendar.current.dateComponents([.year, .month, .day], from: now())
+            day.year = day.year.map { $0 - 1 }
+            var utc = Calendar(identifier: .gregorian)
+            utc.timeZone = TimeZone(identifier: "UTC") ?? .gmt
+            return utc.date(from: day)
         }
     }
 

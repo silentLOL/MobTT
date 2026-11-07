@@ -88,7 +88,8 @@ private struct ContentView: View {
                     RatingHistorySectionView(
                         section: ratingHistory,
                         onToggle: { onAction(.ratingHistoryToggled) },
-                        onRetry: { onAction(.ratingHistoryRetryClicked) }
+                        onRetry: { onAction(.ratingHistoryRetryClicked) },
+                        onSpanChosen: { onAction(.ratingHistorySpanChosen($0)) }
                     )
                 }
             }

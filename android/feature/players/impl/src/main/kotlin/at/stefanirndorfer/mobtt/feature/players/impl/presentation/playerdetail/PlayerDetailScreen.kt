@@ -138,6 +138,7 @@ private fun ContentView(
                 section = section,
                 onToggle = { onAction(PlayerDetailAction.RatingHistoryToggled) },
                 onRetry = { onAction(PlayerDetailAction.RatingHistoryRetryClicked) },
+                onSpanChosen = { onAction(PlayerDetailAction.RatingHistorySpanChosen(it)) },
             )
         }
     }

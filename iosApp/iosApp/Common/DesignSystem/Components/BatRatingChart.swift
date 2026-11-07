@@ -12,10 +12,15 @@ struct BatChartPoint: Equatable {
 /// Most points that still get a dot each; above it, only the line and band are drawn.
 let batChartMaxDots = 40
 
-/// A line through `points` with a shaded band from each point's low to high, ordered by date. The vertical scale fits the band with some room above and below. The chart is read as one element, `accessibilityText`.
+/// A line through `points` with a shaded band from each point's low to high, ordered by date. The vertical scale fits the band with some room above and below. With `showDots`, each point gets a dot. Tapping or dragging reports the nearest point's index to `onSelect`, and `selectedIndex` is marked with a rule. The chart is read as one element, `accessibilityText`.
 struct BatRatingChart: View {
     let points: [BatChartPoint]
     let accessibilityText: String
+    var showDots: Bool?
+    var selectedIndex: Int?
+    var onSelect: ((Int) -> Void)?
+
+    @State private var touchedDate: Date?
 
     var body: some View {
         Chart {
@@ -31,12 +36,26 @@ struct BatRatingChart: View {
                         .foregroundStyle(BatColor.brand)
                         .lineStyle(StrokeStyle(lineWidth: BatSizing.chartLine, lineCap: .round, lineJoin: .round))
                 }
-                if points.count <= batChartMaxDots {
+                if showDots ?? (points.count <= batChartMaxDots) {
                     PointMark(x: .value("Date", point.date), y: .value("Rating", point.value))
                         .foregroundStyle(BatColor.brand)
                         .symbolSize(BatSizing.chartDot * BatSizing.chartDot)
                 }
             }
+            if let selectedIndex, points.indices.contains(selectedIndex) {
+                let point = points[selectedIndex]
+                RuleMark(x: .value("Date", point.date))
+                    .foregroundStyle(BatColor.borderStrong)
+                    .lineStyle(StrokeStyle(lineWidth: BatSizing.borderThin))
+                PointMark(x: .value("Date", point.date), y: .value("Rating", point.value))
+                    .foregroundStyle(BatColor.brand)
+                    .symbolSize(BatSizing.chartDot * BatSizing.chartDot * 2)
+            }
+        }
+        .chartXSelection(value: $touchedDate)
+        .onChange(of: touchedDate) { _, date in
+            guard let date, let index = nearestIndex(to: date) else { return }
+            onSelect?(index)
         }
         .chartYScale(domain: yDomain)
         .chartYAxis {
@@ -67,6 +86,10 @@ struct BatRatingChart: View {
         .accessibilityLabel(Text(accessibilityText))
     }
 
+    private func nearestIndex(to date: Date) -> Int? {
+        points.indices.min { abs(points[$0].date.timeIntervalSince(date)) < abs(points[$1].date.timeIntervalSince(date)) }
+    }
+
     /// The band's range with a tenth of it, at least 10 points, above and below.
     private var yDomain: ClosedRange<Double> {
         let low = points.map(\.low).min() ?? 0
@@ -85,7 +108,7 @@ struct BatRatingChart: View {
     }
     BatPreviewMatrix {
         VStack(spacing: BatSpacing.lg) {
-            BatRatingChart(points: points, accessibilityText: "Rating history")
+            BatRatingChart(points: points, accessibilityText: "Rating history", selectedIndex: 4)
             BatRatingChart(points: Array(points.prefix(1)), accessibilityText: "Rating history")
         }
     }

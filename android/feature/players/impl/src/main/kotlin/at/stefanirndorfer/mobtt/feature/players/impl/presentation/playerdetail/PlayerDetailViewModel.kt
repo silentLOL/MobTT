@@ -29,6 +29,7 @@ import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.m
 import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.models.PlayerDetailEvent
 import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.models.PlayerDetailUiState
 import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.models.RatingHistorySectionUi
+import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.models.RatingHistorySpan
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -49,6 +50,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
 
 class PlayerDetailViewModel(
     private val playerId: String,
@@ -61,6 +68,7 @@ class PlayerDetailViewModel(
     private val addFavorite: AddFavoriteUseCase,
     private val removeFavorite: RemoveFavoriteUseCase,
     private val analytics: AnalyticsTracker = NoOpAnalyticsTracker,
+    private val clock: Clock = Clock.System,
 ) : ViewModel() {
     init {
         analytics.screenView(AnalyticsScreen.PLAYER_DETAIL)
@@ -73,6 +81,8 @@ class PlayerDetailViewModel(
     private val ratingHistoryRetry = RetryTrigger()
 
     private val ratingHistoryExpanded = MutableStateFlow(false)
+
+    private val ratingHistorySpan = MutableStateFlow(RatingHistorySpan.LastYear)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<PlayerDetailUiState> = flow { emit(loadPlayer()) }
@@ -106,6 +116,7 @@ class PlayerDetailViewModel(
             PlayerDetailAction.TeamsRetryClicked -> teamsRetry.retry()
             PlayerDetailAction.RatingHistoryToggled -> toggleRatingHistory()
             PlayerDetailAction.RatingHistoryRetryClicked -> ratingHistoryRetry.retry()
+            is PlayerDetailAction.RatingHistorySpanChosen -> ratingHistorySpan.value = action.span
         }
     }
 
@@ -152,8 +163,12 @@ class PlayerDetailViewModel(
                 if (ratingsCentralId == null) {
                     flowOf(null)
                 } else {
-                    combine(ratingHistoryExpanded, ratingHistoryRetry.lazySection(ratingHistoryExpanded) { getRatingHistory(ratingsCentralId) }) { expanded, history ->
-                        RatingHistorySectionUi(expanded, history)
+                    combine(
+                        ratingHistoryExpanded,
+                        ratingHistoryRetry.lazySection(ratingHistoryExpanded) { getRatingHistory(ratingsCentralId) },
+                        ratingHistorySpan,
+                    ) { expanded, history, span ->
+                        RatingHistorySectionUi(expanded, history, span, since = firstDayOf(span))
                     }
                 }
             }
@@ -167,6 +182,12 @@ class PlayerDetailViewModel(
     } catch (e: Exception) {
         Logger.withTag(TAG).w(e) { "Ratings Central entry of Player ${player.id} not found" }
         null
+    }
+
+    /** The last 12 months run from this day a year ago, so a Rating update on that day still counts. */
+    private fun firstDayOf(span: RatingHistorySpan): LocalDate? = when (span) {
+        RatingHistorySpan.LastYear -> clock.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.minus(DatePeriod(years = 1))
+        RatingHistorySpan.All -> null
     }
 
     private fun toggleRatingHistory() {

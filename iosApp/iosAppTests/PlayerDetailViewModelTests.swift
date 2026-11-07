@@ -11,7 +11,7 @@ struct PlayerDetailViewModelTests {
         clubId: "1",
         club: .loaded(PlayerClubUi(clubName: "TTC Olympic", associationName: "WTTV")),
         teams: .loaded(PlayerTeamsUi(teams: [PlayerTeamUi(id: "t1", name: "TTC Olympic 1")], rcPoints: 1992, ageGroup: "U171")),
-        ratingHistory: RatingHistorySectionUi()
+        ratingHistory: RatingHistorySectionUi(since: yearBeforeNow)
     )
 
     @Test func aResolvedPlayerShowsItsNameClubAssociationAndTeams() async {
@@ -212,7 +212,7 @@ struct PlayerDetailViewModelTests {
         viewModel.loadIfNeeded()
         await waitUntil { viewModel.ratingHistory != nil }
 
-        #expect(viewModel.ratingHistory == RatingHistorySectionUi())
+        #expect(viewModel.ratingHistory == RatingHistorySectionUi(since: yearBeforeNow))
         #expect(historyReads.isEmpty)
     }
 
@@ -235,7 +235,7 @@ struct PlayerDetailViewModelTests {
         viewModel.onAction(.ratingHistoryToggled)
         await waitUntil { viewModel.ratingHistory?.history != .loading }
 
-        #expect(viewModel.ratingHistory == RatingHistorySectionUi(isExpanded: true, history: .loaded(expectedHistory)))
+        #expect(viewModel.ratingHistory == RatingHistorySectionUi(isExpanded: true, history: .loaded(expectedHistory), since: yearBeforeNow))
         #expect(historyReads == ["163468"])
     }
 
@@ -316,6 +316,71 @@ struct PlayerDetailViewModelTests {
         #expect(analytics.events == [LoggedEvent("rating_history_opened", [:]), LoggedEvent("rating_history_opened", [:])])
     }
 
+    @Test func theRatingHistoryStartsOnTheLast12Months() async {
+        let viewModel = makeViewModel(loadRatingHistory: { _ in historyOf(old, recent) })
+
+        await open(viewModel)
+
+        #expect(viewModel.ratingHistory?.span == .lastYear)
+        #expect(viewModel.ratingHistory?.visibleUpdates == [recent.ui])
+    }
+
+    @Test func choosingAllShowsTheWholeRatingHistory() async {
+        let viewModel = makeViewModel(loadRatingHistory: { _ in historyOf(old, recent) })
+        await open(viewModel)
+
+        viewModel.onAction(.ratingHistorySpanChosen(.all))
+
+        #expect(viewModel.ratingHistory?.visibleUpdates == [old.ui, recent.ui])
+    }
+
+    @Test func aRatingUpdateExactly12MonthsAgoStillCounts() async {
+        let edge = Fixture(epochDay: 20_399, points: 400)
+        let viewModel = makeViewModel(loadRatingHistory: { _ in historyOf(edge) })
+
+        await open(viewModel)
+
+        #expect(viewModel.ratingHistory?.visibleUpdates == [edge.ui])
+    }
+
+    @Test func aPlayerWithoutARecentRatingUpdateIsToldSoInTheLast12Months() async {
+        let viewModel = makeViewModel(loadRatingHistory: { _ in historyOf(Fixture(epochDay: 19_783, points: 331)) })
+
+        await open(viewModel)
+
+        #expect(viewModel.ratingHistory?.hasNoRecentUpdate == true)
+        #expect(viewModel.ratingHistory?.visibleUpdates == [])
+    }
+
+    @Test func anEmptyRatingHistoryIsNotMistakenForAnOldOne() async {
+        let viewModel = makeViewModel(loadRatingHistory: { _ in historyOf() })
+
+        await open(viewModel)
+
+        #expect(viewModel.ratingHistory?.hasNoRecentUpdate == false)
+    }
+
+    @Test func dotsAreDrawnUpTo40RatingUpdatesInTheVisibleSpan() async {
+        // Weekly from 2025-09-14: 52 of 60 fall in the last 12 months, and 40 of the last 40.
+        let weekly = (0..<60).map { Fixture(epochDay: 20_345 + $0 * 7, points: 500 + $0) }
+        let many = makeViewModel(loadRatingHistory: { _ in historyOf(weekly) })
+        let fewer = makeViewModel(loadRatingHistory: { _ in historyOf(Array(weekly.suffix(40))) })
+
+        await open(many)
+        await open(fewer)
+
+        #expect(many.ratingHistory?.visibleUpdates.count == 52)
+        #expect(many.ratingHistory?.showsDots == false)
+        #expect(fewer.ratingHistory?.showsDots == true)
+    }
+
+    private func open(_ viewModel: PlayerDetailViewModel) async {
+        viewModel.loadIfNeeded()
+        await waitUntil { viewModel.ratingHistory != nil }
+        viewModel.onAction(.ratingHistoryToggled)
+        await waitUntil { viewModel.ratingHistory?.history != .loading }
+    }
+
     private func makeViewModel(
         loadPlayer: @escaping (String) async throws -> DataResult = { _ in DataResultSuccess(value: Player(id: "p1", name: "Anna Gruber", clubId: "1")) },
         loadClub: @escaping (Player) async throws -> DataResult = { _ in DataResultSuccess(value: PlayerClub(clubName: "TTC Olympic", associationCode: "WTTV")) },
@@ -338,6 +403,7 @@ struct PlayerDetailViewModelTests {
             ratingHistoryEnabled: ratingHistoryEnabled,
             loadRatingsCentralId: loadRatingsCentralId,
             loadRatingHistory: loadRatingHistory,
+            now: { now },
             observeFavorites: AsyncStream { continuation in
                 favorites.forEach { continuation.yield($0) }
                 continuation.finish()
@@ -373,6 +439,41 @@ private var history: DataResult {
 private let expectedHistory = RatingHistoryUi(updates: [
     RatingUpdateUi(date: Date(timeIntervalSince1970: 20_751 * 86_400), name: "OÖTTV KW 43", points: 519, deviation: 86, pointChange: 72),
 ])
+
+/// 2026-11-07, the day the tests pretend it is; its year-earlier day is 2025-11-07 (epoch day 20_399).
+private let now = Date(timeIntervalSince1970: 20_764 * 86_400 + 10 * 3_600)
+private let yearBeforeNow = Date(timeIntervalSince1970: 20_399 * 86_400)
+
+private struct Fixture {
+    let epochDay: Int
+    let points: Int
+
+    var update: RatingUpdate {
+        let date = Date(timeIntervalSince1970: Double(epochDay) * 86_400)
+        let parts = Calendar(identifier: .gregorian).dateComponents(in: TimeZone(identifier: "UTC")!, from: date)
+        return RatingUpdate(
+            date: Kotlinx_datetimeLocalDate(year: Int32(parts.year!), month: Int32(parts.month!), day: Int32(parts.day!)),
+            name: "Week",
+            before: Rating(points: Int32(points - 10), deviation: 70),
+            after: Rating(points: Int32(points), deviation: 70),
+            pointChange: 10
+        )
+    }
+
+    var ui: RatingUpdateUi {
+        RatingUpdateUi(date: Date(timeIntervalSince1970: Double(epochDay) * 86_400), name: "Week", points: points, deviation: 70, pointChange: 10)
+    }
+}
+
+/// 2025-10-19 and 2026-10-25.
+private let old = Fixture(epochDay: 20_380, points: 331)
+private let recent = Fixture(epochDay: 20_751, points: 519)
+
+private func historyOf(_ fixtures: Fixture...) -> DataResult { historyOf(fixtures) }
+
+private func historyOf(_ fixtures: [Fixture]) -> DataResult {
+    DataResultSuccess(value: RatingHistory(updates: fixtures.map(\.update)))
+}
 
 private var unavailable: DataResult { DataResultUnavailable(error: DataUnavailable(message: "down", cause: nil)) }
 

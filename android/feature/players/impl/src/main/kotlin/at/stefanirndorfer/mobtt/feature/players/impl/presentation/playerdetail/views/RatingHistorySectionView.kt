@@ -2,9 +2,17 @@ package at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import at.stefanirndorfer.mobtt.core.localization.R
 import at.stefanirndorfer.mobtt.core.ui.section.LazySectionView
 import at.stefanirndorfer.mobtt.core.ui.section.SectionMessage
@@ -14,9 +22,11 @@ import at.stefanirndorfer.mobtt.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.mobtt.designsystem.theme.BatDesign
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatChartPoint
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatRatingChart
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSegmentedControl
 import at.stefanirndorfer.mobtt.domain.rating.RatingHistory
 import at.stefanirndorfer.mobtt.domain.rating.RatingUpdate
 import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.models.RatingHistorySectionUi
+import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.models.RatingHistorySpan
 import at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail.preview.ratingHistoryPreview
 import kotlinx.datetime.LocalDate
 import java.text.DateFormat
@@ -31,6 +41,7 @@ fun RatingHistorySectionView(
     section: RatingHistorySectionUi,
     onToggle: () -> Unit,
     onRetry: () -> Unit,
+    onSpanChosen: (RatingHistorySpan) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazySectionView(
@@ -43,29 +54,81 @@ fun RatingHistorySectionView(
         modifier = modifier,
         onRetry = onRetry,
     ) { history ->
-        RatingHistoryView(history)
+        RatingHistoryView(history, section, onSpanChosen)
     }
 }
 
 @Composable
-private fun RatingHistoryView(history: RatingHistory) {
-    val latest = history.updates.lastOrNull()
-    if (latest == null) {
+private fun RatingHistoryView(
+    history: RatingHistory,
+    section: RatingHistorySectionUi,
+    onSpanChosen: (RatingHistorySpan) -> Unit,
+) {
+    if (history.updates.isEmpty()) {
         SectionMessage(stringResource(R.string.player_detail_rating_history_empty_body))
         return
     }
-    Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm)) {
+    Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.md)) {
+        val spans = RatingHistorySpan.entries
+        BatSegmentedControl(
+            options = spans.map { stringResource(it.label) },
+            selectedIndex = spans.indexOf(section.span),
+            onSelect = { onSpanChosen(spans[it]) },
+        )
+        val updates = section.visibleUpdates
+        val latest = updates.lastOrNull()
+        if (latest == null) {
+            SectionMessage(stringResource(R.string.player_detail_rating_history_no_recent_body))
+            return@Column
+        }
+        // A touched Rating update; a new span or history starts without one.
+        var selected by remember(updates) { mutableStateOf<Int?>(null) }
         BatRatingChart(
-            points = history.updates.map { it.toChartPoint() },
+            points = updates.map { it.toChartPoint() },
             xLabel = ::monthLabel,
             contentDescription = stringResource(R.string.player_detail_rating_history_chart_cd, latest.after.points, latest.after.deviation),
+            showDots = section.showsDots,
+            selectedIndex = selected,
+            onSelect = { selected = it },
         )
-        if (history.updates.size == 1) {
-            SectionMessage(
+        val shown = selected?.let(updates::getOrNull)
+        when {
+            shown != null -> RatingUpdateCalloutView(shown)
+            history.updates.size == 1 -> SectionMessage(
                 stringResource(R.string.player_detail_rating_history_single_body, latest.after.points, latest.after.deviation, dayLabel(latest.date)),
             )
         }
     }
+}
+
+/** The touched Rating update: when, which, and where it left the Rating. */
+@Composable
+private fun RatingUpdateCalloutView(update: RatingUpdate) {
+    Column(
+        modifier = Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
+        verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.xxs),
+    ) {
+        Text(text = dayLabel(update.date), color = BatDesign.colors.textTertiary, style = BatDesign.typography.caption)
+        Text(text = update.name, color = BatDesign.colors.textPrimary, style = BatDesign.typography.bodyStrong)
+        Text(
+            text = stringResource(R.string.player_detail_rating_history_callout_value, update.after.points, update.after.deviation, signed(update.pointChange)),
+            color = BatDesign.colors.textSecondary,
+            style = BatDesign.typography.body,
+        )
+    }
+}
+
+private val RatingHistorySpan.label: Int
+    get() = when (this) {
+        RatingHistorySpan.LastYear -> R.string.player_detail_rating_history_span_year
+        RatingHistorySpan.All -> R.string.player_detail_rating_history_span_all
+    }
+
+/** A point change with its sign, e.g. +72 or −1119. */
+private fun signed(change: Int): String = when {
+    change > 0 -> "+$change"
+    change < 0 -> "\u2212${-change}"
+    else -> "0"
 }
 
 /** The Rating after the update, so Ratings Central's unrated default before the first one never appears. */
@@ -92,15 +155,22 @@ private const val MILLIS_PER_DAY = 86_400_000L
 private fun RatingHistorySectionViewPreview() {
     BatPreviewSurface {
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.lg)) {
-            RatingHistorySectionView(RatingHistorySectionUi(), onToggle = {}, onRetry = {})
-            RatingHistorySectionView(RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(ratingHistoryPreview)), onToggle = {}, onRetry = {})
+            RatingHistorySectionView(RatingHistorySectionUi(), onToggle = {}, onRetry = {}, onSpanChosen = {})
+            RatingHistorySectionView(RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(ratingHistoryPreview)), onToggle = {}, onRetry = {}, onSpanChosen = {})
             RatingHistorySectionView(
                 RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(RatingHistory(ratingHistoryPreview.updates.take(1)))),
                 onToggle = {},
                 onRetry = {},
+                onSpanChosen = {},
             )
-            RatingHistorySectionView(RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(RatingHistory(emptyList()))), onToggle = {}, onRetry = {})
-            RatingHistorySectionView(RatingHistorySectionUi(expanded = true, history = SectionUi.Unavailable), onToggle = {}, onRetry = {})
+            RatingHistorySectionView(RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(RatingHistory(emptyList()))), onToggle = {}, onRetry = {}, onSpanChosen = {})
+            RatingHistorySectionView(RatingHistorySectionUi(expanded = true, history = SectionUi.Unavailable), onToggle = {}, onRetry = {}, onSpanChosen = {})
+            RatingHistorySectionView(
+                RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(ratingHistoryPreview), since = LocalDate(2030, 1, 1)),
+                onToggle = {},
+                onRetry = {},
+                onSpanChosen = {},
+            )
         }
     }
 }

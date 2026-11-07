@@ -1,12 +1,16 @@
 package at.stefanirndorfer.mobtt.designsystem.ui.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
@@ -14,6 +18,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
@@ -22,6 +27,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import at.stefanirndorfer.mobtt.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.mobtt.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.mobtt.designsystem.theme.BatDesign
+import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.log10
@@ -37,8 +43,9 @@ const val BAT_CHART_MAX_DOTS = 40
 
 /**
  * A line through [points] with a shaded band from each point's low to high, ordered by x. The vertical scale fits the
- * band with some room above and below; [xLabel] names the first and last x. The chart is read as one element,
- * [contentDescription].
+ * band with some room above and below; [xLabel] names the first and last x. With [showDots], each point gets a dot.
+ * Tapping or dragging reports the nearest point's index to [onSelect], and [selectedIndex] is marked with a rule. The
+ * chart is read as one element, [contentDescription].
  */
 @Composable
 fun BatRatingChart(
@@ -46,6 +53,9 @@ fun BatRatingChart(
     xLabel: (Float) -> String,
     contentDescription: String,
     modifier: Modifier = Modifier,
+    showDots: Boolean = points.size <= BAT_CHART_MAX_DOTS,
+    selectedIndex: Int? = null,
+    onSelect: ((Int) -> Unit)? = null,
 ) {
     val colors = BatDesign.colors
     val sizing = BatDesign.sizing
@@ -53,11 +63,35 @@ fun BatRatingChart(
     val labelStyle = BatDesign.typography.caption.copy(color = colors.textTertiary)
     val measurer = rememberTextMeasurer()
     val scale = remember(points) { BatChartScale.of(points) }
+    // The plot's left and right edge, as last drawn, so a touch can be mapped to the nearest point.
+    val plotEdges = remember { floatArrayOf(0f, 0f) }
+    val currentOnSelect by rememberUpdatedState(onSelect)
+    fun nearest(touchX: Float): Int? {
+        if (points.isEmpty()) {
+            return null
+        }
+        val minX = points.first().x
+        val spanX = points.last().x - minX
+        return points.indices.minByOrNull { index ->
+            val x = if (spanX == 0f) {
+                (plotEdges[0] + plotEdges[1]) / 2
+            } else {
+                plotEdges[0] + (points[index].x - minX) / spanX * (plotEdges[1] - plotEdges[0])
+            }
+            abs(x - touchX)
+        }
+    }
     Canvas(
         modifier = modifier
             .fillMaxWidth()
             .height(sizing.chartHeight)
-            .semantics { this.contentDescription = contentDescription },
+            .semantics { this.contentDescription = contentDescription }
+            .pointerInput(points) {
+                detectTapGestures { offset -> nearest(offset.x)?.let { currentOnSelect?.invoke(it) } }
+            }
+            .pointerInput(points) {
+                detectHorizontalDragGestures { change, _ -> nearest(change.position.x)?.let { currentOnSelect?.invoke(it) } }
+            },
     ) {
         if (points.isEmpty()) {
             return@Canvas
@@ -71,6 +105,8 @@ fun BatRatingChart(
         val right = size.width - sizing.chartDot.toPx()
         val minX = points.first().x
         val spanX = points.last().x - minX
+        plotEdges[0] = left
+        plotEdges[1] = right
 
         fun xOf(x: Float) = if (spanX == 0f) {
             (left + right) / 2
@@ -104,8 +140,14 @@ fun BatRatingChart(
             }
             drawPath(line, colors.brand, style = Stroke(width = sizing.chartLine.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
         }
-        if (points.size <= BAT_CHART_MAX_DOTS) {
+        if (showDots) {
             points.forEach { drawCircle(colors.brand, radius = sizing.chartDot.toPx() / 2, center = Offset(xOf(it.x), yOf(it.value))) }
+        }
+        points.getOrNull(selectedIndex ?: -1)?.let { point ->
+            val x = xOf(point.x)
+            drawLine(colors.borderStrong, Offset(x, top), Offset(x, bottom), strokeWidth = sizing.borderThin.toPx())
+            drawCircle(colors.surface, radius = sizing.chartDot.toPx(), center = Offset(x, yOf(point.value)))
+            drawCircle(colors.brand, radius = sizing.chartDot.toPx() * 2 / 3, center = Offset(x, yOf(point.value)))
         }
     }
 }
@@ -165,7 +207,7 @@ private fun previewPoints(count: Int) = List(count) { index ->
 private fun BatRatingChartPreview() {
     BatPreviewSurface {
         Column {
-            BatRatingChart(previewPoints(12), xLabel = { "Week ${it.toInt() + 1}" }, contentDescription = "Rating history")
+            BatRatingChart(previewPoints(12), xLabel = { "Week ${it.toInt() + 1}" }, contentDescription = "Rating history", selectedIndex = 4)
             BatRatingChart(previewPoints(1), xLabel = { "Week ${it.toInt() + 1}" }, contentDescription = "Rating history")
             BatRatingChart(previewPoints(80), xLabel = { "Week ${it.toInt() + 1}" }, contentDescription = "Rating history")
         }

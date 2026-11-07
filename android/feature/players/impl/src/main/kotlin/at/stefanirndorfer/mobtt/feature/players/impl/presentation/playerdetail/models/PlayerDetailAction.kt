@@ -14,4 +14,6 @@ sealed interface PlayerDetailAction {
     data object RatingHistoryToggled : PlayerDetailAction
 
     data object RatingHistoryRetryClicked : PlayerDetailAction
+
+    data class RatingHistorySpanChosen(val span: RatingHistorySpan) : PlayerDetailAction
 }
