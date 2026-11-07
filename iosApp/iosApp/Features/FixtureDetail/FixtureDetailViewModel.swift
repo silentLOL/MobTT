@@ -14,16 +14,22 @@ final class FixtureDetailViewModel {
     var events: AsyncStream<FixtureDetailEvent> { eventStream.stream }
 
     private let loadDetail: (String) async throws -> DataResult
+    @ObservationIgnored private let sharingEnabled: Bool
+    @ObservationIgnored private let linkTo: (String) -> String
     @ObservationIgnored private let analytics: any AnalyticsTracker
     @ObservationIgnored private let screenViews: ScreenViewReporter
 
     init(
         fixtureId: String,
         loadDetail: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadFixtureDetail(fixtureId: $0) },
+        sharingEnabled: Bool = KoinHelper.shared.isFixtureSharingEnabled(),
+        linkTo: @escaping (String) -> String = { KoinHelper.shared.fixtureLink(fixtureId: $0) },
         analytics: any AnalyticsTracker = AppAnalytics.tracker
     ) {
         self.fixtureId = fixtureId
         self.loadDetail = loadDetail
+        self.sharingEnabled = sharingEnabled
+        self.linkTo = linkTo
         self.analytics = analytics
         self.screenViews = ScreenViewReporter(tracker: analytics, screen: AnalyticsScreen.fixtureDetail)
     }
@@ -47,7 +53,15 @@ final class FixtureDetailViewModel {
         case .teamClicked(let teamId):
             analytics.detailOpened(kind: AnalyticsKind.team, id: teamId, from: AnalyticsScreen.fixtureDetail)
             eventStream.continuation.yield(.openTeam(teamId: teamId))
+        case .shareClicked:
+            share()
         }
+    }
+
+    private func share() {
+        guard case .content(let detail) = uiState else { return }
+        analytics.fixtureShareTapped(status: detail.score == nil ? AnalyticsFixtureStatus.scheduled : AnalyticsFixtureStatus.finished)
+        eventStream.continuation.yield(.share(detail: detail, link: linkTo(fixtureId)))
     }
 
     private func load() async {
@@ -56,7 +70,7 @@ final class FixtureDetailViewModel {
             let result = try await loadDetail(fixtureId)
             guard !Task.isCancelled else { return }
             switch onEnum(of: result) {
-            case .success(let success): uiState = (success.value as? FixtureDetail).map { .content($0.toUi()) } ?? .error
+            case .success(let success): uiState = (success.value as? FixtureDetail).map { .content($0.toUi(canShare: sharingEnabled)) } ?? .error
             case .unavailable: uiState = .error
             }
         } catch {
@@ -66,7 +80,7 @@ final class FixtureDetailViewModel {
 }
 
 private extension FixtureDetail {
-    func toUi() -> FixtureDetailUi {
+    func toUi(canShare: Bool) -> FixtureDetailUi {
         let finished = (fixture.status as? FixtureStatusFinished)?.score
         return FixtureDetailUi(
             homeTeamId: fixture.homeTeamId,
@@ -77,7 +91,8 @@ private extension FixtureDetail {
             venue: fixture.venue,
             address: address?.formatted(),
             score: finished.map { FixtureScoreUi(home: Int($0.homeMatchesWon), away: Int($0.awayMatchesWon)) },
-            matches: matches.map { $0.toUi() }
+            matches: matches.map { $0.toUi() },
+            canShare: canShare
         )
     }
 }

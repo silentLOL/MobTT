@@ -2,6 +2,7 @@ import SwiftUI
 
 struct FixtureDetailRoute: View {
     @State private var viewModel: FixtureDetailViewModel
+    @State private var share: ShareContent?
 
     let onOpenTeam: (_ teamId: String) -> Void
 
@@ -18,8 +19,13 @@ struct FixtureDetailRoute: View {
                 for await event in viewModel.events {
                     switch event {
                     case .openTeam(let teamId): onOpenTeam(teamId)
+                    case .share(let detail, let link): share = FixtureShare.content(detail: detail, link: link)
                     }
                 }
+            }
+            .sheet(item: $share) { content in
+                ShareSheetView(content: content)
+                    .presentationDetents([.medium, .large])
             }
     }
 }
@@ -89,7 +95,13 @@ private struct ContentView: View {
     private var header: some View {
         BatHeroCardView {
             VStack(alignment: .leading, spacing: BatSpacing.sm) {
-                BatHeroPillRowView(text: String(localized: "fixture_detail_hero_overline"))
+                BatHeroPillRowView(text: String(localized: "fixture_detail_hero_overline")) {
+                    if detail.canShare {
+                        BatIconButtonView(icon: .share, accessibilityText: String(localized: "fixture_detail_share")) {
+                            onAction(.shareClicked)
+                        }
+                    }
+                }
                 VStack(alignment: .leading, spacing: BatSpacing.xs) {
                     teamLink(id: detail.homeTeamId, name: detail.homeTeamName)
                     teamLink(id: detail.awayTeamId, name: detail.awayTeamName)

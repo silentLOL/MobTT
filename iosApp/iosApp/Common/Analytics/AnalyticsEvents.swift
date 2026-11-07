@@ -9,6 +9,7 @@ enum AnalyticsEvent {
     static let consentChanged = "consent_changed"
     static let settingChanged = "setting_changed"
     static let ratingInfoOpened = "rating_info_opened"
+    static let fixtureShareTapped = "fixture_share_tapped"
 }
 
 enum AnalyticsParam {
@@ -21,6 +22,7 @@ enum AnalyticsParam {
     static let queryLength = "query_length"
     static let setting = "setting"
     static let value = "value"
+    static let status = "status"
 }
 
 enum AnalyticsScreen {
@@ -47,6 +49,11 @@ enum AnalyticsKind {
     static let team = "team"
     static let league = "league"
     static let fixture = "fixture"
+}
+
+enum AnalyticsFixtureStatus {
+    static let scheduled = "scheduled"
+    static let finished = "finished"
 }
 
 enum AnalyticsSource {
@@ -94,6 +101,10 @@ extension AnalyticsTracker {
 
     func ratingInfoOpened() {
         logEvent(AnalyticsEvent.ratingInfoOpened, parameters: [:])
+    }
+
+    func fixtureShareTapped(status: String) {
+        logEvent(AnalyticsEvent.fixtureShareTapped, parameters: [AnalyticsParam.status: status])
     }
 
     func settingChanged(setting: String, value: String) {

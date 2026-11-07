@@ -13,7 +13,8 @@ enum FixtureDetailPreviewData {
             MatchRowUi(id: 2, number: 2, isDoubles: false, homePlayers: "Anna Gruber", awayPlayers: "Sophie Wagner", score: FixtureScoreUi(home: 1, away: 3)),
             MatchRowUi(id: 3, number: 3, isDoubles: true, homePlayers: "Michael Huber / Anna Gruber", awayPlayers: "Lukas Bauer / Sophie Wagner", score: FixtureScoreUi(home: 3, away: 2)),
             MatchRowUi(id: 4, number: 4, isDoubles: false, homePlayers: "Anna Gruber", awayPlayers: "Lukas Bauer", score: nil),
-        ]
+        ],
+        canShare: true
     )
 
     /// A Fixture in the future: no score and no Matches.
@@ -52,6 +53,7 @@ enum FixtureDetailPreviewData {
                 awayPlayers: "Alexander von Hohenberg-Wartenstein / Christina Schwarzenberg-Lobkowicz",
                 score: FixtureScoreUi(home: 2, away: 3)
             ),
-        ]
+        ],
+        canShare: true
     )
 }

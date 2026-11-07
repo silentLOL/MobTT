@@ -1,5 +1,5 @@
 ---
-status: ready-for-agent
+status: resolved
 blocked_by: [2, 3]
 ---
 
@@ -9,8 +9,12 @@ blocked_by: [2, 3]
 
 **Blocked by:** 02, 03
 
-- [ ] The Share button sits in `BatHeroCardView`'s trailing slot when `fixtureSharingEnabled` is on: `square.and.arrow.up`, 44pt touch target, accessibility label "Share Fixture"
-- [ ] Tapping it logs `fixture_share_tapped` with the status and presents the system share sheet with the subject and the text (`FixtureDetailViewModelTests`)
-- [ ] The share text matches Android's for the same Fixture, in English and German (Swift Testing)
-- [ ] New strings are in the `.xcstrings` catalogue in English and German
-- [ ] The iOS build and tests pass
+- [x] The Share button sits in `BatHeroCardView`'s trailing slot when `fixtureSharingEnabled` is on: `square.and.arrow.up`, 44pt touch target, accessibility label "Share Fixture"
+- [x] Tapping it logs `fixture_share_tapped` with the status and presents the system share sheet with the subject and the text (`FixtureDetailViewModelTests`)
+- [x] The share text matches Android's for the same Fixture, in English and German (Swift Testing)
+- [x] New strings are in the `.xcstrings` catalogue in English and German
+- [x] The iOS build and tests pass
+
+## Comments
+
+- 2026-11-07: `FixtureShare.content` builds the text from `FixtureDetailUi`, looking strings up in the locale's `.lproj` so tests can check German; `ShareSheetView` (Common/Share) wraps `UIActivityViewController` with the pairing as subject. `KoinHelper` also gained `fixtureIdOfLink` for 06. The new `.xcstrings` keys still need the Loco push (see 03).
