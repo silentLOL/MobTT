@@ -3350,40 +3350,6 @@
         }
       }
     },
-    "player_detail_rating_history_span_year": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "12 Monate"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "12 months"
-          }
-        }
-      }
-    },
-    "player_detail_rating_history_span_all": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alle"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "All"
-          }
-        }
-      }
-    },
     "player_detail_rating_history_no_recent_body": {
       "extractionState": "manual",
       "localizations": {
@@ -3397,23 +3363,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "No Rating update in the last 12 months."
-          }
-        }
-      }
-    },
-    "player_detail_rating_history_callout_value %lld %lld %@": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%1$lld ±%2$lld (%3$@)"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%1$lld ±%2$lld (%3$@)"
           }
         }
       }
@@ -3516,6 +3465,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rating"
+          }
+        }
+      }
+    },
+    "player_detail_rating_history_span_year_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 Monate"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 months"
+          }
+        }
+      }
+    },
+    "player_detail_rating_history_span_all_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All"
+          }
+        }
+      }
+    },
+    "player_detail_rating_history_callout_body %lld %lld %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld ±%2$lld (%3$@)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld ±%2$lld (%3$@)"
           }
         }
       }

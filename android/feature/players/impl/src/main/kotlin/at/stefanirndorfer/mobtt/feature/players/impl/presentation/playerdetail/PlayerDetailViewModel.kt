@@ -83,7 +83,7 @@ class PlayerDetailViewModel(
 
     private val ratingHistoryExpanded = MutableStateFlow(false)
 
-    private val ratingHistorySpan = MutableStateFlow(RatingHistorySpan.LastYear)
+    private val ratingHistorySpan = MutableStateFlow(RatingHistorySpan.LAST_YEAR)
 
     private val ratingInfoShown = MutableStateFlow(false)
 
@@ -196,8 +196,8 @@ class PlayerDetailViewModel(
 
     /** The last 12 months run from this day a year ago, so a Rating update on that day still counts. */
     private fun firstDayOf(span: RatingHistorySpan): LocalDate? = when (span) {
-        RatingHistorySpan.LastYear -> clock.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.minus(DatePeriod(years = 1))
-        RatingHistorySpan.All -> null
+        RatingHistorySpan.LAST_YEAR -> clock.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.minus(DatePeriod(years = 1))
+        RatingHistorySpan.ALL -> null
     }
 
     private fun toggleRatingHistory() {

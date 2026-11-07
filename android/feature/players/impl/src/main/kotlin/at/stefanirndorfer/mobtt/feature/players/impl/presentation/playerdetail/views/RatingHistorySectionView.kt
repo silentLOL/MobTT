@@ -126,7 +126,7 @@ private fun RatingUpdateCalloutView(update: RatingUpdate) {
         Text(text = dayLabel(update.date), color = BatDesign.colors.textTertiary, style = BatDesign.typography.caption)
         Text(text = update.name, color = BatDesign.colors.textPrimary, style = BatDesign.typography.bodyStrong)
         Text(
-            text = stringResource(R.string.player_detail_rating_history_callout_value, update.after.points, update.after.deviation, signed(update.pointChange)),
+            text = stringResource(R.string.player_detail_rating_history_callout_body, update.after.points, update.after.deviation, signed(update.pointChange)),
             color = BatDesign.colors.textSecondary,
             style = BatDesign.typography.body,
         )
@@ -135,8 +135,8 @@ private fun RatingUpdateCalloutView(update: RatingUpdate) {
 
 private val RatingHistorySpan.label: Int
     get() = when (this) {
-        RatingHistorySpan.LastYear -> R.string.player_detail_rating_history_span_year
-        RatingHistorySpan.All -> R.string.player_detail_rating_history_span_all
+        RatingHistorySpan.LAST_YEAR -> R.string.player_detail_rating_history_span_year_label
+        RatingHistorySpan.ALL -> R.string.player_detail_rating_history_span_all_label
     }
 
 /** A point change with its sign, e.g. +72 or −1119. */

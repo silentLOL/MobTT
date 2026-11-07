@@ -477,7 +477,7 @@ class PlayerDetailViewModelTest {
 
         val section = viewModel().openedRatingHistory()
 
-        assertEquals(RatingHistorySpan.LastYear, section.span)
+        assertEquals(RatingHistorySpan.LAST_YEAR, section.span)
         assertEquals(listOf(recent), section.visibleUpdates)
     }
 
@@ -489,7 +489,7 @@ class PlayerDetailViewModelTest {
         val viewModel = viewModel()
         viewModel.openedRatingHistory()
 
-        viewModel.onAction(PlayerDetailAction.RatingHistorySpanChosen(RatingHistorySpan.All))
+        viewModel.onAction(PlayerDetailAction.RatingHistorySpanChosen(RatingHistorySpan.ALL))
 
         assertEquals(listOf(old, recent), viewModel.content().ratingHistory?.visibleUpdates)
     }

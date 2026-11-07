@@ -88,7 +88,7 @@ private struct RatingUpdateCalloutView: View {
             Text(update.name)
                 .batTextStyle(BatTypography.bodyStrong)
                 .foregroundStyle(BatColor.textPrimary)
-            Text("player_detail_rating_history_callout_value \(update.points) \(update.deviation) \(signed(update.pointChange))")
+            Text("player_detail_rating_history_callout_body \(update.points) \(update.deviation) \(signed(update.pointChange))")
                 .batTextStyle(BatTypography.body)
                 .foregroundStyle(BatColor.textSecondary)
         }
@@ -105,15 +105,15 @@ private func signed(_ change: Int) -> String {
 private extension RatingUpdateUi {
     /// What VoiceOver reads for a selected Rating update: the same values as the callout.
     var spoken: String {
-        "\(date.dayLabel), \(name), " + String(localized: "player_detail_rating_history_callout_value \(points) \(deviation) \(signed(pointChange))")
+        "\(date.dayLabel), \(name), " + String(localized: "player_detail_rating_history_callout_body \(points) \(deviation) \(signed(pointChange))")
     }
 }
 
 private extension RatingHistorySpan {
     var label: String {
         switch self {
-        case .lastYear: String(localized: "player_detail_rating_history_span_year")
-        case .all: String(localized: "player_detail_rating_history_span_all")
+        case .lastYear: String(localized: "player_detail_rating_history_span_year_label")
+        case .all: String(localized: "player_detail_rating_history_span_all_label")
         }
     }
 }

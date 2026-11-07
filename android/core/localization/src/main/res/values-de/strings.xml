@@ -185,10 +185,10 @@
     <string name="player_detail_rating_history_previous_cd">Vorherige Auswertung</string>
     <string name="player_detail_rating_history_next_cd">Nächste Auswertung</string>
     <string name="player_detail_rating_history_single_body">%1$d ±%2$d nach der ersten Auswertung am %3$s.</string>
-    <string name="player_detail_rating_history_span_year">12 Monate</string>
-    <string name="player_detail_rating_history_span_all">Alle</string>
+    <string name="player_detail_rating_history_span_year_label">12 Monate</string>
+    <string name="player_detail_rating_history_span_all_label">Alle</string>
     <string name="player_detail_rating_history_no_recent_body">Keine Auswertung in den letzten 12 Monaten.</string>
-    <string name="player_detail_rating_history_callout_value">%1$d ±%2$d (%3$s)</string>
+    <string name="player_detail_rating_history_callout_body">%1$d ±%2$d (%3$s)</string>
     <string name="player_detail_rating_info_cd">Über den Ratingverlauf</string>
     <string name="player_detail_rating_info_title">Über den Ratingverlauf</string>
     <string name="player_detail_rating_info_body">Die Linie ist die Schätzung der Spielstärke durch Ratings Central: das Rating.\n\nDie Zahl nach ± ist die Abweichung, also wie sicher diese Schätzung ist. In etwa zwei von drei Fällen liegt die tatsächliche Spielstärke im schattierten Band.\n\nJe breiter das Band, desto stärker kann sich das Rating bei der nächsten Auswertung bewegen. Das Rating ändert sich nur, wenn Ratings Central die Ergebnisse auswertet, meist einmal pro Spielwoche.</string>

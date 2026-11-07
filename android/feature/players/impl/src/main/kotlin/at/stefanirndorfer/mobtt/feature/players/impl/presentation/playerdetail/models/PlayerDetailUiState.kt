@@ -30,7 +30,7 @@ sealed interface PlayerDetailUiState {
 }
 
 /** How much of the Rating history the chart shows. */
-enum class RatingHistorySpan { LastYear, All }
+enum class RatingHistorySpan { LAST_YEAR, ALL }
 
 /**
  * The collapsed Rating history section, shown only for a Player with a Ratings Central entry. [history] loads the first
@@ -39,7 +39,7 @@ enum class RatingHistorySpan { LastYear, All }
 data class RatingHistorySectionUi(
     val expanded: Boolean = false,
     val history: SectionUi<RatingHistory> = SectionUi.Loading,
-    val span: RatingHistorySpan = RatingHistorySpan.LastYear,
+    val span: RatingHistorySpan = RatingHistorySpan.LAST_YEAR,
     val since: LocalDate? = null,
 ) {
     /** The loaded Rating updates within [span], oldest first. */

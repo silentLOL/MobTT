@@ -204,11 +204,12 @@ final class PlayerDetailViewModel {
         case .all:
             return nil
         case .lastYear:
-            var day = Calendar.current.dateComponents([.year, .month, .day], from: now())
-            day.year = day.year.map { $0 - 1 }
+            // Calendar arithmetic, like Android's, so 29 February steps back to 28 February.
+            let calendar = Calendar.current
+            guard let yearAgo = calendar.date(byAdding: .year, value: -1, to: now()) else { return nil }
             var utc = Calendar(identifier: .gregorian)
             utc.timeZone = TimeZone(identifier: "UTC") ?? .gmt
-            return utc.date(from: day)
+            return utc.date(from: calendar.dateComponents([.year, .month, .day], from: yearAgo))
         }
     }
 

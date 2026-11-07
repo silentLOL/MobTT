@@ -17,3 +17,7 @@ struct WebPage: Identifiable, Equatable {
     let url: URL
     var id: String { url.absoluteString }
 }
+
+#Preview {
+    SafariView(url: URL(string: "https://www.ratingscentral.com/HowItWorks.php")!)
+}
