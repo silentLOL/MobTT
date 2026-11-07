@@ -39,4 +39,5 @@ Duplicated wrappers cost little, while a wrapper dependency on the build and rel
 - Harder: the first-run and existing-install flows gain a consent step, and the consent state needs three values (unanswered, allowed, declined).
 - Firebase config files are untracked with `.example` templates (as with the XTTV key). Builds without them work, with the SDK disabled.
 - Every new feature adds its logging and events as part of the work; the checklist and the manual verification steps are in `docs/ANALYTICS.md`.
+- `prod` writes no console logs: `installLogWriters` replaces Kermit's default writer with the Crashlytics writer there, on both platforms.
 - Revisit if per-environment Firebase projects are needed, or if a vendor other than Firebase is wanted.

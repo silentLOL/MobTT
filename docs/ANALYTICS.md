@@ -50,9 +50,10 @@ Every feature that adds a screen or a user interaction decides what to track bef
 
 1. **Events.** Add a row to the Events table first (and a value to Values if needed), then fire it on both platforms from the ViewModel. Track a screen opened, a choice saved, a favorite toggled, a search. Do not track every tap, and never anything the catalog's Rules forbid (names, free text, user IDs).
 2. **Logging.** Use `co.touchlab.kermit.Logger` with a tag per class. Log at the points where support would otherwise be blind: a failed load or request (`Error`, with the throwable), a retry or fallback (`Warn`), a state change worth a breadcrumb (`Info`). Not every function call, and nothing per frame or per list item.
-3. **No sensitive data.** Never log tokens, the XTTV API key, or names and free text a user typed. Log IDs and enum values. Shared code reaches Crashlytics only through the Kermit writer, which redacts secrets, but do not rely on it for personal data.
-4. **Failures.** Pass the throwable to `Logger.e`. On `Error` with a throwable the Crashlytics writer records a non-fatal, so a swallowed exception still shows up in the console.
-5. **Tests.** Assert the events in the ViewModel's unit test with the recording tracker.
+3. **Console output.** `prod` writes nothing to logcat or OSLog. `installLogWriters` (`:core:network`) removes Kermit's default console writer there and keeps only the Crashlytics writer. Do not add `println`, `Log.*`, `NSLog` or `print` to get around it.
+4. **No sensitive data.** Never log tokens, the XTTV API key, or names and free text a user typed. Log IDs and enum values. Shared code reaches Crashlytics only through the Kermit writer, which redacts secrets, but do not rely on it for personal data.
+5. **Failures.** Pass the throwable to `Logger.e`. On `Error` with a throwable the Crashlytics writer records a non-fatal, so a swallowed exception still shows up in the console.
+6. **Tests.** Assert the events in the ViewModel's unit test with the recording tracker.
 
 ## Firebase config files
 
