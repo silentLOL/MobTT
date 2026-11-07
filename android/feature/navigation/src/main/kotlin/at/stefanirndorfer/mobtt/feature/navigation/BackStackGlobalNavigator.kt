@@ -3,8 +3,14 @@ package at.stefanirndorfer.mobtt.feature.navigation
 import androidx.compose.runtime.mutableStateListOf
 import androidx.navigation3.runtime.NavKey
 
-class BackStackGlobalNavigator(private val startDestination: GlobalAppDestination) : GlobalNavigator {
-    val backStack = mutableStateListOf<NavKey>(startDestination)
+/**
+ * [backStack] defaults to a plain state list. The app passes one that survives a configuration change (rotation), or
+ * the activity's recreation would return to the start destination.
+ */
+class BackStackGlobalNavigator(
+    private val startDestination: GlobalAppDestination,
+    val backStack: MutableList<NavKey> = mutableStateListOf(startDestination),
+) : GlobalNavigator {
 
     /** The tab at the bottom of the back stack, so a destination pushed from a tab keeps that tab selected. */
     val topLevelDestination: NavKey? get() = backStack.firstOrNull()

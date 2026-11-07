@@ -10,6 +10,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import at.stefanirndorfer.mobtt.core.localization.R
@@ -47,7 +48,8 @@ fun MobTTApp(
     incomingLinks: Flow<IncomingLink> = emptyFlow(),
     fixtureLinkViewModel: FixtureLinkViewModel = koinViewModel(),
 ) {
-    val navigator = remember { BackStackGlobalNavigator(HomeDestination) }
+    val backStack = rememberNavBackStack(HomeDestination)
+    val navigator = remember(backStack) { BackStackGlobalNavigator(HomeDestination, backStack) }
     LaunchedEffect(incomingLinks) {
         incomingLinks.collect { fixtureLinkViewModel.onAction(FixtureLinkAction.LinkReceived(it.url, it.coldStart)) }
     }
