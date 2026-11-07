@@ -35,6 +35,7 @@ The single source of truth for the events both apps send to Firebase Analytics (
 | `consent_changed` | `enabled`, `source` (`prompt`, `settings`) | The user answers the consent step or flips the Settings toggle. Only an allow can reach Firebase (collection is off after a decline), and it can be lost if it is logged before collection switches on. |
 | `rating_info_opened` | none | The user opens the explanation of the Rating history from its info button. |
 | `fixture_share_tapped` | `status` | The user taps Share on a Fixture. Whether anything was sent from the share sheet is not known. |
+| `fixture_venue_tapped` | `status` | The user taps a Fixture's Venue to open it in a maps app. Whether a maps app opened is not known. |
 | `fixture_link_opened` | `start` | The app opens a Fixture from a Fixture link, started by it (`cold`) or already running (`running`). |
 | `setting_changed` | `setting`, `value` | A setting is changed. `setting` is `appearance` with `value` `system`, `light` or `dark` (Android only: iOS has no in-app setting yet). |
 

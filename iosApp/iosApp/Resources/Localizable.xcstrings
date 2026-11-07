@@ -2704,6 +2704,23 @@
         }
       }
     },
+    "fixture_detail_venue_open_cd": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Karten öffnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open in Maps"
+          }
+        }
+      }
+    },
     "fixture_detail_share_pairing %@ %@": {
       "extractionState": "manual",
       "localizations": {

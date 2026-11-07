@@ -6,4 +6,6 @@ sealed interface FixtureDetailAction {
     data class TeamClicked(val teamId: String) : FixtureDetailAction
 
     data object ShareClicked : FixtureDetailAction
+
+    data object VenueClicked : FixtureDetailAction
 }

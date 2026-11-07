@@ -55,12 +55,20 @@ final class FixtureDetailViewModel {
             eventStream.continuation.yield(.openTeam(teamId: teamId))
         case .shareClicked:
             share()
+        case .venueClicked:
+            openVenue()
         }
+    }
+
+    private func openVenue() {
+        guard case .content(let detail) = uiState, let searchText = detail.venueSearchText else { return }
+        analytics.fixtureVenueTapped(status: detail.analyticsStatus)
+        eventStream.continuation.yield(.openVenue(searchText: searchText))
     }
 
     private func share() {
         guard case .content(let detail) = uiState else { return }
-        analytics.fixtureShareTapped(status: detail.score == nil ? AnalyticsFixtureStatus.scheduled : AnalyticsFixtureStatus.finished)
+        analytics.fixtureShareTapped(status: detail.analyticsStatus)
         eventStream.continuation.yield(.share(detail: detail, link: linkTo(fixtureId)))
     }
 
@@ -77,6 +85,10 @@ final class FixtureDetailViewModel {
             // Only cancellation can throw now, and the load that replaced this one owns the state.
         }
     }
+}
+
+private extension FixtureDetailUi {
+    var analyticsStatus: String { score == nil ? AnalyticsFixtureStatus.scheduled : AnalyticsFixtureStatus.finished }
 }
 
 private extension FixtureDetail {

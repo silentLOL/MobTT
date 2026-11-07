@@ -1,5 +1,6 @@
 package at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail
 
+import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.Context
 import android.content.Intent
@@ -9,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -53,6 +55,7 @@ import at.stefanirndorfer.mobtt.designsystem.ui.components.BatEmptyState
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatHeroCard
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatHeroPillRow
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatIconButton
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatIconView
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatList
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatPrimaryButton
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSectionHeader
@@ -60,12 +63,13 @@ import at.stefanirndorfer.mobtt.domain.club.FixtureDetail
 import at.stefanirndorfer.mobtt.domain.club.FixtureStatus
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.formatting.fixtureShare
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.formatting.fixtureShareCaption
-import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.formatting.formatted
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.formatting.venueLines
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureDetailAction
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureDetailEvent
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureDetailUiState
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.preview.fixtureDetailLongNamesPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.preview.fixtureDetailNoMatchesPreview
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.preview.fixtureDetailNoVenuePreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.preview.fixtureDetailPlayedPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.preview.fixtureDetailScheduledPreview
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.views.FixtureShareImage
@@ -92,6 +96,7 @@ fun FixtureDetailRoute(
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
             is FixtureDetailEvent.OpenTeam -> onOpenTeam(event.teamId)
+            is FixtureDetailEvent.OpenVenue -> context.openInMaps(event.searchText)
             is FixtureDetailEvent.Share -> pendingShare = event
         }
     }
@@ -205,6 +210,7 @@ private fun ContentView(detail: FixtureDetail, canShare: Boolean, onAction: (Fix
         HeaderView(
             detail = detail,
             onTeamClick = { onAction(FixtureDetailAction.TeamClicked(it)) },
+            onVenueClick = { onAction(FixtureDetailAction.VenueClicked) },
             onShare = if (canShare) ({ onAction(FixtureDetailAction.ShareClicked) }) else null,
         )
         if (detail.fixture.status is FixtureStatus.Finished) {
@@ -228,10 +234,10 @@ private fun ContentView(detail: FixtureDetail, canShare: Boolean, onAction: (Fix
 
 /**
  * The pairing with each Team opening its Team, then the score, or "Not played yet" for a scheduled Fixture,
- * and when and where it is played. [onShare] adds the Share button next to the pill.
+ * and when and where it is played, the Venue opening it in a maps app. [onShare] adds the Share button next to the pill.
  */
 @Composable
-private fun HeaderView(detail: FixtureDetail, onTeamClick: (String) -> Unit, onShare: (() -> Unit)?) {
+private fun HeaderView(detail: FixtureDetail, onTeamClick: (String) -> Unit, onVenueClick: () -> Unit, onShare: (() -> Unit)?) {
     val fixture = detail.fixture
     val status = fixture.status
     val headerDescription = when (status) {
@@ -264,12 +270,11 @@ private fun HeaderView(detail: FixtureDetail, onTeamClick: (String) -> Unit, onS
             color = BatDesign.colors.onHero,
             style = BatDesign.typography.display.copy(fontFeatureSettings = "tnum"),
         )
-        val where = listOfNotNull(fixture.venue, detail.address?.formatted()).joinToString("\n")
-        Text(
-            text = listOf(formatKickoff(fixture.startsAt), where).filter { it.isNotEmpty() }.joinToString("\n"),
-            color = BatDesign.colors.onHero,
-            style = BatDesign.typography.body,
-        )
+        Text(text = formatKickoff(fixture.startsAt), color = BatDesign.colors.onHero, style = BatDesign.typography.body)
+        val venueLines = detail.venueLines()
+        if (venueLines.isNotEmpty()) {
+            VenueLink(lines = venueLines.joinToString("\n"), onClick = onVenueClick)
+        }
     }
 }
 
@@ -309,6 +314,42 @@ private suspend fun Context.saveShareImage(image: ImageBitmap): Uri = withContex
     val file = File(File(cacheDir, "fixture_share").apply { mkdirs() }, "fixture.png")
     file.outputStream().use { image.asAndroidBitmap().compress(Bitmap.CompressFormat.PNG, 100, it) }
     FileProvider.getUriForFile(this@saveShareImage, "$packageName.fixtureshare", file)
+}
+
+/** Underlined, so a link is never told apart by colour alone. */
+@Composable
+private fun VenueLink(lines: String, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .heightIn(min = BatDesign.sizing.minTouchTarget)
+            .clickable(role = Role.Button, onClickLabel = stringResource(R.string.fixture_detail_venue_open_cd), onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(BatDesign.spacing.sm),
+    ) {
+        BatIconView(icon = BatIcon.Location, contentDescription = null, size = BatDesign.sizing.iconSmall, tint = BatDesign.colors.onHero)
+        Text(
+            text = lines,
+            color = BatDesign.colors.onHero,
+            style = BatDesign.typography.body.copy(textDecoration = TextDecoration.Underline),
+        )
+    }
+}
+
+/**
+ * Searches the user's maps app for [query], or Google Maps in the browser when no app handles `geo:` links. Does
+ * nothing on a device with neither.
+ */
+private fun Context.openInMaps(query: String) {
+    val encoded = Uri.encode(query)
+    val candidates = listOf("geo:0,0?q=$encoded", "https://www.google.com/maps/search/?api=1&query=$encoded")
+    for (uri in candidates) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(uri)))
+            return
+        } catch (e: ActivityNotFoundException) {
+            Logger.withTag("FixtureVenue").w { "No app opens ${uri.substringBefore(':')} links" }
+        }
+    }
 }
 
 /** Underlined, so a link is never told apart by colour alone. */
@@ -359,4 +400,10 @@ private fun FixtureDetailScreenNoMatchesPreview() {
 @Composable
 private fun FixtureDetailScreenLongNamesPreview() {
     BatPreviewSurface { FixtureDetailScreen(state = FixtureDetailUiState.Content(fixtureDetailLongNamesPreview, canShare = true), onAction = {}) }
+}
+
+@BatScreenPreview
+@Composable
+private fun FixtureDetailScreenNoVenuePreview() {
+    BatPreviewSurface { FixtureDetailScreen(state = FixtureDetailUiState.Content(fixtureDetailNoVenuePreview), onAction = {}) }
 }

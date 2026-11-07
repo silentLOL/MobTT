@@ -177,6 +177,44 @@ struct FixtureDetailViewModelTests {
         #expect(analytics.events.last == LoggedEvent("fixture_share_tapped", ["status": "scheduled"]))
     }
 
+    @Test func tappingTheVenueOpensItsSearchTextAndReportsTheFixtureStatus() async {
+        let analytics = RecordingAnalyticsTracker()
+        let finished = FixtureStatusFinished(score: FixtureScore(homeMatchesWon: 6, awayMatchesWon: 4))
+        let viewModel = makeViewModel(analytics: analytics) { _ in
+            DataResultSuccess(value: FixtureDetail(
+                fixture: fixture(status: finished, venue: "Sporthalle Olympic"),
+                address: VenueAddress(street: nil, postalCode: nil, city: "Wien"),
+                matches: []
+            ))
+        }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+        var iterator = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.venueClicked)
+
+        guard case .openVenue(let searchText) = await iterator.next() else {
+            Issue.record("Expected an open venue event")
+            return
+        }
+        #expect(searchText == "Sporthalle Olympic, Wien")
+        #expect(analytics.events.last == LoggedEvent("fixture_venue_tapped", ["status": "finished"]))
+    }
+
+    @Test func withoutAVenueTappingReportsNothing() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(analytics: analytics) { _ in
+            DataResultSuccess(value: FixtureDetail(fixture: fixture(status: FixtureStatusScheduled.shared), address: nil, matches: []))
+        }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+        let logged = analytics.events.count
+
+        viewModel.onAction(.venueClicked)
+
+        #expect(analytics.events.count == logged)
+    }
+
     @Test func withoutALinksDomainTheFixtureIsSharedWithoutALink() async {
         let viewModel = makeViewModel(sharingEnabled: true, linkTo: { _ in nil }) { _ in
             DataResultSuccess(value: FixtureDetail(fixture: fixture(status: FixtureStatusScheduled.shared), address: nil, matches: []))
@@ -194,7 +232,7 @@ struct FixtureDetailViewModelTests {
         #expect(link == nil)
     }
 
-    private func fixture(status: FixtureStatus) -> Fixture {
+    private func fixture(status: FixtureStatus, venue: String? = nil) -> Fixture {
         Fixture(
             id: "f1",
             homeTeamId: "t1",
@@ -202,7 +240,7 @@ struct FixtureDetailViewModelTests {
             awayTeamId: "t2",
             awayTeamName: "Olympic 2",
             startsAt: KotlinInstant.companion.fromEpochMilliseconds(epochMilliseconds: 1_800_000_000_000),
-            venue: nil,
+            venue: venue,
             status: status
         )
     }

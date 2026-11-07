@@ -28,6 +28,17 @@ enum FixtureDetailPreviewData {
         matches: []
     )
 
+    /// XTTV says nothing about where it is played.
+    static let noVenue = FixtureDetailUi(
+        homeTeamId: played.homeTeamId, homeTeamName: played.homeTeamName,
+        awayTeamId: played.awayTeamId, awayTeamName: played.awayTeamName,
+        startsAt: played.startsAt,
+        venue: nil,
+        address: nil,
+        score: nil,
+        matches: []
+    )
+
     /// Played, but XTTV has no Match results for it.
     static let noMatches = FixtureDetailUi(
         homeTeamId: played.homeTeamId, homeTeamName: played.homeTeamName,

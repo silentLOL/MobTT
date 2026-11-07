@@ -4,6 +4,7 @@ struct FixtureDetailRoute: View {
     @State private var viewModel: FixtureDetailViewModel
     @State private var share: ShareContent?
     @Environment(\.displayScale) private var displayScale
+    @Environment(\.openURL) private var openURL
 
     let onOpenTeam: (_ teamId: String) -> Void
 
@@ -20,6 +21,7 @@ struct FixtureDetailRoute: View {
                 for await event in viewModel.events {
                     switch event {
                     case .openTeam(let teamId): onOpenTeam(teamId)
+                    case .openVenue(let searchText): openURL(AppleMaps.search(searchText))
                     case .share(let detail, let link): share = shareContent(detail: detail, link: link)
                     }
                 }
@@ -120,9 +122,10 @@ private struct ContentView: View {
                     teamLink(id: detail.awayTeamId, name: detail.awayTeamName)
                 }
                 scoreText
-                Text(whenAndWhere)
+                Text(detail.startsAt.formatted(date: .abbreviated, time: .shortened))
                     .batTextStyle(BatTypography.body)
                     .foregroundStyle(BatColor.onHero)
+                venueLink
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -157,9 +160,26 @@ private struct ContentView: View {
         }
     }
 
-    private var whenAndWhere: String {
-        ([detail.startsAt.formatted(date: .abbreviated, time: .shortened)] + [detail.venue, detail.address].compactMap { $0 })
-            .joined(separator: "\n")
+    /// Underlined, so a link is never told apart by colour alone.
+    @ViewBuilder
+    private var venueLink: some View {
+        let lines = detail.venueLines
+        if !lines.isEmpty {
+            Button { onAction(.venueClicked) } label: {
+                HStack(spacing: BatSpacing.sm) {
+                    BatIconView(icon: .location, tint: BatColor.onHero, size: BatSizing.iconSmall)
+                    Text(lines.joined(separator: "\n"))
+                        .batTextStyle(BatTypography.body)
+                        .underline()
+                        .foregroundStyle(BatColor.onHero)
+                        .multilineTextAlignment(.leading)
+                }
+                .frame(minHeight: BatSizing.minTouchTarget, alignment: .leading)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint(Text("fixture_detail_venue_open_cd"))
+        }
     }
 }
 
@@ -196,5 +216,11 @@ private struct ContentView: View {
 #Preview("Long names") {
     BatPreviewMatrix {
         FixtureDetailScreen(state: .content(FixtureDetailPreviewData.longNames), onAction: { _ in })
+    }
+}
+
+#Preview("No Venue") {
+    BatPreviewMatrix {
+        FixtureDetailScreen(state: .content(FixtureDetailPreviewData.noVenue), onAction: { _ in })
     }
 }

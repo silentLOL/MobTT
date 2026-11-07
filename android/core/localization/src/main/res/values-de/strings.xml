@@ -170,6 +170,7 @@
     <string name="fixture_detail_error_body">Prüfe deine Verbindung und versuche es erneut.</string>
     <string name="fixture_detail_error_retry_button">Erneut versuchen</string>
     <string name="fixture_detail_share_button_cd">Begegnung teilen</string>
+    <string name="fixture_detail_venue_open_cd">In Karten öffnen</string>
     <string name="fixture_detail_share_pairing">%1$s – %2$s</string>
     <string name="fixture_detail_share_with_result">"%1$s  %2$s"</string>
     <string name="fixture_detail_share_match">%1$d %2$s: %3$s – %4$s</string>

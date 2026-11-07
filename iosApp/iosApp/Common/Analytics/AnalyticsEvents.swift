@@ -11,6 +11,7 @@ enum AnalyticsEvent {
     static let ratingInfoOpened = "rating_info_opened"
     static let fixtureShareTapped = "fixture_share_tapped"
     static let fixtureLinkOpened = "fixture_link_opened"
+    static let fixtureVenueTapped = "fixture_venue_tapped"
 }
 
 enum AnalyticsParam {
@@ -116,6 +117,10 @@ extension AnalyticsTracker {
 
     func fixtureShareTapped(status: String) {
         logEvent(AnalyticsEvent.fixtureShareTapped, parameters: [AnalyticsParam.status: status])
+    }
+
+    func fixtureVenueTapped(status: String) {
+        logEvent(AnalyticsEvent.fixtureVenueTapped, parameters: [AnalyticsParam.status: status])
     }
 
     func settingChanged(setting: String, value: String) {

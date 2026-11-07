@@ -9,11 +9,13 @@ import at.stefanirndorfer.mobtt.core.analytics.AnalyticsTracker
 import at.stefanirndorfer.mobtt.core.analytics.NoOpAnalyticsTracker
 import at.stefanirndorfer.mobtt.core.analytics.detailOpened
 import at.stefanirndorfer.mobtt.core.analytics.fixtureShareTapped
+import at.stefanirndorfer.mobtt.core.analytics.fixtureVenueTapped
 import at.stefanirndorfer.mobtt.core.analytics.screenView
 import at.stefanirndorfer.mobtt.core.ui.RetryTrigger
 import at.stefanirndorfer.mobtt.domain.club.FixtureLinks
 import at.stefanirndorfer.mobtt.domain.club.FixtureStatus
 import at.stefanirndorfer.mobtt.domain.club.GetFixtureDetailUseCase
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.formatting.venueSearchText
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureDetailAction
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureDetailEvent
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureDetailUiState
@@ -55,6 +57,7 @@ class FixtureDetailViewModel(
             FixtureDetailAction.RetryClicked -> retry.retry()
             is FixtureDetailAction.TeamClicked -> openTeam(action.teamId)
             FixtureDetailAction.ShareClicked -> share()
+            FixtureDetailAction.VenueClicked -> openVenue()
         }
     }
 
@@ -66,13 +69,20 @@ class FixtureDetailViewModel(
     private fun share() {
         val content = uiState.value as? FixtureDetailUiState.Content ?: return
         val fixture = content.detail.fixture
-        analytics.fixtureShareTapped(
-            when (fixture.status) {
-                is FixtureStatus.Finished -> AnalyticsFixtureStatus.FINISHED
-                FixtureStatus.Scheduled -> AnalyticsFixtureStatus.SCHEDULED
-            },
-        )
+        analytics.fixtureShareTapped(fixture.status.analyticsStatus())
         viewModelScope.launch { eventChannel.send(FixtureDetailEvent.Share(content.detail, fixtureLinks.linkTo(fixture.id))) }
+    }
+
+    private fun openVenue() {
+        val detail = (uiState.value as? FixtureDetailUiState.Content)?.detail ?: return
+        val searchText = detail.venueSearchText() ?: return
+        analytics.fixtureVenueTapped(detail.fixture.status.analyticsStatus())
+        viewModelScope.launch { eventChannel.send(FixtureDetailEvent.OpenVenue(searchText)) }
+    }
+
+    private fun FixtureStatus.analyticsStatus(): String = when (this) {
+        is FixtureStatus.Finished -> AnalyticsFixtureStatus.FINISHED
+        FixtureStatus.Scheduled -> AnalyticsFixtureStatus.SCHEDULED
     }
 
     private suspend fun load(): FixtureDetailUiState = try {

@@ -8,6 +8,7 @@ import at.stefanirndorfer.mobtt.domain.club.FixtureLinks
 import at.stefanirndorfer.mobtt.domain.club.FixtureScore
 import at.stefanirndorfer.mobtt.domain.club.FixtureStatus
 import at.stefanirndorfer.mobtt.domain.club.GetFixtureDetailUseCase
+import at.stefanirndorfer.mobtt.domain.club.VenueAddress
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.FixtureDetailViewModel
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureDetailAction
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureDetailEvent
@@ -139,6 +140,37 @@ class FixtureDetailViewModelTest {
         viewModel.onAction(FixtureDetailAction.ShareClicked)
 
         assertEquals(LoggedEvent("fixture_share_tapped", mapOf("status" to "scheduled")), analytics.events.last())
+    }
+
+    @Test
+    fun tappingTheVenueOpensItsSearchTextAndReportsTheFixtureStatus() = runTest {
+        val withVenue = detail.copy(
+            fixture = detail.fixture.copy(venue = "Sporthalle Olympic", status = FixtureStatus.Finished(FixtureScore(6, 4))),
+            address = VenueAddress(street = null, postalCode = null, city = "Wien"),
+        )
+        data.fixtureDetail = withVenue
+        val viewModel = viewModel()
+        val events = mutableListOf<FixtureDetailEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect(events::add) }
+
+        viewModel.onAction(FixtureDetailAction.VenueClicked)
+
+        assertEquals(listOf<FixtureDetailEvent>(FixtureDetailEvent.OpenVenue("Sporthalle Olympic, Wien")), events)
+        assertEquals(LoggedEvent("fixture_venue_tapped", mapOf("status" to "finished")), analytics.events.last())
+    }
+
+    @Test
+    fun withoutAVenueTappingDoesNothing() = runTest {
+        data.fixtureDetail = detail
+        val viewModel = viewModel()
+        val events = mutableListOf<FixtureDetailEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect(events::add) }
+        val logged = analytics.events.size
+
+        viewModel.onAction(FixtureDetailAction.VenueClicked)
+
+        assertEquals(emptyList(), events)
+        assertEquals(logged, analytics.events.size)
     }
 
     @Test

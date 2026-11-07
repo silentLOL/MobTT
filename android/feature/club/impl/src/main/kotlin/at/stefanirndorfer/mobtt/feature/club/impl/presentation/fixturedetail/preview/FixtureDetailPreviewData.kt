@@ -65,3 +65,5 @@ val fixtureDetailLongNamesPreview = FixtureDetail(
 )
 
 val fixtureDetailNoMatchesPreview = fixtureDetailPlayedPreview.copy(matches = emptyList())
+
+val fixtureDetailNoVenuePreview = fixtureDetailScheduledPreview.copy(fixture = scheduledFixture.copy(venue = null), address = null)
