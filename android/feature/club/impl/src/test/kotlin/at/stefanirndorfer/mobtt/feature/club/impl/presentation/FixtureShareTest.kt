@@ -11,6 +11,7 @@ import at.stefanirndorfer.mobtt.domain.club.MatchScore
 import at.stefanirndorfer.mobtt.domain.club.VenueAddress
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.FixtureShare
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.fixtureShare
+import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.fixtureShareCaption
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -121,6 +122,23 @@ class FixtureShareTest {
                 https://links.mobtt.example/f/464821
             """.trimIndent(),
             share(noPlace).text,
+        )
+    }
+
+    @Test
+    @Config(qualifiers = "de")
+    fun theCaptionNextToTheImageIsThePairingTheResultTheKickoffAndTheLink() {
+        assertEquals(
+            FixtureShare(
+                subject = "Hagenberg 3 – Freistadt 6",
+                text = """
+                    Hagenberg 3 – Freistadt 6  6 : 4
+                    15.01.2027, 09:00
+
+                    https://links.mobtt.example/f/464821
+                """.trimIndent(),
+            ),
+            RuntimeEnvironment.getApplication().fixtureShareCaption(finished, link),
         )
     }
 }

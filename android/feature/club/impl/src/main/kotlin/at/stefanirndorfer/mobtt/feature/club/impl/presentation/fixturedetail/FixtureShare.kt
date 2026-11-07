@@ -17,27 +17,35 @@ data class FixtureShare(val subject: String, val text: String)
  * with the Fixture [link].
  */
 fun Context.fixtureShare(detail: FixtureDetail, link: String): FixtureShare {
-    val fixture = detail.fixture
-    val pairing = getString(R.string.fixture_detail_share_pairing, fixture.homeTeamName, fixture.awayTeamName)
-    val status = fixture.status
-    val result = when (status) {
-        is FixtureStatus.Finished -> getString(R.string.fixture_detail_score, status.score.homeMatchesWon, status.score.awayMatchesWon)
-        FixtureStatus.Scheduled -> getString(R.string.fixture_detail_not_played)
-    }
-    val header = listOfNotNull(
-        getString(R.string.fixture_detail_share_with_result, pairing, result),
-        formatKickoff(fixture.startsAt, resources.configuration.locales[0]),
-        fixture.venue,
-        detail.address?.formatted(),
-    )
+    val status = detail.fixture.status
+    val header = resultAndKickoff(detail) + listOfNotNull(detail.fixture.venue, detail.address?.formatted())
     val matches = if (status is FixtureStatus.Finished) {
         val lines = detail.matches.map { matchLine(it) }.ifEmpty { listOf(getString(R.string.fixture_detail_matches_empty_body)) }
         listOf(getString(R.string.fixture_detail_matches_title)) + lines
     } else {
         null
     }
-    val blocks = listOfNotNull(header, matches, listOf(link))
-    return FixtureShare(subject = pairing, text = blocks.joinToString("\n\n") { it.joinToString("\n") })
+    return share(detail, listOfNotNull(header, matches, listOf(link)))
+}
+
+/** The short text next to the share image, which carries the rest: the result, the kickoff and the Fixture [link]. */
+fun Context.fixtureShareCaption(detail: FixtureDetail, link: String): FixtureShare = share(detail, listOf(resultAndKickoff(detail), listOf(link)))
+
+private fun Context.pairing(detail: FixtureDetail): String = getString(R.string.fixture_detail_share_pairing, detail.fixture.homeTeamName, detail.fixture.awayTeamName)
+
+private fun Context.share(detail: FixtureDetail, blocks: List<List<String>>): FixtureShare = FixtureShare(subject = pairing(detail), text = blocks.joinToString("\n\n") { it.joinToString("\n") })
+
+/** The pairing with the score, or "Not played yet", then the kickoff. */
+private fun Context.resultAndKickoff(detail: FixtureDetail): List<String> {
+    val status = detail.fixture.status
+    val result = when (status) {
+        is FixtureStatus.Finished -> getString(R.string.fixture_detail_score, status.score.homeMatchesWon, status.score.awayMatchesWon)
+        FixtureStatus.Scheduled -> getString(R.string.fixture_detail_not_played)
+    }
+    return listOf(
+        getString(R.string.fixture_detail_share_with_result, pairing(detail), result),
+        formatKickoff(detail.fixture.startsAt, resources.configuration.locales[0]),
+    )
 }
 
 private fun Context.matchLine(match: Match): String {
