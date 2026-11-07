@@ -3,10 +3,12 @@ package at.stefanirndorfer.mobtt.designsystem.ui.components
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,13 +28,17 @@ import at.stefanirndorfer.mobtt.designsystem.theme.BatDesign
 
 private const val CHEVRON_UP_DEGREES = 180f
 
-/** A section header the whole width of which opens and closes its section; the chevron points up while it is open. */
+/**
+ * A section header the whole width of which opens and closes its section; the chevron points up while it is open. An
+ * [action], such as an info button, sits before the chevron and is reached on its own, not as part of the header.
+ */
 @Composable
 fun BatCollapsibleSectionHeader(
     title: String,
     expanded: Boolean,
     onToggle: () -> Unit,
     modifier: Modifier = Modifier,
+    action: (@Composable () -> Unit)? = null,
 ) {
     val rotation by animateFloatAsState(
         targetValue = if (expanded) {
@@ -49,8 +55,23 @@ fun BatCollapsibleSectionHeader(
             R.string.core_section_collapsed_cd
         },
     )
+    Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+        HeaderRow(title = title, state = state, rotation = rotation, onToggle = onToggle)
+        action?.let {
+            Box(modifier = Modifier.padding(end = BatDesign.sizing.icon + BatDesign.spacing.sm)) { it() }
+        }
+    }
+}
+
+@Composable
+private fun HeaderRow(
+    title: String,
+    state: String,
+    rotation: Float,
+    onToggle: () -> Unit,
+) {
     Row(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = BatDesign.sizing.minTouchTarget)
             .clickable(role = Role.Button, onClick = onToggle)
@@ -78,6 +99,9 @@ private fun BatCollapsibleSectionHeaderPreview() {
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.md)) {
             BatCollapsibleSectionHeader(title = "Fixtures", expanded = false, onToggle = {})
             BatCollapsibleSectionHeader(title = "Player ranking", expanded = true, onToggle = {})
+            BatCollapsibleSectionHeader(title = "Rating history", expanded = false, onToggle = {}) {
+                BatIconButton(icon = BatIcon.Info, contentDescription = "About", onClick = {})
+            }
         }
     }
 }

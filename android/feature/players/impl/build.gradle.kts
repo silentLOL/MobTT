@@ -29,6 +29,7 @@ dependencies {
     implementation(project(":domain:club"))
     implementation(project(":domain:rating"))
     implementation(project(":domain:user"))
+    implementation(libs.androidx.browser)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.lifecycle.compose.runtime)
     implementation(libs.androidx.lifecycle.compose.viewmodel)

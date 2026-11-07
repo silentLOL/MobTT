@@ -8,7 +8,10 @@ import at.stefanirndorfer.mobtt.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.mobtt.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatCollapsibleSectionHeader
 
-/** A collapsible section that shows its own loading and failure while open; [content] draws the loaded value. */
+/**
+ * A collapsible section that shows its own loading and failure while open; [content] draws the loaded value. A
+ * [headerAction], such as an info button, sits in the header.
+ */
 @Composable
 fun <T> LazySectionView(
     title: String,
@@ -19,10 +22,11 @@ fun <T> LazySectionView(
     unavailableText: String,
     modifier: Modifier = Modifier,
     onRetry: (() -> Unit)? = null,
+    headerAction: (@Composable () -> Unit)? = null,
     content: @Composable (T) -> Unit,
 ) {
     Column(modifier = modifier) {
-        BatCollapsibleSectionHeader(title = title, expanded = expanded, onToggle = onToggle)
+        BatCollapsibleSectionHeader(title = title, expanded = expanded, onToggle = onToggle, action = headerAction)
         AnimatedVisibility(visible = expanded) {
             SectionStateView(
                 section = section,

@@ -9,6 +9,7 @@ enum AnalyticsEvent {
     static let consentChanged = "consent_changed"
     static let settingChanged = "setting_changed"
     static let ratingHistoryOpened = "rating_history_opened"
+    static let ratingInfoOpened = "rating_info_opened"
 }
 
 enum AnalyticsParam {
@@ -94,6 +95,10 @@ extension AnalyticsTracker {
 
     func ratingHistoryOpened() {
         logEvent(AnalyticsEvent.ratingHistoryOpened, parameters: [:])
+    }
+
+    func ratingInfoOpened() {
+        logEvent(AnalyticsEvent.ratingInfoOpened, parameters: [:])
     }
 
     func settingChanged(setting: String, value: String) {

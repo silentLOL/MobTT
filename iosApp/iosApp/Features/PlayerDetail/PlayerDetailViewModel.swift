@@ -25,6 +25,7 @@ final class PlayerDetailViewModel {
     @ObservationIgnored private let loadRatingsCentralId: (String, [String]) async throws -> DataResult
     @ObservationIgnored private let loadRatingHistory: (String) async throws -> DataResult
     @ObservationIgnored private let now: () -> Date
+    @ObservationIgnored private let ratingExplanationUrl: URL?
     @ObservationIgnored private let observeFavorites: any AsyncSequence<Set<AnyHashable>, Never>
     @ObservationIgnored private let addFavorite: (Favorite) async throws -> Void
     @ObservationIgnored private let removeFavorite: (Favorite) async throws -> Void
@@ -40,6 +41,7 @@ final class PlayerDetailViewModel {
         loadRatingsCentralId: @escaping (String, [String]) async throws -> DataResult = { try await KoinHelper.shared.loadRatingsCentralId(playerId: $0, leagueIds: $1) },
         loadRatingHistory: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadRatingHistory(ratingsCentralId: $0) },
         now: @escaping () -> Date = Date.init,
+        ratingExplanationUrl: URL? = URL(string: KoinHelper.shared.ratingHistoryExplanationUrl()),
         observeFavorites: any AsyncSequence<Set<AnyHashable>, Never> = KoinHelper.shared.getObserveFavoritesUseCase().invoke(),
         addFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getAddFavoriteUseCase().invoke(favorite: $0) },
         removeFavorite: @escaping (Favorite) async throws -> Void = { try await KoinHelper.shared.getRemoveFavoriteUseCase().invoke(favorite: $0) },
@@ -53,6 +55,7 @@ final class PlayerDetailViewModel {
         self.loadRatingsCentralId = loadRatingsCentralId
         self.loadRatingHistory = loadRatingHistory
         self.now = now
+        self.ratingExplanationUrl = ratingExplanationUrl
         self.observeFavorites = observeFavorites
         self.addFavorite = addFavorite
         self.removeFavorite = removeFavorite
@@ -100,6 +103,14 @@ final class PlayerDetailViewModel {
             toggleRatingHistory()
         case .ratingHistoryRetryClicked:
             startRatingHistory()
+        case .ratingInfoClicked:
+            updateContent { $0.ratingInfoShown = true }
+            analytics.ratingInfoOpened()
+        case .ratingInfoDismissed:
+            updateContent { $0.ratingInfoShown = false }
+        case .ratingInfoLinkClicked:
+            guard let ratingExplanationUrl else { return }
+            eventStream.continuation.yield(.openWebPage(url: ratingExplanationUrl))
         case .ratingHistorySpanChosen(let span):
             updateContent {
                 $0.ratingHistory?.span = span

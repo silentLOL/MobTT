@@ -108,6 +108,9 @@ object KoinHelper : KoinComponent {
     /** False in builds that may not show Rating histories (ADR-0010); the Player screen then never asks for one. */
     fun isRatingHistoryEnabled(): Boolean = get<GetRatingHistoryUseCase>().isEnabled
 
+    /** Ratings Central's own explanation of the Rating, linked from the Rating history's info sheet. */
+    fun ratingHistoryExplanationUrl(): String = get<GetRatingHistoryUseCase>().explanationUrl
+
     /** Success with nil when the Player has no Ratings Central entry. */
     suspend fun loadRatingsCentralId(playerId: String, leagueIds: List<String>): DataResult<String?> = dataResult { get<GetRatingsCentralIdUseCase>().invoke(playerId, leagueIds) }
 

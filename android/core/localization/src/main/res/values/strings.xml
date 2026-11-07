@@ -187,6 +187,10 @@
     <string name="player_detail_rating_history_span_all">All</string>
     <string name="player_detail_rating_history_no_recent_body">No Rating update in the last 12 months.</string>
     <string name="player_detail_rating_history_callout_value">%1$d ±%2$d (%3$s)</string>
+    <string name="player_detail_rating_info_cd">About the Rating history</string>
+    <string name="player_detail_rating_info_title">About the Rating history</string>
+    <string name="player_detail_rating_info_body">The line is Ratings Central\'s estimate of the Player\'s playing strength: their Rating.\n\nThe number after ± is the Deviation, how certain that estimate is. About two times in three, the true playing strength lies within the shaded band.\n\nA wider band means the Rating can move further at the next Rating update. The Rating only changes when Ratings Central processes the Player\'s results, usually once per week of play.</string>
+    <string name="player_detail_rating_info_link">Learn more at Ratings Central</string>
     <string name="player_detail_loading_cd">Loading Player</string>
     <string name="player_detail_unavailable_title">This Player isn\'t available</string>
     <string name="player_detail_unavailable_body">We couldn\'t find this Player. Try again later.</string>

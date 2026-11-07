@@ -32,6 +32,7 @@ The single source of truth for the events both apps send to Firebase Analytics (
 | `search_performed` | `screen`, `query_length` | The user stopped typing in a search field for a moment and the query is not blank. |
 | `consent_changed` | `enabled`, `source` (`prompt`, `settings`) | The user answers the consent step or flips the Settings toggle. Only an allow can reach Firebase (collection is off after a decline), and it can be lost if it is logged before collection switches on. |
 | `rating_history_opened` | none | The user opens the Rating history section on the Player screen; each opening counts, closing does not. |
+| `rating_info_opened` | none | The user opens the explanation of the Rating history from its info button. |
 | `setting_changed` | `setting`, `value` | A setting is changed. `setting` is `appearance` with `value` `system`, `light` or `dark` (Android only: iOS has no in-app setting yet). |
 
 ## Where each platform fires them

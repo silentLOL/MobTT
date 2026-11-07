@@ -17,10 +17,12 @@ import at.stefanirndorfer.mobtt.core.localization.R
 import at.stefanirndorfer.mobtt.core.ui.section.LazySectionView
 import at.stefanirndorfer.mobtt.core.ui.section.SectionMessage
 import at.stefanirndorfer.mobtt.core.ui.section.SectionUi
+import at.stefanirndorfer.mobtt.designsystem.icon.BatIcon
 import at.stefanirndorfer.mobtt.designsystem.preview.BatPreviewSurface
 import at.stefanirndorfer.mobtt.designsystem.preview.BatScreenPreview
 import at.stefanirndorfer.mobtt.designsystem.theme.BatDesign
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatChartPoint
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatIconButton
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatRatingChart
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSegmentedControl
 import at.stefanirndorfer.mobtt.domain.rating.RatingHistory
@@ -42,6 +44,7 @@ fun RatingHistorySectionView(
     onToggle: () -> Unit,
     onRetry: () -> Unit,
     onSpanChosen: (RatingHistorySpan) -> Unit,
+    onInfo: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazySectionView(
@@ -53,6 +56,9 @@ fun RatingHistorySectionView(
         unavailableText = stringResource(R.string.player_detail_rating_history_unavailable_body),
         modifier = modifier,
         onRetry = onRetry,
+        headerAction = {
+            BatIconButton(icon = BatIcon.Info, contentDescription = stringResource(R.string.player_detail_rating_info_cd), onClick = onInfo)
+        },
     ) { history ->
         RatingHistoryView(history, section, onSpanChosen)
     }
@@ -155,21 +161,23 @@ private const val MILLIS_PER_DAY = 86_400_000L
 private fun RatingHistorySectionViewPreview() {
     BatPreviewSurface {
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.lg)) {
-            RatingHistorySectionView(RatingHistorySectionUi(), onToggle = {}, onRetry = {}, onSpanChosen = {})
-            RatingHistorySectionView(RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(ratingHistoryPreview)), onToggle = {}, onRetry = {}, onSpanChosen = {})
+            RatingHistorySectionView(RatingHistorySectionUi(), onToggle = {}, onRetry = {}, onSpanChosen = {}, onInfo = {})
+            RatingHistorySectionView(RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(ratingHistoryPreview)), onToggle = {}, onRetry = {}, onSpanChosen = {}, onInfo = {})
             RatingHistorySectionView(
                 RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(RatingHistory(ratingHistoryPreview.updates.take(1)))),
                 onToggle = {},
                 onRetry = {},
                 onSpanChosen = {},
+                onInfo = {},
             )
-            RatingHistorySectionView(RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(RatingHistory(emptyList()))), onToggle = {}, onRetry = {}, onSpanChosen = {})
-            RatingHistorySectionView(RatingHistorySectionUi(expanded = true, history = SectionUi.Unavailable), onToggle = {}, onRetry = {}, onSpanChosen = {})
+            RatingHistorySectionView(RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(RatingHistory(emptyList()))), onToggle = {}, onRetry = {}, onSpanChosen = {}, onInfo = {})
+            RatingHistorySectionView(RatingHistorySectionUi(expanded = true, history = SectionUi.Unavailable), onToggle = {}, onRetry = {}, onSpanChosen = {}, onInfo = {})
             RatingHistorySectionView(
                 RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(ratingHistoryPreview), since = LocalDate(2030, 1, 1)),
                 onToggle = {},
                 onRetry = {},
                 onSpanChosen = {},
+                onInfo = {},
             )
         }
     }

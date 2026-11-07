@@ -17,7 +17,7 @@ sealed interface PlayerDetailUiState {
 
     /**
      * The Player is known, so the screen draws at once. [club] and [teams] load on their own; a loaded [club] is null
-     * when XTTV no longer resolves the Club. The stat row rides on [teams]. [ratingHistory] is null while hidden.
+     * when XTTV no longer resolves the Club. The stat row rides on [teams]. [ratingHistory] is null while hidden; [ratingInfoShown] while its explanation is open.
      */
     data class Content(
         val player: Player,
@@ -25,6 +25,7 @@ sealed interface PlayerDetailUiState {
         val club: SectionUi<PlayerClub?> = SectionUi.Loading,
         val teams: SectionUi<PlayerTeams> = SectionUi.Loading,
         val ratingHistory: RatingHistorySectionUi? = null,
+        val ratingInfoShown: Boolean = false,
     ) : PlayerDetailUiState
 }
 

@@ -37,6 +37,7 @@ private class Histories(val byId: Map<String, RatingHistory>) : RatingHistoryRep
 }
 
 class RatingHistoryTest {
+    private val explanation = RatingHistoryExplanation("https://www.ratingscentral.com/HowItWorks.php")
     private val anna = Player("p1", "Anna", "c1")
     private val other = Player("p9", "Other", "c1")
 
@@ -98,22 +99,27 @@ class RatingHistoryTest {
     fun theHistoryOfAnIdComesFromTheRepository() = runTest {
         val history = RatingHistory(listOf(update))
 
-        assertEquals(history, GetRatingHistoryUseCase(Histories(mapOf("163468" to history)), RatingHistoryAvailability(true))("163468"))
+        assertEquals(history, GetRatingHistoryUseCase(Histories(mapOf("163468" to history)), RatingHistoryAvailability(true), explanation)("163468"))
     }
 
     @Test
     fun anEmptyHistoryStaysEmpty() = runTest {
-        assertEquals(RatingHistory(emptyList()), GetRatingHistoryUseCase(Histories(mapOf("1" to RatingHistory(emptyList()))), RatingHistoryAvailability(true))("1"))
+        assertEquals(RatingHistory(emptyList()), GetRatingHistoryUseCase(Histories(mapOf("1" to RatingHistory(emptyList()))), RatingHistoryAvailability(true), explanation)("1"))
     }
 
     @Test
     fun anUnreachableHistoryFails() = runTest {
-        assertFailsWith<DataUnavailable> { GetRatingHistoryUseCase(Histories(emptyMap()), RatingHistoryAvailability(true))("1") }
+        assertFailsWith<DataUnavailable> { GetRatingHistoryUseCase(Histories(emptyMap()), RatingHistoryAvailability(true), explanation)("1") }
     }
 
     @Test
     fun theUseCaseSaysWhetherRatingHistoriesAreShown() {
-        assertTrue(GetRatingHistoryUseCase(Histories(emptyMap()), RatingHistoryAvailability(true)).isEnabled)
-        assertFalse(GetRatingHistoryUseCase(Histories(emptyMap()), RatingHistoryAvailability(false)).isEnabled)
+        assertTrue(GetRatingHistoryUseCase(Histories(emptyMap()), RatingHistoryAvailability(true), explanation).isEnabled)
+        assertFalse(GetRatingHistoryUseCase(Histories(emptyMap()), RatingHistoryAvailability(false), explanation).isEnabled)
+    }
+
+    @Test
+    fun theUseCaseNamesThePageThatExplainsTheRating() {
+        assertEquals("https://www.ratingscentral.com/HowItWorks.php", GetRatingHistoryUseCase(Histories(emptyMap()), RatingHistoryAvailability(true), explanation).explanationUrl)
     }
 }

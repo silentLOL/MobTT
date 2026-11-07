@@ -9,6 +9,7 @@ import at.stefanirndorfer.mobtt.core.analytics.NoOpAnalyticsTracker
 import at.stefanirndorfer.mobtt.core.analytics.detailOpened
 import at.stefanirndorfer.mobtt.core.analytics.favoriteToggled
 import at.stefanirndorfer.mobtt.core.analytics.ratingHistoryOpened
+import at.stefanirndorfer.mobtt.core.analytics.ratingInfoOpened
 import at.stefanirndorfer.mobtt.core.analytics.screenView
 import at.stefanirndorfer.mobtt.core.ui.RetryTrigger
 import at.stefanirndorfer.mobtt.core.ui.section.SectionUi
@@ -84,6 +85,8 @@ class PlayerDetailViewModel(
 
     private val ratingHistorySpan = MutableStateFlow(RatingHistorySpan.LastYear)
 
+    private val ratingInfoShown = MutableStateFlow(false)
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<PlayerDetailUiState> = flow { emit(loadPlayer()) }
         .flatMapLatest { player ->
@@ -97,8 +100,9 @@ class PlayerDetailViewModel(
                     clubRetry.section { getPlayerClub(player) },
                     teams,
                     ratingHistorySection(player, teams),
-                ) { favorites, club, teamsSection, ratingHistory ->
-                    PlayerDetailUiState.Content(player, Favorite.Player(playerId) in favorites, club, teamsSection, ratingHistory)
+                    ratingInfoShown,
+                ) { favorites, club, teamsSection, ratingHistory, infoShown ->
+                    PlayerDetailUiState.Content(player, Favorite.Player(playerId) in favorites, club, teamsSection, ratingHistory, infoShown)
                 }
             }
         }
@@ -117,6 +121,12 @@ class PlayerDetailViewModel(
             PlayerDetailAction.RatingHistoryToggled -> toggleRatingHistory()
             PlayerDetailAction.RatingHistoryRetryClicked -> ratingHistoryRetry.retry()
             is PlayerDetailAction.RatingHistorySpanChosen -> ratingHistorySpan.value = action.span
+            PlayerDetailAction.RatingInfoClicked -> {
+                ratingInfoShown.value = true
+                analytics.ratingInfoOpened()
+            }
+            PlayerDetailAction.RatingInfoDismissed -> ratingInfoShown.value = false
+            PlayerDetailAction.RatingInfoLinkClicked -> viewModelScope.launch { eventChannel.send(PlayerDetailEvent.OpenWebPage(getRatingHistory.explanationUrl)) }
         }
     }
 

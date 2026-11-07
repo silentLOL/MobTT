@@ -19,6 +19,7 @@ import at.stefanirndorfer.mobtt.domain.rating.GetRatingsCentralIdUseCase
 import at.stefanirndorfer.mobtt.domain.rating.Rating
 import at.stefanirndorfer.mobtt.domain.rating.RatingHistory
 import at.stefanirndorfer.mobtt.domain.rating.RatingHistoryAvailability
+import at.stefanirndorfer.mobtt.domain.rating.RatingHistoryExplanation
 import at.stefanirndorfer.mobtt.domain.rating.RatingHistoryRepository
 import at.stefanirndorfer.mobtt.domain.rating.RatingUpdate
 import at.stefanirndorfer.mobtt.domain.user.AddFavoriteUseCase
@@ -179,7 +180,11 @@ class PlayerDetailViewModelTest {
             getPlayerClub = GetPlayerClubUseCase(data, data),
             getPlayerTeams = GetPlayerTeamsUseCase(data),
             getRatingsCentralId = GetRatingsCentralIdUseCase(data),
-            getRatingHistory = GetRatingHistoryUseCase(histories, RatingHistoryAvailability(ratingHistoryEnabled)),
+            getRatingHistory = GetRatingHistoryUseCase(
+                histories,
+                RatingHistoryAvailability(ratingHistoryEnabled),
+                RatingHistoryExplanation("https://www.ratingscentral.com/HowItWorks.php"),
+            ),
             observeFavorites = ObserveFavoritesUseCase(data),
             addFavorite = AddFavoriteUseCase(data, data),
             removeFavorite = RemoveFavoriteUseCase(data),
@@ -527,5 +532,34 @@ class PlayerDetailViewModelTest {
         histories.history = RatingHistory(histories.history.updates.takeLast(40))
         val fewer = viewModel()
         assertTrue(fewer.openedRatingHistory().showsDots)
+    }
+
+    @Test
+    fun theInfoButtonOpensTheExplanationAndReportsIt() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onAction(PlayerDetailAction.RatingInfoClicked)
+
+        assertTrue(viewModel.content().ratingInfoShown)
+        assertEquals(listOf(LoggedEvent("rating_info_opened", emptyMap())), analytics.events.drop(1))
+    }
+
+    @Test
+    fun dismissingTheExplanationClosesIt() = runTest {
+        val viewModel = viewModel()
+        viewModel.onAction(PlayerDetailAction.RatingInfoClicked)
+
+        viewModel.onAction(PlayerDetailAction.RatingInfoDismissed)
+
+        assertFalse(viewModel.content().ratingInfoShown)
+    }
+
+    @Test
+    fun theExplanationsLinkOpensRatingsCentralsHowItWorksPage() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onAction(PlayerDetailAction.RatingInfoLinkClicked)
+
+        assertEquals(PlayerDetailEvent.OpenWebPage("https://www.ratingscentral.com/HowItWorks.php"), viewModel.events.first())
     }
 }

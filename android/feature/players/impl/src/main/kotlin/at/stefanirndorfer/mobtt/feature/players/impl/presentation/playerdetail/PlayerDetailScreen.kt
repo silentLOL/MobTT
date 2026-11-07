@@ -1,5 +1,7 @@
 package at.stefanirndorfer.mobtt.feature.players.impl.presentation.playerdetail
 
+import android.content.Context
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,12 +19,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.stefanirndorfer.mobtt.core.localization.R
 import at.stefanirndorfer.mobtt.core.ui.ObserveAsEvents
@@ -35,6 +39,8 @@ import at.stefanirndorfer.mobtt.designsystem.theme.BatDesign
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatCard
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatEmptyState
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatFavoriteButton
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatInfoSheet
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatInfoSheetLink
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatStatView
 import at.stefanirndorfer.mobtt.domain.user.PlayerClub
@@ -65,10 +71,12 @@ fun PlayerDetailRoute(
     ),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
             is PlayerDetailEvent.OpenClub -> onOpenClub(event.clubId)
             is PlayerDetailEvent.OpenTeam -> onOpenTeam(event.teamId)
+            is PlayerDetailEvent.OpenWebPage -> context.openInAppBrowser(event.url)
         }
     }
     PlayerDetailScreen(state = uiState, onAction = viewModel::onAction, modifier = modifier)
@@ -139,8 +147,18 @@ private fun ContentView(
                 onToggle = { onAction(PlayerDetailAction.RatingHistoryToggled) },
                 onRetry = { onAction(PlayerDetailAction.RatingHistoryRetryClicked) },
                 onSpanChosen = { onAction(PlayerDetailAction.RatingHistorySpanChosen(it)) },
+                onInfo = { onAction(PlayerDetailAction.RatingInfoClicked) },
             )
         }
+    }
+    if (state.ratingInfoShown) {
+        BatInfoSheet(
+            title = stringResource(R.string.player_detail_rating_info_title),
+            body = stringResource(R.string.player_detail_rating_info_body),
+            closeLabel = stringResource(R.string.core_close_button_cd),
+            onDismiss = { onAction(PlayerDetailAction.RatingInfoDismissed) },
+            link = BatInfoSheetLink(stringResource(R.string.player_detail_rating_info_link)) { onAction(PlayerDetailAction.RatingInfoLinkClicked) },
+        )
     }
 }
 
@@ -252,6 +270,8 @@ private fun LinkRowView(
         }
     }
 }
+
+private fun Context.openInAppBrowser(url: String) = CustomTabsIntent.Builder().build().launchUrl(this, url.toUri())
 
 @BatScreenPreview
 @Composable

@@ -13,6 +13,9 @@ data class AppConfig(val environment: Environment, val appVersion: String, val x
     /** Read only for Rating histories, and only while [ratingHistoryEnabled] (ADR-0010). */
     val ratingsCentralHost: String = "https://www.ratingscentral.com"
 
+    /** Ratings Central's explanation of its Rating and Deviation, linked from the Rating history's info sheet. */
+    val ratingsCentralExplanationUrl: String = "$ratingsCentralHost/HowItWorks.php"
+
     /** Off for `beta` and `prod` until Ratings Central agrees to the app reading its history export (ADR-0010). */
     val ratingHistoryEnabled: Boolean = environment == Environment.Deb || environment == Environment.Dev
 }

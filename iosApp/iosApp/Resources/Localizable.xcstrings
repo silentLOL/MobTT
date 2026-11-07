@@ -3434,6 +3434,74 @@
           }
         }
       }
+    },
+    "player_detail_rating_info_cd": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Über den Ratingverlauf"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About the Rating history"
+          }
+        }
+      }
+    },
+    "player_detail_rating_info_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Über den Ratingverlauf"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About the Rating history"
+          }
+        }
+      }
+    },
+    "player_detail_rating_info_body": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Linie ist die Schätzung der Spielstärke durch Ratings Central: das Rating.\n\nDie Zahl nach ± ist die Abweichung, also wie sicher diese Schätzung ist. In etwa zwei von drei Fällen liegt die tatsächliche Spielstärke im schattierten Band.\n\nJe breiter das Band, desto stärker kann sich das Rating bei der nächsten Auswertung bewegen. Das Rating ändert sich nur, wenn Ratings Central die Ergebnisse auswertet, meist einmal pro Spielwoche."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The line is Ratings Central's estimate of the Player's playing strength: their Rating.\n\nThe number after ± is the Deviation, how certain that estimate is. About two times in three, the true playing strength lies within the shaded band.\n\nA wider band means the Rating can move further at the next Rating update. The Rating only changes when Ratings Central processes the Player's results, usually once per week of play."
+          }
+        }
+      }
+    },
+    "player_detail_rating_info_link": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mehr bei Ratings Central"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Learn more at Ratings Central"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

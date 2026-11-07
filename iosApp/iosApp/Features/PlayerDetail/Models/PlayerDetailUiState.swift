@@ -28,6 +28,8 @@ struct PlayerDetailUi: Equatable {
     var teams = SectionUiState<PlayerTeamsUi>.loading
     /// Nil while hidden: until the Teams name the Player's Ratings Central entry, for good without one, and in builds that may not show Rating histories.
     var ratingHistory: RatingHistorySectionUi?
+    /// While the Rating history's explanation is open.
+    var ratingInfoShown = false
 }
 
 /// The Rating after one Rating update, so Ratings Central's unrated default before the first one never appears.

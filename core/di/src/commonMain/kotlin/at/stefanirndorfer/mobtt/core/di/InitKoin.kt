@@ -12,6 +12,7 @@ import at.stefanirndorfer.mobtt.domain.club.DataUnavailable
 import at.stefanirndorfer.mobtt.domain.club.di.clubDomainModule
 import at.stefanirndorfer.mobtt.domain.rating.RatingHistory
 import at.stefanirndorfer.mobtt.domain.rating.RatingHistoryAvailability
+import at.stefanirndorfer.mobtt.domain.rating.RatingHistoryExplanation
 import at.stefanirndorfer.mobtt.domain.rating.RatingHistoryRepository
 import at.stefanirndorfer.mobtt.domain.rating.di.ratingDomainModule
 import at.stefanirndorfer.mobtt.domain.user.di.userDomainModule
@@ -33,6 +34,7 @@ private val sharedModules = listOf(
 /** Shared settings derived from the build's [AppConfig]. */
 private fun configModule(config: AppConfig): Module = module {
     single { RatingHistoryAvailability(config.ratingHistoryEnabled) }
+    single { RatingHistoryExplanation(config.ratingsCentralExplanationUrl) }
 }
 
 /**

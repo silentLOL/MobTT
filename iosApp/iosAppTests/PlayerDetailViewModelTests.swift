@@ -374,6 +374,40 @@ struct PlayerDetailViewModelTests {
         #expect(fewer.ratingHistory?.showsDots == true)
     }
 
+    @Test func theInfoButtonOpensTheExplanationAndReportsIt() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(analytics: analytics)
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+
+        viewModel.onAction(.ratingInfoClicked)
+
+        #expect(viewModel.ratingInfoShown)
+        #expect(analytics.events == [LoggedEvent("rating_info_opened", [:])])
+    }
+
+    @Test func dismissingTheExplanationClosesIt() async {
+        let viewModel = makeViewModel()
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+        viewModel.onAction(.ratingInfoClicked)
+
+        viewModel.onAction(.ratingInfoDismissed)
+
+        #expect(!viewModel.ratingInfoShown)
+    }
+
+    @Test func theExplanationsLinkOpensRatingsCentralsHowItWorksPage() async {
+        let viewModel = makeViewModel()
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+        var events = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.ratingInfoLinkClicked)
+
+        #expect(await events.next() == .openWebPage(url: URL(string: "https://www.ratingscentral.com/HowItWorks.php")!))
+    }
+
     private func open(_ viewModel: PlayerDetailViewModel) async {
         viewModel.loadIfNeeded()
         await waitUntil { viewModel.ratingHistory != nil }
@@ -404,6 +438,7 @@ struct PlayerDetailViewModelTests {
             loadRatingsCentralId: loadRatingsCentralId,
             loadRatingHistory: loadRatingHistory,
             now: { now },
+            ratingExplanationUrl: URL(string: "https://www.ratingscentral.com/HowItWorks.php")!,
             observeFavorites: AsyncStream { continuation in
                 favorites.forEach { continuation.yield($0) }
                 continuation.finish()
@@ -484,6 +519,11 @@ private func never() async throws -> DataResult {
 }
 
 private extension PlayerDetailViewModel {
+    var ratingInfoShown: Bool {
+        guard case .content(let detail) = uiState else { return false }
+        return detail.ratingInfoShown
+    }
+
     var ratingHistory: RatingHistorySectionUi? {
         guard case .content(let detail) = uiState else { return nil }
         return detail.ratingHistory
