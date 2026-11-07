@@ -44,6 +44,34 @@ The single source of truth for the events both apps send to Firebase Analytics (
 | Settings | `SettingsViewModel` | `SettingsViewModel` |
 | Consent step (`consent_changed` only) | `UsageConsentViewModel` | `UsageConsentViewModel` |
 
+## Adding tracking to a feature
+
+Every feature that adds a screen or a user interaction decides what to track before it is done.
+
+1. **Events.** Add a row to the Events table first (and a value to Values if needed), then fire it on both platforms from the ViewModel. Track a screen opened, a choice saved, a favorite toggled, a search. Do not track every tap, and never anything the catalog's Rules forbid (names, free text, user IDs).
+2. **Logging.** Use `co.touchlab.kermit.Logger` with a tag per class. Log at the points where support would otherwise be blind: a failed load or request (`Error`, with the throwable), a retry or fallback (`Warn`), a state change worth a breadcrumb (`Info`). Not every function call, and nothing per frame or per list item.
+3. **No sensitive data.** Never log tokens, the XTTV API key, or names and free text a user typed. Log IDs and enum values. Shared code reaches Crashlytics only through the Kermit writer, which redacts secrets, but do not rely on it for personal data.
+4. **Failures.** Pass the throwable to `Logger.e`. On `Error` with a throwable the Crashlytics writer records a non-fatal, so a swallowed exception still shows up in the console.
+5. **Tests.** Assert the events in the ViewModel's unit test with the recording tracker.
+
+## Firebase config files
+
+The config files are untracked (`.gitignore` covers `google-services.json` and `GoogleService-Info-*.plist`), as with the XTTV key (ADR-0009). Commit only the `.example` templates. The Firebase client keys are not strong secrets, but they let anyone send events and crashes into our project, and keeping them out of git leaves the project switchable per developer and CI.
+
+- **Android:** one `google-services.json` per flavor at `androidApp/src/<flavor>/`. A file covering all four apps is copied into each folder. The Gradle plugins are applied only when at least one exists.
+- **iOS:** `iosApp/Firebase/GoogleService-Info-<env>.plist`, copied into the app by a build phase.
+- **CI:** inject the files from secrets before the build.
+
 ## Verifying
 
-Events are checked with DebugView in `dev` (`deb` sends none). Unit tests assert the events against a recording tracker on both platforms.
+Events and crashes are checked by hand in the Firebase console, with the unit tests covering the rest.
+
+1. Build `dev` with the config file in place and install it. `deb` sends no events, so use `dev` or `beta`.
+2. Allow Usage Consent in the app. Nothing is sent before.
+3. Turn on debug reporting. Android: `adb shell setprop debug.firebase.analytics.app at.stefanirndorfer.mobtt.dev`. iOS: add `-FIRAnalyticsDebugEnabled` to the scheme's launch arguments.
+4. Open Firebase console, Analytics, DebugView, pick the device, and use the app. The `screen_view` and interaction events from the table appear within seconds. Parameters must match the catalog.
+5. Crashlytics: log an error path or force a test crash in a `dev` build, restart the app, and the report shows up in the console within a few minutes.
+6. Check the declined path too: decline consent, then confirm no events arrive.
+7. Check the opposite case: remove the config file and rebuild. The app must still build and run with the SDK disabled.
+
+Unit tests assert the events against a recording tracker on both platforms.

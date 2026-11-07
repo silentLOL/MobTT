@@ -77,6 +77,7 @@ Both platforms share a four-environment flavor setup: `deb`, `dev`, `beta`, `pro
 6. Register the new Koin modules (both domain and feature) in `:core:di`'s `initKoin` function (a single `sharedModules` list; platform-specific modules are passed through `initKoin`'s `appDeclaration`).
 7. Register the new feature's screen in the app module's main `NavHost`.
 8. Implement the Swift ViewModel & Screen in `iosApp`.
+9. Add the feature's logging and analytics events (catalog row first), see [`docs/ANALYTICS.md`](docs/ANALYTICS.md).
 
 ### Updating Design Tokens
 1. Update the tokens in `:android:core:design-system` (e.g. `BatColors.kt`).
@@ -202,7 +203,7 @@ A decentralized, type-safe navigation system for module isolation and build perf
   - **iOS**: Keychain (`kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`).
   - **Android**: `EncryptedSharedPreferences` (`androidx.security:security-crypto`), backed by the Android Keystore.
 - **Stateless Repositories**: Authentication session state (like the PKCE `code_verifier`) is managed by the caller (ViewModel) via an `AuthSession` model, keeping the domain repository stateless.
-- **Logging**: Use `co.touchlab.kermit.Logger` for all core domain and network operations. Never log sensitive data (tokens, full secrets).
+- **Logging**: Use `co.touchlab.kermit.Logger` for all core domain and network operations. Never log sensitive data (tokens, full secrets). When building a feature, add meaningful logs and the analytics events it needs, see [`docs/ANALYTICS.md`](docs/ANALYTICS.md) "Adding tracking to a feature".
 
 ## 15. Global Compiler Opt-ins
 Certain experimental APIs are enabled at the compiler level in the Gradle convention plugins (build-logic). Do not manually add `@OptIn` for:
