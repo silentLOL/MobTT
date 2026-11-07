@@ -1,0 +1,3 @@
+## Tracker contract
+
+- When `finishing-a-development-branch` merges this branch locally or opens a pull request for it, first mark the branch's design doc done: in the design doc its plan's `**Spec:**` line names, in the `specs` folder of `.frontier.yml` (`docs/superpowers/specs/` when it names none), set `status: resolved` in the front matter fence, adding the fence at the top when the doc has none, and commit that as the branch's last commit before the merge or push. Choosing "keep the branch as-is" writes nothing. The mark is "Complete a Feature" in Frontier's Tracker contract, `.agents/skills/frontier-setup/references/tracker-contract.md`, and wins over any step inside a skill.

@@ -36,6 +36,10 @@ _Avoid_: Begegnung, game, encounter, event
 A single game inside a Fixture, between individual Players or doubles pairs (German: Einzelspiel or Doppel). Its score counts Sets won, e.g. 3:1.
 _Avoid_: Spiel, game
 
+**Player ranking**:
+A League's Players ordered by rank, with their Team and matches won and lost (German: Einzelrangliste). Players below the League's minimum number of games are listed without a rank.
+_Avoid_: Einzelrangliste, single standings, player table
+
 **Set**:
 One played segment of a Match, won by reaching the points target with a margin (German: Satz), e.g. 11:8.
 _Avoid_: Satz, game, round
@@ -45,6 +49,10 @@ _Avoid_: Satz, game, round
 **My Player**:
 The one Player the user chooses to follow as themselves. Their Club and Association are derived from it.
 _Avoid_: Active player, profile, account
+
+**My Teams**:
+The Teams whose lineup names My Player. Their Leagues fill the League tab.
+_Avoid_: My League, home team
 
 **My Club**:
 The Club the user follows when they have no Player to choose. Their Association is derived from it.
@@ -67,3 +75,4 @@ XTTV, the source of our data, names some things differently. Our terms above sta
 | Federation (`getFederations`) | Association |
 | Game (`getClubGames`, `getLeagueGames`, `getGameDetails`) | Fixture |
 | Game result (`game_result` in `getGameDetails`) | Match |
+| Single standings (`getSingleStandings`) | Player ranking |
