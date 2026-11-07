@@ -57,9 +57,10 @@ fun LeagueDetailRoute(
     onOpenFixture: (String) -> Unit,
     onOpenPlayer: (String) -> Unit,
     modifier: Modifier = Modifier,
+    reportsScreenView: Boolean = true,
     viewModel: LeagueDetailViewModel = koinViewModel(
         key = "$leagueId/$highlightTeamId/$openedFromTeamId",
-        parameters = { parametersOf(leagueId, highlightTeamId, openedFromTeamId) },
+        parameters = { parametersOf(leagueId, highlightTeamId, openedFromTeamId, reportsScreenView) },
     ),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -119,6 +120,26 @@ private fun ErrorView(onRetry: () -> Unit, modifier: Modifier = Modifier) {
 @Composable
 private fun ContentView(state: LeagueDetailUiState.Content, onAction: (LeagueDetailAction) -> Unit, modifier: Modifier = Modifier) {
     val detail = state.detail
+    val highlightIsMyTeam = state.highlightIsMyTeam
+    val highlightBadge = stringResource(
+        if (highlightIsMyTeam) {
+            R.string.league_detail_my_team_badge
+        } else {
+            R.string.team_detail_this_team_badge
+        },
+    )
+    val highlightRowDescription = if (highlightIsMyTeam) {
+        R.string.league_detail_standing_row_my_team_cd
+    } else {
+        R.string.team_detail_standing_row_this_team_cd
+    }
+    val onlyTeamFixturesLabel = stringResource(
+        if (highlightIsMyTeam) {
+            R.string.league_detail_only_my_team_fixtures_label
+        } else {
+            R.string.league_detail_only_team_fixtures_label
+        },
+    )
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -152,11 +173,11 @@ private fun ContentView(state: LeagueDetailUiState.Content, onAction: (LeagueDet
                             },
                             leadingText = standing.position.toString(),
                             supportingText = stringResource(R.string.team_detail_standing_stats_label, standing.played, standing.points),
-                            badge = if (isThisTeam) stringResource(R.string.team_detail_this_team_badge) else null,
+                            badge = if (isThisTeam) highlightBadge else null,
                             striped = index % 2 == 1,
                             highlighted = isThisTeam,
                             contentDescription = stringResource(
-                                if (isThisTeam) R.string.team_detail_standing_row_this_team_cd else R.string.team_detail_standing_row_cd,
+                                if (isThisTeam) highlightRowDescription else R.string.team_detail_standing_row_cd,
                                 standing.position,
                                 standing.teamName,
                                 standing.played,
@@ -171,6 +192,7 @@ private fun ContentView(state: LeagueDetailUiState.Content, onAction: (LeagueDet
             BatSectionHeader(title = stringResource(R.string.league_detail_fixtures_title))
             if (state.highlightTeamId != null) {
                 TeamFixturesToggleView(
+                    label = onlyTeamFixturesLabel,
                     checked = state.onlyTeamFixtures,
                     onCheckedChange = { onAction(LeagueDetailAction.OnlyTeamFixturesToggled(it)) },
                 )
@@ -184,6 +206,7 @@ private fun ContentView(state: LeagueDetailUiState.Content, onAction: (LeagueDet
                         FixtureRowView(
                             fixture = fixture,
                             isThisTeam = state.isTeamFixture(fixture) && !state.onlyTeamFixtures,
+                            highlightBadge = highlightBadge,
                             striped = index % 2 == 1,
                             onInfoClick = { onAction(LeagueDetailAction.FixtureInfoClicked(fixture.id)) },
                         )
@@ -236,6 +259,17 @@ private fun LeagueDetailScreenLoadedPreview() {
 private fun LeagueDetailScreenHighlightedPreview() {
     BatPreviewSurface {
         LeagueDetailScreen(state = LeagueDetailUiState.Content(leagueDetailPreview, highlightTeamId = "olympic-1"), onAction = {})
+    }
+}
+
+@BatScreenPreview
+@Composable
+private fun LeagueDetailScreenMyTeamPreview() {
+    BatPreviewSurface {
+        LeagueDetailScreen(
+            state = LeagueDetailUiState.Content(leagueDetailPreview, highlightTeamId = "olympic-1", openedFromTeamId = null),
+            onAction = {},
+        )
     }
 }
 

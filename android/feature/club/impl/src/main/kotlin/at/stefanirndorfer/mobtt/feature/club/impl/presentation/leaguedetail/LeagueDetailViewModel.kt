@@ -40,9 +40,12 @@ class LeagueDetailViewModel(
     private val getPlayerRanking: GetPlayerRankingUseCase,
     observeUserContext: ObserveUserContextUseCase,
     private val analytics: AnalyticsTracker = NoOpAnalyticsTracker,
+    reportsScreenView: Boolean = true,
 ) : ViewModel() {
     init {
-        analytics.screenView(AnalyticsScreen.LEAGUE_DETAIL)
+        if (reportsScreenView) {
+            analytics.screenView(AnalyticsScreen.LEAGUE_DETAIL)
+        }
     }
 
     private val retry = RetryTrigger()

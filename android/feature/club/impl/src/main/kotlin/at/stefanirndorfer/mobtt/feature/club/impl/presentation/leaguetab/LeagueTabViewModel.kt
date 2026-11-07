@@ -65,6 +65,7 @@ class LeagueTabViewModel(
 
     private fun MyTeams.toUiState(): LeagueTabUiState = when (this) {
         MyTeams.NoMyPlayer -> LeagueTabUiState.NoMyPlayer
+        MyTeams.Unavailable -> LeagueTabUiState.Unavailable
         is MyTeams.Found -> when (teams.size) {
             0 -> LeagueTabUiState.NoTeam(playerId = player.id, playerName = player.name)
             1 -> teams.single().let { LeagueTabUiState.League(leagueId = requireNotNull(it.league).id, teamId = it.team.id) }

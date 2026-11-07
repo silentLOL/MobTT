@@ -112,6 +112,20 @@ class LeagueTabViewModelTest {
     }
 
     @Test
+    fun theTabKeepsFollowingMyPlayerAfterXttvCouldNotAnswer() = runTest {
+        data.selection.value = UserSelection.MyPlayer("p1")
+        data.lineups = mapOf("t2" to lineup(bea))
+        data.teamsUnavailable = true
+        val viewModel = viewModel()
+        assertEquals(LeagueTabUiState.Unavailable, viewModel.uiState.value)
+
+        data.teamsUnavailable = false
+        data.selection.value = UserSelection.MyPlayer("p2")
+
+        assertEquals(LeagueTabUiState.League(leagueId = "l2", teamId = "t2"), viewModel.uiState.value)
+    }
+
+    @Test
     fun theEmptyStateButtonOpensThePlayerPicker() = runTest {
         val viewModel = viewModel()
         val events = events(viewModel)

@@ -47,6 +47,7 @@ class FakeClubData :
     var players = emptyList<Player>()
     var ranking = emptyList<RankedPlayer>()
     var rankingUnavailable = false
+    var teamsUnavailable = false
 
     /** While set, the ranking waits for it, so a test can watch the League before the ranking arrives. */
     var rankingGate: CompletableDeferred<Unit>? = null
@@ -71,7 +72,12 @@ class FakeClubData :
 
     override suspend fun getTeam(id: String): Team? = read(teams.firstOrNull { it.id == id })
 
-    override suspend fun getTeams(clubId: String): List<Team> = read(teams)
+    override suspend fun getTeams(clubId: String): List<Team> {
+        if (teamsUnavailable) {
+            throw DataUnavailable("XTTV unreachable")
+        }
+        return read(teams)
+    }
 
     override suspend fun getLineup(teamId: String): List<LineupPlayer> = read(lineups[teamId].orEmpty())
 

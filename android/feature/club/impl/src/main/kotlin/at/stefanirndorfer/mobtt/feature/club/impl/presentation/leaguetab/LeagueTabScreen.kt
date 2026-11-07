@@ -57,30 +57,37 @@ fun LeagueTabRoute(
             is LeagueTabEvent.OpenLeague -> onOpenLeague(event.leagueId, event.teamId)
         }
     }
-    when (val state = uiState) {
-        // My Player's Team came from the tab, not from its Team screen, so its table row still opens it.
-        is LeagueTabUiState.League -> LeagueDetailRoute(
-            leagueId = state.leagueId,
-            highlightTeamId = state.teamId,
-            openedFromTeamId = null,
-            onOpenTeam = onOpenTeam,
-            onOpenFixture = onOpenFixture,
-            onOpenPlayer = onOpenPlayer,
-            modifier = modifier,
-        )
-        else -> LeagueTabScreen(state = state, onAction = viewModel::onAction, modifier = modifier)
-    }
+    LeagueTabScreen(
+        state = uiState,
+        onAction = viewModel::onAction,
+        modifier = modifier,
+        league = { leagueId, teamId ->
+            // My Player's Team came from the tab, not from its Team screen, so its table row still opens it. The tab
+            // already counts this screen view, so the League screen does not count another.
+            LeagueDetailRoute(
+                leagueId = leagueId,
+                highlightTeamId = teamId,
+                openedFromTeamId = null,
+                onOpenTeam = onOpenTeam,
+                onOpenFixture = onOpenFixture,
+                onOpenPlayer = onOpenPlayer,
+                reportsScreenView = false,
+            )
+        },
+    )
 }
 
-/** Every state of the tab except a League, which the League screen draws itself. */
+/** [league] draws the League screen for the one-Team state, which has its own ViewModel. */
 @Composable
 fun LeagueTabScreen(
     state: LeagueTabUiState,
     onAction: (LeagueTabAction) -> Unit,
     modifier: Modifier = Modifier,
+    league: @Composable (leagueId: String, teamId: String) -> Unit = { _, _ -> },
 ) {
     when (state) {
-        LeagueTabUiState.Loading, is LeagueTabUiState.League -> LoadingView(modifier)
+        LeagueTabUiState.Loading -> LoadingView(modifier)
+        is LeagueTabUiState.League -> Box(modifier) { league(state.leagueId, state.teamId) }
         LeagueTabUiState.NoMyPlayer -> MessageView(
             title = stringResource(R.string.league_tab_no_player_title),
             body = stringResource(R.string.league_tab_no_player_body),
@@ -101,11 +108,11 @@ fun LeagueTabScreen(
         is LeagueTabUiState.Teams -> TeamsView(state.teams, onAction, modifier)
         LeagueTabUiState.Unavailable -> MessageView(
             title = stringResource(R.string.league_tab_error_title),
-            body = stringResource(R.string.league_detail_error_body),
+            body = stringResource(R.string.league_tab_error_body),
             modifier = modifier,
             announce = true,
         ) {
-            BatPrimaryButton(text = stringResource(R.string.league_detail_error_retry_button), onClick = { onAction(LeagueTabAction.RetryClicked) })
+            BatPrimaryButton(text = stringResource(R.string.league_tab_error_retry_button), onClick = { onAction(LeagueTabAction.RetryClicked) })
         }
     }
 }

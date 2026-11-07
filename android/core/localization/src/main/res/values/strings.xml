@@ -135,6 +135,9 @@
     <string name="league_detail_ranking_unranked_cd">Unranked</string>
     <string name="league_detail_ranking_stats_cd">%1$d Matches won, %2$d lost, %3$d played</string>
     <string name="league_detail_my_player_badge">My Player</string>
+    <string name="league_detail_my_team_badge">My Team</string>
+    <string name="league_detail_standing_row_my_team_cd">Rank %1$d, %2$s, my Team, %3$d played, %4$d points</string>
+    <string name="league_detail_only_my_team_fixtures_label">Only my Team\'s Fixtures</string>
     <string name="league_tab_no_player_title">Choose My Player first</string>
     <string name="league_tab_no_player_body">Your League shows up here once you choose My Player.</string>
     <string name="league_tab_choose_player_button">Choose My Player</string>
@@ -143,6 +146,8 @@
     <string name="league_tab_open_player_button">Open My Player</string>
     <string name="league_tab_loading_cd">Finding your League</string>
     <string name="league_tab_error_title">Couldn\'t load your League</string>
+    <string name="league_tab_error_body">Check your connection and try again.</string>
+    <string name="league_tab_error_retry_button">Try again</string>
     <string name="league_tab_teams_title">My Teams</string>
     <string name="fixture_detail_hero_overline">Fixture</string>
     <string name="fixture_detail_not_played">Not played yet</string>

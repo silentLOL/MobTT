@@ -13,12 +13,18 @@ struct LeagueDetailRoute: View {
         openedFromTeamId: String?,
         onOpenTeam: @escaping (_ teamId: String) -> Void,
         onOpenFixture: @escaping (_ fixtureId: String) -> Void,
-        onOpenPlayer: @escaping (_ playerId: String) -> Void
+        onOpenPlayer: @escaping (_ playerId: String) -> Void,
+        reportsScreenView: Bool = true
     ) {
         self.onOpenTeam = onOpenTeam
         self.onOpenFixture = onOpenFixture
         self.onOpenPlayer = onOpenPlayer
-        _viewModel = State(initialValue: LeagueDetailViewModel(leagueId: leagueId, highlightTeamId: highlightTeamId, openedFromTeamId: openedFromTeamId))
+        _viewModel = State(initialValue: LeagueDetailViewModel(
+            leagueId: leagueId,
+            highlightTeamId: highlightTeamId,
+            openedFromTeamId: openedFromTeamId,
+            reportsScreenView: reportsScreenView
+        ))
     }
 
     var body: some View {
@@ -73,6 +79,10 @@ private struct ContentView: View {
     let detail: LeagueDetailUi
     let onAction: (LeagueDetailAction) -> Void
 
+    private var highlightBadge: String {
+        detail.highlightIsMyTeam ? String(localized: "league_detail_my_team_badge") : String(localized: "team_detail_this_team_badge")
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: BatSpacing.lg) {
@@ -97,11 +107,13 @@ private struct ContentView: View {
                                     title: row.teamName,
                                     leadingText: "\(row.position)",
                                     supportingText: String(localized: "team_detail_standing_stats_label \(row.played) \(row.points)"),
-                                    badge: row.isThisTeam ? String(localized: "team_detail_this_team_badge") : nil,
+                                    badge: row.isThisTeam ? highlightBadge : nil,
                                     isStriped: !index.isMultiple(of: 2),
                                     isHighlighted: row.isThisTeam,
                                     accessibilityText: row.isThisTeam
-                                        ? String(localized: "team_detail_standing_row_this_team_cd \(row.position) \(row.teamName) \(row.played) \(row.points)")
+                                        ? (detail.highlightIsMyTeam
+                                            ? String(localized: "league_detail_standing_row_my_team_cd \(row.position) \(row.teamName) \(row.played) \(row.points)")
+                                            : String(localized: "team_detail_standing_row_this_team_cd \(row.position) \(row.teamName) \(row.played) \(row.points)"))
                                         : String(localized: "team_detail_standing_row_cd \(row.position) \(row.teamName) \(row.played) \(row.points)"),
                                     action: row.opensTeam ? { onAction(.teamClicked(teamId: row.id)) } : nil
                                 )
@@ -113,7 +125,9 @@ private struct ContentView: View {
                     BatSectionHeaderView(title: String(localized: "league_detail_fixtures_title"))
                     if detail.canFilterToTeam {
                         Toggle(
-                            "league_detail_only_team_fixtures_label",
+                            detail.highlightIsMyTeam
+                                ? LocalizedStringKey("league_detail_only_my_team_fixtures_label")
+                                : LocalizedStringKey("league_detail_only_team_fixtures_label"),
                             isOn: Binding(
                                 get: { detail.onlyTeamFixtures },
                                 set: { onAction(.onlyTeamFixturesToggled($0)) }
@@ -133,6 +147,7 @@ private struct ContentView: View {
                                     row: fixture,
                                     isStriped: !index.isMultiple(of: 2),
                                     showsThisTeam: !detail.onlyTeamFixtures,
+                                    highlightBadge: highlightBadge,
                                     onInfoTap: { onAction(.fixtureInfoClicked(fixtureId: fixture.id)) }
                                 )
                             }

@@ -6,6 +6,7 @@ struct FixtureRowView: View {
     var isStriped = false
     /// Off when only the Team's own Fixtures are listed: marking every row would mark none.
     var showsThisTeam = true
+    var highlightBadge = String(localized: "team_detail_this_team_badge")
     let onInfoTap: () -> Void
 
     var body: some View {
@@ -31,7 +32,7 @@ struct FixtureRowView: View {
                         .batTextStyle(BatTypography.caption)
                         .foregroundStyle(BatColor.textSecondary)
                     if showsThisTeam && row.isThisTeam {
-                        BatBadgeView(text: String(localized: "team_detail_this_team_badge"))
+                        BatBadgeView(text: highlightBadge)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)

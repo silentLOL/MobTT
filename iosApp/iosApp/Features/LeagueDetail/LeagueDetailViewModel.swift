@@ -25,6 +25,7 @@ final class LeagueDetailViewModel {
     @ObservationIgnored private let observeUserContext: any AsyncSequence<DataResult, Never>
     @ObservationIgnored private let analytics: any AnalyticsTracker
     @ObservationIgnored private let screenViews: ScreenViewReporter
+    private let reportsScreenView: Bool
 
     init(
         leagueId: String,
@@ -33,8 +34,10 @@ final class LeagueDetailViewModel {
         loadDetail: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadLeagueDetail(leagueId: $0) },
         loadRanking: @escaping (String) async throws -> DataResult = { try await KoinHelper.shared.loadPlayerRanking(leagueId: $0) },
         observeUserContext: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeUserContext(),
-        analytics: any AnalyticsTracker = AppAnalytics.tracker
+        analytics: any AnalyticsTracker = AppAnalytics.tracker,
+        reportsScreenView: Bool = true
     ) {
+        self.reportsScreenView = reportsScreenView
         self.leagueId = leagueId
         self.highlightTeamId = highlightTeamId
         self.openedFromTeamId = openedFromTeamId
@@ -45,8 +48,9 @@ final class LeagueDetailViewModel {
         self.screenViews = ScreenViewReporter(tracker: analytics, screen: AnalyticsScreen.leagueDetail)
     }
 
-    /// Reports the screen view, once per screen.
+    /// Reports the screen view, once per screen; inside the League tab the tab reports it instead.
     func screenShown() {
+        guard reportsScreenView else { return }
         screenViews.report()
     }
 
@@ -150,7 +154,6 @@ private extension PlayerRankingRow {
     }
 }
 
-
 private extension LeagueDetail {
     func toUi(highlightTeamId: String?, openedFromTeamId: String?, onlyTeamFixtures: Bool) -> LeagueDetailUi {
         LeagueDetailUi(
@@ -168,6 +171,7 @@ private extension LeagueDetail {
             },
             fixtures: fixtures.map { $0.toUi(highlightTeamId: highlightTeamId) },
             canFilterToTeam: highlightTeamId != nil,
+            highlightIsMyTeam: highlightTeamId != nil && openedFromTeamId == nil,
             onlyTeamFixtures: onlyTeamFixtures && highlightTeamId != nil
         )
     }

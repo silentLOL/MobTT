@@ -23,6 +23,13 @@ sealed interface LeagueDetailUiState {
     ) : LeagueDetailUiState {
         fun isMyPlayer(playerId: String): Boolean = playerId == myPlayerId
 
+        /**
+         * A Team highlighted without coming from its own screen is one of My Teams: only the League tab opens a League
+         * that way. It is then called "my Team" rather than "this Team".
+         */
+        val highlightIsMyTeam: Boolean
+            get() = highlightTeamId != null && openedFromTeamId == null
+
         fun isThisTeam(teamId: String): Boolean = teamId == highlightTeamId
 
         fun opensTeam(teamId: String): Boolean = teamId != openedFromTeamId

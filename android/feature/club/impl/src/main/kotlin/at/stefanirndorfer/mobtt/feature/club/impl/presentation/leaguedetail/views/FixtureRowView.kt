@@ -33,6 +33,7 @@ fun FixtureRowView(
     fixture: Fixture,
     isThisTeam: Boolean,
     striped: Boolean,
+    highlightBadge: String,
     onInfoClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -63,7 +64,7 @@ fun FixtureRowView(
                     style = BatDesign.typography.caption,
                 )
                 if (isThisTeam) {
-                    BatBadge(text = stringResource(R.string.team_detail_this_team_badge))
+                    BatBadge(text = highlightBadge)
                 }
             }
             BatIconButton(
@@ -86,11 +87,11 @@ private fun FixtureRowViewPreview() {
     BatPreviewSurface {
         BatList {
             leagueDetailPreview.fixtures.forEachIndexed { index, fixture ->
-                FixtureRowView(fixture, isThisTeam = false, striped = index % 2 == 1, onInfoClick = {})
+                FixtureRowView(fixture, isThisTeam = false, striped = index % 2 == 1, highlightBadge = stringResource(R.string.team_detail_this_team_badge), onInfoClick = {})
             }
-            FixtureRowView(leagueDetailPreview.fixtures[1], isThisTeam = true, striped = false, onInfoClick = {})
+            FixtureRowView(leagueDetailPreview.fixtures[1], isThisTeam = true, striped = false, highlightBadge = stringResource(R.string.league_detail_my_team_badge), onInfoClick = {})
             leagueDetailLongNamesPreview.fixtures.forEach {
-                FixtureRowView(it, isThisTeam = true, striped = true, onInfoClick = {})
+                FixtureRowView(it, isThisTeam = true, striped = true, highlightBadge = stringResource(R.string.team_detail_this_team_badge), onInfoClick = {})
             }
         }
     }

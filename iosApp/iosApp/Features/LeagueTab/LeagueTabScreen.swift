@@ -24,33 +24,35 @@ struct LeagueTabRoute: View {
             }
     }
 
-    @ViewBuilder
     private var content: some View {
-        if case .league(let leagueId, let teamId) = viewModel.uiState {
-            // My Player's Team came from the tab, not from its Team screen, so its table row still opens it.
+        LeagueTabScreen(state: viewModel.uiState, onAction: viewModel.onAction) { leagueId, teamId in
+            // My Player's Team came from the tab, not from its Team screen, so its table row still opens it. The tab
+            // already counts this screen view, so the League screen does not count another.
             LeagueDetailRoute(
                 leagueId: leagueId,
                 highlightTeamId: teamId,
                 openedFromTeamId: nil,
                 onOpenTeam: onOpenTeam,
                 onOpenFixture: onOpenFixture,
-                onOpenPlayer: onOpenPlayer
+                onOpenPlayer: onOpenPlayer,
+                reportsScreenView: false
             )
             .id("\(leagueId)/\(teamId)")
-        } else {
-            LeagueTabScreen(state: viewModel.uiState, onAction: viewModel.onAction)
         }
     }
 }
 
-/// Every state of the tab except a League, which the League screen draws itself.
-struct LeagueTabScreen: View {
+/// `league` draws the League screen for the one-Team state, which has its own ViewModel.
+struct LeagueTabScreen<LeagueContent: View>: View {
     let state: LeagueTabUiState
     let onAction: (LeagueTabAction) -> Void
+    @ViewBuilder let league: (_ leagueId: String, _ teamId: String) -> LeagueContent
 
     var body: some View {
         switch state {
-        case .loading, .league:
+        case .league(let leagueId, let teamId):
+            league(leagueId, teamId)
+        case .loading:
             ProgressView()
                 .tint(BatColor.brand)
                 .accessibilityLabel(Text("league_tab_loading_cd"))
@@ -76,10 +78,10 @@ struct LeagueTabScreen: View {
                 .padding(BatSpacing.lg)
             }
         case .unavailable:
-            message(title: String(localized: "league_tab_error_title"), body: String(localized: "league_detail_error_body")) {
-                BatPrimaryButtonView(title: String(localized: "league_detail_error_retry_button")) { onAction(.retryClicked) }
+            message(title: String(localized: "league_tab_error_title"), body: String(localized: "league_tab_error_body")) {
+                BatPrimaryButtonView(title: String(localized: "league_tab_error_retry_button")) { onAction(.retryClicked) }
             }
-            .onAppear { AccessibilityNotification.Announcement(String(localized: "league_detail_error_body")).post() }
+            .onAppear { AccessibilityNotification.Announcement(String(localized: "league_tab_error_body")).post() }
         }
     }
 
@@ -91,6 +93,13 @@ struct LeagueTabScreen: View {
             }
             .padding(BatSpacing.lg)
         }
+    }
+}
+
+extension LeagueTabScreen where LeagueContent == EmptyView {
+    /// For previews of the states that draw no League.
+    init(state: LeagueTabUiState, onAction: @escaping (LeagueTabAction) -> Void) {
+        self.init(state: state, onAction: onAction) { _, _ in EmptyView() }
     }
 }
 

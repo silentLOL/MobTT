@@ -25,7 +25,6 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 
 private class MyTeamsDirectory(
@@ -175,10 +174,21 @@ class MyTeamsTest {
     }
 
     @Test
-    fun theClubsTeamsBeingUnavailableFailsMyTeams() = runTest {
+    fun theClubsTeamsBeingUnavailableMakesMyTeamsUnavailable() = runTest {
         val directory = directory(lineups = mapOf("t1" to lineup(anna)), teamsUnavailable = true)
 
-        assertFailsWith<DataUnavailable> { observeMyTeams(directory)().first() }
+        assertEquals(MyTeams.Unavailable, observeMyTeams(directory)().first())
+    }
+
+    @Test
+    fun myTeamsKeepFollowingMyPlayerAfterXttvCouldNotAnswer() = runTest {
+        val directory = directory(lineups = mapOf("t1" to lineup(anna)), teamsUnavailable = true)
+        val seen = mutableListOf<MyTeams>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { observeMyTeams(directory)().toList(seen) }
+
+        directory.selection.value = UserSelection.None
+
+        assertEquals(listOf(MyTeams.Unavailable, MyTeams.NoMyPlayer), seen)
     }
 
     @Test

@@ -62,6 +62,8 @@ final class LeagueTabViewModel {
         switch onEnum(of: myTeams) {
         case .noMyPlayer:
             return .noMyPlayer
+        case .unavailable:
+            return .unavailable
         case .found(let found):
             let cards = found.teams.compactMap { detail in
                 detail.leagueUi().map { LeagueTeamCardUi(teamId: detail.team.id, teamName: detail.team.name, league: $0) }

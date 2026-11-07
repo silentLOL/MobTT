@@ -18,7 +18,7 @@ import at.stefanirndorfer.mobtt.designsystem.theme.BatDesign
 
 /** Narrows the Fixture list to the Team the user came from. The whole row toggles, not just the switch. */
 @Composable
-fun TeamFixturesToggleView(checked: Boolean, onCheckedChange: (Boolean) -> Unit, modifier: Modifier = Modifier) {
+fun TeamFixturesToggleView(label: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -27,7 +27,7 @@ fun TeamFixturesToggleView(checked: Boolean, onCheckedChange: (Boolean) -> Unit,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = stringResource(R.string.league_detail_only_team_fixtures_label),
+            text = label,
             color = BatDesign.colors.textPrimary,
             style = BatDesign.typography.body,
             modifier = Modifier.weight(1f),
@@ -40,6 +40,6 @@ fun TeamFixturesToggleView(checked: Boolean, onCheckedChange: (Boolean) -> Unit,
 @Composable
 private fun TeamFixturesToggleViewPreview() {
     BatPreviewSurface {
-        TeamFixturesToggleView(checked = true, onCheckedChange = {})
+        TeamFixturesToggleView(label = stringResource(R.string.league_detail_only_team_fixtures_label), checked = true, onCheckedChange = {})
     }
 }

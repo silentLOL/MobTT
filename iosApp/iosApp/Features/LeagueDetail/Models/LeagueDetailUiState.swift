@@ -47,6 +47,8 @@ struct LeagueDetailUi: Equatable {
     let fixtures: [FixtureRowUi]
     /// The Fixtures can only be narrowed to a Team when one is highlighted.
     var canFilterToTeam = false
+    /// A Team highlighted without coming from its own screen is one of My Teams: only the League tab opens a League that way. It is then called "my Team" rather than "this Team".
+    var highlightIsMyTeam = false
     var onlyTeamFixtures = false
     var ranking = PlayerRankingUiState.loading
     /// Marks My Player in the ranking.

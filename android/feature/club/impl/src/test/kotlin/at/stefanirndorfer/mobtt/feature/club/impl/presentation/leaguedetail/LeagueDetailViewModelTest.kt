@@ -45,7 +45,11 @@ class LeagueDetailViewModelTest {
     @After
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun TestScope.viewModel(highlightTeamId: String? = "t1", openedFromTeamId: String? = highlightTeamId): LeagueDetailViewModel {
+    private fun TestScope.viewModel(
+        highlightTeamId: String? = "t1",
+        openedFromTeamId: String? = highlightTeamId,
+        reportsScreenView: Boolean = true,
+    ): LeagueDetailViewModel {
         val viewModel = LeagueDetailViewModel(
             "l1",
             highlightTeamId,
@@ -54,6 +58,7 @@ class LeagueDetailViewModelTest {
             GetPlayerRankingUseCase(data, data),
             ObserveUserContextUseCase(data, data, data, data),
             analytics,
+            reportsScreenView = reportsScreenView,
         )
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel
@@ -120,6 +125,23 @@ class LeagueDetailViewModelTest {
         val state = assertIs<LeagueDetailUiState.Content>(viewModel.uiState.value)
         assertTrue(state.isThisTeam("t1"))
         assertTrue(state.opensTeam("t1"))
+    }
+
+    @Test
+    fun aTeamHighlightedFromTheLeagueTabIsMyTeam() = runTest {
+        assertTrue(assertIs<LeagueDetailUiState.Content>(viewModel(highlightTeamId = "t1", openedFromTeamId = null).uiState.value).highlightIsMyTeam)
+    }
+
+    @Test
+    fun aTeamTheUserCameFromIsNotCalledMyTeam() = runTest {
+        assertFalse(assertIs<LeagueDetailUiState.Content>(viewModel(highlightTeamId = "t1", openedFromTeamId = "t1").uiState.value).highlightIsMyTeam)
+    }
+
+    @Test
+    fun insideTheLeagueTabTheScreenViewIsLeftToTheTab() = runTest {
+        viewModel(reportsScreenView = false)
+
+        assertTrue(analytics.events.none { it.name == "screen_view" })
     }
 
     @Test

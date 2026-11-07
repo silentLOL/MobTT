@@ -82,6 +82,22 @@ struct LeagueTabViewModelTests {
         #expect(viewModel.uiState == .noMyPlayer)
     }
 
+    @Test func theTabKeepsFollowingMyPlayerAfterXttvCouldNotAnswer() async {
+        let viewModel = makeViewModel([DataResultSuccess(value: MyTeamsUnavailable.shared), found([teamDetail("t2", leagueId: "l2")])])
+
+        await viewModel.observe()
+
+        #expect(viewModel.uiState == .league(leagueId: "l2", teamId: "t2"))
+    }
+
+    @Test func myTeamsXttvCannotAnswerForShowTheError() async {
+        let viewModel = makeViewModel([DataResultSuccess(value: MyTeamsUnavailable.shared)])
+
+        await viewModel.observe()
+
+        #expect(viewModel.uiState == .unavailable)
+    }
+
     @Test func unavailableDataShowsAnErrorAndRetryRestarts() async {
         let viewModel = makeViewModel([DataResultUnavailable(error: DataUnavailable(message: "down", cause: nil))])
 

@@ -184,6 +184,39 @@ struct LeagueDetailViewModelTests {
         #expect(analytics.events == [LoggedEvent("detail_opened", ["kind": "player", "id": "p1", "from": "league_detail"])])
     }
 
+    @Test func aTeamHighlightedFromTheLeagueTabIsMyTeam() async {
+        let viewModel = makeViewModel(highlightTeamId: "t1", openedFromTeamId: nil) { _ in self.twoTeamLeague() }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+
+        guard case .content(let detail) = viewModel.uiState else {
+            Issue.record("Expected content")
+            return
+        }
+        #expect(detail.highlightIsMyTeam)
+    }
+
+    @Test func aTeamTheUserCameFromIsNotCalledMyTeam() async {
+        let viewModel = makeViewModel(highlightTeamId: "t1", openedFromTeamId: "t1") { _ in self.twoTeamLeague() }
+        viewModel.loadIfNeeded()
+        await settle(viewModel)
+
+        guard case .content(let detail) = viewModel.uiState else {
+            Issue.record("Expected content")
+            return
+        }
+        #expect(!detail.highlightIsMyTeam)
+    }
+
+    @Test func insideTheLeagueTabTheScreenViewIsLeftToTheTab() {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(analytics: analytics, reportsScreenView: false) { _ in self.twoTeamLeague() }
+
+        viewModel.screenShown()
+
+        #expect(analytics.events.isEmpty)
+    }
+
     @Test func tappingATeamSendsAnOpenTeamEvent() async {
         let viewModel = makeViewModel { _ in
             DataResultSuccess(value: LeagueDetail(league: League(id: "l1", name: "Liga"), standings: [], fixtures: []))
@@ -268,6 +301,7 @@ struct LeagueDetailViewModelTests {
         highlightTeamId: String? = nil,
         openedFromTeamId: String? = nil,
         analytics: any AnalyticsTracker = NoOpAnalyticsTracker(),
+        reportsScreenView: Bool = true,
         observeUserContext: AsyncStream<DataResult> = AsyncStream { $0.finish() },
         loadRanking: @escaping (String) async throws -> DataResult = { _ in DataResultSuccess(value: NSArray()) },
         loadDetail: @escaping (String) async throws -> DataResult
@@ -279,7 +313,8 @@ struct LeagueDetailViewModelTests {
             loadDetail: loadDetail,
             loadRanking: loadRanking,
             observeUserContext: observeUserContext,
-            analytics: analytics
+            analytics: analytics,
+            reportsScreenView: reportsScreenView
         )
     }
 
