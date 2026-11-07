@@ -15,7 +15,7 @@ Forces:
 - The feature is wanted before an answer from Ratings Central can be expected.
 
 ## Decision
-We will read Ratings Central's CSV history export in a new `:core:ratings-central` module, only when a user opens the Rating history section for one Player, hold each history in memory for 24 hours, and identify the app in the `User-Agent`. The app draws the chart natively. `deb` keeps a fake source so the section works offline. We will ask Ratings Central's maintainers for permission, and an `AppConfig` flag keeps the section on only for `deb` and `dev` until they agree. If they refuse, we drop the in-app history and link to the Player's graph page instead.
+We will read Ratings Central's CSV history export in a new `:core:ratings-central` module, one Player at a time when a user opens that Player's screen (the section starts expanded), hold each history in memory for 24 hours, and identify the app in the `User-Agent`. The app draws the chart natively. `deb` keeps a fake source so the section works offline. We will ask Ratings Central's maintainers for permission, and an `AppConfig` flag keeps the section on only for `deb` and `dev` until they agree. If they refuse, we drop the in-app history and link to the Player's graph page instead.
 
 ## Options Considered
 
@@ -23,11 +23,11 @@ We will read Ratings Central's CSV history export in a new `:core:ratings-centra
 | Dimension        | Assessment |
 |------------------|------------|
 | Complexity       | Medium: new core and domain modules, two charts |
-| Cost             | One request per Player opened per day per device |
-| Scalability      | Bounded by on-demand loading and the 24-hour hold |
+| Cost             | One request per Player screen opened per day per device |
+| Scalability      | Bounded by one Player per screen and the 24-hour hold |
 | Team familiarity | High: same shape as `:core:xttv` |
 
-**Pros:** Clean, complete data; a chart that fits the app, with selection, dark mode and accessibility; respects the site by asking first and loading only on demand.
+**Pros:** Clean, complete data; a chart that fits the app, with selection, dark mode and accessibility; respects the site by asking first and asking for one Player at a time.
 **Cons:** Release depends on someone else's answer; the export format can change without notice.
 
 ### Option B: Ship the CSV-backed chart without asking
@@ -65,3 +65,6 @@ Option A gives the experience the feature exists for, and the flag means buildin
 - Harder: a second external format to watch. A non-CSV response is treated as unavailable and logged.
 - Revisit when Ratings Central answers: on yes, enable `beta` and `prod` and follow any request rate or credit they ask for; on no, replace the section with Option C and mark this ADR superseded.
 - Revisit if Ratings Central publishes an API, or XTTV opens `getPlayerDetails` with rating history.
+
+## Update 2026-11-07: the section starts expanded
+After trying it, the maintainer wants the Rating history open by default. Ratings Central is now asked whenever a Player screen with a Ratings Central entry opens, not only when the user opens the section; a user who closes the section is asked again only on reopening it. Each Player's history is still held for 24 hours, and the permission email describes this.

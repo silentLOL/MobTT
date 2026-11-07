@@ -170,7 +170,7 @@ private const val MILLIS_PER_DAY = 86_400_000L
 private fun RatingHistorySectionViewPreview() {
     BatPreviewSurface {
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.lg)) {
-            RatingHistorySectionView(RatingHistorySectionUi(), onToggle = {}, onRetry = {}, onSpanChosen = {}, onInfo = {})
+            RatingHistorySectionView(RatingHistorySectionUi(expanded = false), onToggle = {}, onRetry = {}, onSpanChosen = {}, onInfo = {})
             RatingHistorySectionView(RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(ratingHistoryPreview)), onToggle = {}, onRetry = {}, onSpanChosen = {}, onInfo = {})
             RatingHistorySectionView(
                 RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(RatingHistory(ratingHistoryPreview.updates.take(1)))),

@@ -126,7 +126,7 @@ private extension Date {
 #Preview {
     BatPreviewMatrix {
         VStack(spacing: BatSpacing.lg) {
-            RatingHistorySectionView(section: RatingHistorySectionUi(), onToggle: {}, onRetry: {}, onSpanChosen: { _ in }, onInfo: {})
+            RatingHistorySectionView(section: RatingHistorySectionUi(isExpanded: false), onToggle: {}, onRetry: {}, onSpanChosen: { _ in }, onInfo: {})
             RatingHistorySectionView(section: RatingHistorySectionUi(isExpanded: true, history: .loaded(PlayerDetailPreviewData.ratingHistory)), onToggle: {}, onRetry: {}, onSpanChosen: { _ in }, onInfo: {})
             RatingHistorySectionView(
                 section: RatingHistorySectionUi(isExpanded: true, history: .loaded(RatingHistoryUi(updates: Array(PlayerDetailPreviewData.ratingHistory.updates.prefix(1))))),

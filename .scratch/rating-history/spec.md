@@ -13,7 +13,7 @@ The Player screen is also slow to appear. It waits behind one spinner until the 
 
 The Player screen draws at once with the Player's name and Favorite star. Club, Teams and the stat row each load on their own, show their own loading and Unavailable states, and retry on their own.
 
-Below the Teams, a collapsed **Rating history** section shows how the Player's Rating changed after each Rating update. It loads the first time the user opens it. The chart is drawn natively on both platforms: a line through the Rating, a shaded band of ±1 Deviation, and a dot per Rating update. A **12 months / All** toggle chooses the time span. Touching the chart shows the date, name, Rating ±Deviation and change of the nearest Rating update.
+Below the Teams, a **Rating history** section shows how the Player's Rating changed after each Rating update. It starts expanded and loads as soon as the Player's Ratings Central entry is known; the user can collapse it. The chart is drawn natively on both platforms: a line through the Rating, a shaded band of ±1 Deviation, and a dot per Rating update. A **12 months / All** toggle chooses the time span. Touching the chart shows the date, name, Rating ±Deviation and change of the nearest Rating update.
 
 An info button next to the section title opens a short explanation of what the Rating, the Deviation and the band mean, with a link to Ratings Central's own explanation.
 
@@ -37,8 +37,8 @@ Android and iOS ship together.
 ### Rating history section
 
 9. As a fan, I want a Rating history section on the Player screen, so that I can see how the Player's playing strength developed
-10. As a fan, I want the section collapsed until I open it, so that the screen stays short when I only want the Teams
-11. As a fan, I want the Rating history to load the first time I open the section, so that I only wait for it when I want it
+10. As a fan, I want the section open when I open a Player, so that I see the Rating history without an extra tap
+11. As a fan, I want to collapse the section, so that the screen stays short when I only want the Teams
 12. As a fan, I want the section to keep its chart when I close and reopen it, so that I am not waiting again
 13. As a fan, I want the section hidden for a Player without a Ratings Central entry, so that I am not shown a section that can never fill
 14. As a fan, I want "No Rating history yet" when the Player has an entry but no Rating update, so that I know the data is not missing by mistake
@@ -123,7 +123,7 @@ Android and iOS ship together.
 - Both platforms reuse the section state pattern from the League screen (Android `SectionUi`, iOS `SectionUiState`: loading, unavailable, loaded), lifting it where both screens can share it.
 - The screen's top-level state keeps only "Player unavailable" versus content; each section holds its own state and retry.
 - The Rating history section waits for the Teams section, since it needs the Leagues. Opening it before the Teams have loaded shows it loading until both are done.
-- Rating history follows the League screen's collapsed-section pattern: loaded on first expand, kept when collapsed, retried only once opened.
+- Rating history uses the League screen's collapsible-section pattern but starts expanded: loaded as soon as it is shown, kept when collapsed, retried only while open.
 
 ### Chart
 
@@ -152,7 +152,7 @@ Android and iOS ship together.
 
 ### Analytics
 
-- Two events, each added as a catalog row first (docs/ANALYTICS.md): `rating_history_opened` when the section is expanded, `rating_info_opened` when the info sheet opens. No Player identifiers. The 12 months / All toggle is not tracked.
+- Two events, each added as a catalog row first (docs/ANALYTICS.md): `rating_history_opened` when the user reopens the section after collapsing it (its expanded start is not counted), `rating_info_opened` when the info sheet opens. No Player identifiers. The 12 months / All toggle is not tracked.
 
 ## Testing Decisions
 
@@ -188,7 +188,7 @@ The chart and the info sheet are checked with previews (light, dark, large text,
   >
   > I develop MobTT, a free mobile app for Austrian table tennis players and fans. It shows Clubs, Teams, Leagues and Players using data from XTTV, which links every Player to their Ratings Central ID.
   >
-  > We would like to show a Player's rating history as a chart on the Player screen, based on your history export (PlayerHistory.php with CSV_Output=Text). The app would only request it when a user opens that section for one Player, keep the result on the device for 24 hours, identify itself in the User-Agent, and credit Ratings Central with a link to your site in the explanation next to the chart.
+  > We would like to show a Player's rating history as a chart on the Player screen, based on your history export (PlayerHistory.php with CSV_Output=Text). The app would request it for one Player at a time, when a user opens that Player's screen, keep the result on the device for 24 hours, identify itself in the User-Agent, and credit Ratings Central with a link to your site in the explanation next to the chart.
   >
   > Your robots.txt disallows these pages, so we would rather ask than assume. May we use the export this way? If you prefer another endpoint, a different request rate or particular wording for the credit, we are happy to follow it.
   >

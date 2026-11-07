@@ -33,11 +33,11 @@ sealed interface PlayerDetailUiState {
 enum class RatingHistorySpan { LAST_YEAR, ALL }
 
 /**
- * The collapsed Rating history section, shown only for a Player with a Ratings Central entry. [history] loads the first
- * time the section is opened. [since] is the first day the chosen [span] covers, null for the whole history.
+ * The Rating history section, shown only for a Player with a Ratings Central entry. It starts open, and [history] loads
+ * the first time it is open. [since] is the first day the chosen [span] covers, null for the whole history.
  */
 data class RatingHistorySectionUi(
-    val expanded: Boolean = false,
+    val expanded: Boolean = true,
     val history: SectionUi<RatingHistory> = SectionUi.Loading,
     val span: RatingHistorySpan = RatingHistorySpan.LAST_YEAR,
     val since: LocalDate? = null,

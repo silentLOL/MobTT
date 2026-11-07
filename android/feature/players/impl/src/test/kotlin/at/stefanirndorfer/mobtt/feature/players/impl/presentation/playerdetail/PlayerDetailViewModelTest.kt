@@ -372,11 +372,14 @@ class PlayerDetailViewModelTest {
     private fun PlayerDetailViewModel.content() = assertIs<PlayerDetailUiState.Content>(uiState.value)
 
     @Test
-    fun aPlayerWithARatingsCentralEntryShowsTheRatingHistoryCollapsedWithoutAskingForIt() = runTest {
+    fun aPlayerWithARatingsCentralEntryShowsTheRatingHistoryOpenAndLoaded() = runTest {
         val viewModel = viewModel()
 
-        assertEquals(RatingHistorySectionUi(since = LocalDate(2025, 11, 7)), viewModel.content().ratingHistory)
-        assertEquals(emptyList(), histories.reads)
+        assertEquals(
+            RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(histories.history), since = LocalDate(2025, 11, 7)),
+            viewModel.content().ratingHistory,
+        )
+        assertEquals(listOf("163468"), histories.reads)
     }
 
     @Test
@@ -387,23 +390,19 @@ class PlayerDetailViewModelTest {
     }
 
     @Test
-    fun openingTheRatingHistoryLoadsIt() = runTest {
+    fun closingTheRatingHistoryCollapsesIt() = runTest {
         val viewModel = viewModel()
 
         viewModel.onAction(PlayerDetailAction.RatingHistoryToggled)
 
-        assertEquals(
-            RatingHistorySectionUi(expanded = true, history = SectionUi.Loaded(histories.history), since = LocalDate(2025, 11, 7)),
-            viewModel.content().ratingHistory,
-        )
-        assertEquals(listOf("163468"), histories.reads)
+        assertFalse(viewModel.content().ratingHistory!!.expanded)
     }
 
     @Test
     fun closingAndReopeningTheRatingHistoryKeepsItWithoutAskingAgain() = runTest {
         val viewModel = viewModel()
 
-        repeat(3) { viewModel.onAction(PlayerDetailAction.RatingHistoryToggled) }
+        repeat(2) { viewModel.onAction(PlayerDetailAction.RatingHistoryToggled) }
 
         assertEquals(SectionUi.Loaded(histories.history), viewModel.content().ratingHistory?.history)
         assertEquals(listOf("163468"), histories.reads)
@@ -413,7 +412,6 @@ class PlayerDetailViewModelTest {
     fun anUnreachableRatingHistoryIsUnavailableAndRetryReloadsIt() = runTest {
         histories.unavailable = true
         val viewModel = viewModel()
-        viewModel.onAction(PlayerDetailAction.RatingHistoryToggled)
         assertEquals(SectionUi.Unavailable, viewModel.content().ratingHistory?.history)
 
         histories.unavailable = false
@@ -454,20 +452,17 @@ class PlayerDetailViewModelTest {
     }
 
     @Test
-    fun openingTheRatingHistoryIsReportedEachTimeButClosingIsNot() = runTest {
+    fun reopeningTheRatingHistoryIsReportedButItsOpenStartAndClosingAreNot() = runTest {
         val viewModel = viewModel()
 
-        repeat(3) { viewModel.onAction(PlayerDetailAction.RatingHistoryToggled) }
+        repeat(4) { viewModel.onAction(PlayerDetailAction.RatingHistoryToggled) }
 
         assertEquals(listOf(LoggedEvent("rating_history_opened", emptyMap()), LoggedEvent("rating_history_opened", emptyMap())), analytics.events.drop(1))
     }
 
     private fun update(date: LocalDate, points: Int) = RatingUpdate(date, "Week", Rating(points - 10, 70), Rating(points, 70), 10)
 
-    private fun PlayerDetailViewModel.openedRatingHistory(): RatingHistorySectionUi {
-        onAction(PlayerDetailAction.RatingHistoryToggled)
-        return assertIs<PlayerDetailUiState.Content>(uiState.value).ratingHistory!!
-    }
+    private fun PlayerDetailViewModel.openedRatingHistory(): RatingHistorySectionUi = assertIs<PlayerDetailUiState.Content>(uiState.value).ratingHistory!!
 
     @Test
     fun theRatingHistoryStartsOnTheLast12Months() = runTest {

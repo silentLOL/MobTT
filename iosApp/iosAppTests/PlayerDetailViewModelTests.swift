@@ -11,7 +11,7 @@ struct PlayerDetailViewModelTests {
         clubId: "1",
         club: .loaded(PlayerClubUi(clubName: "TTC Olympic", associationName: "WTTV")),
         teams: .loaded(PlayerTeamsUi(teams: [PlayerTeamUi(id: "t1", name: "TTC Olympic 1")], rcPoints: 1992, ageGroup: "U171")),
-        ratingHistory: RatingHistorySectionUi(since: yearBeforeNow)
+        ratingHistory: RatingHistorySectionUi(history: .loaded(expectedHistory), since: yearBeforeNow)
     )
 
     @Test func aResolvedPlayerShowsItsNameClubAssociationAndTeams() async {
@@ -205,15 +205,15 @@ struct PlayerDetailViewModelTests {
         ])
     }
 
-    @Test func aPlayerWithARatingsCentralEntryShowsTheRatingHistoryCollapsedWithoutAskingForIt() async {
+    @Test func aPlayerWithARatingsCentralEntryShowsTheRatingHistoryOpenAndLoaded() async {
         var historyReads: [String] = []
         let viewModel = makeViewModel(loadRatingHistory: { historyReads.append($0); return history })
 
         viewModel.loadIfNeeded()
-        await waitUntil { viewModel.ratingHistory != nil }
+        await waitUntil { viewModel.ratingHistory?.history == .loaded(expectedHistory) }
 
-        #expect(viewModel.ratingHistory == RatingHistorySectionUi(since: yearBeforeNow))
-        #expect(historyReads.isEmpty)
+        #expect(viewModel.ratingHistory == RatingHistorySectionUi(isExpanded: true, history: .loaded(expectedHistory), since: yearBeforeNow))
+        #expect(historyReads == ["163468"])
     }
 
     @Test func theRatingsCentralEntryIsLookedUpInTheLeaguesOfThePlayersTeams() async {
@@ -226,26 +226,19 @@ struct PlayerDetailViewModelTests {
         #expect(lookups == [["l1"]])
     }
 
-    @Test func openingTheRatingHistoryLoadsIt() async {
-        var historyReads: [String] = []
-        let viewModel = makeViewModel(loadRatingHistory: { historyReads.append($0); return history })
-        viewModel.loadIfNeeded()
-        await waitUntil { viewModel.ratingHistory != nil }
+    @Test func closingTheRatingHistoryCollapsesIt() async {
+        let viewModel = makeViewModel()
+        await open(viewModel)
 
         viewModel.onAction(.ratingHistoryToggled)
-        await waitUntil { viewModel.ratingHistory?.history != .loading }
 
-        #expect(viewModel.ratingHistory == RatingHistorySectionUi(isExpanded: true, history: .loaded(expectedHistory), since: yearBeforeNow))
-        #expect(historyReads == ["163468"])
+        #expect(viewModel.ratingHistory?.isExpanded == false)
     }
 
     @Test func closingAndReopeningTheRatingHistoryKeepsItWithoutAskingAgain() async {
         var historyReads = 0
         let viewModel = makeViewModel(loadRatingHistory: { _ in historyReads += 1; return history })
-        viewModel.loadIfNeeded()
-        await waitUntil { viewModel.ratingHistory != nil }
-        viewModel.onAction(.ratingHistoryToggled)
-        await waitUntil { viewModel.ratingHistory?.history != .loading }
+        await open(viewModel)
 
         viewModel.onAction(.ratingHistoryToggled)
         viewModel.onAction(.ratingHistoryToggled)
@@ -259,8 +252,6 @@ struct PlayerDetailViewModelTests {
         var fails = true
         let viewModel = makeViewModel(loadRatingHistory: { _ in fails ? unavailable : history })
         viewModel.loadIfNeeded()
-        await waitUntil { viewModel.ratingHistory != nil }
-        viewModel.onAction(.ratingHistoryToggled)
         await waitUntil { viewModel.ratingHistory?.history == .unavailable }
 
         fails = false
@@ -303,15 +294,12 @@ struct PlayerDetailViewModelTests {
         #expect(lookups == 0)
     }
 
-    @Test func openingTheRatingHistoryIsReportedEachTimeButClosingIsNot() async {
+    @Test func reopeningTheRatingHistoryIsReportedButItsOpenStartAndClosingAreNot() async {
         let analytics = RecordingAnalyticsTracker()
         let viewModel = makeViewModel(analytics: analytics)
-        viewModel.loadIfNeeded()
-        await waitUntil { viewModel.ratingHistory != nil }
+        await open(viewModel)
 
-        viewModel.onAction(.ratingHistoryToggled)
-        viewModel.onAction(.ratingHistoryToggled)
-        viewModel.onAction(.ratingHistoryToggled)
+        for _ in 0..<4 { viewModel.onAction(.ratingHistoryToggled) }
 
         #expect(analytics.events == [LoggedEvent("rating_history_opened", [:]), LoggedEvent("rating_history_opened", [:])])
     }
@@ -408,11 +396,10 @@ struct PlayerDetailViewModelTests {
         #expect(await events.next() == .openWebPage(url: URL(string: "https://www.ratingscentral.com/HowItWorks.php")!))
     }
 
+    /// Loads the screen until the Rating history, which starts open, has an answer.
     private func open(_ viewModel: PlayerDetailViewModel) async {
         viewModel.loadIfNeeded()
-        await waitUntil { viewModel.ratingHistory != nil }
-        viewModel.onAction(.ratingHistoryToggled)
-        await waitUntil { viewModel.ratingHistory?.history != .loading }
+        await waitUntil { viewModel.ratingHistory != nil && viewModel.ratingHistory?.history != .loading }
     }
 
     private func makeViewModel(

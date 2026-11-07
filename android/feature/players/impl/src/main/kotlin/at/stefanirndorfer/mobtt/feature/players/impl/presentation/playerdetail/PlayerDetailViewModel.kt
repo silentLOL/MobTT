@@ -81,7 +81,8 @@ class PlayerDetailViewModel(
 
     private val ratingHistoryRetry = RetryTrigger()
 
-    private val ratingHistoryExpanded = MutableStateFlow(false)
+    /** Starts open, so the Rating history loads as soon as the Player's Ratings Central entry is known. */
+    private val ratingHistoryExpanded = MutableStateFlow(true)
 
     private val ratingHistorySpan = MutableStateFlow(RatingHistorySpan.LAST_YEAR)
 
@@ -157,7 +158,8 @@ class PlayerDetailViewModel(
 
     /**
      * Hidden until the Teams have loaded and their Leagues name the Player's Ratings Central entry; hidden for good
-     * without one, or in builds that may not show Rating histories. Ratings Central is asked only once it is opened.
+     * without one, or in builds that may not show Rating histories. It starts open, so Ratings Central is asked once the
+     * entry is known; a section the user closed first is asked only when reopened.
      */
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun ratingHistorySection(player: Player, teams: Flow<SectionUi<PlayerTeams>>): Flow<RatingHistorySectionUi?> {

@@ -186,7 +186,7 @@ final class PlayerDetailViewModel {
         }
     }
 
-    /// The Rating history is a bonus: a ranking XTTV cannot answer only hides it. Ratings Central is asked only once the section is opened.
+    /// The Rating history is a bonus: a ranking XTTV cannot answer only hides it. The section starts open, so Ratings Central is asked once the entry is known.
     private func findRatingsCentralId(player: Player, leagueIds: [String]) {
         guard ratingHistoryEnabled, ratingsCentralId == nil, !leagueIds.isEmpty else { return }
         ratingsCentralIdTask?.cancel()
@@ -194,7 +194,9 @@ final class PlayerDetailViewModel {
             guard let result = try? await loadRatingsCentralId(player.id, leagueIds), !Task.isCancelled else { return }
             guard case .success(let success) = onEnum(of: result), let id = success.value as? String else { return }
             ratingsCentralId = id
+            // The section starts open, so its Rating history loads straight away.
             updateContent { $0.ratingHistory = RatingHistorySectionUi(since: firstDay(of: .lastYear)) }
+            startRatingHistory()
         }
     }
 
