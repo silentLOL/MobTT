@@ -1,3 +1,5 @@
+import Foundation
+
 enum SettingsAction {
     case choosePlayerClicked
     case chooseClubClicked
@@ -6,4 +8,9 @@ enum SettingsAction {
     case pickerBackClicked
     case appearanceSelected(AppearanceChoice)
     case usageConsentToggled(Bool)
+    case supportClicked
+}
+
+enum SettingsEvent: Equatable {
+    case openSupportLink(URL)
 }

@@ -6,6 +6,8 @@
 	<string>$(ENVIRONMENT)</string>
 	<key>BatXttvApiKey</key>
 	<string>$(XTTV_API_KEY)</string>
+	<key>BatSupportUrl</key>
+	<string>$(SUPPORT_URL)</string>
 	<!-- Nothing is collected until Usage Consent allows it (UsageConsentCollection). -->
 	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
 	<false/>

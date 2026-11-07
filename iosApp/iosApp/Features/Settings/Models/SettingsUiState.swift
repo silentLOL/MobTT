@@ -26,4 +26,6 @@ struct SettingsUiState: Equatable {
     var derivedClubName: String?
     var derivedAssociationName: String?
     var picker: SettingsPickerUi?
+    /// Whether a tip page is set: without one there is no "Buy me a coffee" row.
+    var showSupportLink = false
 }

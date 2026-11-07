@@ -1,3 +1,4 @@
+import Foundation
 import Observation
 import Shared
 
@@ -23,6 +24,14 @@ final class SettingsViewModel {
     @ObservationIgnored private let analytics: any AnalyticsTracker
     @ObservationIgnored private let screenViews: ScreenViewReporter
     @ObservationIgnored private let searchEvents: SearchEvents
+    @ObservationIgnored private let supportUrl: URL?
+    @ObservationIgnored private var eventContinuation: AsyncStream<SettingsEvent>.Continuation?
+
+    /// A stream per subscriber, the latest one receiving events: SwiftUI cancels a view's `.task` when another screen
+    /// covers it, which ends a stream for good, so the view must be able to subscribe again on return.
+    var events: AsyncStream<SettingsEvent> {
+        AsyncStream { eventContinuation = $0 }
+    }
 
     init(
         observeUserContext: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeUserContext(),
@@ -32,6 +41,7 @@ final class SettingsViewModel {
         setMyClub: @escaping (String) async throws -> Void = { try await KoinHelper.shared.getSetMyClubUseCase().invoke(clubId: $0) },
         playerLoaders: PlayerDrillDownLoaders = .live,
         searchClubs: @escaping (String) async -> [Club] = { (try? await KoinHelper.shared.getSearchClubsUseCase().invoke(query: $0)) ?? [] },
+        supportUrl: String? = KoinHelper.shared.supportUrl(),
         analytics: any AnalyticsTracker = AppAnalytics.tracker,
         searchSettle: Duration = .seconds(1)
     ) {
@@ -42,6 +52,7 @@ final class SettingsViewModel {
         self.setMyClub = setMyClub
         self.playerDrillDown = PlayerDrillDown(loaders: playerLoaders)
         self.searchClubs = searchClubs
+        self.supportUrl = supportUrl.flatMap { URL(string: $0) }
         self.analytics = analytics
         self.screenViews = ScreenViewReporter(tracker: analytics, screen: AnalyticsScreen.settings)
         self.searchEvents = SearchEvents(tracker: analytics, screen: AnalyticsScreen.settings, settle: searchSettle)
@@ -55,6 +66,7 @@ final class SettingsViewModel {
     var uiState: SettingsUiState {
         var result = state
         result.usageConsentAllowed = usageConsentAllowed
+        result.showSupportLink = supportUrl != nil
         result.picker = pickerKind.map { kind in
             if kind == .player {
                 let drillDown = playerDrillDown.ui { $0 == currentPlayerId }
@@ -120,6 +132,10 @@ final class SettingsViewModel {
             closePicker()
         case .appearanceSelected(let choice):
             analytics.settingChanged(setting: AnalyticsSetting.appearance, value: choice.rawValue)
+        case .supportClicked:
+            guard let supportUrl else { return }
+            analytics.supportLinkOpened()
+            eventContinuation?.yield(.openSupportLink(supportUrl))
         case .usageConsentToggled(let allowed):
             Task {
                 guard (try? await setUsageConsent(allowed)) != nil else { return }

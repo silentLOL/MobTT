@@ -1,3 +1,4 @@
+import Foundation
 import Shared
 import Testing
 
@@ -237,6 +238,46 @@ struct SettingsViewModelTests {
         return viewModel
     }
 
+    @Test func theCoffeeRowShowsOnlyWhenATipPageIsSet() {
+        #expect(!makeViewModel(emitting: []).uiState.showSupportLink)
+        #expect(makeViewModel(emitting: [], supportUrl: "https://example.org/coffee").uiState.showSupportLink)
+    }
+
+    @Test func tappingTheCoffeeRowOpensTheTipPageAndLogsIt() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(emitting: [], supportUrl: "https://example.org/coffee", analytics: analytics)
+        var events = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.supportClicked)
+
+        #expect(await events.next() == .openSupportLink(URL(string: "https://example.org/coffee")!))
+        #expect(analytics.events == [LoggedEvent("support_link_opened", [:])])
+    }
+
+    @Test func tappingTheCoffeeRowWithoutATipPageDoesNothing() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(emitting: [], analytics: analytics)
+
+        viewModel.onAction(.supportClicked)
+        viewModel.onAction(.usageConsentToggled(true))
+        await waitUntil { !analytics.events.isEmpty }
+
+        #expect(analytics.events == [LoggedEvent("consent_changed", ["enabled": "true", "source": "settings"])])
+    }
+
+    /// SwiftUI cancels a view's `.task` when another screen covers it, and runs it again on return.
+    @Test func theCoffeeRowStillOpensTheTipPageAfterTheScreenWasCoveredAndShownAgain() async {
+        let viewModel = makeViewModel(emitting: [], supportUrl: "https://example.org/coffee")
+        let covered = Task { for await _ in viewModel.events {} }
+        covered.cancel()
+        await covered.value
+        var events = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.supportClicked)
+
+        #expect(await events.next() == .openSupportLink(URL(string: "https://example.org/coffee")!))
+    }
+
     @Test func reportsTheScreenViewAppearanceAndConsentChanges() async {
         let analytics = RecordingAnalyticsTracker()
         let viewModel = makeViewModel(emitting: [], analytics: analytics)
@@ -284,6 +325,7 @@ struct SettingsViewModelTests {
         setUsageConsent: @escaping (Bool) async throws -> Void = { _ in },
         setMyPlayer: @escaping (String) async throws -> Void = { _ in },
         setMyClub: @escaping (String) async throws -> Void = { _ in },
+        supportUrl: String? = nil,
         analytics: any AnalyticsTracker = NoOpAnalyticsTracker(),
         searchSettle: Duration = .seconds(1)
     ) -> SettingsViewModel {
@@ -303,6 +345,7 @@ struct SettingsViewModelTests {
             setMyClub: setMyClub,
             playerLoaders: playerLoaders,
             searchClubs: { _ in clubs },
+            supportUrl: supportUrl,
             analytics: analytics,
             searchSettle: searchSettle
         )

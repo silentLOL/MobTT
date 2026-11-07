@@ -11,5 +11,5 @@ MARKETING_VERSION=1.0
 LINKS_HOST=links.mobtt.example
 CODE_SIGN_ENTITLEMENTS=Configuration/MobTT.entitlements
 
-// Untracked secrets (XTTV_API_KEY); see Secrets.xcconfig.example
+// Untracked secrets (XTTV_API_KEY) and the tip page (SUPPORT_URL); see Secrets.xcconfig.example
 #include? "Secrets.xcconfig"

@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsRoute: View {
     @Binding var appearance: AppearanceChoice
 
+    @Environment(\.openURL) private var openURL
     @State private var viewModel = SettingsViewModel()
 
     var body: some View {
@@ -13,6 +14,13 @@ struct SettingsRoute: View {
             .navigationBarBackButtonHidden(state.picker != nil)
             .onAppear { viewModel.screenShown() }
             .task { await viewModel.observe() }
+            .task {
+                for await event in viewModel.events {
+                    switch event {
+                    case .openSupportLink(let url): openURL(url)
+                    }
+                }
+            }
     }
 }
 
@@ -96,7 +104,34 @@ struct SettingsScreen: View {
                 set: { onAction(.usageConsentToggled($0)) }
             )
         )
-        dataSourceCredit
+        aboutSection
+    }
+
+    private var aboutSection: some View {
+        VStack(alignment: .leading, spacing: BatSpacing.sm) {
+            BatSectionHeaderView(title: String(localized: "settings_about_title"))
+            if state.showSupportLink {
+                supportRow
+            }
+            dataSourceCredit
+        }
+    }
+
+    private var supportRow: some View {
+        Button { onAction(.supportClicked) } label: {
+            HStack(spacing: BatSpacing.md) {
+                Text("settings_support_title")
+                    .batTextStyle(BatTypography.bodyStrong)
+                    .foregroundStyle(BatColor.textPrimary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                BatIconView(icon: .arrowForward, tint: BatColor.textSecondary)
+            }
+            .frame(minHeight: BatSizing.minTouchTarget)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint(Text("settings_support_open_cd"))
+        .accessibilityAddTraits(.isLink)
     }
 
     private var dataSourceCredit: some View {
@@ -172,6 +207,17 @@ private let chosenPlayerState = SettingsUiState(
 #Preview("Empty") {
     @Previewable @State var appearance = AppearanceChoice.system
     SettingsScreen(state: SettingsUiState(), appearance: $appearance, onAction: { _ in })
+}
+
+private let withSupportLinkState: SettingsUiState = {
+    var state = chosenPlayerState
+    state.showSupportLink = true
+    return state
+}()
+
+#Preview("With the coffee row") {
+    @Previewable @State var appearance = AppearanceChoice.system
+    SettingsScreen(state: withSupportLinkState, appearance: $appearance, onAction: { _ in })
 }
 
 #Preview("My Player, dark") {
