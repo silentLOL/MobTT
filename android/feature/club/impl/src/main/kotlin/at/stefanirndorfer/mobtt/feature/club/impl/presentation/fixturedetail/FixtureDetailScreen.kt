@@ -1,5 +1,7 @@
 package at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
@@ -35,12 +38,12 @@ import at.stefanirndorfer.mobtt.designsystem.theme.BatDesign
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatEmptyState
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatHeroCard
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatHeroPillRow
+import at.stefanirndorfer.mobtt.designsystem.ui.components.BatIconButton
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatList
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatPrimaryButton
 import at.stefanirndorfer.mobtt.designsystem.ui.components.BatSectionHeader
 import at.stefanirndorfer.mobtt.domain.club.FixtureDetail
 import at.stefanirndorfer.mobtt.domain.club.FixtureStatus
-import at.stefanirndorfer.mobtt.domain.club.VenueAddress
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureDetailAction
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureDetailEvent
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureDetailUiState
@@ -60,9 +63,11 @@ fun FixtureDetailRoute(
     viewModel: FixtureDetailViewModel = koinViewModel(key = fixtureId, parameters = { parametersOf(fixtureId) }),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
             is FixtureDetailEvent.OpenTeam -> onOpenTeam(event.teamId)
+            is FixtureDetailEvent.Share -> context.shareFixture(event.detail, event.link)
         }
     }
     FixtureDetailScreen(state = uiState, onAction = viewModel::onAction, modifier = modifier)
@@ -77,7 +82,7 @@ fun FixtureDetailScreen(
     when (state) {
         FixtureDetailUiState.Loading -> LoadingView(modifier)
         FixtureDetailUiState.Error -> ErrorView(onRetry = { onAction(FixtureDetailAction.RetryClicked) }, modifier = modifier)
-        is FixtureDetailUiState.Content -> ContentView(state.detail, onAction, modifier)
+        is FixtureDetailUiState.Content -> ContentView(state.detail, state.canShare, onAction, modifier)
     }
 }
 
@@ -112,7 +117,7 @@ private fun ErrorView(onRetry: () -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ContentView(detail: FixtureDetail, onAction: (FixtureDetailAction) -> Unit, modifier: Modifier = Modifier) {
+private fun ContentView(detail: FixtureDetail, canShare: Boolean, onAction: (FixtureDetailAction) -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -120,7 +125,11 @@ private fun ContentView(detail: FixtureDetail, onAction: (FixtureDetailAction) -
             .padding(BatDesign.spacing.lg),
         verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.lg),
     ) {
-        HeaderView(detail, onTeamClick = { onAction(FixtureDetailAction.TeamClicked(it)) })
+        HeaderView(
+            detail = detail,
+            onTeamClick = { onAction(FixtureDetailAction.TeamClicked(it)) },
+            onShare = if (canShare) ({ onAction(FixtureDetailAction.ShareClicked) }) else null,
+        )
         if (detail.fixture.status is FixtureStatus.Finished) {
             Column {
                 BatSectionHeader(title = stringResource(R.string.fixture_detail_matches_title))
@@ -142,10 +151,10 @@ private fun ContentView(detail: FixtureDetail, onAction: (FixtureDetailAction) -
 
 /**
  * The pairing with each Team opening its Team, then the score, or "Not played yet" for a scheduled Fixture,
- * and when and where it is played.
+ * and when and where it is played. [onShare] adds the Share button next to the pill.
  */
 @Composable
-private fun HeaderView(detail: FixtureDetail, onTeamClick: (String) -> Unit) {
+private fun HeaderView(detail: FixtureDetail, onTeamClick: (String) -> Unit, onShare: (() -> Unit)?) {
     val fixture = detail.fixture
     val status = fixture.status
     val headerDescription = when (status) {
@@ -159,7 +168,12 @@ private fun HeaderView(detail: FixtureDetail, onTeamClick: (String) -> Unit) {
         FixtureStatus.Scheduled -> stringResource(R.string.fixture_detail_header_not_played_cd, fixture.homeTeamName, fixture.awayTeamName)
     }
     BatHeroCard(modifier = Modifier.fillMaxWidth()) {
-        BatHeroPillRow(text = stringResource(R.string.fixture_detail_hero_overline))
+        BatHeroPillRow(
+            text = stringResource(R.string.fixture_detail_hero_overline),
+            trailing = onShare?.let { share ->
+                { BatIconButton(icon = BatIcon.Share, contentDescription = stringResource(R.string.fixture_detail_share), onClick = share) }
+            },
+        )
         Column(verticalArrangement = Arrangement.spacedBy(BatDesign.spacing.xs)) {
             TeamLink(fixture.homeTeamName, onClick = { onTeamClick(fixture.homeTeamId) })
             TeamLink(fixture.awayTeamName, onClick = { onTeamClick(fixture.awayTeamId) })
@@ -182,6 +196,15 @@ private fun HeaderView(detail: FixtureDetail, onTeamClick: (String) -> Unit) {
     }
 }
 
+private fun Context.shareFixture(detail: FixtureDetail, link: String) {
+    val share = fixtureShare(detail, link)
+    val send = Intent(Intent.ACTION_SEND)
+        .setType("text/plain")
+        .putExtra(Intent.EXTRA_SUBJECT, share.subject)
+        .putExtra(Intent.EXTRA_TEXT, share.text)
+    startActivity(Intent.createChooser(send, getString(R.string.fixture_detail_share)))
+}
+
 /** Underlined, so a link is never told apart by colour alone. */
 @Composable
 private fun TeamLink(name: String, onClick: () -> Unit) {
@@ -194,11 +217,6 @@ private fun TeamLink(name: String, onClick: () -> Unit) {
         color = BatDesign.colors.onHero,
         style = BatDesign.typography.title.copy(textDecoration = TextDecoration.Underline),
     )
-}
-
-private fun VenueAddress.formatted(): String? {
-    val cityLine = listOfNotNull(postalCode, city).joinToString(" ")
-    return listOfNotNull(street, cityLine.ifEmpty { null }).joinToString(", ").ifEmpty { null }
 }
 
 @BatScreenPreview
@@ -216,7 +234,7 @@ private fun FixtureDetailScreenErrorPreview() {
 @BatScreenPreview
 @Composable
 private fun FixtureDetailScreenPlayedPreview() {
-    BatPreviewSurface { FixtureDetailScreen(state = FixtureDetailUiState.Content(fixtureDetailPlayedPreview), onAction = {}) }
+    BatPreviewSurface { FixtureDetailScreen(state = FixtureDetailUiState.Content(fixtureDetailPlayedPreview, canShare = true), onAction = {}) }
 }
 
 @BatScreenPreview
@@ -234,5 +252,5 @@ private fun FixtureDetailScreenNoMatchesPreview() {
 @BatScreenPreview
 @Composable
 private fun FixtureDetailScreenLongNamesPreview() {
-    BatPreviewSurface { FixtureDetailScreen(state = FixtureDetailUiState.Content(fixtureDetailLongNamesPreview), onAction = {}) }
+    BatPreviewSurface { FixtureDetailScreen(state = FixtureDetailUiState.Content(fixtureDetailLongNamesPreview, canShare = true), onAction = {}) }
 }

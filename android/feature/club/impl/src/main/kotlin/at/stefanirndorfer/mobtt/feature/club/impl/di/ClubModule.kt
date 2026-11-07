@@ -28,6 +28,6 @@ val clubModule = module {
         )
     }
     viewModel { LeagueTabViewModel(get(), get()) }
-    viewModel { params -> FixtureDetailViewModel(params.get<String>(), get(), get()) }
+    viewModel { params -> FixtureDetailViewModel(params.get<String>(), get(), get(), get()) }
     viewModel { params -> TeamDetailViewModel(params.get<String>(), get(), get(), get(), get(), get(), get()) }
 }

@@ -11,6 +11,7 @@ object AnalyticsEvent {
     const val CONSENT_CHANGED = "consent_changed"
     const val SETTING_CHANGED = "setting_changed"
     const val RATING_INFO_OPENED = "rating_info_opened"
+    const val FIXTURE_SHARE_TAPPED = "fixture_share_tapped"
 }
 
 object AnalyticsParam {
@@ -23,6 +24,7 @@ object AnalyticsParam {
     const val QUERY_LENGTH = "query_length"
     const val SETTING = "setting"
     const val VALUE = "value"
+    const val STATUS = "status"
 }
 
 object AnalyticsScreen {
@@ -51,6 +53,11 @@ object AnalyticsKind {
     const val FIXTURE = "fixture"
 }
 
+object AnalyticsFixtureStatus {
+    const val SCHEDULED = "scheduled"
+    const val FINISHED = "finished"
+}
+
 object AnalyticsSource {
     const val HOME = "home"
     const val SETTINGS = "settings"
@@ -74,6 +81,8 @@ fun AnalyticsTracker.detailOpened(kind: String, id: String, from: String) = logE
 )
 
 fun AnalyticsTracker.ratingInfoOpened() = logEvent(AnalyticsEvent.RATING_INFO_OPENED, emptyMap())
+
+fun AnalyticsTracker.fixtureShareTapped(status: String) = logEvent(AnalyticsEvent.FIXTURE_SHARE_TAPPED, mapOf(AnalyticsParam.STATUS to status))
 
 /** Sends the length of [query], never the text. */
 fun AnalyticsTracker.searchPerformed(screen: String, query: String) = logEvent(

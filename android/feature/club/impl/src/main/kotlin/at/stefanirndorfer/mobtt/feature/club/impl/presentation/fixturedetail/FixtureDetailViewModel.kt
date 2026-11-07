@@ -2,13 +2,17 @@ package at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import at.stefanirndorfer.mobtt.core.analytics.AnalyticsFixtureStatus
 import at.stefanirndorfer.mobtt.core.analytics.AnalyticsKind
 import at.stefanirndorfer.mobtt.core.analytics.AnalyticsScreen
 import at.stefanirndorfer.mobtt.core.analytics.AnalyticsTracker
 import at.stefanirndorfer.mobtt.core.analytics.NoOpAnalyticsTracker
 import at.stefanirndorfer.mobtt.core.analytics.detailOpened
+import at.stefanirndorfer.mobtt.core.analytics.fixtureShareTapped
 import at.stefanirndorfer.mobtt.core.analytics.screenView
 import at.stefanirndorfer.mobtt.core.ui.RetryTrigger
+import at.stefanirndorfer.mobtt.domain.club.FixtureLinks
+import at.stefanirndorfer.mobtt.domain.club.FixtureStatus
 import at.stefanirndorfer.mobtt.domain.club.GetFixtureDetailUseCase
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureDetailAction
 import at.stefanirndorfer.mobtt.feature.club.impl.presentation.fixturedetail.models.FixtureDetailEvent
@@ -26,6 +30,7 @@ import kotlinx.coroutines.launch
 class FixtureDetailViewModel(
     private val fixtureId: String,
     private val getFixtureDetail: GetFixtureDetailUseCase,
+    private val fixtureLinks: FixtureLinks,
     private val analytics: AnalyticsTracker = NoOpAnalyticsTracker,
 ) : ViewModel() {
     init {
@@ -49,6 +54,7 @@ class FixtureDetailViewModel(
         when (action) {
             FixtureDetailAction.RetryClicked -> retry.retry()
             is FixtureDetailAction.TeamClicked -> openTeam(action.teamId)
+            FixtureDetailAction.ShareClicked -> share()
         }
     }
 
@@ -57,8 +63,20 @@ class FixtureDetailViewModel(
         viewModelScope.launch { eventChannel.send(FixtureDetailEvent.OpenTeam(teamId)) }
     }
 
+    private fun share() {
+        val content = uiState.value as? FixtureDetailUiState.Content ?: return
+        val fixture = content.detail.fixture
+        analytics.fixtureShareTapped(
+            when (fixture.status) {
+                is FixtureStatus.Finished -> AnalyticsFixtureStatus.FINISHED
+                FixtureStatus.Scheduled -> AnalyticsFixtureStatus.SCHEDULED
+            },
+        )
+        viewModelScope.launch { eventChannel.send(FixtureDetailEvent.Share(content.detail, fixtureLinks.linkTo(fixture.id))) }
+    }
+
     private suspend fun load(): FixtureDetailUiState = try {
-        getFixtureDetail(fixtureId)?.let { FixtureDetailUiState.Content(it) } ?: FixtureDetailUiState.Error
+        getFixtureDetail(fixtureId)?.let { FixtureDetailUiState.Content(it, canShare = fixtureLinks.sharingEnabled) } ?: FixtureDetailUiState.Error
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {

@@ -169,6 +169,10 @@
     <string name="fixture_detail_error_title">Begegnung konnte nicht geladen werden</string>
     <string name="fixture_detail_error_body">Prüfe deine Verbindung und versuche es erneut.</string>
     <string name="fixture_detail_error_retry_button">Erneut versuchen</string>
+    <string name="fixture_detail_share">Begegnung teilen</string>
+    <string name="fixture_detail_share_pairing">%1$s – %2$s</string>
+    <string name="fixture_detail_share_with_result">"%1$s  %2$s"</string>
+    <string name="fixture_detail_share_match">%1$d %2$s: %3$s – %4$s</string>
     <string name="player_detail_rc_label">RC</string>
     <string name="player_detail_age_group_label">Altersklasse</string>
     <string name="player_detail_club_title">Verein</string>
