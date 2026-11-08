@@ -1,6 +1,15 @@
 plugins {
     id("bat.kmp.library")
     alias(libs.plugins.skie)
+    alias(libs.plugins.aboutLibrariesKmp)
+}
+
+// `scripts/generate-ios-licenses.py` exports the Kotlin libraries of the shared framework for the iOS licenses screen. The
+// hand-written fonts and assets in `licenses/` ride along (docs/LICENSES.md).
+aboutLibraries {
+    collect {
+        configPath = rootProject.file("licenses")
+    }
 }
 
 kotlin {

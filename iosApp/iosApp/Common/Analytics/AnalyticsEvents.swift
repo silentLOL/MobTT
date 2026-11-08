@@ -41,6 +41,7 @@ enum AnalyticsScreen {
     static let leagueDetail = "league_detail"
     static let fixtureDetail = "fixture_detail"
     static let settings = "settings"
+    static let licenses = "licenses"
 }
 
 enum AnalyticsSetting {

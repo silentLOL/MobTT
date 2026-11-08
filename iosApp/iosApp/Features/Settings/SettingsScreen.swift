@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsRoute: View {
     @Binding var appearance: AppearanceChoice
+    let onOpenLicenses: () -> Void
 
     @Environment(\.openURL) private var openURL
     @State private var viewModel = SettingsViewModel()
@@ -18,6 +19,7 @@ struct SettingsRoute: View {
                 for await event in viewModel.events {
                     switch event {
                     case .openSupportLink(let url): openURL(url)
+                    case .openLicenses: onOpenLicenses()
                     }
                 }
             }
@@ -110,11 +112,27 @@ struct SettingsScreen: View {
     private var aboutSection: some View {
         VStack(alignment: .leading, spacing: BatSpacing.sm) {
             BatSectionHeaderView(title: String(localized: "settings_about_title"))
+            licensesRow
             if state.showSupportLink {
                 supportRow
             }
             dataSourceCredit
         }
+    }
+
+    private var licensesRow: some View {
+        Button { onAction(.licensesClicked) } label: {
+            HStack(spacing: BatSpacing.md) {
+                Text("settings_licenses_title")
+                    .batTextStyle(BatTypography.bodyStrong)
+                    .foregroundStyle(BatColor.textPrimary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                BatIconView(icon: .arrowForward, tint: BatColor.textSecondary)
+            }
+            .frame(minHeight: BatSizing.minTouchTarget)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private var supportRow: some View {

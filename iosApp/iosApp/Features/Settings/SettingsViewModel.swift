@@ -136,6 +136,8 @@ final class SettingsViewModel {
             guard let supportUrl else { return }
             analytics.supportLinkOpened()
             eventContinuation?.yield(.openSupportLink(supportUrl))
+        case .licensesClicked:
+            eventContinuation?.yield(.openLicenses)
         case .usageConsentToggled(let allowed):
             Task {
                 guard (try? await setUsageConsent(allowed)) != nil else { return }

@@ -23,17 +23,34 @@ private struct FixtureDestination: Hashable {
 
 private struct SettingsDestination: Hashable {}
 
+private struct LicensesDestination: Hashable {}
+
 /// Settings with its title, reporting to the shell while it is showing so the shell can hide its gear.
 private struct SettingsDestinationView: View {
     @Binding var appearance: AppearanceChoice
     @Binding var openSettingsIds: Set<UUID>
+    let onOpenLicenses: () -> Void
     @State private var id = UUID()
 
     var body: some View {
-        SettingsRoute(appearance: $appearance)
+        SettingsRoute(appearance: $appearance, onOpenLicenses: onOpenLicenses)
             .navigationTitle(String(localized: "settings_title"))
             .navigationBarTitleDisplayMode(.inline)
             .batBackground()
+            .onAppear { openSettingsIds.insert(id) }
+            .onDisappear { openSettingsIds.remove(id) }
+    }
+}
+
+/// The licenses list, which counts as Settings being open: the gear stays hidden and the consent prompt waits.
+private struct LicensesDestinationView: View {
+    @Binding var openSettingsIds: Set<UUID>
+    @State private var id = UUID()
+
+    var body: some View {
+        LicensesRoute()
+            .navigationTitle(String(localized: "licenses_title"))
+            .navigationBarTitleDisplayMode(.inline)
             .onAppear { openSettingsIds.insert(id) }
             .onDisappear { openSettingsIds.remove(id) }
     }
@@ -99,6 +116,7 @@ struct ShellScreen: View {
                     )
                     .toolbar(.hidden, for: .navigationBar)
                     .navigationDestination(for: SettingsDestination.self) { _ in settingsDetail() }
+                    .navigationDestination(for: LicensesDestination.self) { _ in licensesDetail() }
                     .navigationDestination(for: ClubDetailRoute.self) { route in
                         ClubRoute(
                             source: .specific(clubId: route.clubId),
@@ -140,6 +158,7 @@ struct ShellScreen: View {
                     )
                     .toolbar(.hidden, for: .navigationBar)
                     .navigationDestination(for: SettingsDestination.self) { _ in settingsDetail() }
+                    .navigationDestination(for: LicensesDestination.self) { _ in licensesDetail() }
                     .navigationDestination(for: ChooseHeroDestination.self) { route in
                         PlayersRoute(mode: route.mode, onDone: { leaguePath = NavigationPath() })
                             .navigationTitle(String(localized: "home_choose_player_title"))
@@ -178,6 +197,7 @@ struct ShellScreen: View {
                     )
                     .toolbar(.hidden, for: .navigationBar)
                     .navigationDestination(for: SettingsDestination.self) { _ in settingsDetail() }
+                    .navigationDestination(for: LicensesDestination.self) { _ in licensesDetail() }
                     .navigationDestination(for: PlayerDestination.self) { route in
                         playerDetail(route, path: $clubPath)
                     }
@@ -207,6 +227,7 @@ struct ShellScreen: View {
                     PlayersRoute(onOpenPlayer: { playersPath.append(PlayerDestination(playerId: $0)) })
                         .toolbar(.hidden, for: .navigationBar)
                         .navigationDestination(for: SettingsDestination.self) { _ in settingsDetail() }
+                        .navigationDestination(for: LicensesDestination.self) { _ in licensesDetail() }
                         .navigationDestination(for: PlayerDestination.self) { route in
                             playerDetail(route, path: $playersPath)
                         }
@@ -277,8 +298,22 @@ extension ShellScreen {
         }
     }
 
+    /// Pushes the licenses onto the tab Settings was opened from.
+    private func openLicenses() {
+        switch selectedTab {
+        case .home: homePath.append(LicensesDestination())
+        case .league: leaguePath.append(LicensesDestination())
+        case .club: clubPath.append(LicensesDestination())
+        case .players: playersPath.append(LicensesDestination())
+        }
+    }
+
     fileprivate func settingsDetail() -> some View {
-        SettingsDestinationView(appearance: $appearance, openSettingsIds: $openSettingsIds)
+        SettingsDestinationView(appearance: $appearance, openSettingsIds: $openSettingsIds, onOpenLicenses: openLicenses)
+    }
+
+    fileprivate func licensesDetail() -> some View {
+        LicensesDestinationView(openSettingsIds: $openSettingsIds)
     }
 
     /// Shows `destination` on the Home tab with Home under it, whatever was open before.

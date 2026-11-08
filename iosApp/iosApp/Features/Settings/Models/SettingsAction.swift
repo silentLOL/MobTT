@@ -9,8 +9,10 @@ enum SettingsAction {
     case appearanceSelected(AppearanceChoice)
     case usageConsentToggled(Bool)
     case supportClicked
+    case licensesClicked
 }
 
 enum SettingsEvent: Equatable {
     case openSupportLink(URL)
+    case openLicenses
 }

@@ -254,6 +254,15 @@ struct SettingsViewModelTests {
         #expect(analytics.events == [LoggedEvent("support_link_opened", [:])])
     }
 
+    @Test func tappingTheLicensesRowAsksToOpenTheLicenses() async {
+        let viewModel = makeViewModel(emitting: [])
+        var events = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.licensesClicked)
+
+        #expect(await events.next() == .openLicenses)
+    }
+
     @Test func tappingTheCoffeeRowWithoutATipPageDoesNothing() async {
         let analytics = RecordingAnalyticsTracker()
         let viewModel = makeViewModel(emitting: [], analytics: analytics)

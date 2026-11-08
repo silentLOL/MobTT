@@ -13,6 +13,7 @@ plugins {
     alias(libs.plugins.googleServices) apply false
     alias(libs.plugins.firebaseCrashlytics) apply false
     alias(libs.plugins.aboutLibraries) apply false
+    alias(libs.plugins.aboutLibrariesKmp) apply false
 }
 
 subprojects {
