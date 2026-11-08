@@ -42,6 +42,19 @@ if (firebaseConfigured.containsValue(true)) {
     apply(plugin = libs.plugins.firebaseCrashlytics.get().pluginId)
 }
 
+// Release signing (docs/RELEASE_ANDROID.md): the upload keystore and its passwords stay out of git. Each setting is
+// `release.<name>` in the untracked `local.properties`, or `RELEASE_<NAME>` in CI. With the keystore unset, release builds
+// come out unsigned, so `check` and CI without secrets still work.
+val localProperties = Properties()
+    .apply { rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use(::load) }
+
+fun releaseSetting(name: String): String? = localProperties.getProperty("release.$name")
+    ?: System.getenv("RELEASE_${name.uppercase().replace('.', '_')}")
+
+// Play rejects a versionCode it has seen. Bump it in this file, or override per build with `-PversionCode=N`.
+val appVersionCode: Int = (findProperty("versionCode") as String?)?.toInt() ?: 1
+val appVersionName: String = (findProperty("versionName") as String?) ?: "1.0"
+
 kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_11
@@ -84,8 +97,8 @@ android {
         applicationId = "at.stefanirndorfer.mobtt"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = appVersionCode
+        versionName = appVersionName
         buildConfigField("String", "XTTV_API_KEY", "\"$xttvApiKey\"")
         buildConfigField("String", "SUPPORT_URL", "\"${supportUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
         // The Fixture link host (ADR-0011). A .example placeholder until the domain is registered: it never verifies, so no
@@ -123,9 +136,22 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    signingConfigs {
+        val storePath = releaseSetting("storeFile")
+        if (storePath != null) {
+            create("release") {
+                storeFile = rootProject.file(storePath)
+                storePassword = releaseSetting("storePassword")
+                keyAlias = releaseSetting("keyAlias")
+                keyPassword = releaseSetting("keyPassword")
+            }
+        }
+    }
     buildTypes {
         release {
-            isMinifyEnabled = false
+            signingConfig = signingConfigs.findByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",

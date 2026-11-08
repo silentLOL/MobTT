@@ -23,3 +23,8 @@ Secrets.xcconfig
 google-services.json
 GoogleService-Info.plist
 GoogleService-Info-*.plist
+
+# Release signing: never commit a keystore (see docs/RELEASE_ANDROID.md)
+*.jks
+*.keystore
+*.p12

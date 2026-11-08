@@ -1,0 +1,30 @@
+MobTT puts Austrian table tennis in your pocket. Follow your own Player, your Club and your League, and see how your Team is doing, all in one place.
+
+HOME, BUILT AROUND YOU
+Choose your Player or your Club once and Home becomes yours: a hero card for your Club or Player, and a Favorites list for the Players, Teams and Clubs you care about most.
+
+CLUB AND TEAMS
+See your Club's Teams, the League each one plays in, the next Fixture with date, time and venue, and the Players who play for them.
+
+LEAGUE TABLES AND FIXTURES
+Open the League table for your Team, with your Team highlighted. Browse the Fixtures, see results and, for finished Fixtures, every Match with its sets.
+
+FIND ANY PLAYER
+Pick an Association and a Club, then search its Players by name. Open a Player to see their Club and Teams.
+
+RATING HISTORY
+A Player's Rating history is drawn as an interactive chart, so you can see form and progress over the last 12 months or over the whole career. An info button explains what the Rating and its deviation mean.
+
+MADE TO FEEL AT HOME ON ANDROID
+• Light, dark or follow-the-system appearance
+• English and German
+• Large text and screen reader support (TalkBack)
+• No account, no sign-up, no ads
+
+PRIVACY FIRST
+MobTT asks before it collects anything. Anonymous usage statistics and crash reports are strictly opt-in, never include your name, your Player or Club, or anything you type, and you can switch them off again in Settings at any time.
+
+ABOUT THE DATA
+Results and tables are provided by the XTTV Ergebnisdienst. Rating histories come from Ratings Central. MobTT is an independent app and is not affiliated with, or endorsed by, the Austrian Table Tennis Association (ÖTTV), its regional associations, XTTV or Ratings Central.
+
+Open source licenses are listed in Settings.
