@@ -1,4 +1,5 @@
 ---
+status: resolved
 ---
 
 # Directions to a Fixture's Venue
