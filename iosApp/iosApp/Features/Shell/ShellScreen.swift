@@ -87,24 +87,11 @@ struct ShellScreen: View {
                 }
             }
         } bottomBar: {
-            BatTabBarView {
-                ForEach(ShellTab.allCases, id: \.self) { tab in
-                    BatTabBarItemView(
-                        icon: tab.icon,
-                        label: String(localized: tab.label),
-                        isSelected: tab == selectedTab
-                    ) {
-                        selectedTab = tab
-                        openSettingsIds = []
-                        homePath = NavigationPath()
-                        leaguePath = NavigationPath()
-                        clubPath = NavigationPath()
-                        playersPath = NavigationPath()
-                    }
-                }
-            }
+            EmptyView()
         } content: {
-            // The page style keeps the system tab bar out of the way, which the design system's own bar replaces.
+            // The system tab bar: the floating Liquid Glass bar on iOS 26, the standard translucent one before. Not the
+            // page style with a custom bar, which let a page's scroll view run below the bar, so the end of a long screen
+            // could not be scrolled into view.
             TabView(selection: $selectedTab) {
                 NavigationStack(path: $homePath) {
                     HomeRoute(
@@ -147,6 +134,7 @@ struct ShellScreen: View {
                         playerDetail(route, path: $homePath)
                     }
                 }
+                .tabItem { tabLabel(.home) }
                 .tag(ShellTab.home)
                 NavigationStack(path: $leaguePath) {
                     LeagueTabRoute(
@@ -189,6 +177,7 @@ struct ShellScreen: View {
                         playerDetail(route, path: $leaguePath)
                     }
                 }
+                .tabItem { tabLabel(.league) }
                 .tag(ShellTab.league)
                 NavigationStack(path: $clubPath) {
                     ClubTabRoute(
@@ -222,6 +211,7 @@ struct ShellScreen: View {
                         fixtureDetail(route, path: $clubPath)
                     }
                 }
+                .tabItem { tabLabel(.club) }
                 .tag(ShellTab.club)
                 NavigationStack(path: $playersPath) {
                     PlayersRoute(onOpenPlayer: { playersPath.append(PlayerDestination(playerId: $0)) })
@@ -252,10 +242,18 @@ struct ShellScreen: View {
                             fixtureDetail(route, path: $playersPath)
                         }
                 }
+                .tabItem { tabLabel(.players) }
                 .tag(ShellTab.players)
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .scrollDisabled(true)
+            .tint(BatColor.brand)
+            .onChange(of: selectedTab) { _, tab in
+                // Leaving a tab drops what was pushed on it; the tab just chosen keeps its own, which a link may have set.
+                openSettingsIds = []
+                if tab != .home { homePath = NavigationPath() }
+                if tab != .league { leaguePath = NavigationPath() }
+                if tab != .club { clubPath = NavigationPath() }
+                if tab != .players { playersPath = NavigationPath() }
+            }
         }
         .task { await consentViewModel.observe() }
         .onAppear { appearedAt = appearedAt ?? .now }
@@ -285,6 +283,10 @@ struct ShellScreen: View {
 extension ShellScreen {
     /// How long after the shell appears a link still counts as the one that launched the app.
     private static let coldStartWindow: TimeInterval = 3
+
+    private func tabLabel(_ tab: ShellTab) -> some View {
+        Label { Text(tab.label) } icon: { tab.icon.image }
+    }
 
     private var isSettingsOpen: Bool { !openSettingsIds.isEmpty }
 
