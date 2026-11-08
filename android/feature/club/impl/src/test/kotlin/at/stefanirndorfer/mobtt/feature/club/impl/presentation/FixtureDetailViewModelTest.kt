@@ -105,7 +105,7 @@ class FixtureDetailViewModelTest {
         assertEquals(
             listOf(
                 LoggedEvent("screen_view", mapOf("screen" to "fixture_detail")),
-                LoggedEvent("detail_opened", mapOf("kind" to "team", "id" to "t1", "from" to "fixture_detail")),
+                LoggedEvent("detail_opened", mapOf("kind" to "team", "from" to "fixture_detail")),
             ),
             analytics.events,
         )

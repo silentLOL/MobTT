@@ -113,12 +113,12 @@ class LeagueDetailViewModel(
     }
 
     private fun openTeam(teamId: String) {
-        analytics.detailOpened(AnalyticsKind.TEAM, teamId, from = AnalyticsScreen.LEAGUE_DETAIL)
+        analytics.detailOpened(AnalyticsKind.TEAM, from = AnalyticsScreen.LEAGUE_DETAIL)
         viewModelScope.launch { eventChannel.send(LeagueDetailEvent.OpenTeam(teamId)) }
     }
 
     private fun openFixture(fixtureId: String) {
-        analytics.detailOpened(AnalyticsKind.FIXTURE, fixtureId, from = AnalyticsScreen.LEAGUE_DETAIL)
+        analytics.detailOpened(AnalyticsKind.FIXTURE, from = AnalyticsScreen.LEAGUE_DETAIL)
         viewModelScope.launch { eventChannel.send(LeagueDetailEvent.OpenFixture(fixtureId)) }
     }
 
@@ -127,7 +127,7 @@ class LeagueDetailViewModel(
      * screens do; otherwise the Player screen would find nothing.
      */
     private fun openPlayer(playerId: String) {
-        analytics.detailOpened(AnalyticsKind.PLAYER, playerId, from = AnalyticsScreen.LEAGUE_DETAIL)
+        analytics.detailOpened(AnalyticsKind.PLAYER, from = AnalyticsScreen.LEAGUE_DETAIL)
         val ranked = ((uiState.value as? LeagueDetailUiState.Content)?.ranking as? SectionUi.Loaded)?.value
             ?.firstOrNull { it.ranked.player.id == playerId }
             ?.ranked

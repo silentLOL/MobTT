@@ -62,7 +62,7 @@ class FixtureDetailViewModel(
     }
 
     private fun openTeam(teamId: String) {
-        analytics.detailOpened(AnalyticsKind.TEAM, teamId, from = AnalyticsScreen.FIXTURE_DETAIL)
+        analytics.detailOpened(AnalyticsKind.TEAM, from = AnalyticsScreen.FIXTURE_DETAIL)
         viewModelScope.launch { eventChannel.send(FixtureDetailEvent.OpenTeam(teamId)) }
     }
 

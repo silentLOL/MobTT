@@ -151,7 +151,7 @@ class PlayersViewModel(
             rememberPlayer(Player(entry.id, entry.name, club.id))
             when (mode) {
                 PlayersMode.Browse -> {
-                    analytics.detailOpened(AnalyticsKind.PLAYER, playerId, from = screen)
+                    analytics.detailOpened(AnalyticsKind.PLAYER, from = screen)
                     eventChannel.send(PlayersEvent.OpenPlayer(playerId))
                 }
                 PlayersMode.ChooseMine -> {

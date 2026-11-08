@@ -183,7 +183,7 @@ class LeagueTabViewModelTest {
 
         assertEquals(listOf<LeagueTabEvent>(LeagueTabEvent.OpenLeague(leagueId = "l2", teamId = "t2")), events)
         assertEquals(
-            LoggedEvent("detail_opened", mapOf("kind" to "league", "id" to "l2", "from" to "league")),
+            LoggedEvent("detail_opened", mapOf("kind" to "league", "from" to "league")),
             analytics.events.last(),
         )
     }

@@ -67,7 +67,7 @@ Basis: `docs/ANALYTICS.md`, ADR-0009, `AndroidManifest.xml`. MobTT has no accoun
 - Not collected: name, email, location, contacts, photos, audio, files, financial or health data, advertising ID, free text (search text is never sent, only its length).
 - Network use that is not "collection": the app requests public Club, Player and League data from `oettv.xttv.at` (with the app's XTTV API key and a `User-Agent` carrying the app version) and a Player's Rating history from `www.ratingscentral.com` (the Ratings Central ID of the opened Player). Neither request carries a user identifier. Both servers see the device's IP address like any web server; that is the normal operation of a network app and not a declared type under Play's guidance, but it is named in the privacy policy.
 
-> **Decide before release:** the consent text says statistics "never include ... your Player or Club". `favorite_toggled` and `detail_opened` do send the `id` of the Player, Club or Team that was favorited or opened. That can reveal a favorite. Either drop the `id` parameter from those events (and `docs/ANALYTICS.md`) or reword the consent body in Loco/strings (and the Settings supporting text, the store descriptions and the policy). `my_player_selected` and `my_club_selected` carry no id.
+> **Ids dropped:** `favorite_toggled` and `detail_opened` no longer send the id of the Player, Club or Team on Android, so the consent text ("never include ... your Player or Club") holds. iOS still sends it until it follows; drop it there before the iOS release (`docs/ANALYTICS.md`).
 
 ## 4. Privacy policy
 

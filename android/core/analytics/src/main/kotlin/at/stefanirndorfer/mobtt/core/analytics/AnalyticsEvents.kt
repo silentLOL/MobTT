@@ -21,7 +21,6 @@ object AnalyticsParam {
     const val SCREEN = "screen"
     const val SOURCE = "source"
     const val KIND = "kind"
-    const val ID = "id"
     const val ENABLED = "enabled"
     const val FROM = "from"
     const val QUERY_LENGTH = "query_length"
@@ -80,14 +79,14 @@ fun AnalyticsTracker.myPlayerSelected(source: String) = logEvent(AnalyticsEvent.
 
 fun AnalyticsTracker.myClubSelected(source: String) = logEvent(AnalyticsEvent.MY_CLUB_SELECTED, mapOf(AnalyticsParam.SOURCE to source))
 
-fun AnalyticsTracker.favoriteToggled(kind: String, id: String, enabled: Boolean) = logEvent(
+fun AnalyticsTracker.favoriteToggled(kind: String, enabled: Boolean) = logEvent(
     AnalyticsEvent.FAVORITE_TOGGLED,
-    mapOf(AnalyticsParam.KIND to kind, AnalyticsParam.ID to id, AnalyticsParam.ENABLED to enabled.toString()),
+    mapOf(AnalyticsParam.KIND to kind, AnalyticsParam.ENABLED to enabled.toString()),
 )
 
-fun AnalyticsTracker.detailOpened(kind: String, id: String, from: String) = logEvent(
+fun AnalyticsTracker.detailOpened(kind: String, from: String) = logEvent(
     AnalyticsEvent.DETAIL_OPENED,
-    mapOf(AnalyticsParam.KIND to kind, AnalyticsParam.ID to id, AnalyticsParam.FROM to from),
+    mapOf(AnalyticsParam.KIND to kind, AnalyticsParam.FROM to from),
 )
 
 fun AnalyticsTracker.ratingInfoOpened() = logEvent(AnalyticsEvent.RATING_INFO_OPENED, emptyMap())

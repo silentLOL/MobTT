@@ -151,9 +151,9 @@ class TeamDetailViewModelTest {
         assertEquals(
             listOf(
                 LoggedEvent("screen_view", mapOf("screen" to "team_detail")),
-                LoggedEvent("favorite_toggled", mapOf("kind" to "team", "id" to "t1", "enabled" to "true")),
-                LoggedEvent("detail_opened", mapOf("kind" to "league", "id" to "l1", "from" to "team_detail")),
-                LoggedEvent("detail_opened", mapOf("kind" to "player", "id" to "p1", "from" to "team_detail")),
+                LoggedEvent("favorite_toggled", mapOf("kind" to "team", "enabled" to "true")),
+                LoggedEvent("detail_opened", mapOf("kind" to "league", "from" to "team_detail")),
+                LoggedEvent("detail_opened", mapOf("kind" to "player", "from" to "team_detail")),
             ),
             analytics.events,
         )

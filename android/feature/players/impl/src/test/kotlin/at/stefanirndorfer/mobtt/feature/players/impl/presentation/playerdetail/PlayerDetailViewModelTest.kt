@@ -336,8 +336,8 @@ class PlayerDetailViewModelTest {
 
         assertEquals(
             listOf(
-                LoggedEvent("favorite_toggled", mapOf("kind" to "player", "id" to "p1", "enabled" to "true")),
-                LoggedEvent("favorite_toggled", mapOf("kind" to "player", "id" to "p1", "enabled" to "false")),
+                LoggedEvent("favorite_toggled", mapOf("kind" to "player", "enabled" to "true")),
+                LoggedEvent("favorite_toggled", mapOf("kind" to "player", "enabled" to "false")),
             ),
             analytics.events.drop(1),
         )
@@ -352,8 +352,8 @@ class PlayerDetailViewModelTest {
 
         assertEquals(
             listOf(
-                LoggedEvent("detail_opened", mapOf("kind" to "club", "id" to "c1", "from" to "player_detail")),
-                LoggedEvent("detail_opened", mapOf("kind" to "team", "id" to "t1", "from" to "player_detail")),
+                LoggedEvent("detail_opened", mapOf("kind" to "club", "from" to "player_detail")),
+                LoggedEvent("detail_opened", mapOf("kind" to "team", "from" to "player_detail")),
             ),
             analytics.events.drop(1),
         )

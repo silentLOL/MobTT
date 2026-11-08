@@ -20,7 +20,7 @@ Mein Spieler, Mein Verein, Favoriten, die Darstellung und deine Einwilligung wer
 
 Mit deiner Einwilligung verwendet MobTT Firebase Analytics und Firebase Crashlytics von Google. Diese erhalten:
 
-- welche Bildschirme du öffnest und einige Interaktionen (zum Beispiel dass ein Favorit hinzugefügt, gesucht oder ein Detailbildschirm geöffnet wurde) sowie bei manchen die Kennung des betroffenen Spielers, Vereins, der Mannschaft, Liga oder Begegnung [an die Entscheidung in docs/PLAY_CONSOLE_CHECKLIST.md anpassen];
+- welche Bildschirme du öffnest und einige Interaktionen (zum Beispiel dass ein Favorit hinzugefügt, gesucht oder ein Detailbildschirm geöffnet wurde), nie welchen Spieler, Verein oder welche Mannschaft es betrifft;
 - die Länge eines Suchtexts, nie den Text selbst;
 - Absturzberichte mit technischen Geräteinformationen (Gerätemodell, Android-Version, App-Version, Stacktrace);
 - eine von Firebase erzeugte Installationskennung. Sie ist nicht deine Werbe-ID; MobTT verwendet keine Werbe-ID.

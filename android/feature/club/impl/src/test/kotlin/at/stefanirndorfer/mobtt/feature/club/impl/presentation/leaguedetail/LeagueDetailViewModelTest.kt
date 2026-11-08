@@ -216,7 +216,7 @@ class LeagueDetailViewModelTest {
 
         assertEquals(listOf<LeagueDetailEvent>(LeagueDetailEvent.OpenFixture("f1")), events)
         assertEquals(
-            LoggedEvent("detail_opened", mapOf("kind" to "fixture", "id" to "f1", "from" to "league_detail")),
+            LoggedEvent("detail_opened", mapOf("kind" to "fixture", "from" to "league_detail")),
             analytics.events.last(),
         )
     }
@@ -230,7 +230,7 @@ class LeagueDetailViewModelTest {
         assertEquals(
             listOf(
                 LoggedEvent("screen_view", mapOf("screen" to "league_detail")),
-                LoggedEvent("detail_opened", mapOf("kind" to "team", "id" to "t1", "from" to "league_detail")),
+                LoggedEvent("detail_opened", mapOf("kind" to "team", "from" to "league_detail")),
             ),
             analytics.events,
         )
@@ -295,7 +295,7 @@ class LeagueDetailViewModelTest {
 
         assertEquals(listOf<LeagueDetailEvent>(LeagueDetailEvent.OpenPlayer("p1")), events)
         assertEquals(
-            LoggedEvent("detail_opened", mapOf("kind" to "player", "id" to "p1", "from" to "league_detail")),
+            LoggedEvent("detail_opened", mapOf("kind" to "player", "from" to "league_detail")),
             analytics.events.last(),
         )
     }

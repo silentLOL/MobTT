@@ -138,17 +138,17 @@ class HomeViewModel(
     }
 
     private fun openPlayer(playerId: String) {
-        analytics.detailOpened(AnalyticsKind.PLAYER, playerId, from = AnalyticsScreen.HOME)
+        analytics.detailOpened(AnalyticsKind.PLAYER, from = AnalyticsScreen.HOME)
         viewModelScope.launch { eventChannel.send(HomeEvent.OpenPlayer(playerId)) }
     }
 
     private fun openClub(clubId: String) {
-        analytics.detailOpened(AnalyticsKind.CLUB, clubId, from = AnalyticsScreen.HOME)
+        analytics.detailOpened(AnalyticsKind.CLUB, from = AnalyticsScreen.HOME)
         viewModelScope.launch { eventChannel.send(HomeEvent.OpenClub(clubId)) }
     }
 
     private fun openTeam(teamId: String) {
-        analytics.detailOpened(AnalyticsKind.TEAM, teamId, from = AnalyticsScreen.HOME)
+        analytics.detailOpened(AnalyticsKind.TEAM, from = AnalyticsScreen.HOME)
         viewModelScope.launch { eventChannel.send(HomeEvent.OpenTeam(teamId)) }
     }
 
@@ -193,7 +193,7 @@ class HomeViewModel(
             } else {
                 addFavorite(favorite)
             }
-            analytics.favoriteToggled(favorite.analyticsKind(), favorite.id, enabled = !wasFavorite)
+            analytics.favoriteToggled(favorite.analyticsKind(), enabled = !wasFavorite)
         }
     }
 

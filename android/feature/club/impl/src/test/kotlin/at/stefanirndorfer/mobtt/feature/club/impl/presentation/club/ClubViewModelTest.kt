@@ -164,9 +164,9 @@ class ClubViewModelTest {
         assertEquals(
             listOf(
                 LoggedEvent("screen_view", mapOf("screen" to "club")),
-                LoggedEvent("favorite_toggled", mapOf("kind" to "club", "id" to "c1", "enabled" to "true")),
-                LoggedEvent("detail_opened", mapOf("kind" to "team", "id" to "t1", "from" to "club")),
-                LoggedEvent("detail_opened", mapOf("kind" to "player", "id" to "p1", "from" to "club")),
+                LoggedEvent("favorite_toggled", mapOf("kind" to "club", "enabled" to "true")),
+                LoggedEvent("detail_opened", mapOf("kind" to "team", "from" to "club")),
+                LoggedEvent("detail_opened", mapOf("kind" to "player", "from" to "club")),
             ),
             analytics.events,
         )

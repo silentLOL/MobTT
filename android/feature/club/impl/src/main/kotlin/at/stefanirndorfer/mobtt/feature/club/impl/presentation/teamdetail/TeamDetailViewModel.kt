@@ -75,13 +75,13 @@ class TeamDetailViewModel(
     }
 
     private fun openLeague(leagueId: String) {
-        analytics.detailOpened(AnalyticsKind.LEAGUE, leagueId, from = AnalyticsScreen.TEAM_DETAIL)
+        analytics.detailOpened(AnalyticsKind.LEAGUE, from = AnalyticsScreen.TEAM_DETAIL)
         viewModelScope.launch { eventChannel.send(TeamDetailEvent.OpenLeague(leagueId, teamId)) }
     }
 
     private fun openPlayer(player: LineupPlayer) {
         val content = uiState.value as? TeamDetailUiState.Content ?: return
-        analytics.detailOpened(AnalyticsKind.PLAYER, player.playerId, from = AnalyticsScreen.TEAM_DETAIL)
+        analytics.detailOpened(AnalyticsKind.PLAYER, from = AnalyticsScreen.TEAM_DETAIL)
         viewModelScope.launch {
             rememberPlayer(Player(player.playerId, player.name, content.detail.team.clubId))
             eventChannel.send(TeamDetailEvent.OpenPlayer(player.playerId))
@@ -97,7 +97,7 @@ class TeamDetailViewModel(
             } else {
                 addFavorite(favorite)
             }
-            analytics.favoriteToggled(AnalyticsKind.TEAM, teamId, enabled = !content.isFavorite)
+            analytics.favoriteToggled(AnalyticsKind.TEAM, enabled = !content.isFavorite)
         }
     }
 

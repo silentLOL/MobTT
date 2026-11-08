@@ -381,8 +381,8 @@ class HomeViewModelTest {
         assertEquals(
             listOf(
                 LoggedEvent("screen_view", mapOf("screen" to "home")),
-                LoggedEvent("detail_opened", mapOf("kind" to "player", "id" to "p1", "from" to "home")),
-                LoggedEvent("detail_opened", mapOf("kind" to "team", "id" to "t1", "from" to "home")),
+                LoggedEvent("detail_opened", mapOf("kind" to "player", "from" to "home")),
+                LoggedEvent("detail_opened", mapOf("kind" to "team", "from" to "home")),
             ),
             analytics.events,
         )
@@ -399,8 +399,8 @@ class HomeViewModelTest {
 
         assertEquals(
             listOf(
-                LoggedEvent("favorite_toggled", mapOf("kind" to "club", "id" to "c1", "enabled" to "true")),
-                LoggedEvent("favorite_toggled", mapOf("kind" to "club", "id" to "c1", "enabled" to "false")),
+                LoggedEvent("favorite_toggled", mapOf("kind" to "club", "enabled" to "true")),
+                LoggedEvent("favorite_toggled", mapOf("kind" to "club", "enabled" to "false")),
             ),
             analytics.events.drop(1),
         )

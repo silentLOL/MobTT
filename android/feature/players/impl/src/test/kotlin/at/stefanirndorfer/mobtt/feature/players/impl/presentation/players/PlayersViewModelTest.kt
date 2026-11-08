@@ -255,7 +255,7 @@ class PlayersViewModelTest {
         assertEquals(
             listOf(
                 LoggedEvent("screen_view", mapOf("screen" to "players")),
-                LoggedEvent("detail_opened", mapOf("kind" to "player", "id" to "p1", "from" to "players")),
+                LoggedEvent("detail_opened", mapOf("kind" to "player", "from" to "players")),
             ),
             analytics.events,
         )

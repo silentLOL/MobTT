@@ -53,7 +53,7 @@ class LeagueTabViewModel(
             LeagueTabAction.ChoosePlayerClicked -> send(LeagueTabEvent.OpenChoosePlayer)
             is LeagueTabAction.MyPlayerClicked -> send(LeagueTabEvent.OpenPlayer(action.playerId))
             is LeagueTabAction.TeamCardClicked -> {
-                analytics.detailOpened(AnalyticsKind.LEAGUE, action.leagueId, from = AnalyticsScreen.LEAGUE)
+                analytics.detailOpened(AnalyticsKind.LEAGUE, from = AnalyticsScreen.LEAGUE)
                 send(LeagueTabEvent.OpenLeague(action.leagueId, action.teamId))
             }
         }
