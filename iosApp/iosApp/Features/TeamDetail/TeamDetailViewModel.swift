@@ -7,7 +7,7 @@ import Shared
 final class TeamDetailViewModel {
     private(set) var uiState: TeamDetailUiState = .loading
 
-    @ObservationIgnored private let eventStream = AsyncStream<TeamDetailEvent>.makeStream()
+    @ObservationIgnored private let eventStream = EventChannel<TeamDetailEvent>()
     var events: AsyncStream<TeamDetailEvent> { eventStream.stream }
 
     private let teamId: String
@@ -70,7 +70,7 @@ final class TeamDetailViewModel {
             toggleFavorite()
         case .leagueClicked(let leagueId):
             analytics.detailOpened(kind: AnalyticsKind.league, id: leagueId, from: AnalyticsScreen.teamDetail)
-            eventStream.continuation.yield(.openLeague(leagueId: leagueId, teamId: teamId))
+            eventStream.yield(.openLeague(leagueId: leagueId, teamId: teamId))
         case .playerClicked(let playerId, let name):
             openPlayer(playerId: playerId, name: name)
         }
@@ -81,7 +81,7 @@ final class TeamDetailViewModel {
         analytics.detailOpened(kind: AnalyticsKind.player, id: playerId, from: AnalyticsScreen.teamDetail)
         Task {
             try? await rememberPlayer(Player(id: playerId, name: name, clubId: clubId))
-            eventStream.continuation.yield(.openPlayer(playerId: playerId))
+            eventStream.yield(.openPlayer(playerId: playerId))
         }
     }
 

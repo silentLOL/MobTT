@@ -25,7 +25,7 @@ final class HomeViewModel {
     @ObservationIgnored private let analytics: any AnalyticsTracker
     @ObservationIgnored private let screenViews: ScreenViewReporter
     @ObservationIgnored private let searchEvents: SearchEvents
-    @ObservationIgnored private let eventStream = AsyncStream<HomeEvent>.makeStream()
+    @ObservationIgnored private let eventStream = EventChannel<HomeEvent>()
 
     init(
         observeUserContext: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeUserContext(),
@@ -76,21 +76,21 @@ final class HomeViewModel {
             isChoosingHero = true
         case .choosePlayerClicked:
             isChoosingHero = false
-            eventStream.continuation.yield(.chooseMyPlayer)
+            eventStream.yield(.chooseMyPlayer)
         case .chooseClubClicked:
             isChoosingHero = false
-            eventStream.continuation.yield(.chooseMyClub)
+            eventStream.yield(.chooseMyClub)
         case .chooseDismissed:
             isChoosingHero = false
         case .heroPlayerClicked(let id), .favoritePlayerClicked(let id):
             analytics.detailOpened(kind: AnalyticsKind.player, id: id, from: AnalyticsScreen.home)
-            eventStream.continuation.yield(.openPlayer(playerId: id))
+            eventStream.yield(.openPlayer(playerId: id))
         case .heroClubClicked(let id), .favoriteClubClicked(let id):
             analytics.detailOpened(kind: AnalyticsKind.club, id: id, from: AnalyticsScreen.home)
-            eventStream.continuation.yield(.openClub(clubId: id))
+            eventStream.yield(.openClub(clubId: id))
         case .favoriteTeamClicked(let id):
             analytics.detailOpened(kind: AnalyticsKind.team, id: id, from: AnalyticsScreen.home)
-            eventStream.continuation.yield(.openTeam(teamId: id))
+            eventStream.yield(.openTeam(teamId: id))
         case .addFavoriteClicked:
             browsingPlayers = false
             pickerClubs = []

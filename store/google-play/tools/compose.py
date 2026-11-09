@@ -1,6 +1,7 @@
 """Builds the Play Store graphics from raw emulator screenshots (see store/google-play/README.md).
 
-usage: compose.py <raw-en-dir> <raw-de-dir>
+usage: compose.py <raw-en-dir> <raw-de-dir>   icon, feature graphics and phone screenshots (en-US, de-DE)
+       compose.py --feature-graphics          only the feature graphic of every locale in TAGLINE
 Needs Pillow and rsvg-convert. Raw shots are 1080x2424 phone screenshots named 1-home ... 6-settings.
 """
 import subprocess, sys
@@ -19,7 +20,10 @@ CAPTIONS = {
               "3-league": "Ligatabellen, deine Mannschaft markiert", "4-player": "Ratingverlauf als Diagramm",
               "6-settings": "Hell, dunkel, Deutsch oder Englisch"},
 }
-TAGLINE = {"en-US": "Table tennis results, in your pocket", "de-DE": "Tischtennis-Ergebnisse für die Hosentasche"}
+TAGLINE = {"en-US": "Table tennis results, in your pocket", "de-DE": "Tischtennis-Ergebnisse für die Hosentasche",
+           "hr": "Rezultati stolnog tenisa u tvom džepu", "tr-TR": "Masa tenisi sonuçları cebinde",
+           "ro": "Rezultate de tenis de masă, în buzunarul tău", "hu-HU": "Asztalitenisz-eredmények a zsebedben",
+           "uk": "Результати настільного тенісу в кишені"}
 NUMBERS = {"1-home": 1, "2-club": 2, "3-league": 3, "4-player": 4, "6-settings": 5}
 
 
@@ -93,4 +97,9 @@ def main(raw_en, raw_de):
             phone(Path(raw) / f"{key}.png", caption, OUT / locale / f"graphics/phone/{NUMBERS[key]:02d}-{key.split('-')[1]}.png")
 
 
-main(sys.argv[1], sys.argv[2])
+if sys.argv[1] == "--feature-graphics":
+    for locale in TAGLINE:
+        (OUT / locale / "graphics").mkdir(parents=True, exist_ok=True)
+        feature(locale)
+else:
+    main(sys.argv[1], sys.argv[2])

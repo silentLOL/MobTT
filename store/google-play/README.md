@@ -1,6 +1,6 @@
 # Google Play store material
 
-Everything Play Console asks for in the listing, one folder per Play language (`en-US`, `de-DE`; German is Austrian German, as in the app, see `docs/LOCALIZATION.md`). Console steps and form answers: [`docs/PLAY_CONSOLE_CHECKLIST.md`](../../docs/PLAY_CONSOLE_CHECKLIST.md).
+Everything Play Console asks for in the listing, one folder per Play language (`en-US`, `de-DE`, `hr`, `tr-TR`, `ro`, `hu-HU`, `uk`; German is Austrian German, as in the app, see `docs/LOCALIZATION.md`). The `hr`, `tr-TR`, `ro`, `hu-HU` and `uk` texts are machine-drafted: have a native speaker read them before publishing. Those five folders hold texts and a feature graphic only; phone screenshots are shown in the `en-US` default for them until localized ones are captured. Console steps and form answers: [`docs/PLAY_CONSOLE_CHECKLIST.md`](../../docs/PLAY_CONSOLE_CHECKLIST.md).
 
 | File | Play field | Limit |
 |---|---|---|
@@ -26,7 +26,7 @@ python3 -m venv /tmp/venv && /tmp/venv/bin/pip install pillow
 /tmp/venv/bin/python store/google-play/tools/compose.py <raw-en-dir> <raw-de-dir>   # needs rsvg-convert
 ```
 
-Captions are in the script. Tablet (7" and 10") screenshots are optional and not made: the app has no tablet-specific layout. Add them if you want the "tablet-ready" listing label; the Pixel_Tablet AVD exists.
+Captions are in the script. `compose.py --feature-graphics` rebuilds only the feature graphics (taglines in `TAGLINE`) without raw screenshots. Tablet (7" and 10") screenshots are optional and not made: the app has no tablet-specific layout. Add them if you want the "tablet-ready" listing label; the Pixel_Tablet AVD exists.
 
 ## Icon and feature graphic
 

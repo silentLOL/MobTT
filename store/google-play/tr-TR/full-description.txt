@@ -1,0 +1,30 @@
+MobTT, Avusturya masa tenisini cebine getirir. Kendi oyuncunu, kulübünü ve ligini takip et; takımının nasıl gittiğini tek bir yerde gör.
+
+SANA GÖRE ŞEKİLLENEN ANA SAYFA
+Oyuncunu veya kulübünü bir kez seç, Ana Sayfa senin olsun: kulübün veya oyuncun için büyük bir kart ve en çok önem verdiğin oyuncular, takımlar ve kulüpler için bir favori listesi.
+
+KULÜP VE TAKIMLAR
+Kulübünün takımlarını, oynadıkları ligi, tarih, saat ve salon bilgisiyle bir sonraki karşılaşmayı ve onlar adına oynayan oyuncuları gör.
+
+LİG TABLOLARI VE KARŞILAŞMALAR
+Takımının lig tablosunu aç; takımın vurgulanır. Karşılaşmalara göz at, sonuçları gör ve biten karşılaşmalarda her maçı setleriyle birlikte incele.
+
+HERHANGİ BİR OYUNCUYU BUL
+Bir federasyon ve bir kulüp seç, ardından oyuncularını adına göre ara. Bir oyuncuyu açarak kulübünü ve takımlarını gör.
+
+REYTİNG GEÇMİŞİ
+Bir oyuncunun reyting geçmişi etkileşimli bir grafik olarak çizilir; böylece son 12 ayın veya tüm kariyerin form ve gelişimini görebilirsin. Bir bilgi düğmesi, reytingin ve sapmasının ne anlama geldiğini açıklar.
+
+ANDROID'DE KENDİNİ EVİNDE HİSSETMEK İÇİN
+• Açık, koyu veya sistemi izleyen görünüm
+• İngilizce, Almanca, Hırvatça, Türkçe, Romence, Macarca ve Ukraynaca
+• Büyük yazı ve ekran okuyucu desteği (TalkBack)
+• Hesap yok, kayıt yok, reklam yok
+
+ÖNCE GİZLİLİK
+MobTT, bir şey toplamadan önce sorar. Anonim kullanım istatistikleri ve çökme raporları tamamen isteğe bağlıdır, asla adını, oyuncunu veya kulübünü ya da yazdığın hiçbir şeyi içermez ve istediğin zaman Ayarlar'dan tekrar kapatabilirsin.
+
+VERİLER HAKKINDA
+Sonuçlar ve tablolar XTTV Ergebnisdienst tarafından sağlanır. Reyting geçmişleri Ratings Central'dan gelir. MobTT bağımsız bir uygulamadır; Avusturya Masa Tenisi Federasyonu (ÖTTV), bölgesel federasyonları, XTTV veya Ratings Central ile bağlantılı değildir ve bunlar tarafından onaylanmamıştır.
+
+Açık kaynak lisansları Ayarlar'da listelenir.

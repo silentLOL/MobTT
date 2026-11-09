@@ -17,7 +17,7 @@ A Player's Rating history is drawn as an interactive chart, so you can see form 
 
 MADE TO FEEL AT HOME ON ANDROID
 • Light, dark or follow-the-system appearance
-• English and German
+• English, German, Croatian, Turkish, Romanian, Hungarian and Ukrainian
 • Large text and screen reader support (TalkBack)
 • No account, no sign-up, no ads
 

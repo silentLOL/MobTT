@@ -9,7 +9,7 @@ Answers and values for the first release, derived from the code. Split into what
 | Release signing from untracked settings, unsigned fallback | `androidApp/build.gradle.kts`, [`RELEASE_ANDROID.md`](RELEASE_ANDROID.md) |
 | R8 minify and resource shrinking on release, run on an emulator | `androidApp/build.gradle.kts` |
 | `prod` AAB builds reproducibly (`bundleProdRelease`), `versionCode`/`versionName` overridable per build | [`RELEASE_ANDROID.md`](RELEASE_ANDROID.md) |
-| Title, short and full description, release notes in `en-US` and `de-DE` | `store/google-play/<locale>/*.txt` |
+| Title, short and full description, release notes in `en-US`, `de-DE`, `hr`, `tr-TR`, `ro`, `hu-HU`, `uk` | `store/google-play/<locale>/*.txt` |
 | App icon 512x512, feature graphic 1024x500, 5 phone screenshots per language | `store/google-play/` |
 | Privacy policy drafts (EN and DE) to publish on a web page | `store/google-play/privacy-policy.*.md` |
 | `targetSdk` 37 (`gradle/libs.versions.toml`), `minSdk` 24 | |
@@ -20,7 +20,7 @@ Answers and values for the first release, derived from the code. Split into what
 2. **Create app**: name `MobTT: Table Tennis Results` (default language English, United States; add German), type App, free, accept the declarations. Choose **Play App Signing** with a Google-generated key. Application ID is fixed by the first upload: `at.stefanirndorfer.mobtt`.
 3. **Publish the privacy policy** on a public URL (section 4), then enter the URL under App content.
 4. **App content** forms: section 3 below.
-5. **Store listing**: copy texts and upload graphics per language from `store/google-play/`. Add the German translation as a custom listing language.
+5. **Store listing**: copy texts and upload graphics per language from `store/google-play/`. Add the other languages (`de-DE`, `hr`, `tr-TR`, `ro`, `hu-HU`, `uk`) as custom listing languages.
 6. **Upload key and AAB**: [`RELEASE_ANDROID.md`](RELEASE_ANDROID.md). Upload to Internal testing first, install through the opt-in link, tap through the app.
 7. **Testing requirement**: a personal developer account created after 13 Nov 2023 must run a closed test with a set number of testers for 14 days before it may apply for production. This account dates from before that and may be exempt; the Console's Dashboard shows which applies. If it applies, recruit the testers early.
 8. **Release**: Production track, release name `1.0`, release notes from `release-notes.txt`, countries: Austria and the German-speaking region at minimum (pick all, if you like). Send for review.
@@ -91,4 +91,4 @@ Required: the app collects device IDs and crash data through Firebase. Needs a p
 
 ## 6. Release notes and version
 
-First release: `versionCode` 1, `versionName` 1.0. Notes are in `store/google-play/en-US/release-notes.txt` and `de-DE/release-notes.txt` (500 characters max per language). Raise `versionCode` for every upload.
+First release: `versionCode` 1, `versionName` 1.0. Notes are in `store/google-play/<locale>/release-notes.txt` (500 characters max per language). Raise `versionCode` for every upload.

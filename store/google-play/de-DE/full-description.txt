@@ -17,7 +17,7 @@ Der Ratingverlauf eines Spielers wird als interaktives Diagramm dargestellt. So 
 
 FÜR ANDROID GEMACHT
 • Hell, dunkel oder dem System folgen
-• Deutsch und Englisch
+• Deutsch, Englisch, Kroatisch, Türkisch, Rumänisch, Ungarisch und Ukrainisch
 • Große Schrift und Unterstützung für Screenreader (TalkBack)
 • Kein Konto, keine Anmeldung, keine Werbung
 

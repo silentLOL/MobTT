@@ -1,0 +1,30 @@
+MobTT aduce tenisul de masă austriac în buzunarul tău. Urmărește-ți jucătorul, clubul și liga și vezi dintr-o privire cum se descurcă echipa ta.
+
+ECRANUL ACASĂ, FĂCUT PENTRU TINE
+Alege o singură dată jucătorul sau clubul tău, iar ecranul Acasă devine al tău: un card mare pentru club sau jucător și o listă de favorite cu jucătorii, echipele și cluburile care contează cel mai mult pentru tine.
+
+CLUB ȘI ECHIPE
+Vezi echipele clubului tău, liga în care joacă fiecare, următorul meci cu data, ora și locul de desfășurare și jucătorii care le reprezintă.
+
+CLASAMENTELE LIGILOR ȘI MECIURILE
+Deschide clasamentul ligii pentru echipa ta, cu echipa ta evidențiată. Răsfoiește meciurile, vezi rezultatele și, pentru meciurile încheiate, fiecare partidă cu seturile ei.
+
+GĂSEȘTE ORICE JUCĂTOR
+Alege o asociație și un club, apoi caută jucătorii după nume. Deschide un jucător ca să vezi clubul și echipele lui.
+
+ISTORICUL RATINGULUI
+Istoricul ratingului unui jucător este desenat ca o diagramă interactivă, ca să vezi forma și progresul din ultimele 12 luni sau din toată cariera. Un buton de informații explică ce înseamnă ratingul și deviația sa.
+
+FĂCUTĂ SĂ SE SIMTĂ CA ACASĂ PE ANDROID
+• Aspect luminos, întunecat sau după sistem
+• Engleză, germană, croată, turcă, română, maghiară și ucraineană
+• Text mare și suport pentru cititoare de ecran (TalkBack)
+• Fără cont, fără înregistrare, fără reclame
+
+CONFIDENȚIALITATEA ÎNAINTE DE TOATE
+MobTT întreabă înainte să colecteze ceva. Statisticile anonime de utilizare și rapoartele de blocare sunt strict opționale, nu includ niciodată numele tău, jucătorul sau clubul tău ori ceva ce scrii și le poți dezactiva oricând din Setări.
+
+DESPRE DATE
+Rezultatele și clasamentele sunt furnizate de XTTV Ergebnisdienst. Istoricul ratingului provine de la Ratings Central. MobTT este o aplicație independentă și nu este afiliată cu Federația Austriacă de Tenis de Masă (ÖTTV), asociațiile ei regionale, XTTV sau Ratings Central și nu este susținută de acestea.
+
+Licențele open source sunt listate în Setări.

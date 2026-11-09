@@ -9,7 +9,7 @@ final class FixtureDetailViewModel {
 
     private let fixtureId: String
     private var loadTask: Task<Void, Never>?
-    @ObservationIgnored private let eventStream = AsyncStream<FixtureDetailEvent>.makeStream()
+    @ObservationIgnored private let eventStream = EventChannel<FixtureDetailEvent>()
 
     var events: AsyncStream<FixtureDetailEvent> { eventStream.stream }
 
@@ -52,7 +52,7 @@ final class FixtureDetailViewModel {
             loadTask = Task { await load() }
         case .teamClicked(let teamId):
             analytics.detailOpened(kind: AnalyticsKind.team, id: teamId, from: AnalyticsScreen.fixtureDetail)
-            eventStream.continuation.yield(.openTeam(teamId: teamId))
+            eventStream.yield(.openTeam(teamId: teamId))
         case .shareClicked:
             share()
         case .venueClicked:
@@ -63,13 +63,13 @@ final class FixtureDetailViewModel {
     private func openVenue() {
         guard case .content(let detail) = uiState, let searchText = detail.venueSearchText else { return }
         analytics.fixtureVenueTapped(status: detail.analyticsStatus)
-        eventStream.continuation.yield(.openVenue(searchText: searchText))
+        eventStream.yield(.openVenue(searchText: searchText))
     }
 
     private func share() {
         guard case .content(let detail) = uiState else { return }
         analytics.fixtureShareTapped(status: detail.analyticsStatus)
-        eventStream.continuation.yield(.share(detail: detail, link: linkTo(fixtureId)))
+        eventStream.yield(.share(detail: detail, link: linkTo(fixtureId)))
     }
 
     private func load() async {

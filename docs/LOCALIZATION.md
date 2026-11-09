@@ -22,6 +22,7 @@ loco.readKey=...         # pull
 
 ```sh
 ./scripts/loco.sh push   # repo -> Loco (creates the locale on first run)
+./scripts/loco.sh push hr tr   # only these Loco locales
 ./scripts/loco.sh pull   # Loco -> repo
 ```
 
@@ -33,8 +34,13 @@ loco.readKey=...         # pull
 |---|---|---|
 | `en` | `values` | `en` |
 | `de-AT` (Austrian German) | `values-de` | `de` |
+| `hr` (Croatian, the Serbo-Croatian variant in Latin script) | `values-hr` | `hr` |
+| `tr` (Turkish) | `values-tr` | `tr` |
+| `ro` (Romanian) | `values-ro` | `ro` |
+| `hu` (Hungarian) | `values-hu` | `hu` |
+| `uk` (Ukrainian) | `values-uk` | `uk` |
 
-Austrian German serves every German-language device, so it uses the plain `de` resources and needs no extra Xcode region. Edit translations in Loco, then `pull`.
+Austrian German serves every German-language device, so it uses the plain `de` resources and needs no extra Xcode region. Edit translations in Loco, then `pull`. The `hr`, `tr`, `ro`, `hu` and `uk` texts were machine-drafted (informal "you", matching German), so have a native speaker review them in Loco.
 
 ## Adding a language
 

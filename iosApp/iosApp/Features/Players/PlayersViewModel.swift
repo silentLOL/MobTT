@@ -42,7 +42,7 @@ final class PlayersViewModel {
     @ObservationIgnored private let screen: String
     @ObservationIgnored private let screenViews: ScreenViewReporter
     @ObservationIgnored private let searchEvents: SearchEvents
-    @ObservationIgnored private let eventStream = AsyncStream<PlayersEvent>.makeStream()
+    @ObservationIgnored private let eventStream = EventChannel<PlayersEvent>()
 
     var events: AsyncStream<PlayersEvent> { eventStream.stream }
 
@@ -215,9 +215,9 @@ final class PlayersViewModel {
             if mode == .myClub {
                 guard (try? await setMyClub(club.id)) != nil else { return }
                 analytics.myClubSelected(source: AnalyticsSource.home)
-                eventStream.continuation.yield(.done)
+                eventStream.yield(.done)
             } else {
-                eventStream.continuation.yield(.clubChosen(clubId: club.id))
+                eventStream.yield(.clubChosen(clubId: club.id))
             }
         }
     }
@@ -230,11 +230,11 @@ final class PlayersViewModel {
                 guard (try? await rememberPlayer(Player(id: playerId, name: name, clubId: club.id))) != nil,
                       (try? await setMyPlayer(playerId)) != nil else { return }
                 analytics.myPlayerSelected(source: AnalyticsSource.home)
-                eventStream.continuation.yield(.done)
+                eventStream.yield(.done)
             } else {
                 try? await rememberPlayer(Player(id: playerId, name: name, clubId: club.id))
                 analytics.detailOpened(kind: AnalyticsKind.player, id: playerId, from: screen)
-                eventStream.continuation.yield(.openPlayer(playerId: playerId))
+                eventStream.yield(.openPlayer(playerId: playerId))
             }
         }
     }

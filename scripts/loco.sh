@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Syncs the English string resources with Loco (localise.biz).
-#   scripts/loco.sh push   upload Android strings.xml and iOS Localizable.xcstrings (needs loco.fullAccessKey)
+#   scripts/loco.sh push [locale...]   upload Android strings.xml and iOS Localizable.xcstrings (needs loco.fullAccessKey)
 #   scripts/loco.sh pull   download them back into the repo (needs loco.readKey)
 # Keys live in the git-ignored local.properties. See docs/LOCALIZATION.md.
 set -euo pipefail
@@ -15,6 +15,11 @@ IOS_CATALOG="$ROOT/iosApp/iosApp/Resources/Localizable.xcstrings"
 LOCALES=(
   "en|values|en"
   "de-AT|values-de|de"
+  "hr|values-hr|hr"
+  "tr|values-tr|tr"
+  "ro|values-ro|ro"
+  "hu|values-hu|hu"
+  "uk|values-uk|uk"
 )
 
 prop() {
@@ -32,13 +37,15 @@ loco() {
 }
 
 push() {
-  local key
+  local key only=" $* "
   key="$(prop loco.fullAccessKey)"
   tmp="$(mktemp -d)"
   trap 'rm -rf "$tmp"' EXIT
 
   for row in "${LOCALES[@]}"; do
     IFS='|' read -r locale folder lang <<<"$row"
+    # With locale arguments, push only those (leaves Loco edits to the others untouched).
+    [[ $# -eq 0 || "$only" == *" $locale "* ]] || continue
 
     if ! loco "$key" -o /dev/null "$API/locales/$locale" 2>/dev/null; then
       echo "Creating locale $locale"
@@ -86,7 +93,7 @@ pull() {
 }
 
 case "${1:-}" in
-  push) push ;;
+  push) shift; push "$@" ;;
   pull) pull ;;
   *) echo "Usage: $0 push|pull" >&2; exit 2 ;;
 esac

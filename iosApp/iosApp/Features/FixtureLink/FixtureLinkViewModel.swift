@@ -6,7 +6,7 @@ import Shared
 @MainActor
 @Observable
 final class FixtureLinkViewModel {
-    @ObservationIgnored private let eventStream = AsyncStream<FixtureLinkEvent>.makeStream()
+    @ObservationIgnored private let eventStream = EventChannel<FixtureLinkEvent>()
     @ObservationIgnored private let fixtureIdOf: (String) -> String?
     @ObservationIgnored private let analytics: any AnalyticsTracker
 
@@ -25,7 +25,7 @@ final class FixtureLinkViewModel {
         case .linkReceived(let url, let coldStart):
             guard let fixtureId = fixtureIdOf(url) else { return }
             analytics.fixtureLinkOpened(start: coldStart ? AnalyticsStart.cold : AnalyticsStart.running)
-            eventStream.continuation.yield(.openFixture(fixtureId: fixtureId))
+            eventStream.yield(.openFixture(fixtureId: fixtureId))
         }
     }
 }

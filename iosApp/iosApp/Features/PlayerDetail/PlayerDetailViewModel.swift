@@ -17,7 +17,7 @@ final class PlayerDetailViewModel {
     @ObservationIgnored private var ratingHistoryTask: Task<Void, Never>?
     @ObservationIgnored private var favorites: Set<AnyHashable> = []
 
-    @ObservationIgnored private let eventStream = AsyncStream<PlayerDetailEvent>.makeStream()
+    @ObservationIgnored private let eventStream = EventChannel<PlayerDetailEvent>()
     @ObservationIgnored private let loadPlayer: (String) async throws -> DataResult
     @ObservationIgnored private let loadClub: (Player) async throws -> DataResult
     @ObservationIgnored private let loadTeams: (Player) async throws -> DataResult
@@ -91,10 +91,10 @@ final class PlayerDetailViewModel {
         case .clubClicked:
             guard case .content(let detail) = uiState else { return }
             analytics.detailOpened(kind: AnalyticsKind.club, id: detail.clubId, from: AnalyticsScreen.playerDetail)
-            eventStream.continuation.yield(.openClub(clubId: detail.clubId))
+            eventStream.yield(.openClub(clubId: detail.clubId))
         case .teamClicked(let id):
             analytics.detailOpened(kind: AnalyticsKind.team, id: id, from: AnalyticsScreen.playerDetail)
-            eventStream.continuation.yield(.openTeam(teamId: id))
+            eventStream.yield(.openTeam(teamId: id))
         case .clubRetryClicked:
             startClub()
         case .teamsRetryClicked:
@@ -108,7 +108,7 @@ final class PlayerDetailViewModel {
             updateContent { $0.ratingInfoShown = false }
         case .ratingInfoLinkClicked:
             guard let ratingExplanationUrl else { return }
-            eventStream.continuation.yield(.openWebPage(url: ratingExplanationUrl))
+            eventStream.yield(.openWebPage(url: ratingExplanationUrl))
         case .ratingHistorySpanChosen(let span):
             updateContent {
                 $0.ratingHistory?.span = span

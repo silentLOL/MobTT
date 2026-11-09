@@ -20,7 +20,7 @@ final class LeagueDetailViewModel {
     private var ranking = SectionUiState<[PlayerRankingRowUi]>.loading
     private var rankingExpanded = false
     private var myPlayerId: String?
-    @ObservationIgnored private let eventStream = AsyncStream<LeagueDetailEvent>.makeStream()
+    @ObservationIgnored private let eventStream = EventChannel<LeagueDetailEvent>()
 
     var events: AsyncStream<LeagueDetailEvent> { eventStream.stream }
 
@@ -99,10 +99,10 @@ final class LeagueDetailViewModel {
             applySections()
         case .teamClicked(let teamId):
             analytics.detailOpened(kind: AnalyticsKind.team, id: teamId, from: AnalyticsScreen.leagueDetail)
-            eventStream.continuation.yield(.openTeam(teamId: teamId))
+            eventStream.yield(.openTeam(teamId: teamId))
         case .fixtureInfoClicked(let fixtureId):
             analytics.detailOpened(kind: AnalyticsKind.fixture, id: fixtureId, from: AnalyticsScreen.leagueDetail)
-            eventStream.continuation.yield(.openFixture(fixtureId: fixtureId))
+            eventStream.yield(.openFixture(fixtureId: fixtureId))
         case .playerClicked(let playerId):
             analytics.detailOpened(kind: AnalyticsKind.player, id: playerId, from: AnalyticsScreen.leagueDetail)
             openPlayer(playerId)
@@ -149,7 +149,7 @@ final class LeagueDetailViewModel {
             if let player {
                 try? await rememberPlayer(player)
             }
-            eventStream.continuation.yield(.openPlayer(playerId: playerId))
+            eventStream.yield(.openPlayer(playerId: playerId))
         }
     }
 

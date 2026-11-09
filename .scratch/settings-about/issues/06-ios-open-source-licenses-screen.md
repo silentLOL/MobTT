@@ -1,5 +1,5 @@
 ---
-status: needs-human
+status: resolved
 blocked_by: [2, 4, 5]
 ---
 
@@ -18,7 +18,7 @@ blocked_by: [2, 4, 5]
 - [x] Previews cover the list loaded, one entry expanded, empty, and large Dynamic Type and dark mode
 - [x] New `.xcstrings` keys are added in English and German
 - [x] New strings pushed to Loco
-- [ ] Opened in the simulator: the list shows, an entry expands, and Back returns to Settings
+- [x] Opened in the simulator: the list shows, an entry expands, and Back returns to Settings
 - [x] The iOS build passes (docs/DEVELOPMENT.md)
 
 ## Comments
@@ -29,3 +29,4 @@ blocked_by: [2, 4, 5]
 - 2026-11-08: Settings' About section starts with the licenses row (action `licensesClicked`, event `openLicenses`); the shell pushes `LicensesDestination` on the selected tab's stack. It registers its own id in `openSettingsIds`, so the gear stays hidden and the consent prompt waits over the licenses too. Whether the gear or prompt flickers on push or pop (the new screen's appear must land before the old one's disappear) was not observed.
 - 2026-11-08: iOS has no logger; the unreadable-list case logs with `os.Logger` at error, error text public. The `<br />` to newline step is done by the script, so it has no Swift test. Strings share Loco assets with Android (same keys and text), so the push reported nothing to update; the expanded and collapsed states reuse `core_section_expanded_cd` and `core_section_collapsed_cd`.
 - 2026-11-08: Review fixes: parser moved to `Formatting/`, preview data to `Preview/`, a row preview, `LicenseKind` decoded directly. Not done: the Settings open-id bookkeeping is still per-view. 209 Swift tests, the iOS build and `./gradlew check` pass. Simulator check and VoiceOver are open for the user.
+- 2026-11-09: Driven in the iPhone 18 Pro simulator (`deb` build): Settings, About, Open source licenses pushed with the chevron; the gear stayed hidden in every frame I took, including during the push and the pop. An entry (abseil) expanded to its Apache text, and Back returned to Settings. The license texts keep the source files' own hard line breaks, so some lines wrap raggedly. The Libraries group starts with Android-only artifacts (Activity, Android Arch), the known superset gap. VoiceOver was not run.

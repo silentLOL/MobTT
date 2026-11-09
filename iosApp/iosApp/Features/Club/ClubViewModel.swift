@@ -23,7 +23,7 @@ final class ClubViewModel {
     @ObservationIgnored private let rememberPlayer: (Player) async throws -> Void
     @ObservationIgnored private let analytics: any AnalyticsTracker
     @ObservationIgnored private let screenViews: ScreenViewReporter
-    @ObservationIgnored private let eventStream = AsyncStream<ClubEvent>.makeStream()
+    @ObservationIgnored private let eventStream = EventChannel<ClubEvent>()
 
     var events: AsyncStream<ClubEvent> { eventStream.stream }
 
@@ -89,10 +89,10 @@ final class ClubViewModel {
     func onAction(_ action: ClubAction) {
         switch action {
         case .chooseClicked:
-            eventStream.continuation.yield(.openSettings)
+            eventStream.yield(.openSettings)
         case .teamClicked(let teamId):
             analytics.detailOpened(kind: AnalyticsKind.team, id: teamId, from: AnalyticsScreen.club)
-            eventStream.continuation.yield(.openTeam(teamId: teamId))
+            eventStream.yield(.openTeam(teamId: teamId))
         case .playerClicked(let playerId, let name):
             openPlayer(playerId: playerId, name: name)
         case .retryClicked:
@@ -108,7 +108,7 @@ final class ClubViewModel {
         analytics.detailOpened(kind: AnalyticsKind.player, id: playerId, from: AnalyticsScreen.club)
         Task {
             try? await rememberPlayer(Player(id: playerId, name: name, clubId: clubId))
-            eventStream.continuation.yield(.openPlayer(playerId: playerId))
+            eventStream.yield(.openPlayer(playerId: playerId))
         }
     }
 

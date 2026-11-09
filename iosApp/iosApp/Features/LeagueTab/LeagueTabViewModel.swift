@@ -13,7 +13,7 @@ final class LeagueTabViewModel {
     @ObservationIgnored private let observeMyTeams: () -> any AsyncSequence<DataResult, Never>
     @ObservationIgnored private let analytics: any AnalyticsTracker
     @ObservationIgnored private let screenViews: ScreenViewReporter
-    @ObservationIgnored private let eventStream = AsyncStream<LeagueTabEvent>.makeStream()
+    @ObservationIgnored private let eventStream = EventChannel<LeagueTabEvent>()
 
     var events: AsyncStream<LeagueTabEvent> { eventStream.stream }
 
@@ -49,12 +49,12 @@ final class LeagueTabViewModel {
         case .retryClicked:
             retryCount += 1
         case .choosePlayerClicked:
-            eventStream.continuation.yield(.openChoosePlayer)
+            eventStream.yield(.openChoosePlayer)
         case .myPlayerClicked(let playerId):
-            eventStream.continuation.yield(.openPlayer(playerId: playerId))
+            eventStream.yield(.openPlayer(playerId: playerId))
         case .teamCardClicked(let leagueId, let teamId):
             analytics.detailOpened(kind: AnalyticsKind.league, id: leagueId, from: AnalyticsScreen.league)
-            eventStream.continuation.yield(.openLeague(leagueId: leagueId, teamId: teamId))
+            eventStream.yield(.openLeague(leagueId: leagueId, teamId: teamId))
         }
     }
 
