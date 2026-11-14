@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "at.stefanirndorfer.batmate.feature.home.impl"
+    namespace = "at.stefanirndorfer.mobtt.feature.home.impl"
 
     testOptions {
         unitTests.isIncludeAndroidResources = true
@@ -14,7 +14,7 @@ android {
 roborazzi {
     generateComposePreviewRobolectricTests {
         enable = true
-        packages = listOf("at.stefanirndorfer.batmate.feature.home.impl")
+        packages = listOf("at.stefanirndorfer.mobtt.feature.home.impl")
         includePrivatePreviews = true
     }
 }
@@ -23,6 +23,7 @@ dependencies {
     implementation(project(":android:feature:home:api"))
     implementation(project(":android:feature:club:api"))
     implementation(project(":android:feature:players:api"))
+    implementation(project(":android:core:analytics"))
     implementation(project(":android:core:design-system"))
     implementation(project(":android:core:localization"))
     implementation(project(":android:core:ui"))

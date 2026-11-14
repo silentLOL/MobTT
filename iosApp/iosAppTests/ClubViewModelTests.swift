@@ -157,6 +157,24 @@ struct ClubViewModelTests {
         #expect(changes == 0)
     }
 
+    @Test func reportsTheScreenViewTheDetailsOpenedAndTheFavorite() async {
+        let analytics = RecordingAnalyticsTracker()
+        let overview = ClubOverview(club: club, association: association, teams: [], players: [])
+        let viewModel = makeSpecificViewModel(analytics: analytics) { _ in DataResultSuccess(value: overview) }
+        await viewModel.observe()
+
+        viewModel.screenShown()
+        viewModel.onAction(.teamClicked(teamId: "t1"))
+        viewModel.onAction(.favoriteClicked)
+        await waitUntil { analytics.events.count == 3 }
+
+        #expect(analytics.events == [
+            LoggedEvent("screen_view", ["screen": "club"]),
+            LoggedEvent("detail_opened", ["kind": "team", "id": "t1", "from": "club"]),
+            LoggedEvent("favorite_toggled", ["kind": "club", "id": "1", "enabled": "true"]),
+        ])
+    }
+
     private func makeMineViewModel(
         contexts: [DataResult],
         loadOverview: @escaping (String) async throws -> DataResult = { _ in DataResultUnavailable(error: DataUnavailable(message: "down", cause: nil)) }
@@ -178,6 +196,7 @@ struct ClubViewModelTests {
         favorites: [Set<AnyHashable>] = [],
         addFavorite: @escaping (Favorite) async throws -> Void = { _ in },
         removeFavorite: @escaping (Favorite) async throws -> Void = { _ in },
+        analytics: any AnalyticsTracker = NoOpAnalyticsTracker(),
         loadOverview: @escaping (String) async throws -> DataResult
     ) -> ClubViewModel {
         ClubViewModel(
@@ -185,7 +204,8 @@ struct ClubViewModelTests {
             loadOverview: loadOverview,
             observeFavorites: finite(favorites),
             addFavorite: addFavorite,
-            removeFavorite: removeFavorite
+            removeFavorite: removeFavorite,
+            analytics: analytics
         )
     }
 

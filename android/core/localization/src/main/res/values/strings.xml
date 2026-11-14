@@ -1,12 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Loco xml export: Android strings
+ Project:  MobTT
+ Locale: en, English
+ Tagged: android
+ Exported by: Stefan Irndorfer
+ Exported at: Sat, 31 Oct 2026 12:57:31 +0100
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="core_app_title">MobTT</string>
     <string name="core_tab_home_label">Home</string>
+    <string name="core_tab_league_label">League</string>
     <string name="core_tab_club_label">Club</string>
     <string name="core_tab_players_label">Players</string>
     <string name="core_settings_button_cd">Settings</string>
     <string name="core_close_button_cd">Close</string>
-
+    <string name="core_section_expanded_cd">Expanded</string>
+    <string name="core_section_collapsed_cd">Collapsed</string>
+    <string name="core_section_retry_button">Try again</string>
     <string name="home_empty_title">Welcome to MobTT</string>
     <string name="home_empty_body">Your results, form and next Fixture will show up here.</string>
     <string name="club_empty_title">No Club yet</string>
@@ -23,14 +34,11 @@
     <string name="players_unavailable_title">Players unavailable</string>
     <string name="players_unavailable_body">XTTV could not be reached. Check your connection and try again.</string>
     <string name="players_retry_button">Try again</string>
-
     <string name="settings_title">Settings</string>
     <string name="settings_appearance_title">Appearance</string>
     <string name="settings_appearance_system_option">Follow system</string>
     <string name="settings_appearance_light_option">Light</string>
     <string name="settings_appearance_dark_option">Dark</string>
-    <string name="settings_done_button">Done</string>
-
     <string name="core_search_label">Search</string>
     <string name="core_search_placeholder">Name or Club</string>
     <string name="core_search_empty_body">No matches</string>
@@ -42,11 +50,10 @@
     <string name="core_drilldown_back_cd">Back</string>
     <string name="core_favorite_on_state">Favorite</string>
     <string name="core_favorite_off_state">Not a Favorite</string>
-
     <string name="home_choose_title">Choose your Player or Club</string>
-    <string name="home_choose_body">Find your Player or your Club to personalise Home.</string>
-    <string name="home_choose_player_button">Find my Player</string>
-    <string name="home_choose_club_button">Find my Club</string>
+    <string name="home_choose_body">Choose a Player or a Club to personalise Home.</string>
+    <string name="home_choose_player_button">A Player</string>
+    <string name="home_choose_club_button">A Club</string>
     <string name="home_my_player_overline">My Player</string>
     <string name="home_my_club_overline">My Club</string>
     <string name="home_favorites_title">Favorites</string>
@@ -54,7 +61,6 @@
     <string name="home_favorites_empty_body">Bookmark Players and Clubs for quick access.</string>
     <string name="home_favorite_picker_title">Add Favorites</string>
     <string name="home_favorite_picker_browse_players_button">Find a Player by Association and League</string>
-
     <string name="settings_my_player_title">My Player</string>
     <string name="settings_my_club_title">My Club</string>
     <string name="settings_choose_button">Choose</string>
@@ -109,6 +115,8 @@
     <string name="league_detail_standing_empty_body">No table available yet.</string>
     <string name="league_detail_fixtures_title">Fixtures</string>
     <string name="league_detail_fixtures_empty_body">No Fixtures scheduled yet.</string>
+    <string name="league_detail_fixtures_loading_cd">Loading Fixtures</string>
+    <string name="league_detail_fixtures_unavailable_body">The Fixtures can\'t be loaded right now.</string>
     <string name="league_detail_fixture_row_cd">%1$s against %2$s, %3$s</string>
     <string name="league_detail_fixture_result_row_cd">%1$s against %2$s, %3$s, result %4$d to %5$d</string>
     <string name="league_detail_fixture_score">%1$d : %2$d</string>
@@ -120,10 +128,76 @@
     <string name="league_detail_error_title">Couldn\'t load this League</string>
     <string name="league_detail_error_body">Check your connection and try again.</string>
     <string name="league_detail_error_retry_button">Try again</string>
+    <string name="league_detail_fixture_info_cd">Details for %1$s against %2$s</string>
+    <string name="league_detail_ranking_title">Player ranking</string>
+    <string name="league_detail_ranking_empty_body">No Players ranked yet.</string>
+    <string name="league_detail_ranking_unavailable_body">The Player ranking can\'t be loaded right now.</string>
+    <string name="league_detail_ranking_loading_cd">Loading Player ranking</string>
+    <string name="league_detail_ranking_stats_label">Matches %1$d:%2$d · %3$d played</string>
+    <string name="league_detail_ranking_unranked_label">–</string>
+    <string name="league_detail_ranking_rank_cd">Rank %1$d</string>
+    <string name="league_detail_ranking_unranked_cd">Unranked</string>
+    <string name="league_detail_ranking_stats_cd">%1$d Matches won, %2$d lost, %3$d played</string>
+    <string name="league_detail_my_player_badge">My Player</string>
+    <string name="league_detail_my_team_badge">My Team</string>
+    <string name="league_detail_standing_row_my_team_cd">Rank %1$d, %2$s, my Team, %3$d played, %4$d points</string>
+    <string name="league_detail_only_my_team_fixtures_label">Only my Team\'s Fixtures</string>
+    <string name="league_tab_no_player_title">Choose My Player first</string>
+    <string name="league_tab_no_player_body">Your League shows up here once you choose My Player.</string>
+    <string name="league_tab_choose_player_button">Choose My Player</string>
+    <string name="league_tab_no_team_title">No Team found</string>
+    <string name="league_tab_no_team_body">No Team lineup names %1$s yet, so there is no League to show.</string>
+    <string name="league_tab_open_player_button">Open My Player</string>
+    <string name="league_tab_loading_cd">Finding your League</string>
+    <string name="league_tab_error_title">Couldn\'t load your League</string>
+    <string name="league_tab_error_body">Check your connection and try again.</string>
+    <string name="league_tab_error_retry_button">Try again</string>
+    <string name="league_tab_teams_title">My Teams</string>
+    <string name="fixture_detail_hero_overline">Fixture</string>
+    <string name="fixture_detail_not_played">Not played yet</string>
+    <string name="fixture_detail_score">%1$d : %2$d</string>
+    <string name="fixture_detail_header_result_cd">%1$s against %2$s, result %3$d to %4$d</string>
+    <string name="fixture_detail_header_not_played_cd">%1$s against %2$s, not played yet</string>
+    <string name="fixture_detail_matches_title">Matches</string>
+    <string name="fixture_detail_matches_empty_body">No Match results available yet.</string>
+    <string name="fixture_detail_match_singles">Singles</string>
+    <string name="fixture_detail_match_doubles">Doubles</string>
+    <string name="fixture_detail_match_row_cd">%1$s %2$d: %3$s against %4$s, %5$d Sets to %6$d</string>
+    <string name="fixture_detail_match_row_no_result_cd">%1$s %2$d: %3$s against %4$s, no result</string>
+    <string name="fixture_detail_loading_cd">Loading Fixture</string>
+    <string name="fixture_detail_error_title">Couldn\'t load this Fixture</string>
+    <string name="fixture_detail_error_body">Check your connection and try again.</string>
+    <string name="fixture_detail_error_retry_button">Try again</string>
+    <string name="fixture_detail_share_button_cd">Share Fixture</string>
+    <string name="fixture_detail_venue_open_cd">Open in Maps</string>
+    <string name="fixture_detail_share_pairing">%1$s – %2$s</string>
+    <string name="fixture_detail_share_with_result">"%1$s  %2$s"</string>
+    <string name="fixture_detail_share_match">%1$d %2$s: %3$s – %4$s</string>
+    <string name="fixture_detail_share_image_get_app">Get MobTT</string>
     <string name="player_detail_rc_label">RC</string>
     <string name="player_detail_age_group_label">Age group</string>
     <string name="player_detail_club_title">Club</string>
     <string name="player_detail_teams_title">Teams</string>
+    <string name="player_detail_club_loading_cd">Loading Club</string>
+    <string name="player_detail_club_unavailable_body">The Club can\'t be loaded right now.</string>
+    <string name="player_detail_teams_loading_cd">Loading Teams</string>
+    <string name="player_detail_teams_unavailable_body">The Teams can\'t be loaded right now.</string>
+    <string name="player_detail_rating_history_title">Rating history</string>
+    <string name="player_detail_rating_history_loading_cd">Loading Rating history</string>
+    <string name="player_detail_rating_history_unavailable_body">The Rating history can\'t be loaded right now.</string>
+    <string name="player_detail_rating_history_empty_body">No Rating history yet.</string>
+    <string name="player_detail_rating_history_chart_cd">Rating history: %1$d ±%2$d, %3$s at the last Rating update. Rating updates shown: %4$d, since %5$s.</string>
+    <string name="player_detail_rating_history_previous_cd">Previous Rating update</string>
+    <string name="player_detail_rating_history_next_cd">Next Rating update</string>
+    <string name="player_detail_rating_history_single_body">%1$d ±%2$d after the first Rating update on %3$s.</string>
+    <string name="player_detail_rating_history_span_year_label">12 months</string>
+    <string name="player_detail_rating_history_span_all_label">All</string>
+    <string name="player_detail_rating_history_no_recent_body">No Rating update in the last 12 months.</string>
+    <string name="player_detail_rating_history_callout_body">%1$d ±%2$d (%3$s)</string>
+    <string name="player_detail_rating_info_cd">About the Rating history</string>
+    <string name="player_detail_rating_info_title">About the Rating history</string>
+    <string name="player_detail_rating_info_body">The line is Ratings Central\'s estimate of the Player\'s playing strength: their Rating.\n\nThe number after ± is the Deviation, how certain that estimate is. About two times in three, the true playing strength lies within the shaded band.\n\nA wider band means the Rating can move further at the next Rating update. The Rating only changes when Ratings Central processes the Player\'s results, usually once per week of play.</string>
+    <string name="player_detail_rating_info_link">Learn more at Ratings Central</string>
     <string name="player_detail_loading_cd">Loading Player</string>
     <string name="player_detail_unavailable_title">This Player isn\'t available</string>
     <string name="player_detail_unavailable_body">We couldn\'t find this Player. Try again later.</string>
@@ -133,4 +207,28 @@
     <string name="home_favorite_kind_player">Player</string>
     <string name="home_favorite_kind_club">Club</string>
     <string name="home_favorite_kind_team">Team</string>
+    <string name="consent_title">Help improve MobTT</string>
+    <string name="consent_body">Allow anonymous usage statistics and crash reports? They never include your name, your Player or Club, or anything you type. You can change this any time in Settings.</string>
+    <string name="consent_allow_button">Allow</string>
+    <string name="consent_not_now_button">Not now</string>
+    <string name="settings_usage_consent_title">Usage statistics and crash reports</string>
+    <string name="settings_usage_consent_supporting">Anonymous. Never includes names or what you type.</string>
+    <string name="settings_data_source_credit">Results powered by XTTV Ergebnisdienst</string>
+    <string name="settings_data_source_link_label">Open the XTTV Ergebnisdienst website</string>
+    <string name="settings_about_title">About</string>
+    <string name="settings_support_title">Buy me a coffee</string>
+    <string name="settings_support_open_cd">Open the tip page in your browser</string>
+    <string name="settings_licenses_title">Open source licenses</string>
+    <string name="licenses_title">Open source licenses</string>
+    <string name="licenses_libraries_title">Libraries</string>
+    <string name="licenses_fonts_title">Fonts</string>
+    <string name="licenses_assets_title">Other credits</string>
+    <string name="licenses_entry_expand_cd">Show license text</string>
+    <string name="licenses_entry_collapse_cd">Hide license text</string>
+    <string name="licenses_entry_expanded_state">Expanded</string>
+    <string name="licenses_entry_collapsed_state">Collapsed</string>
+    <string name="licenses_text_unavailable">No license text is bundled. Read it online:</string>
+    <string name="licenses_loading_cd">Loading licenses</string>
+    <string name="licenses_empty_title">Couldn\'t load the licenses</string>
+    <string name="licenses_empty_body">Close this screen and try again.</string>
 </resources>

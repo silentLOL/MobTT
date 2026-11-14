@@ -39,3 +39,11 @@ Set `IOS_CONFIGURATION` (`Debug`, `Dev`, `Beta`, `Release`) to build another env
 ```
 
 Runs the `iosAppTests` unit tests (Swift Testing) on a simulator through the `iosAppTests` scheme. The ViewModels take their data loaders as initializer parameters, which the tests replace.
+
+## Localization
+
+`./scripts/loco.sh push|pull` syncs the string resources with Loco; setup and keys in [`LOCALIZATION.md`](LOCALIZATION.md).
+
+## Releasing
+
+Signing, the release bundle and Play Console: [`RELEASE_ANDROID.md`](RELEASE_ANDROID.md) and [`PLAY_CONSOLE_CHECKLIST.md`](PLAY_CONSOLE_CHECKLIST.md).

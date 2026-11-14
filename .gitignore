@@ -1,0 +1,30 @@
+*.iml
+.kotlin
+.gradle
+**/build/
+xcuserdata
+!src/**/build/
+local.properties
+.idea
+.DS_Store
+captures
+.externalNativeBuild
+.cxx
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+**/xcshareddata/WorkspaceSettings.xcsettings
+node_modules/
+Secrets.xcconfig
+
+# Firebase config (copy the .example next to each)
+google-services.json
+GoogleService-Info.plist
+GoogleService-Info-*.plist
+
+# Release signing: never commit a keystore (see docs/RELEASE_ANDROID.md)
+*.jks
+*.keystore
+*.p12

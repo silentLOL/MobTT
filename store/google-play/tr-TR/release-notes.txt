@@ -1,0 +1,1 @@
+MobTT'nin ilk sürümü: oyuncunu ve kulübünü takip et, lig tabloları, karşılaşmalar ve reyting geçmişi.

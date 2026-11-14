@@ -19,10 +19,13 @@ struct SettingsPickerUi: Equatable {
 
 /// `myPlayerName` and `myClubName` are the user's choice; the Club and Association are derived and never edited.
 struct SettingsUiState: Equatable {
+    var usageConsentAllowed = false
     var myPlayerName: String?
     var myClubName: String?
     var derivedFrom: DerivedFrom = .none
     var derivedClubName: String?
     var derivedAssociationName: String?
     var picker: SettingsPickerUi?
+    /// Whether a tip page is set: without one there is no "Buy me a coffee" row.
+    var showSupportLink = false
 }

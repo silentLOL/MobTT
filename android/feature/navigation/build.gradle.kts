@@ -3,9 +3,12 @@ plugins {
 }
 
 android {
-    namespace = "at.stefanirndorfer.batmate.feature.navigation"
+    namespace = "at.stefanirndorfer.mobtt.feature.navigation"
 }
 
 dependencies {
     api(libs.androidx.navigation3.runtime)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlin.test)
 }

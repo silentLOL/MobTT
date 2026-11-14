@@ -2,17 +2,24 @@ import SwiftUI
 
 struct SettingsRoute: View {
     @Binding var appearance: AppearanceChoice
-    let onDismiss: () -> Void
+    let onOpenLicenses: () -> Void
 
+    @Environment(\.openURL) private var openURL
     @State private var viewModel = SettingsViewModel()
 
     var body: some View {
-        SettingsScreen(state: viewModel.uiState, appearance: $appearance, onAction: viewModel.onAction)
+        let state = viewModel.uiState
+        SettingsScreen(state: state, appearance: $appearance, onAction: viewModel.onAction)
+            // Inside a picker the screen's own back arrow, the left-edge swipe and the VoiceOver escape step back first,
+            // so the system's back button (and its swipe) stays hidden until the picker is closed.
+            .navigationBarBackButtonHidden(state.picker != nil)
+            .onAppear { viewModel.screenShown() }
             .task { await viewModel.observe() }
             .task {
                 for await event in viewModel.events {
                     switch event {
-                    case .dismiss: onDismiss()
+                    case .openSupportLink(let url): openURL(url)
+                    case .openLicenses: onOpenLicenses()
                     }
                 }
             }
@@ -39,11 +46,29 @@ struct SettingsScreen: View {
             .frame(maxWidth: .infinity)
         }
         .batBackground()
+        .overlay(alignment: .leading) { pickerBackSwipeStrip }
+        .modifier(PickerEscapeModifier(isActive: state.picker != nil) { onAction(.pickerBackClicked) })
     }
+
+    /// A thin strip at the left edge that stands in for the system's back swipe while a picker is open.
+    @ViewBuilder
+    private var pickerBackSwipeStrip: some View {
+        if state.picker != nil {
+            Color.clear
+                .frame(width: BatSpacing.lg)
+                .contentShape(Rectangle())
+                .gesture(
+                    DragGesture(minimumDistance: BatSpacing.md).onEnded { drag in
+                        if drag.translation.width > Self.backSwipeDistance { onAction(.pickerBackClicked) }
+                    }
+                )
+        }
+    }
+
+    private static let backSwipeDistance: CGFloat = 60
 
     @ViewBuilder
     private var mainContent: some View {
-        header(title: "settings_title", icon: .close, accessibilityLabel: "core_close_button_cd") { onAction(.doneClicked) }
         SettingsChoiceRowView(
             title: String(localized: "settings_my_player_title"),
             value: state.myPlayerName,
@@ -69,10 +94,72 @@ struct SettingsScreen: View {
             ForEach(AppearanceChoice.allCases, id: \.self) { choice in
                 BatSelectableRowView(label: String(localized: choice.label), isSelected: choice == appearance) {
                     appearance = choice
+                    onAction(.appearanceSelected(choice))
                 }
             }
         }
-        BatPrimaryButtonView(title: String(localized: "settings_done_button")) { onAction(.doneClicked) }
+        BatToggleRowView(
+            label: String(localized: "settings_usage_consent_title"),
+            supportingText: String(localized: "settings_usage_consent_supporting"),
+            isOn: Binding(
+                get: { state.usageConsentAllowed },
+                set: { onAction(.usageConsentToggled($0)) }
+            )
+        )
+        aboutSection
+    }
+
+    private var aboutSection: some View {
+        VStack(alignment: .leading, spacing: BatSpacing.sm) {
+            BatSectionHeaderView(title: String(localized: "settings_about_title"))
+            licensesRow
+            if state.showSupportLink {
+                supportRow
+            }
+            dataSourceCredit
+        }
+    }
+
+    private var licensesRow: some View {
+        Button { onAction(.licensesClicked) } label: {
+            HStack(spacing: BatSpacing.md) {
+                Text("settings_licenses_title")
+                    .batTextStyle(BatTypography.bodyStrong)
+                    .foregroundStyle(BatColor.textPrimary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                BatIconView(icon: .arrowForward, tint: BatColor.textSecondary)
+            }
+            .frame(minHeight: BatSizing.minTouchTarget)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var supportRow: some View {
+        Button { onAction(.supportClicked) } label: {
+            HStack(spacing: BatSpacing.md) {
+                Text("settings_support_title")
+                    .batTextStyle(BatTypography.bodyStrong)
+                    .foregroundStyle(BatColor.textPrimary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                BatIconView(icon: .arrowForward, tint: BatColor.textSecondary)
+            }
+            .frame(minHeight: BatSizing.minTouchTarget)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint(Text("settings_support_open_cd"))
+        .accessibilityAddTraits(.isLink)
+    }
+
+    private var dataSourceCredit: some View {
+        Link(destination: URL(string: "https://oettv.xttv.at")!) {
+            Text("settings_data_source_credit")
+                .batTextStyle(BatTypography.caption)
+                .foregroundStyle(BatColor.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .accessibilityHint(Text("settings_data_source_link_label"))
     }
 
     @ViewBuilder
@@ -113,6 +200,21 @@ struct SettingsScreen: View {
     }
 }
 
+/// VoiceOver's two-finger scrub steps back inside a picker, and only there: elsewhere it still goes back a screen.
+private struct PickerEscapeModifier: ViewModifier {
+    let isActive: Bool
+    let action: () -> Void
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if isActive {
+            content.accessibilityAction(.escape, action)
+        } else {
+            content
+        }
+    }
+}
+
 private let chosenPlayerState = SettingsUiState(
     myPlayerName: "Michael Huber",
     derivedFrom: .player,
@@ -123,6 +225,17 @@ private let chosenPlayerState = SettingsUiState(
 #Preview("Empty") {
     @Previewable @State var appearance = AppearanceChoice.system
     SettingsScreen(state: SettingsUiState(), appearance: $appearance, onAction: { _ in })
+}
+
+private let withSupportLinkState: SettingsUiState = {
+    var state = chosenPlayerState
+    state.showSupportLink = true
+    return state
+}()
+
+#Preview("With the coffee row") {
+    @Previewable @State var appearance = AppearanceChoice.system
+    SettingsScreen(state: withSupportLinkState, appearance: $appearance, onAction: { _ in })
 }
 
 #Preview("My Player, dark") {

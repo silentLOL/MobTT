@@ -1,0 +1,30 @@
+MobTT donosi austrijski stolni tenis na tvoj mobitel. Prati svog igrača, svoj klub i svoju ligu te na jednom mjestu vidi kako ide tvojoj ekipi.
+
+POČETNA, SKROJENA PO TEBI
+Jednom odaberi svog igrača ili svoj klub i početna postaje tvoja: velika kartica za tvoj klub ili igrača te popis favorita za igrače, ekipe i klubove do kojih ti je najviše stalo.
+
+KLUB I EKIPE
+Pogledaj ekipe svog kluba, ligu u kojoj igraju, sljedeći susret s datumom, vremenom i mjestom igranja te igrače koji nastupaju za njih.
+
+TABLICE LIGA I SUSRETI
+Otvori tablicu lige za svoju ekipu, a tvoja ekipa je istaknuta. Pregledaj susrete, vidi rezultate i, za završene susrete, svaki meč sa svim setovima.
+
+PRONAĐI BILO KOJEG IGRAČA
+Odaberi savez i klub, a zatim traži igrače po imenu. Otvori igrača da vidiš njegov klub i ekipe.
+
+POVIJEST REJTINGA
+Povijest rejtinga igrača prikazana je kao interaktivni grafikon, pa možeš vidjeti formu i napredak u zadnjih 12 mjeseci ili tijekom cijele karijere. Gumb s informacijama objašnjava što znače rejting i njegovo odstupanje.
+
+NAPRAVLJENO ZA ANDROID
+• Svijetli i tamni izgled ili prema sustavu
+• Engleski, njemački, hrvatski, turski, rumunjski, mađarski i ukrajinski
+• Veliki tekst i podrška za čitače zaslona (TalkBack)
+• Bez računa, bez prijave, bez oglasa
+
+PRIVATNOST NA PRVOM MJESTU
+MobTT pita prije nego što išta prikupi. Anonimna statistika korištenja i izvješća o rušenju strogo su dobrovoljni, nikad ne uključuju tvoje ime, tvog igrača ili klub niti išta što upišeš, a možeš ih bilo kada isključiti u postavkama.
+
+O PODACIMA
+Rezultate i tablice pruža XTTV Ergebnisdienst. Povijest rejtinga dolazi s Ratings Centrala. MobTT je neovisna aplikacija i nije povezan s Austrijskim stolnoteniskim savezom (ÖTTV), njegovim regionalnim savezima, XTTV-om ni Ratings Centralom niti ga oni podržavaju.
+
+Licencije otvorenog koda navedene su u postavkama.

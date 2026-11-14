@@ -1,0 +1,30 @@
+MobTT bringt den österreichischen Tischtennissport auf dein Handy. Folge deinem Spieler, deinem Verein und deiner Liga und behalte im Blick, wie es deiner Mannschaft geht, alles an einem Ort.
+
+DEIN START, DEIN VEREIN
+Wähle einmal deinen Spieler oder deinen Verein, und der Start gehört dir: eine große Karte für deinen Verein oder Spieler und eine Favoritenliste für die Spieler, Mannschaften und Vereine, die dir am wichtigsten sind.
+
+VEREIN UND MANNSCHAFTEN
+Sieh die Mannschaften deines Vereins, die Liga, in der sie spielen, die nächste Begegnung mit Datum, Uhrzeit und Spielort sowie die Spieler, die für sie antreten.
+
+LIGATABELLEN UND BEGEGNUNGEN
+Öffne die Ligatabelle deiner Mannschaft, deine Mannschaft ist hervorgehoben. Stöbere in den Begegnungen, sieh Ergebnisse und bei beendeten Begegnungen jedes Spiel mit seinen Sätzen.
+
+JEDEN SPIELER FINDEN
+Wähle einen Verband und einen Verein und suche dann nach dem Namen eines Spielers. Öffne einen Spieler, um seinen Verein und seine Mannschaften zu sehen.
+
+RATINGVERLAUF
+Der Ratingverlauf eines Spielers wird als interaktives Diagramm dargestellt. So siehst du Form und Entwicklung der letzten 12 Monate oder der gesamten Laufbahn. Ein Info-Button erklärt, was Rating und Abweichung bedeuten.
+
+FÜR ANDROID GEMACHT
+• Hell, dunkel oder dem System folgen
+• Deutsch, Englisch, Kroatisch, Türkisch, Rumänisch, Ungarisch und Ukrainisch
+• Große Schrift und Unterstützung für Screenreader (TalkBack)
+• Kein Konto, keine Anmeldung, keine Werbung
+
+DATENSCHUTZ ZUERST
+MobTT fragt, bevor es etwas erhebt. Anonyme Nutzungsstatistiken und Absturzberichte sind ausschließlich freiwillig, enthalten nie deinen Namen, deinen Spieler oder Verein oder etwas, das du eingibst, und lassen sich jederzeit in den Einstellungen wieder ausschalten.
+
+ZU DEN DATEN
+Ergebnisse und Tabellen stammen vom XTTV-Ergebnisdienst. Ratingverläufe stammen von Ratings Central. MobTT ist eine unabhängige App und steht in keiner Verbindung zum Österreichischen Tischtennisverband (ÖTTV), seinen Landesverbänden, XTTV oder Ratings Central und wird von diesen nicht empfohlen.
+
+Open-Source-Lizenzen findest du in den Einstellungen.

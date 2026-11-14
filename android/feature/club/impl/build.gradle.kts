@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "at.stefanirndorfer.batmate.feature.club.impl"
+    namespace = "at.stefanirndorfer.mobtt.feature.club.impl"
 
     testOptions {
         unitTests.isIncludeAndroidResources = true
@@ -14,7 +14,7 @@ android {
 roborazzi {
     generateComposePreviewRobolectricTests {
         enable = true
-        packages = listOf("at.stefanirndorfer.batmate.feature.club.impl")
+        packages = listOf("at.stefanirndorfer.mobtt.feature.club.impl")
         includePrivatePreviews = true
     }
 }
@@ -22,11 +22,15 @@ roborazzi {
 dependencies {
     implementation(project(":android:feature:club:api"))
     implementation(project(":android:feature:players:api"))
+    implementation(project(":android:core:analytics"))
     implementation(project(":android:core:design-system"))
     implementation(project(":android:core:localization"))
     implementation(project(":android:core:ui"))
     implementation(project(":domain:club"))
     implementation(project(":domain:player"))
+    implementation(libs.kermit)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.zxing.core)
     implementation(project(":domain:user"))
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.lifecycle.compose.runtime)

@@ -4,19 +4,39 @@ struct LeagueDetailRoute: View {
     @State private var viewModel: LeagueDetailViewModel
 
     let onOpenTeam: (_ teamId: String) -> Void
+    let onOpenFixture: (_ fixtureId: String) -> Void
+    let onOpenPlayer: (_ playerId: String) -> Void
 
-    init(leagueId: String, highlightTeamId: String?, onOpenTeam: @escaping (_ teamId: String) -> Void) {
+    init(
+        leagueId: String,
+        highlightTeamId: String?,
+        openedFromTeamId: String?,
+        onOpenTeam: @escaping (_ teamId: String) -> Void,
+        onOpenFixture: @escaping (_ fixtureId: String) -> Void,
+        onOpenPlayer: @escaping (_ playerId: String) -> Void,
+        reportsScreenView: Bool = true
+    ) {
         self.onOpenTeam = onOpenTeam
-        _viewModel = State(initialValue: LeagueDetailViewModel(leagueId: leagueId, highlightTeamId: highlightTeamId))
+        self.onOpenFixture = onOpenFixture
+        self.onOpenPlayer = onOpenPlayer
+        _viewModel = State(initialValue: LeagueDetailViewModel(
+            leagueId: leagueId,
+            highlightTeamId: highlightTeamId,
+            openedFromTeamId: openedFromTeamId,
+            reportsScreenView: reportsScreenView
+        ))
     }
 
     var body: some View {
         LeagueDetailScreen(state: viewModel.uiState, onAction: viewModel.onAction)
+            .onAppear { viewModel.screenShown() }
             .onAppear { viewModel.loadIfNeeded() }
             .task {
                 for await event in viewModel.events {
                     switch event {
                     case .openTeam(let teamId): onOpenTeam(teamId)
+                    case .openFixture(let fixtureId): onOpenFixture(fixtureId)
+                    case .openPlayer(let playerId): onOpenPlayer(playerId)
                     }
                 }
             }
@@ -59,6 +79,10 @@ private struct ContentView: View {
     let detail: LeagueDetailUi
     let onAction: (LeagueDetailAction) -> Void
 
+    private var highlightBadge: String {
+        detail.highlightIsMyTeam ? String(localized: "league_detail_my_team_badge") : String(localized: "team_detail_this_team_badge")
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: BatSpacing.lg) {
@@ -75,7 +99,7 @@ private struct ContentView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     BatSectionHeaderView(title: String(localized: "league_detail_standing_title"))
                     if detail.standings.isEmpty {
-                        SectionMessage(key: "league_detail_standing_empty_body")
+                        SectionMessageView(key: "league_detail_standing_empty_body")
                     } else {
                         BatListView {
                             ForEach(Array(detail.standings.enumerated()), id: \.element.id) { index, row in
@@ -83,22 +107,33 @@ private struct ContentView: View {
                                     title: row.teamName,
                                     leadingText: "\(row.position)",
                                     supportingText: String(localized: "team_detail_standing_stats_label \(row.played) \(row.points)"),
-                                    badge: row.isThisTeam ? String(localized: "team_detail_this_team_badge") : nil,
+                                    badge: row.isThisTeam ? highlightBadge : nil,
                                     isStriped: !index.isMultiple(of: 2),
                                     isHighlighted: row.isThisTeam,
                                     accessibilityText: row.isThisTeam
-                                        ? String(localized: "team_detail_standing_row_this_team_cd \(row.position) \(row.teamName) \(row.played) \(row.points)")
-                                        : String(localized: "team_detail_standing_row_cd \(row.position) \(row.teamName) \(row.played) \(row.points)")
+                                        ? (detail.highlightIsMyTeam
+                                            ? String(localized: "league_detail_standing_row_my_team_cd \(row.position) \(row.teamName) \(row.played) \(row.points)")
+                                            : String(localized: "team_detail_standing_row_this_team_cd \(row.position) \(row.teamName) \(row.played) \(row.points)"))
+                                        : String(localized: "team_detail_standing_row_cd \(row.position) \(row.teamName) \(row.played) \(row.points)"),
+                                    action: row.opensTeam ? { onAction(.teamClicked(teamId: row.id)) } : nil
                                 )
                             }
                         }
                     }
                 }
-                VStack(alignment: .leading, spacing: 0) {
-                    BatSectionHeaderView(title: String(localized: "league_detail_fixtures_title"))
+                LazySectionView(
+                    title: String(localized: "league_detail_fixtures_title"),
+                    isExpanded: detail.fixturesExpanded,
+                    onToggle: { onAction(.fixturesToggled) },
+                    section: detail.fixtures,
+                    loadingLabel: String(localized: "league_detail_fixtures_loading_cd"),
+                    unavailableText: String(localized: "league_detail_fixtures_unavailable_body")
+                ) { _ in
                     if detail.canFilterToTeam {
                         Toggle(
-                            "league_detail_only_team_fixtures_label",
+                            detail.highlightIsMyTeam
+                                ? LocalizedStringKey("league_detail_only_my_team_fixtures_label")
+                                : LocalizedStringKey("league_detail_only_team_fixtures_label"),
                             isOn: Binding(
                                 get: { detail.onlyTeamFixtures },
                                 set: { onAction(.onlyTeamFixturesToggled($0)) }
@@ -110,34 +145,31 @@ private struct ContentView: View {
                         .padding(.vertical, BatSpacing.sm)
                     }
                     if detail.visibleFixtures.isEmpty {
-                        SectionMessage(key: "league_detail_fixtures_empty_body")
+                        SectionMessageView(key: "league_detail_fixtures_empty_body")
                     } else {
                         BatListView {
                             ForEach(Array(detail.visibleFixtures.enumerated()), id: \.element.id) { index, fixture in
                                 FixtureRowView(
                                     row: fixture,
-                                    highlightTeamId: detail.highlightTeamId,
                                     isStriped: !index.isMultiple(of: 2),
                                     showsThisTeam: !detail.onlyTeamFixtures,
-                                    onTeamTap: { onAction(.teamClicked(teamId: $0)) }
+                                    highlightBadge: highlightBadge,
+                                    onInfoTap: { onAction(.fixtureInfoClicked(fixtureId: fixture.id)) }
                                 )
                             }
                         }
                     }
                 }
+                PlayerRankingSectionView(
+                    ranking: detail.ranking,
+                    isExpanded: detail.rankingExpanded,
+                    onToggle: { onAction(.rankingToggled) },
+                    isMyPlayer: detail.isMyPlayer,
+                    onPlayerTap: { onAction(.playerClicked(playerId: $0)) }
+                )
             }
             .padding(BatSpacing.lg)
         }
-    }
-}
-
-private struct SectionMessage: View {
-    let key: LocalizedStringKey
-
-    var body: some View {
-        Text(key)
-            .batTextStyle(BatTypography.body)
-            .foregroundStyle(BatColor.textSecondary)
     }
 }
 
@@ -156,6 +188,18 @@ private struct SectionMessage: View {
 #Preview("Loaded") {
     BatPreviewMatrix {
         LeagueDetailScreen(state: .content(LeagueDetailPreviewData.loaded), onAction: { _ in })
+    }
+}
+
+#Preview("Collapsed") {
+    BatPreviewMatrix {
+        LeagueDetailScreen(state: .content(LeagueDetailPreviewData.collapsed), onAction: { _ in })
+    }
+}
+
+#Preview("Ranking") {
+    BatPreviewMatrix {
+        LeagueDetailScreen(state: .content(LeagueDetailPreviewData.withRanking), onAction: { _ in })
     }
 }
 

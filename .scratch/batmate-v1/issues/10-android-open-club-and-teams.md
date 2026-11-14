@@ -1,5 +1,5 @@
 ---
-status: ready-for-agent
+status: resolved
 blocked_by: [3, 6, 8]
 ---
 
@@ -17,7 +17,7 @@ blocked_by: [3, 6, 8]
 - [x] The Club screen follows the UDF pattern (`onAction`, single `StateFlow`) and is reachable from Home and from a Favorite Club
 - [x] Every screen state (loading, loaded, empty, error) has a `@BatScreenPreview` with representative sample data
 - [x] Fake repositories are bound only in a non-production configuration and marked for replacement by the real repository (ADR-0005)
-- [ ] Accessibility labels, 48dp targets and 200% font scaling follow CODING_STANDARDS §12
+- [x] Accessibility labels, 48dp targets and 200% font scaling follow CODING_STANDARDS §12
 
 ## Out of scope
 
@@ -27,3 +27,4 @@ blocked_by: [3, 6, 8]
 ## Comments
 - 2026-10-30: Android 200% font-scale previews inspected (Club screen). Layout holds with no clipping, but in the hero the Favorite star narrows the title column, so a long Association name breaks mid-word ("Tischtennisverba/nd"). Same hero pattern on Team and Player detail. Left unchecked until decided: move the star out of the name column, or accept it. TalkBack still needs a device.
 - 2026-10-30: Hero star layout fixed on Android in d545382: the star is overlaid top-end and the name uses the full width; the Club 200% preview no longer breaks "Tischtennisverband". Still unchecked: TalkBack on a device. The extreme Player long-name preview still breaks one word, accepted.
+- 2026-10-31: Club screen: the Team row is a button with a 48dp minimum height, and the Club name is a heading (section headers, Favorite state and expand labels already were). TalkBack has not been run on a device; that check is ticket-less and stays with the manual device pass.

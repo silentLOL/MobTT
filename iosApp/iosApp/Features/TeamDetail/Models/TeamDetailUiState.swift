@@ -7,6 +7,8 @@ struct StandingRowUi: Identifiable, Equatable {
     let played: Int
     let points: Int
     let isThisTeam: Bool
+    /// True when tapping the row opens the Team; false for the Team the user came from.
+    var opensTeam = false
 }
 
 struct LineupPlayerUi: Identifiable, Equatable {

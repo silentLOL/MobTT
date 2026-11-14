@@ -31,7 +31,7 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
 
         extensions.configure<KotlinMultiplatformExtension> {
             (this as ExtensionAware).extensions.configure<KotlinMultiplatformAndroidLibraryTarget> {
-                namespace = "at.stefanirndorfer.batmate.$modulePackage"
+                namespace = "at.stefanirndorfer.mobtt.$modulePackage"
                 compileSdk = libs.findVersion("android-compileSdk").get().requiredVersion.toInt()
                 minSdk = libs.findVersion("android-minSdk").get().requiredVersion.toInt()
                 compilerOptions {

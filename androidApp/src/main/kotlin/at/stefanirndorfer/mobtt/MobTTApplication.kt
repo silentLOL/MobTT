@@ -1,0 +1,46 @@
+package at.stefanirndorfer.mobtt
+
+import android.app.Application
+import at.stefanirndorfer.mobtt.core.analytics.CrashReporter
+import at.stefanirndorfer.mobtt.core.analytics.UsageConsentCollection
+import at.stefanirndorfer.mobtt.core.analytics.crashLogWriter
+import at.stefanirndorfer.mobtt.core.analytics.di.analyticsModule
+import at.stefanirndorfer.mobtt.core.di.initKoin
+import at.stefanirndorfer.mobtt.core.network.AppConfig
+import at.stefanirndorfer.mobtt.core.network.Environment
+import at.stefanirndorfer.mobtt.core.network.installLogWriters
+import at.stefanirndorfer.mobtt.feature.club.impl.di.clubModule
+import at.stefanirndorfer.mobtt.feature.home.impl.di.homeModule
+import at.stefanirndorfer.mobtt.feature.players.impl.di.playersModule
+import at.stefanirndorfer.mobtt.feature.settings.impl.di.settingsModule
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import org.koin.android.ext.koin.androidContext
+
+class MobTTApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        val config = AppConfig(
+            Environment.fromKey(BuildConfig.ENVIRONMENT),
+            BuildConfig.VERSION_NAME,
+            BuildConfig.XTTV_API_KEY,
+            BuildConfig.SUPPORT_URL.takeIf { it.isNotBlank() },
+        )
+        val koin = initKoin(config) {
+            androidContext(this@MobTTApplication)
+            installLogWriters(config.environment, crashLogWriter(config.xttvApiKey) { koin.get<CrashReporter>() })
+            modules(
+                directoryModules + listOf(
+                    analyticsModule(analyticsEnabled = config.environment != Environment.Deb),
+                    clubModule,
+                    homeModule,
+                    playersModule,
+                    settingsModule,
+                    licensesSourceModule,
+                ),
+            )
+        }
+        koin.koin.get<UsageConsentCollection>().start(CoroutineScope(SupervisorJob() + Dispatchers.Default))
+    }
+}

@@ -27,6 +27,7 @@ struct ClubRoute: View {
 
     var body: some View {
         ClubScreen(state: viewModel.uiState, onAction: viewModel.onAction, noClubContent: noClubContent)
+            .onAppear { viewModel.screenShown() }
             .task(id: viewModel.retryCount) { await viewModel.observe() }
             .task {
                 for await event in viewModel.events {

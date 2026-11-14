@@ -4,12 +4,12 @@ Both platforms build in four environments. Each installs with its own name and i
 
 | Environment | App name | Android `applicationId` | iOS bundle id |
 |---|---|---|---|
-| `deb` | `[Debug] MobTT` | `at.stefanirndorfer.batmate.deb` | `…batmate.MobTT.deb` |
-| `dev` | `[Dev] MobTT` | `at.stefanirndorfer.batmate.dev` | `…batmate.MobTT.dev` |
-| `beta` | `[Beta] MobTT` | `at.stefanirndorfer.batmate.beta` | `…batmate.MobTT.beta` |
-| `prod` | `MobTT` | `at.stefanirndorfer.batmate` | `…batmate.MobTT` |
+| `deb` | `[Debug] MobTT` | `at.stefanirndorfer.mobtt.deb` | `…mobtt.deb` |
+| `dev` | `[Dev] MobTT` | `at.stefanirndorfer.mobtt.dev` | `…mobtt.dev` |
+| `beta` | `[Beta] MobTT` | `at.stefanirndorfer.mobtt.beta` | `…mobtt.beta` |
+| `prod` | `MobTT` | `at.stefanirndorfer.mobtt` | `…mobtt` |
 
-The app is named `MobTT`; the package, application ID and bundle ID keep the original `at.stefanirndorfer.batmate` prefix.
+The app is named `MobTT`. The Kotlin package, Android application ID and iOS bundle ID share the `at.stefanirndorfer.mobtt` prefix.
 
 ## Android
 
@@ -47,3 +47,32 @@ The key is a secret and never enters git. It reaches shared code as `AppConfig.x
 
 - Android: `xttv.apiKey=…` in the untracked `local.properties`, or the `XTTV_API_KEY` environment variable (CI). `androidApp/build.gradle.kts` turns it into `BuildConfig.XTTV_API_KEY`.
 - iOS: `XTTV_API_KEY=…` in `iosApp/Configuration/Secrets.xcconfig` (untracked; copy `Secrets.xcconfig.example`), included by `Config.xcconfig` and exposed as the `BatXttvApiKey` Info.plist key. CI must write that file.
+
+## Support link ("Buy me a coffee")
+
+The developer's tip page reaches shared code as `AppConfig.supportUrl`, null when unset. Settings hides its "Buy me a coffee" row while it is null, so a build without the setting shows no row.
+
+- Android: `support.url=https://…` in the untracked `local.properties`, or the `SUPPORT_URL` environment variable (CI). `androidApp/build.gradle.kts` turns it into `BuildConfig.SUPPORT_URL`.
+- iOS: set on its own, so App Review rejecting an external tip link hides the row on iOS alone (see the Settings spec).
+
+## Firebase (Android)
+
+Crashlytics and Analytics follow [ADR-0009](adr/0009-native-firebase-behind-interfaces-opt-in-consent.md). One Firebase project holds one Android app per environment, using the application IDs above.
+
+- **Config:** `google-services.json` per flavor in `androidApp/src/<flavor>/` (`deb`, `dev`, `beta`, `prod`). The files are git-ignored; copy the `google-services.json.example` beside each and fill it from the Firebase console.
+- **Without config:** the Google Services and Crashlytics Gradle plugins apply only when at least one flavor has its file, and the Google Services task is skipped for a flavor without one. The SDK is then never initialised and `analyticsModule` binds the no-ops, so the build and the app still work.
+- **Nothing before consent:** the manifest turns off Analytics and Crashlytics auto-collection. `UsageConsentCollection` (`:android:core:analytics`) switches both on only while Usage Consent is `ALLOWED`, at launch and on every change.
+- **No ads:** `AD_ID` and `ACCESS_ADSERVICES_AD_ID` are removed from the merged manifest, and ad personalization is off. Automatic screen reporting is off, so screen views are logged by hand.
+- **`deb`:** `src/deb/AndroidManifest.xml` deactivates Analytics in the SDK and `analyticsModule(analyticsEnabled = false)` binds the no-op tracker. Crashlytics stays on (after consent) and reports to the `deb` Firebase app.
+- **Interfaces:** features depend on `AnalyticsTracker` and `CrashReporter`, never on the Firebase SDK.
+
+## Firebase (iOS)
+
+Same project and rules as Android ([ADR-0009](adr/0009-native-firebase-behind-interfaces-opt-in-consent.md)); one iOS app per environment, using the bundle IDs above.
+
+- **Config:** `iosApp/Firebase/GoogleService-Info-<env>.plist` with `<env>` one of `deb`, `dev`, `beta`, `prod` (the `ENVIRONMENT` in the `.xcconfig`). The files are git-ignored; copy the `.plist.example` beside each. The "Select Firebase Config" build phase copies the matching file into the app.
+- **Without config:** the phase removes any stale copy, `AppAnalytics.start` finds no plist and never calls `FirebaseApp.configure()`, and the tracker and crash reporter stay no-ops. The build still succeeds.
+- **SDK:** added through Swift Package Manager (`FirebaseCore`, `FirebaseAnalytics`, `FirebaseCrashlytics`). `FirebaseAnalyticsIdentitySupport` is not linked, so there is no IDFA and no tracking prompt.
+- **Nothing before consent:** Info.plist turns off Analytics and Crashlytics auto-collection, ad personalization and automatic screen reporting. `UsageConsentCollection` switches collection on only while Usage Consent is allowed.
+- **`deb` (Debug):** the Analytics tracker is a no-op and the SDK's collection stays off; Crashlytics still reports (after consent) to the `deb` Firebase app.
+- **dSYMs:** the "Upload Crashlytics dSYMs" phase runs for Dev, Beta and Release (Dev now builds dSYMs) and is skipped for Debug and for builds without a plist.

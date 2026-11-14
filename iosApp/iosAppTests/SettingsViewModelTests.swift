@@ -1,3 +1,4 @@
+import Foundation
 import Shared
 import Testing
 
@@ -7,6 +8,32 @@ import Testing
 struct SettingsViewModelTests {
     private let association = Association(id: "w", name: "WTTV", code: "WTTV")
     private let club = Club(id: "c1", name: "Nussdorf TTC", associationId: "w")
+
+    @Test func usageConsentToggleShowsTheStoredAnswer() async {
+        let viewModel = makeViewModel(emitting: [], consents: [.unanswered, .allowed])
+
+        await viewModel.observe()
+
+        #expect(viewModel.uiState.usageConsentAllowed)
+    }
+
+    @Test func declinedAndUnansweredBothShowTheToggleOff() async {
+        let viewModel = makeViewModel(emitting: [], consents: [.allowed, .declined])
+
+        await viewModel.observe()
+
+        #expect(!viewModel.uiState.usageConsentAllowed)
+    }
+
+    @Test func togglingSavesTheAnswer() async {
+        var saved: [Bool] = []
+        let viewModel = makeViewModel(emitting: [], setUsageConsent: { saved.append($0) })
+
+        viewModel.onAction(.usageConsentToggled(true))
+        await waitUntil { !saved.isEmpty }
+
+        #expect(saved == [true])
+    }
 
     @Test func chosenPlayerShowsItsClubAndAssociation() async {
         let player = Player(id: "p1", name: "Anna Gruber", clubId: "c1")
@@ -195,15 +222,6 @@ struct SettingsViewModelTests {
         #expect(viewModel.uiState.picker?.playerDrillDown?.entries.map(\.selected) == [true, false])
     }
 
-    @Test func doneAsksTheSheetToDismiss() async {
-        let viewModel = makeViewModel(emitting: [])
-        var events = viewModel.events.makeAsyncIterator()
-
-        viewModel.onAction(.doneClicked)
-
-        #expect(await events.next() == .dismiss)
-    }
-
     /// A Player picker already at the Player step of the first Verband's first League.
     private func playerStep(
         fixtures: PlayerDrillDownFixtures = PlayerDrillDownFixtures(),
@@ -220,23 +238,125 @@ struct SettingsViewModelTests {
         return viewModel
     }
 
+    @Test func theCoffeeRowShowsOnlyWhenATipPageIsSet() {
+        #expect(!makeViewModel(emitting: []).uiState.showSupportLink)
+        #expect(makeViewModel(emitting: [], supportUrl: "https://example.org/coffee").uiState.showSupportLink)
+    }
+
+    @Test func tappingTheCoffeeRowOpensTheTipPageAndLogsIt() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(emitting: [], supportUrl: "https://example.org/coffee", analytics: analytics)
+        var events = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.supportClicked)
+
+        #expect(await events.next() == .openSupportLink(URL(string: "https://example.org/coffee")!))
+        #expect(analytics.events == [LoggedEvent("support_link_opened", [:])])
+    }
+
+    @Test func tappingTheLicensesRowAsksToOpenTheLicenses() async {
+        let viewModel = makeViewModel(emitting: [])
+        var events = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.licensesClicked)
+
+        #expect(await events.next() == .openLicenses)
+    }
+
+    @Test func tappingTheCoffeeRowWithoutATipPageDoesNothing() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(emitting: [], analytics: analytics)
+
+        viewModel.onAction(.supportClicked)
+        viewModel.onAction(.usageConsentToggled(true))
+        await waitUntil { !analytics.events.isEmpty }
+
+        #expect(analytics.events == [LoggedEvent("consent_changed", ["enabled": "true", "source": "settings"])])
+    }
+
+    /// SwiftUI cancels a view's `.task` when another screen covers it, and runs it again on return.
+    @Test func theCoffeeRowStillOpensTheTipPageAfterTheScreenWasCoveredAndShownAgain() async {
+        let viewModel = makeViewModel(emitting: [], supportUrl: "https://example.org/coffee")
+        let covered = Task { for await _ in viewModel.events {} }
+        covered.cancel()
+        await covered.value
+        var events = viewModel.events.makeAsyncIterator()
+
+        viewModel.onAction(.supportClicked)
+
+        #expect(await events.next() == .openSupportLink(URL(string: "https://example.org/coffee")!))
+    }
+
+    @Test func reportsTheScreenViewAppearanceAndConsentChanges() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(emitting: [], analytics: analytics)
+
+        viewModel.screenShown()
+        viewModel.onAction(.appearanceSelected(.dark))
+        viewModel.onAction(.usageConsentToggled(true))
+        await waitUntil { analytics.events.count == 3 }
+
+        #expect(analytics.events == [
+            LoggedEvent("screen_view", ["screen": "settings"]),
+            LoggedEvent("setting_changed", ["setting": "appearance", "value": "dark"]),
+            LoggedEvent("consent_changed", ["enabled": "true", "source": "settings"]),
+        ])
+    }
+
+    @Test func savingMyClubReportsTheChoiceFromSettings() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(emitting: [], clubs: [club], analytics: analytics)
+        viewModel.onAction(.chooseClubClicked)
+
+        viewModel.onAction(.pickerEntryClicked(id: "c1"))
+        await waitUntil { !analytics.events.isEmpty }
+
+        #expect(analytics.events == [LoggedEvent("my_club_selected", ["source": "settings"])])
+    }
+
+    @Test func searchReportsOnlyTheQueryLengthOncePausedAndNeverTheText() async throws {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(emitting: [], analytics: analytics, searchSettle: .milliseconds(20))
+        viewModel.onAction(.chooseClubClicked)
+
+        viewModel.onAction(.pickerQueryChanged("n"))
+        viewModel.onAction(.pickerQueryChanged("nussdorf"))
+        try await Task.sleep(for: .milliseconds(200))
+
+        #expect(analytics.events == [LoggedEvent("search_performed", ["screen": "settings", "query_length": "8"])])
+    }
+
     private func makeViewModel(
         emitting results: [DataResult],
         clubs: [Club] = [],
         playerLoaders: PlayerDrillDownLoaders = PlayerDrillDownFixtures().loaders,
+        consents: [UsageConsent] = [],
+        setUsageConsent: @escaping (Bool) async throws -> Void = { _ in },
         setMyPlayer: @escaping (String) async throws -> Void = { _ in },
-        setMyClub: @escaping (String) async throws -> Void = { _ in }
+        setMyClub: @escaping (String) async throws -> Void = { _ in },
+        supportUrl: String? = nil,
+        analytics: any AnalyticsTracker = NoOpAnalyticsTracker(),
+        searchSettle: Duration = .seconds(1)
     ) -> SettingsViewModel {
         let stream = AsyncStream<DataResult> { continuation in
             results.forEach { continuation.yield($0) }
             continuation.finish()
         }
+        let consentStream = AsyncStream<UsageConsent> { continuation in
+            consents.forEach { continuation.yield($0) }
+            continuation.finish()
+        }
         return SettingsViewModel(
             observeUserContext: stream,
+            observeUsageConsent: consentStream,
+            setUsageConsent: setUsageConsent,
             setMyPlayer: setMyPlayer,
             setMyClub: setMyClub,
             playerLoaders: playerLoaders,
-            searchClubs: { _ in clubs }
+            searchClubs: { _ in clubs },
+            supportUrl: supportUrl,
+            analytics: analytics,
+            searchSettle: searchSettle
         )
     }
 }

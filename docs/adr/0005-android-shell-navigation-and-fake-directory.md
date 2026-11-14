@@ -1,6 +1,6 @@
 # ADR-0005: Android shell navigation contracts and a debug-only fake directory
 
-**Status:** Accepted
+**Status:** Accepted. The Settings-as-a-sheet part is superseded by [ADR-0012](0012-settings-as-a-pushed-destination.md).
 **Date:** 2026-10-16
 **Deciders:** Tech Lead
 

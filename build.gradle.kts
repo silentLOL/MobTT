@@ -10,6 +10,10 @@ plugins {
     alias(libs.plugins.ktlint) apply false
     alias(libs.plugins.roborazzi) apply false
     alias(libs.plugins.kotlinSerialization) apply false
+    alias(libs.plugins.googleServices) apply false
+    alias(libs.plugins.firebaseCrashlytics) apply false
+    alias(libs.plugins.aboutLibraries) apply false
+    alias(libs.plugins.aboutLibrariesKmp) apply false
 }
 
 subprojects {

@@ -36,15 +36,55 @@ _Avoid_: Begegnung, game, encounter, event
 A single game inside a Fixture, between individual Players or doubles pairs (German: Einzelspiel or Doppel). Its score counts Sets won, e.g. 3:1.
 _Avoid_: Spiel, game
 
+**Venue**:
+The place where a Fixture is played (German: Spiellokal), given by a name such as "Sporthalle Hagenberg" and a postal address. Either can be missing or partial, e.g. only a city.
+_Avoid_: Location, hall, place, Spielort
+
+**Player ranking**:
+A League's Players ordered by rank, with their Team and matches won and lost (German: Einzelrangliste). Players below the League's minimum number of games are listed without a rank.
+_Avoid_: Einzelrangliste, single standings, player table
+
 **Set**:
 One played segment of a Match, won by reaching the points target with a margin (German: Satz), e.g. 11:8.
 _Avoid_: Satz, game, round
+
+### Sharing
+
+**Fixture link**:
+A web address for one Fixture that anyone can open: it shows the Fixture in MobTT when the app is installed, and leads to the app stores otherwise.
+_Avoid_: Deep link, share link, dynamic link, universal link
+
+### Rating
+
+**Ratings Central**:
+The external rating system that estimates every Player's playing strength from their results. XTTV links each Player to their entry there.
+_Avoid_: RC, rating site
+
+**Rating**:
+A Player's estimated playing strength according to Ratings Central, given as points with a Deviation, e.g. 519 ±87.
+_Avoid_: RC points, TTR, QTTR, PTR, Elo
+
+**Deviation**:
+How uncertain a Rating is, shown as ±. The true playing strength lies within one Deviation of the Rating about two times in three.
+_Avoid_: StDev, standard deviation, error, tolerance
+
+**Rating update**:
+One processing of a Player's results by Ratings Central, which moves their Rating; usually one per week of play.
+_Avoid_: Event, rating period
+
+**Rating history**:
+A Player's Rating and Deviation after each Rating update, over time.
+_Avoid_: Rating graph, RC graph, history graph
 
 ### The user
 
 **My Player**:
 The one Player the user chooses to follow as themselves. Their Club and Association are derived from it.
 _Avoid_: Active player, profile, account
+
+**My Teams**:
+The Teams whose lineup names My Player. Their Leagues fill the League tab.
+_Avoid_: My League, home team
 
 **My Club**:
 The Club the user follows when they have no Player to choose. Their Association is derived from it.
@@ -54,6 +94,10 @@ _Avoid_: Home club, Stammverein
 A Player, Team or Club the user has bookmarked for quick access. Independent of My Player and My Club.
 _Avoid_: Bookmark, pin, Quick Link
 
+**Usage Consent**:
+The user's answer to whether anonymous usage statistics and crash reports may be collected. It is unanswered until the user chooses, then allowed or declined; nothing is collected unless it is allowed. Independent of My Player and My Club.
+_Avoid_: Tracking permission, analytics opt-in, privacy setting
+
 ## XTTV terms
 
 XTTV, the source of our data, names some things differently. Our terms above stay canonical; XTTV's words appear only where we read its data.
@@ -62,3 +106,6 @@ XTTV, the source of our data, names some things differently. Our terms above sta
 |-----------|----------|
 | Federation (`getFederations`) | Association |
 | Game (`getClubGames`, `getLeagueGames`, `getGameDetails`) | Fixture |
+| Game result (`game_result` in `getGameDetails`) | Match |
+| Single standings (`getSingleStandings`) | Player ranking |
+| Location (`location` on a Game) and address (`address`, `getGameDetails` only) | Venue |

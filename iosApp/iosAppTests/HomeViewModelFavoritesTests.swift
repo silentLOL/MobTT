@@ -165,6 +165,44 @@ struct HomeViewModelFavoritesTests {
         return viewModel
     }
 
+    @Test func reportsTheScreenViewAndTheDetailsOpenedFromHome() {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(analytics: analytics)
+
+        viewModel.screenShown()
+        viewModel.onAction(.heroPlayerClicked(id: "p1"))
+        viewModel.onAction(.favoriteTeamClicked(id: "t1"))
+
+        #expect(analytics.events == [
+            LoggedEvent("screen_view", ["screen": "home"]),
+            LoggedEvent("detail_opened", ["kind": "player", "id": "p1", "from": "home"]),
+            LoggedEvent("detail_opened", ["kind": "team", "id": "t1", "from": "home"]),
+        ])
+    }
+
+    @Test func togglingAClubFavoriteInThePickerReportsItsKindAndId() async {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(analytics: analytics)
+        viewModel.onAction(.addFavoriteClicked)
+
+        viewModel.onAction(.pickerClubClicked(id: "c1"))
+        await waitUntil { !analytics.events.isEmpty }
+
+        #expect(analytics.events == [LoggedEvent("favorite_toggled", ["kind": "club", "id": "c1", "enabled": "true"])])
+    }
+
+    @Test func searchReportsOnlyTheQueryLengthOncePausedAndNeverTheText() async throws {
+        let analytics = RecordingAnalyticsTracker()
+        let viewModel = makeViewModel(analytics: analytics, searchSettle: .milliseconds(20))
+        viewModel.onAction(.addFavoriteClicked)
+
+        viewModel.onAction(.pickerQueryChanged("o"))
+        viewModel.onAction(.pickerQueryChanged("olympic"))
+        try await Task.sleep(for: .milliseconds(200))
+
+        #expect(analytics.events == [LoggedEvent("search_performed", ["screen": "home", "query_length": "7"])])
+    }
+
     private func makeViewModel(
         userContext: [DataResult] = [DataResultSuccess(value: UserContextNone.shared)],
         resolved: [DataResult] = [],
@@ -172,7 +210,9 @@ struct HomeViewModelFavoritesTests {
         clubs: [Club] = [],
         playerLoaders: PlayerDrillDownLoaders = PlayerDrillDownFixtures().loaders,
         addFavorite: @escaping (Favorite) async throws -> Void = { _ in },
-        removeFavorite: @escaping (Favorite) async throws -> Void = { _ in }
+        removeFavorite: @escaping (Favorite) async throws -> Void = { _ in },
+        analytics: any AnalyticsTracker = NoOpAnalyticsTracker(),
+        searchSettle: Duration = .seconds(1)
     ) -> HomeViewModel {
         HomeViewModel(
             observeUserContext: finite(userContext),
@@ -181,7 +221,9 @@ struct HomeViewModelFavoritesTests {
             addFavorite: addFavorite,
             removeFavorite: removeFavorite,
             playerLoaders: playerLoaders,
-            searchClubs: { _ in clubs }
+            searchClubs: { _ in clubs },
+            analytics: analytics,
+            searchSettle: searchSettle
         )
     }
 

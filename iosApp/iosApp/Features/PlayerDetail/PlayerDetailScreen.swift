@@ -5,6 +5,8 @@ struct PlayerDetailRoute: View {
     let onOpenTeam: (String) -> Void
 
     @State private var viewModel: PlayerDetailViewModel
+    /// Opened from the Rating history's explanation, so it is presented from that sheet.
+    @State private var webPage: WebPage?
 
     init(playerId: String, onOpenClub: @escaping (String) -> Void, onOpenTeam: @escaping (String) -> Void) {
         self.onOpenClub = onOpenClub
@@ -13,7 +15,8 @@ struct PlayerDetailRoute: View {
     }
 
     var body: some View {
-        PlayerDetailScreen(state: viewModel.uiState, onAction: viewModel.onAction)
+        PlayerDetailScreen(state: viewModel.uiState, onAction: viewModel.onAction, webPage: $webPage)
+            .onAppear { viewModel.screenShown() }
             .onAppear { viewModel.loadIfNeeded() }
             .task { await viewModel.observe() }
             .task {
@@ -21,6 +24,7 @@ struct PlayerDetailRoute: View {
                     switch event {
                     case .openClub(let clubId): onOpenClub(clubId)
                     case .openTeam(let teamId): onOpenTeam(teamId)
+                    case .openWebPage(let url): webPage = WebPage(url: url)
                     }
                 }
             }
@@ -30,6 +34,7 @@ struct PlayerDetailRoute: View {
 struct PlayerDetailScreen: View {
     let state: PlayerDetailUiState
     let onAction: (PlayerDetailAction) -> Void
+    var webPage: Binding<WebPage?> = .constant(nil)
 
     var body: some View {
         switch state {
@@ -49,7 +54,7 @@ struct PlayerDetailScreen: View {
             }
             .onAppear { AccessibilityNotification.Announcement(String(localized: "player_detail_unavailable_body")).post() }
         case .content(let detail):
-            ContentView(detail: detail, onAction: onAction)
+            ContentView(detail: detail, onAction: onAction, webPage: webPage)
         }
     }
 }
@@ -57,6 +62,7 @@ struct PlayerDetailScreen: View {
 private struct ContentView: View {
     let detail: PlayerDetailUi
     let onAction: (PlayerDetailAction) -> Void
+    let webPage: Binding<WebPage?>
 
     var body: some View {
         ScrollView {
@@ -78,33 +84,104 @@ private struct ContentView: View {
                         action: { onAction(.favoriteClicked) }
                     )
                 }
-                if detail.rcPoints != nil || detail.ageGroup != nil {
-                    HStack(spacing: BatSpacing.lg) {
-                        if let rcPoints = detail.rcPoints {
-                            BatStatView(label: String(localized: "player_detail_rc_label"), value: String(rcPoints))
-                        }
-                        if let ageGroup = detail.ageGroup {
-                            BatStatView(label: String(localized: "player_detail_age_group_label"), value: ageGroup)
-                        }
+                if case .loaded(let teams) = detail.teams {
+                    StatRowView(teams: teams)
+                }
+                ClubSectionView(club: detail.club, onAction: onAction)
+                TeamsSectionView(teams: detail.teams, onAction: onAction)
+                if let ratingHistory = detail.ratingHistory {
+                    RatingHistorySectionView(
+                        section: ratingHistory,
+                        onRetry: { onAction(.ratingHistoryRetryClicked) },
+                        onSpanChosen: { onAction(.ratingHistorySpanChosen($0)) },
+                        onInfo: { onAction(.ratingInfoClicked) }
+                    )
+                }
+            }
+            .padding(BatSpacing.lg)
+        }
+        .sheet(isPresented: Binding(get: { detail.ratingInfoShown }, set: { if !$0 { onAction(.ratingInfoDismissed) } })) {
+            BatInfoSheetView(
+                title: String(localized: "player_detail_rating_info_title"),
+                message: String(localized: "player_detail_rating_info_body"),
+                link: BatInfoSheetLink(title: String(localized: "player_detail_rating_info_link")) { onAction(.ratingInfoLinkClicked) },
+                onDismiss: { onAction(.ratingInfoDismissed) }
+            )
+            .presentationDetents([.medium, .large])
+            .sheet(item: webPage) { SafariView(url: $0.url).ignoresSafeArea() }
+        }
+    }
+}
+
+private struct StatRowView: View {
+    let teams: PlayerTeamsUi
+
+    var body: some View {
+        if teams.rcPoints != nil || teams.ageGroup != nil {
+            HStack(spacing: BatSpacing.lg) {
+                if let rcPoints = teams.rcPoints {
+                    BatStatView(label: String(localized: "player_detail_rc_label"), value: String(rcPoints))
+                }
+                if let ageGroup = teams.ageGroup {
+                    BatStatView(label: String(localized: "player_detail_age_group_label"), value: ageGroup)
+                }
+            }
+        }
+    }
+}
+
+/// Hidden once loaded when XTTV no longer resolves the Club.
+private struct ClubSectionView: View {
+    let club: SectionUiState<PlayerClubUi?>
+    let onAction: (PlayerDetailAction) -> Void
+
+    var body: some View {
+        if club != .loaded(nil) {
+            VStack(alignment: .leading, spacing: BatSpacing.sm) {
+                BatSectionHeaderView(title: String(localized: "player_detail_club_title"))
+                SectionStateView(
+                    section: club,
+                    loadingLabel: String(localized: "player_detail_club_loading_cd"),
+                    unavailableText: String(localized: "player_detail_club_unavailable_body"),
+                    onRetry: { onAction(.clubRetryClicked) }
+                ) { loaded in
+                    if let loaded {
+                        LinkRowView(title: loaded.clubName, detail: loaded.associationName) { onAction(.clubClicked) }
                     }
                 }
-                if let clubName = detail.clubName {
+            }
+        }
+    }
+}
+
+/// Hidden once loaded when no lineup of the Club lists the Player.
+private struct TeamsSectionView: View {
+    let teams: SectionUiState<PlayerTeamsUi>
+    let onAction: (PlayerDetailAction) -> Void
+
+    var body: some View {
+        if !isLoadedEmpty {
+            VStack(alignment: .leading, spacing: BatSpacing.sm) {
+                BatSectionHeaderView(title: String(localized: "player_detail_teams_title"))
+                SectionStateView(
+                    section: teams,
+                    loadingLabel: String(localized: "player_detail_teams_loading_cd"),
+                    unavailableText: String(localized: "player_detail_teams_unavailable_body"),
+                    onRetry: { onAction(.teamsRetryClicked) }
+                ) { loaded in
                     VStack(alignment: .leading, spacing: BatSpacing.sm) {
-                        BatSectionHeaderView(title: String(localized: "player_detail_club_title"))
-                        LinkRowView(title: clubName, detail: detail.associationName) { onAction(.clubClicked) }
-                    }
-                }
-                if !detail.teams.isEmpty {
-                    VStack(alignment: .leading, spacing: BatSpacing.sm) {
-                        BatSectionHeaderView(title: String(localized: "player_detail_teams_title"))
-                        ForEach(detail.teams) { team in
+                        ForEach(loaded.teams) { team in
                             LinkRowView(title: team.name, detail: nil) { onAction(.teamClicked(id: team.id)) }
                         }
                     }
                 }
             }
-            .padding(BatSpacing.lg)
         }
+    }
+
+    private var isLoadedEmpty: Bool {
+        if case .loaded(let loaded) = teams { return loaded.teams.isEmpty }
+        return false
     }
 }
 
@@ -151,6 +228,24 @@ private struct LinkRowView: View {
 #Preview("Favorite") {
     BatPreviewMatrix {
         PlayerDetailScreen(state: .content(PlayerDetailPreviewData.favorite), onAction: { _ in })
+    }
+}
+
+#Preview("Rating history") {
+    BatPreviewMatrix {
+        PlayerDetailScreen(state: .content(PlayerDetailPreviewData.withRatingHistory), onAction: { _ in })
+    }
+}
+
+#Preview("Sections loading") {
+    BatPreviewMatrix {
+        PlayerDetailScreen(state: .content(PlayerDetailPreviewData.sectionsLoading), onAction: { _ in })
+    }
+}
+
+#Preview("Sections unavailable") {
+    BatPreviewMatrix {
+        PlayerDetailScreen(state: .content(PlayerDetailPreviewData.sectionsUnavailable), onAction: { _ in })
     }
 }
 

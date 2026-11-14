@@ -1,0 +1,1 @@
+Erste Version von MobTT: Folge deinem Spieler und Verein, Ligatabellen, Begegnungen und Ratingverlauf.

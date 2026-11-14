@@ -4,6 +4,19 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.aboutLibraries)
+}
+
+// The open source licenses screen reads what this generates. Fonts and other assets are added by hand in `licenses/`.
+aboutLibraries {
+    collect {
+        configPath = rootProject.file("licenses")
+    }
+    // A dependency under any other license, or under none, fails the build until it is looked at and listed here.
+    license {
+        strictMode = com.mikepenz.aboutlibraries.plugin.StrictMode.FAIL
+        allowedLicenses.addAll("Apache-2.0", "MIT", "BSD-3-Clause", "OFL-1.1", "ASDKL")
+    }
 }
 
 // The XTTV API key is a secret: `xttv.apiKey` in the untracked `local.properties`, or `XTTV_API_KEY` in CI.
@@ -13,6 +26,35 @@ val xttvApiKey: String = Properties()
     ?: System.getenv("XTTV_API_KEY")
     ?: ""
 
+// The developer's tip page behind Settings' "Buy me a coffee" row: `support.url` in `local.properties`, or `SUPPORT_URL`
+// in CI. Unset hides the row.
+val supportUrl: String = Properties()
+    .apply { rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use(::load) }
+    .getProperty("support.url")
+    ?: System.getenv("SUPPORT_URL")
+    ?: ""
+
+// Firebase config is untracked, one `google-services.json` per flavor in `src/<flavor>/` (copy the `.example`).
+// Without any of them the plugins stay off and the SDK is never initialised; the app builds and runs without it.
+val firebaseConfigured = listOf("deb", "dev", "beta", "prod").associateWith { file("src/$it/google-services.json").exists() }
+if (firebaseConfigured.containsValue(true)) {
+    apply(plugin = libs.plugins.googleServices.get().pluginId)
+    apply(plugin = libs.plugins.firebaseCrashlytics.get().pluginId)
+}
+
+// Release signing (docs/RELEASE_ANDROID.md): the upload keystore and its passwords stay out of git. Each setting is
+// `release.<name>` in the untracked `local.properties`, or `RELEASE_<NAME>` in CI. With the keystore unset, release builds
+// come out unsigned, so `check` and CI without secrets still work.
+val localProperties = Properties()
+    .apply { rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use(::load) }
+
+fun releaseSetting(name: String): String? = localProperties.getProperty("release.$name")
+    ?: System.getenv("RELEASE_${name.uppercase().replace('.', '_')}")
+
+// Play rejects a versionCode it has seen. Bump it in this file, or override per build with `-PversionCode=N`.
+val appVersionCode: Int = (findProperty("versionCode") as String?)?.toInt() ?: 1
+val appVersionName: String = (findProperty("versionName") as String?) ?: "1.0"
+
 kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_11
@@ -21,36 +63,47 @@ kotlin {
 dependencies {
     implementation(project(":core:di"))
     implementation(project(":core:network"))
+    implementation(project(":domain:user"))
+    implementation(project(":android:core:analytics"))
     implementation(project(":android:core:design-system"))
     implementation(project(":android:core:localization"))
+    implementation(project(":android:core:ui"))
     implementation(project(":android:feature:navigation"))
     for (feature in listOf("home", "club", "players", "settings")) {
         implementation(project(":android:feature:$feature:api"))
         implementation(project(":android:feature:$feature:impl"))
     }
     debugImplementation(project(":core:fake-directory"))
+    implementation(libs.kermit)
+    // Ktor logs through SLF4J; we log through Kermit, so bind the no-op to silence the "no providers" warning.
+    runtimeOnly(libs.slf4j.nop)
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.lifecycle.compose.runtime)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
     implementation(libs.androidx.navigation3.ui)
 }
 
 android {
-    namespace = "at.stefanirndorfer.batmate"
+    namespace = "at.stefanirndorfer.mobtt"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "at.stefanirndorfer.batmate"
+        applicationId = "at.stefanirndorfer.mobtt"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = appVersionCode
+        versionName = appVersionName
         buildConfigField("String", "XTTV_API_KEY", "\"$xttvApiKey\"")
+        buildConfigField("String", "SUPPORT_URL", "\"${supportUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
+        // The Fixture link host (ADR-0011). A .example placeholder until the domain is registered: it never verifies, so no
+        // link reaches the app. Replace it together with AppConfig.linksHost and the iOS LINKS_HOST.
+        manifestPlaceholders["linksHost"] = "links.mobtt.example"
     }
     flavorDimensions += "environment"
     productFlavors {
@@ -83,9 +136,22 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    signingConfigs {
+        val storePath = releaseSetting("storeFile")
+        if (storePath != null) {
+            create("release") {
+                storeFile = rootProject.file(storePath)
+                storePassword = releaseSetting("storePassword")
+                keyAlias = releaseSetting("keyAlias")
+                keyPassword = releaseSetting("keyPassword")
+            }
+        }
+    }
     buildTypes {
         release {
-            isMinifyEnabled = false
+            signingConfig = signingConfigs.findByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -99,6 +165,16 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+}
+
+// The Google Services task fails for a flavor without its config file; skip it there so the other flavors still
+// build, and the SDK stays uninitialised (the analytics module then binds no-ops).
+tasks.configureEach {
+    firebaseConfigured.filterValues { !it }.keys.forEach { flavor ->
+        if (name.matches(Regex("process${flavor.replaceFirstChar(Char::uppercase)}(Debug|Release)GoogleServices"))) {
+            enabled = false
+        }
     }
 }
 

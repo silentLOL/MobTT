@@ -18,4 +18,8 @@ should link here instead of duplicating the rationale.
 | [0006](0006-app-config-from-platform-build-environment.md) | `AppConfig` supplied by each platform's build environment | Accepted |
 | [0005](0005-android-shell-navigation-and-fake-directory.md) | Android shell navigation contracts and a debug-only fake directory | Accepted |
 | [0007](0007-xttv-backed-repositories-in-core-xttv.md) | XTTV-backed repositories live in `:core:xttv`; the fake directory stays for `deb` | Accepted |
-| [0008](0008-xttv-hosts-per-association-and-id-strategy.md) | One XTTV host per Association, and plain string IDs | Proposed |
+| [0008](0008-xttv-hosts-per-association-and-id-strategy.md) | One XTTV host per Association, and plain string IDs | Accepted |
+| [0009](0009-native-firebase-behind-interfaces-with-opt-in-consent.md) | Native Firebase behind interfaces, opt-in consent, no advertising IDs | Proposed |
+| [0010](0010-ratings-central-history-behind-a-release-flag.md) | Ratings Central history export as a second data source, off in release builds until permitted | Accepted |
+| [0011](0011-fixture-links-on-our-own-self-hosted-domain.md) | Fixture links on our own domain, self-hosted | Proposed |
+| [0012](0012-settings-as-a-pushed-destination.md) | Settings as a pushed destination on Android | Accepted |

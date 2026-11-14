@@ -2,7 +2,7 @@ plugins {
     `kotlin-dsl`
 }
 
-group = "at.stefanirndorfer.batmate.buildlogic"
+group = "at.stefanirndorfer.mobtt.buildlogic"
 
 kotlin {
     jvmToolchain(21)

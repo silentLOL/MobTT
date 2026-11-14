@@ -1,0 +1,30 @@
+A MobTT zsebre vágja az osztrák asztalitenisz világát. Kövesd a saját játékosodat, a klubodat és a ligádat, és egy helyen lásd, hogyan szerepel a csapatod.
+
+A KEZDŐLAP, AMELY RÓLAD SZÓL
+Válaszd ki egyszer a játékosodat vagy a klubodat, és a Kezdőlap a tiéd lesz: egy nagy kártya a klubodnak vagy játékosodnak, valamint egy Kedvencek lista a számodra legfontosabb játékosokkal, csapatokkal és klubokkal.
+
+KLUB ÉS CSAPATOK
+Nézd meg a klubod csapatait, a ligát, amelyben játszanak, a következő találkozót dátummal, időponttal és helyszínnel, valamint a játékosokat, akik színeikben pályára lépnek.
+
+LIGATÁBLÁZATOK ÉS TALÁLKOZÓK
+Nyisd meg a csapatod ligatáblázatát, a csapatod ki van emelve. Böngéssz a találkozók között, nézd meg az eredményeket, a befejezett találkozóknál pedig minden meccset játszmákkal együtt.
+
+BÁRMELY JÁTÉKOS MEGTALÁLÁSA
+Válassz szövetséget és klubot, majd keress játékosokat név szerint. Nyiss meg egy játékost, hogy lásd a klubját és a csapatait.
+
+ÉRTÉKSZÁMTÖRTÉNET
+A játékosok értékszámtörténete interaktív diagramként jelenik meg, így láthatod a formát és a fejlődést az elmúlt 12 hónapban vagy az egész pályafutás során. Egy infógomb elmagyarázza, mit jelent az értékszám és a szórása.
+
+ANDROIDRA SZABVA
+• Világos, sötét vagy a rendszert követő megjelenés
+• Angol, német, horvát, török, román, magyar és ukrán nyelv
+• Nagy betűméret és képernyőolvasó-támogatás (TalkBack)
+• Nincs fiók, nincs regisztráció, nincs reklám
+
+ELSŐ AZ ADATVÉDELEM
+A MobTT megkérdez, mielőtt bármit gyűjtene. Az anonim használati statisztikák és az összeomlási jelentések kizárólag önkéntesek, soha nem tartalmazzák a nevedet, a játékosodat vagy klubodat, sem semmit, amit beírsz, és bármikor kikapcsolhatod őket a Beállításokban.
+
+AZ ADATOKRÓL
+Az eredményeket és táblázatokat az XTTV Ergebnisdienst szolgáltatja. Az értékszámtörténet a Ratings Centraltól származik. A MobTT független alkalmazás, nem áll kapcsolatban az Osztrák Asztalitenisz Szövetséggel (ÖTTV), annak regionális szövetségeivel, az XTTV-vel vagy a Ratings Centrallal, és ezek nem támogatják.
+
+A nyílt forráskódú licencek a Beállításokban találhatók.

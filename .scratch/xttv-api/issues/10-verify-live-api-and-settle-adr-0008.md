@@ -1,5 +1,5 @@
 ---
-status: needs-human
+status: resolved
 blocked_by: [6]
 ---
 
@@ -9,14 +9,15 @@ blocked_by: [6]
 
 **Progress:** Registration email sent to XTTV on 2026-10-18 (asks the ADR-0008 questions: access, base URLs, schemas, ID uniqueness, date format, staging, request rate). Waiting for the reply; tickets 09 and 10 resume then.
 
-- [ ] The project owner has registered with XTTV and has the base URL(s), authentication details and schemas.
-- [ ] Recorded XML in the tests is replaced by real responses (with personal data removed if present) and all repository tests pass.
-- [ ] One manual run on a `dev` build shows real Clubs, Teams, Fixtures and standings on both platforms.
-- [ ] ADR-0008 is set to Accepted, or superseded if the host layout differs or IDs collide across Associations.
-- [ ] If IDs collide, the composite ID format and a Favorites migration are specified before anything ships to `prod`.
-- [ ] The request rate XTTV allows is checked against the TTLs and concurrency cap, and they are adjusted if needed.
-- [ ] Favorites persistence on XTTV IDs is cleared to ship, or held back.
+- [x] The project owner has registered with XTTV and has the base URL(s), authentication details and schemas.
+- [x] Recorded XML in the tests is replaced by real responses (with personal data removed if present) and all repository tests pass.
+- [x] One manual run on a `dev` build shows real Clubs, Teams, Fixtures and standings on both platforms.
+- [x] ADR-0008 is set to Accepted, or superseded if the host layout differs or IDs collide across Associations.
+- [x] If IDs collide, the composite ID format and a Favorites migration are specified before anything ships to `prod`.
+- [x] The request rate XTTV allows is checked against the TTLs and concurrency cap, and they are adjusted if needed.
+- [x] Favorites persistence on XTTV IDs is cleared to ship, or held back.
 
 ## Comments
 
 - 2026-10-30: Blocked by: XTTV's reply to the registration email, and 06 League standings from XTTV.
+- 2026-10-31: Verified against the live API and confirmed done by the project owner.

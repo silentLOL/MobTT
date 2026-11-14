@@ -1,3 +1,4 @@
+import Foundation
 import Observation
 import Shared
 
@@ -10,33 +11,62 @@ final class SettingsViewModel {
     private var pickerEntries: [DirectoryEntryUi] = []
     private var currentPlayerId: String?
     private var currentClubId: String?
+    private var usageConsentAllowed = false
     private var searchTask: Task<Void, Never>?
     private let playerDrillDown: PlayerDrillDown
 
     @ObservationIgnored private let observeUserContext: any AsyncSequence<DataResult, Never>
+    @ObservationIgnored private let observeUsageConsent: any AsyncSequence<UsageConsent, Never>
+    @ObservationIgnored private let setUsageConsent: (Bool) async throws -> Void
     @ObservationIgnored private let setMyPlayer: (String) async throws -> Void
     @ObservationIgnored private let setMyClub: (String) async throws -> Void
     @ObservationIgnored private let searchClubs: (String) async -> [Club]
-    @ObservationIgnored private let eventStream = AsyncStream<SettingsEvent>.makeStream()
+    @ObservationIgnored private let analytics: any AnalyticsTracker
+    @ObservationIgnored private let screenViews: ScreenViewReporter
+    @ObservationIgnored private let searchEvents: SearchEvents
+    @ObservationIgnored private let supportUrl: URL?
+    @ObservationIgnored private var eventContinuation: AsyncStream<SettingsEvent>.Continuation?
 
-    var events: AsyncStream<SettingsEvent> { eventStream.stream }
+    /// A stream per subscriber, the latest one receiving events: SwiftUI cancels a view's `.task` when another screen
+    /// covers it, which ends a stream for good, so the view must be able to subscribe again on return.
+    var events: AsyncStream<SettingsEvent> {
+        AsyncStream { eventContinuation = $0 }
+    }
 
     init(
         observeUserContext: any AsyncSequence<DataResult, Never> = KoinHelper.shared.observeUserContext(),
+        observeUsageConsent: any AsyncSequence<UsageConsent, Never> = KoinHelper.shared.getObserveUsageConsentUseCase().invoke(),
+        setUsageConsent: @escaping (Bool) async throws -> Void = { try await KoinHelper.shared.getSetUsageConsentUseCase().invoke(allowed: $0) },
         setMyPlayer: @escaping (String) async throws -> Void = { try await KoinHelper.shared.getSetMyPlayerUseCase().invoke(playerId: $0) },
         setMyClub: @escaping (String) async throws -> Void = { try await KoinHelper.shared.getSetMyClubUseCase().invoke(clubId: $0) },
         playerLoaders: PlayerDrillDownLoaders = .live,
-        searchClubs: @escaping (String) async -> [Club] = { (try? await KoinHelper.shared.getSearchClubsUseCase().invoke(query: $0)) ?? [] }
+        searchClubs: @escaping (String) async -> [Club] = { (try? await KoinHelper.shared.getSearchClubsUseCase().invoke(query: $0)) ?? [] },
+        supportUrl: String? = KoinHelper.shared.supportUrl(),
+        analytics: any AnalyticsTracker = AppAnalytics.tracker,
+        searchSettle: Duration = .seconds(1)
     ) {
         self.observeUserContext = observeUserContext
+        self.observeUsageConsent = observeUsageConsent
+        self.setUsageConsent = setUsageConsent
         self.setMyPlayer = setMyPlayer
         self.setMyClub = setMyClub
         self.playerDrillDown = PlayerDrillDown(loaders: playerLoaders)
         self.searchClubs = searchClubs
+        self.supportUrl = supportUrl.flatMap { URL(string: $0) }
+        self.analytics = analytics
+        self.screenViews = ScreenViewReporter(tracker: analytics, screen: AnalyticsScreen.settings)
+        self.searchEvents = SearchEvents(tracker: analytics, screen: AnalyticsScreen.settings, settle: searchSettle)
+    }
+
+    /// Reports the screen view, once per screen.
+    func screenShown() {
+        screenViews.report()
     }
 
     var uiState: SettingsUiState {
         var result = state
+        result.usageConsentAllowed = usageConsentAllowed
+        result.showSupportLink = supportUrl != nil
         result.picker = pickerKind.map { kind in
             if kind == .player {
                 let drillDown = playerDrillDown.ui { $0 == currentPlayerId }
@@ -53,12 +83,25 @@ final class SettingsViewModel {
 
     /// Runs until the calling task is cancelled.
     func observe() async {
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask { @MainActor in await self.observeContext() }
+            group.addTask { @MainActor in await self.observeConsent() }
+        }
+    }
+
+    private func observeContext() async {
         for await result in observeUserContext {
             switch onEnum(of: result) {
             case .success(let success): apply((success.value as? UserContext) ?? UserContextNone.shared)
             // Home shows the failure; Settings falls back to nothing chosen until a later emission.
             case .unavailable: apply(UserContextNone.shared)
             }
+        }
+    }
+
+    private func observeConsent() async {
+        for await consent in observeUsageConsent {
+            usageConsentAllowed = consent == .allowed
         }
     }
 
@@ -69,6 +112,7 @@ final class SettingsViewModel {
         case .chooseClubClicked:
             openPicker(.club)
         case .pickerQueryChanged(let query):
+            searchEvents.queryChanged(query)
             if pickerKind == .player {
                 playerDrillDown.setQuery(query)
             } else {
@@ -86,8 +130,19 @@ final class SettingsViewModel {
         case .pickerBackClicked:
             if pickerKind == .player, playerDrillDown.back() { return }
             closePicker()
-        case .doneClicked:
-            eventStream.continuation.yield(.dismiss)
+        case .appearanceSelected(let choice):
+            analytics.settingChanged(setting: AnalyticsSetting.appearance, value: choice.rawValue)
+        case .supportClicked:
+            guard let supportUrl else { return }
+            analytics.supportLinkOpened()
+            eventContinuation?.yield(.openSupportLink(supportUrl))
+        case .licensesClicked:
+            eventContinuation?.yield(.openLicenses)
+        case .usageConsentToggled(let allowed):
+            Task {
+                guard (try? await setUsageConsent(allowed)) != nil else { return }
+                analytics.consentChanged(enabled: allowed, source: AnalyticsSource.settings)
+            }
         }
     }
 
@@ -136,8 +191,12 @@ final class SettingsViewModel {
         Task {
             do {
                 switch kind {
-                case .player: try await setMyPlayer(id)
-                case .club: try await setMyClub(id)
+                case .player:
+                    try await setMyPlayer(id)
+                    analytics.myPlayerSelected(source: AnalyticsSource.settings)
+                case .club:
+                    try await setMyClub(id)
+                    analytics.myClubSelected(source: AnalyticsSource.settings)
                 }
                 closePicker()
             } catch {

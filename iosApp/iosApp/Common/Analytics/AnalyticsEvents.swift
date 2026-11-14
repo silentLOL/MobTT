@@ -1,0 +1,145 @@
+/// Event names, parameter keys and values of `docs/ANALYTICS.md`. Keep this file and that catalog in step.
+enum AnalyticsEvent {
+    static let screenView = "screen_view"
+    static let myPlayerSelected = "my_player_selected"
+    static let myClubSelected = "my_club_selected"
+    static let favoriteToggled = "favorite_toggled"
+    static let detailOpened = "detail_opened"
+    static let searchPerformed = "search_performed"
+    static let consentChanged = "consent_changed"
+    static let settingChanged = "setting_changed"
+    static let ratingInfoOpened = "rating_info_opened"
+    static let fixtureShareTapped = "fixture_share_tapped"
+    static let fixtureLinkOpened = "fixture_link_opened"
+    static let fixtureVenueTapped = "fixture_venue_tapped"
+    static let supportLinkOpened = "support_link_opened"
+}
+
+enum AnalyticsParam {
+    static let screen = "screen"
+    static let source = "source"
+    static let kind = "kind"
+    static let id = "id"
+    static let enabled = "enabled"
+    static let from = "from"
+    static let queryLength = "query_length"
+    static let setting = "setting"
+    static let value = "value"
+    static let status = "status"
+    static let start = "start"
+}
+
+enum AnalyticsScreen {
+    static let home = "home"
+    static let league = "league"
+    static let players = "players"
+    static let choosePlayer = "choose_player"
+    static let chooseClub = "choose_club"
+    static let club = "club"
+    static let playerDetail = "player_detail"
+    static let teamDetail = "team_detail"
+    static let leagueDetail = "league_detail"
+    static let fixtureDetail = "fixture_detail"
+    static let settings = "settings"
+    static let licenses = "licenses"
+}
+
+enum AnalyticsSetting {
+    static let appearance = "appearance"
+}
+
+enum AnalyticsKind {
+    static let player = "player"
+    static let club = "club"
+    static let team = "team"
+    static let league = "league"
+    static let fixture = "fixture"
+}
+
+enum AnalyticsFixtureStatus {
+    static let scheduled = "scheduled"
+    static let finished = "finished"
+}
+
+enum AnalyticsStart {
+    static let cold = "cold"
+    static let running = "running"
+}
+
+enum AnalyticsSource {
+    static let home = "home"
+    static let settings = "settings"
+    static let prompt = "prompt"
+}
+
+extension AnalyticsTracker {
+    func screenView(_ screen: String) {
+        logEvent(AnalyticsEvent.screenView, parameters: [AnalyticsParam.screen: screen])
+    }
+
+    func myPlayerSelected(source: String) {
+        logEvent(AnalyticsEvent.myPlayerSelected, parameters: [AnalyticsParam.source: source])
+    }
+
+    func myClubSelected(source: String) {
+        logEvent(AnalyticsEvent.myClubSelected, parameters: [AnalyticsParam.source: source])
+    }
+
+    func favoriteToggled(kind: String, id: String, enabled: Bool) {
+        logEvent(AnalyticsEvent.favoriteToggled, parameters: [
+            AnalyticsParam.kind: kind,
+            AnalyticsParam.id: id,
+            AnalyticsParam.enabled: String(enabled),
+        ])
+    }
+
+    func detailOpened(kind: String, id: String, from: String) {
+        logEvent(AnalyticsEvent.detailOpened, parameters: [
+            AnalyticsParam.kind: kind,
+            AnalyticsParam.id: id,
+            AnalyticsParam.from: from,
+        ])
+    }
+
+    /// Sends the length of `query`, never the text.
+    func searchPerformed(screen: String, query: String) {
+        logEvent(AnalyticsEvent.searchPerformed, parameters: [
+            AnalyticsParam.screen: screen,
+            AnalyticsParam.queryLength: query.trimmingCharacters(in: .whitespacesAndNewlines).count,
+        ])
+    }
+
+    func ratingInfoOpened() {
+        logEvent(AnalyticsEvent.ratingInfoOpened, parameters: [:])
+    }
+
+    func fixtureLinkOpened(start: String) {
+        logEvent(AnalyticsEvent.fixtureLinkOpened, parameters: [AnalyticsParam.start: start])
+    }
+
+    func fixtureShareTapped(status: String) {
+        logEvent(AnalyticsEvent.fixtureShareTapped, parameters: [AnalyticsParam.status: status])
+    }
+
+    func fixtureVenueTapped(status: String) {
+        logEvent(AnalyticsEvent.fixtureVenueTapped, parameters: [AnalyticsParam.status: status])
+    }
+
+    func supportLinkOpened() {
+        logEvent(AnalyticsEvent.supportLinkOpened, parameters: [:])
+    }
+
+    func settingChanged(setting: String, value: String) {
+        logEvent(AnalyticsEvent.settingChanged, parameters: [
+            AnalyticsParam.setting: setting,
+            AnalyticsParam.value: value,
+        ])
+    }
+
+    func consentChanged(enabled: Bool, source: String) {
+        logEvent(AnalyticsEvent.consentChanged, parameters: [
+            AnalyticsParam.enabled: String(enabled),
+            AnalyticsParam.source: source,
+        ])
+    }
+}

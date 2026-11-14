@@ -1,0 +1,1 @@
+Prima versiune MobTT: urmărește-ți jucătorul și clubul, clasamentele ligilor, meciurile și istoricul ratingului.
