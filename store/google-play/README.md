@@ -1,6 +1,6 @@
 # Google Play store material
 
-Everything Play Console asks for in the listing, one folder per Play language (`en-US`, `de-DE`, `hr`, `tr-TR`, `ro`, `hu-HU`, `uk`; German is Austrian German, as in the app, see `docs/LOCALIZATION.md`). The `hr`, `tr-TR`, `ro`, `hu-HU` and `uk` texts are machine-drafted: have a native speaker read them before publishing. Those five folders hold texts and a feature graphic only; phone screenshots are shown in the `en-US` default for them until localized ones are captured. Console steps and form answers: [`docs/PLAY_CONSOLE_CHECKLIST.md`](../../docs/PLAY_CONSOLE_CHECKLIST.md).
+Everything Play Console asks for in the listing, one folder per Play language (`en-US`, `de-DE`, `hr`, `tr-TR`, `ro`, `hu-HU`, `uk`; German is Austrian German, as in the app, see `docs/LOCALIZATION.md`). The `hr`, `tr-TR`, `ro`, `hu-HU` and `uk` texts are machine-drafted: have a native speaker read them before publishing. Those five folders hold texts and a feature graphic only; phone screenshots are shown in the `de-DE` default for them until localized ones are captured. Console steps and form answers: [`docs/PLAY_CONSOLE_CHECKLIST.md`](../../docs/PLAY_CONSOLE_CHECKLIST.md).
 
 | File | Play field | Limit |
 |---|---|---|

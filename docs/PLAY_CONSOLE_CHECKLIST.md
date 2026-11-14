@@ -17,10 +17,10 @@ Answers and values for the first release, derived from the code. Split into what
 ## 2. By hand in Play Console (cannot be done before the account is back)
 
 1. **Account**: finish Google support re-activation. Complete identity verification and the developer profile. Contact email and, for a personal account, address are shown on the store page.
-2. **Create app**: name `MobTT: Table Tennis Results` (default language English, United States; add German), type App, free, accept the declarations. Choose **Play App Signing** with a Google-generated key. Application ID is fixed by the first upload: `at.stefanirndorfer.mobtt`.
+2. **Create app**: name `MobTT: Tischtennis Ergebnisse` (default language German, Austria or Germany to match `de-DE`; add English, United States), type App, free, accept the declarations. Choose **Play App Signing** with a Google-generated key. Application ID is fixed by the first upload: `at.stefanirndorfer.mobtt`.
 3. **Publish the privacy policy** on a public URL (section 4), then enter the URL under App content.
 4. **App content** forms: section 3 below.
-5. **Store listing**: copy texts and upload graphics per language from `store/google-play/`. Add the other languages (`de-DE`, `hr`, `tr-TR`, `ro`, `hu-HU`, `uk`) as custom listing languages.
+5. **Store listing**: copy texts and upload graphics per language from `store/google-play/`. `de-DE` is the default listing. Add the other languages (`en-US`, `hr`, `tr-TR`, `ro`, `hu-HU`, `uk`) as additional listing languages.
 6. **Upload key and AAB**: [`RELEASE_ANDROID.md`](RELEASE_ANDROID.md). Upload to Internal testing first, install through the opt-in link, tap through the app.
 7. **Testing requirement**: a personal developer account created after 13 Nov 2023 must run a closed test with a set number of testers for 14 days before it may apply for production. This account dates from before that and may be exempt; the Console's Dashboard shows which applies. If it applies, recruit the testers early.
 8. **Release**: Production track, release name `1.0`, release notes from `release-notes.txt`, countries: Austria and the German-speaking region at minimum (pick all, if you like). Send for review.

@@ -1,5 +1,5 @@
 ---
-status: ready-for-human
+status: claimed
 blocked_by: [5]
 ---
 
